@@ -1,8 +1,16 @@
 # Level UP
-Add a new mechanic to vintage story, a new level system to make your character strong and efficient during the gameplay, making your feels you are progressing through the gameplay, this mod is made thinking in the security for servers.
+Add a new mechanic to vintage story, a new level system to make your character strong and efficient during the gameplay, making your feels you are progressing through the gameplay.
 
 Features:
 - GUI Level in chacter view
+- LEVELS:
+- Hunter: Increases all damages sources to others creatures and players, earn xp by killing things
+- Bow: Increases bow damages, earn xp by using and killing things with bows
+- Cutlery: Increases knifes damages, earn by using and killing things with knifes
+- Axe: Increases axes damages, earn by using and killing things with axes
+- Pickaxe: Increase pickaxes damages, earn by using and killing things with pickaxes
+- Shovel: Increase showvels damages, earn xp by using and killing things with shovels
+
 
 ### Building
 Learn more about vintage story modding in [Linux](https://github.com/LeandroTheDev/arch_linux/wiki/Games#vintage-story-modding) or [Windows](https://wiki.vintagestory.at/index.php/Modding:Setting_up_your_Development_Environment)

@@ -12,17 +12,9 @@ class Instance
     // Store the view for character menu
     private readonly CharacterView characterView = new();
 
-    // Store all levels for this player
-    public Dictionary<string, int> levels = [];
-
-    readonly LevelHunter levelHunter = new();
-
-    public void PreInit()
-    {
-        levelHunter.OverrideNativeFunctions();
+    public static void PreInit() {
     }
-    public void Dispose() {
-        levelHunter.OverrideDispose();
+    public static void Dispose() {        
     }
 
     public void Init(ICoreClientAPI clientAPI)

@@ -9,37 +9,39 @@ public class Initialization : ModSystem
 {
     private readonly Client.Instance clientInstance = new();
     private readonly Server.Instance serverInstance = new();
-    public bool isServer = false;
+    private readonly Shared.Instance sharedInstance = new();
 
     public override void StartClientSide(ICoreClientAPI api)
     {
         base.StartClientSide(api);
         // Initializing the client instance
         clientInstance.Init(api);
+        // Instancianting the Client api for shared functions
+        sharedInstance.InstanciateAPI(clientInstance);
+        // Change the shared side to client
+        sharedInstance.side = EnumAppSide.Client;
     }
     public override void StartServerSide(ICoreServerAPI api)
     {
         base.StartServerSide(api);
         // Initializing the server instance
         serverInstance.Init(api);
+        // Instancianting the Server api for shared functions
+        sharedInstance.InstanciateAPI(serverInstance);
+        // Change the shared side to server
+        sharedInstance.side = EnumAppSide.Server;
     }
 
     public override void Start(ICoreAPI api)
     {
         base.Start(api);
-        if (isServer) serverInstance.PreInit();
-        else clientInstance.PreInit();
+        sharedInstance.InstanciateAPI(api);
+        sharedInstance.OverrideFunctions();
     }
     public override void Dispose()
     {
         base.Dispose();
-        serverInstance.Dispose();
-    }
-
-    public override bool ShouldLoad(EnumAppSide forSide)
-    {
-        isServer = forSide == EnumAppSide.Server;
-        return true;
+        sharedInstance.OverrideDispose();
     }
 }
 
