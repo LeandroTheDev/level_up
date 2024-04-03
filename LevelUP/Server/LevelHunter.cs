@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using System.Text.Json;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Util;
 
 namespace LevelUP.Server;
 
+[HarmonyPatch]
 class LevelHunter
 {
     private Instance instance;
+    Harmony overrider;
 
     readonly Dictionary<string, int> entityExp = [];
 
@@ -60,5 +63,32 @@ class LevelHunter
 
         // Saving
         SaveLevels(hunterLevels);
+        // Updating
+        damageSource.SourceEntity.WatchedAttributes.SetInt("LevelUP_Hunter", playerExp + exp);
+    }
+
+
+    public void OverrideNativeFunctions()
+    {
+        if (!Harmony.HasAnyPatches("levelup"))
+        {
+            overrider = new Harmony("levelup");
+            // Applies all harmony patches
+            overrider.PatchAll();
+            Debug.Log("Server Damage function has been overrited");
+        }
+    }
+    public void OverrideDispose()
+    {
+        // Unpatch if world exist
+        overrider?.UnpatchAll("levelup");
+    }
+
+    // Override Damage Interaction
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
+    public static void IncreaseDamage(Entity __instance, DamageSource damageSource, EntityAgent targetEntity)
+    {
+        
     }
 }

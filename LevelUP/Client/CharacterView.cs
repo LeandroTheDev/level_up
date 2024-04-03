@@ -1,6 +1,5 @@
 using System.Text;
 using System.Threading.Tasks;
-using HarmonyLib;
 using Vintagestory.API.Client;
 
 namespace LevelUP.Client;
@@ -34,6 +33,7 @@ class CharacterView
     // Compose the gui page for the level tab
     private void ComposeLevelTab(GuiComposer composer)
     {
+        instance.channel.SendPacket<string>("UpdateLevels");
         composer.AddRichtext(GetText(), CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15), ElementBounds.Fixed(0.0, 25.0, 385.0, 200.0));
     }
 
@@ -41,7 +41,7 @@ class CharacterView
     private string GetText()
     {
         int hunterLevel = instance.api.World.Player.Entity.WatchedAttributes.GetAsInt("LevelUP_Hunter");
-        Debug.Log($"Character view rendering, hunter level: {hunterLevel}");
+
         StringBuilder fulldesc = new();
         fulldesc.AppendLine("Character Levels");
         fulldesc.AppendLine($"Hunter: {hunterLevel}");
