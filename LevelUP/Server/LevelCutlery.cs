@@ -6,7 +6,7 @@ using Vintagestory.API.Util;
 
 namespace LevelUP.Server;
 
-class LevelHunter
+class LevelCutlery
 {
     private Instance instance;
 
@@ -19,21 +19,21 @@ class LevelHunter
         instance.api.Event.OnEntityDeath += OnEntityDeath;
 
         // Populate configuration
-        Configuration.PopulateHunterConfiguration();
+        Configuration.PopulateCutleryConfiguration();
 
-        Debug.Log("Level Hunter initialized");
+        Debug.Log("Level Cutlery initialized");
     }
 
     private Dictionary<string, int> GetSavedLevels()
     {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Hunter");
+        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Cutlery");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
         return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
     }
 
-    private void SaveLevels(Dictionary<string, int> hunterLevels)
+    private void SaveLevels(Dictionary<string, int> cutleryLevels)
     {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Hunter", JsonSerializer.Serialize(hunterLevels));
+        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Cutlery", JsonSerializer.Serialize(cutleryLevels));
     }
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
@@ -44,23 +44,29 @@ class LevelHunter
         // Get player entity
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
+        // Get player instance
+        IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+
+        // Check if player is using a bow
+        if(player.InventoryManager.ActiveTool != EnumTool.Knife) return;
+
         // Get all players levels
-        Dictionary<string, int> hunterLevels = GetSavedLevels();
+        Dictionary<string, int> cutleryLevels = GetSavedLevels();
 
         // Get the exp received
         int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
-        int playerExp = hunterLevels.GetValueOrDefault(playerEntity.GetName(), 0);
+        int playerExp = cutleryLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, hunter exp earned: {exp}, actual: {playerExp}");
+        Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, cutlery exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        hunterLevels[playerEntity.GetName()] = playerExp + exp;
+        cutleryLevels[playerEntity.GetName()] = playerExp + exp;
 
         // Saving
-        SaveLevels(hunterLevels);
+        SaveLevels(cutleryLevels);
         // Updating
-        playerEntity.WatchedAttributes.SetInt("LevelUP_Hunter", playerExp + exp);
+        playerEntity.WatchedAttributes.SetInt("LevelUP_Cutlery", playerExp + exp);
     }
 }

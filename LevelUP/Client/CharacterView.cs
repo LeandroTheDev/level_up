@@ -40,11 +40,21 @@ class CharacterView
     // Creates the full text for level tab
     private string GetText()
     {
-        int hunterLevel = instance.api.World.Player.Entity.WatchedAttributes.GetAsInt("LevelUP_Hunter");
+        int hunterLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Hunter");
+        int bowLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Bow");
+        int cutleryLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Cutlery");
+        int axeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Axe");
+        int pickaxeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Pickaxe");
+        int shovelLevel  = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Shovel");
 
         StringBuilder fulldesc = new();
         fulldesc.AppendLine("Character Levels");
         fulldesc.AppendLine($"Hunter: {hunterLevel}");
+        fulldesc.AppendLine($"Bow: {bowLevel}");
+        fulldesc.AppendLine($"Cutlery: {cutleryLevel}");
+        fulldesc.AppendLine($"Axe: {axeLevel}");
+        fulldesc.AppendLine($"Pickaxe: {pickaxeLevel}");
+        fulldesc.AppendLine($"Shovel: {shovelLevel}");
         return fulldesc.ToString();
     }
 }
