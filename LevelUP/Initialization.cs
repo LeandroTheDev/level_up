@@ -9,6 +9,7 @@ public class Initialization : ModSystem
 {
     private readonly Client.Instance clientInstance = new();
     private readonly Server.Instance serverInstance = new();
+    public bool isServer = false;
 
     public override void StartClientSide(ICoreClientAPI api)
     {
@@ -21,6 +22,24 @@ public class Initialization : ModSystem
         base.StartServerSide(api);
         // Initializing the server instance
         serverInstance.Init(api);
+    }
+
+    public override void Start(ICoreAPI api)
+    {
+        base.Start(api);
+        if (isServer) serverInstance.PreInit();
+        else clientInstance.PreInit();
+    }
+    public override void Dispose()
+    {
+        base.Dispose();
+        serverInstance.Dispose();
+    }
+
+    public override bool ShouldLoad(EnumAppSide forSide)
+    {
+        isServer = forSide == EnumAppSide.Server;
+        return true;
     }
 }
 
