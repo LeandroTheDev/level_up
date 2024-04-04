@@ -18,8 +18,6 @@ public class Initialization : ModSystem
         clientInstance.Init(api);
         // Instancianting the Client api for shared functions
         sharedInstance.InstanciateAPI(clientInstance);
-        // Change the shared side to client
-        sharedInstance.side = EnumAppSide.Client;
     }
     public override void StartServerSide(ICoreServerAPI api)
     {
@@ -28,20 +26,24 @@ public class Initialization : ModSystem
         serverInstance.Init(api);
         // Instancianting the Server api for shared functions
         sharedInstance.InstanciateAPI(serverInstance);
-        // Change the shared side to server
-        sharedInstance.side = EnumAppSide.Server;
     }
 
     public override void Start(ICoreAPI api)
     {
         base.Start(api);
         sharedInstance.InstanciateAPI(api);
-        sharedInstance.OverrideFunctions();
+        sharedInstance.OverwriteFunctions();
     }
     public override void Dispose()
     {
         base.Dispose();
-        sharedInstance.OverrideDispose();
+        sharedInstance.OverwriteDispose();
+    }
+
+    public override bool ShouldLoad(EnumAppSide forSide)
+    {
+        sharedInstance.side = forSide;
+        return base.ShouldLoad(forSide);
     }
 }
 

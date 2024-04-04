@@ -44,6 +44,9 @@ class LevelHunter
         // Get player entity
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
+        // Get player instance
+        IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+
         // Get all players levels
         Dictionary<string, int> hunterLevels = GetSavedLevels();
 
@@ -61,6 +64,6 @@ class LevelHunter
         // Saving
         SaveLevels(hunterLevels);
         // Updating
-        playerEntity.WatchedAttributes.SetInt("LevelUP_Hunter", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(player, "Hunter", playerExp + exp);
     }
 }

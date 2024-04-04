@@ -38,6 +38,10 @@ class LevelBow
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        Debug.Log($"SOURCE ENTITY: {damageSource.SourceEntity}");
+        Debug.Log($"SOURCE BLOCK: {damageSource.SourceBlock}");
+        Debug.Log($"SOURCE: {damageSource.Source}");
+        Debug.Log($"CAUSE: {damageSource.CauseEntity}");
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -67,6 +71,6 @@ class LevelBow
         // Saving
         SaveLevels(bowLevels);
         // Updating
-        playerEntity.WatchedAttributes.SetInt("LevelUP_Bow", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(player, "Bow", playerExp + exp);
     }
 }

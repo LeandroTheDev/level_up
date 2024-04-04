@@ -6,27 +6,20 @@ using Vintagestory.API.MathTools;
 
 namespace LevelUP.Shared;
 
-[HarmonyPatch]
+[HarmonyPatchCategory("levelup_damageinteraction")]
 class OverrideDamageInteraction {
     private static Instance instance;
-    Harmony overrider;
+    public Harmony overwriter;
 
-    public void OverrideNativeFunctions(Instance _instance)
+    public void OverwriteNativeFunctions(Instance _instance)
     {
         instance = _instance;
-        instance.ToString(); //Suppress Alerts
-        if (!Harmony.HasAnyPatches("levelup_damageinteraction"))
+        if (!Harmony.HasAnyPatches("levelup_damageinteraction") && instance.side == EnumAppSide.Server)
         {
-            overrider = new Harmony("levelup_damageinteraction");
-            // Applies all harmony patches
-            overrider.PatchAll();
-            Debug.Log("Damage interaction has been overrited");
+            overwriter = new Harmony("levelup_damageinteraction");
+            overwriter.PatchCategory("levelup_damageinteraction");
+            Debug.Log("Damage interaction has been overwrited");
         }        
-    }
-    public void OverrideDispose()
-    {
-        // Unpatch if world exist
-        overrider?.UnpatchAll("levelup_damageinteraction");
     }
 
     // Override Damage Interaction
