@@ -3,6 +3,7 @@ using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Util;
+using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
@@ -38,21 +39,22 @@ class LevelBow
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
-        Debug.Log($"SOURCE ENTITY: {damageSource.SourceEntity}");
-        Debug.Log($"SOURCE BLOCK: {damageSource.SourceBlock}");
+        Debug.Log($"SOURCE ENTITY: {damageSource.SourceEntity?.GetType()}");
+        Debug.Log($"SOURCE BLOCK: {damageSource.SourceBlock?.GetType()}");
         Debug.Log($"SOURCE: {damageSource.Source}");
-        Debug.Log($"CAUSE: {damageSource.CauseEntity}");
-        // Entity kill is not from a player
-        if (damageSource.SourceEntity is not EntityPlayer) return;
-
-        // Get player entity
-        EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
+        Debug.Log($"CAUSE: {damageSource.GetCauseEntity()?.GetType()}");
+        
+        if (damageSource.SourceEntity is not EntityProjectile && damageSource.GetCauseEntity() is not EntityPlayer) return;
+        // Get entities
+        EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;
+        if(!itemDamage.GetName().Contains("Arrow")) return;
+        EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
 
         // Get player instance
         IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
 
         // Check if player is using a bow
-        if(player.InventoryManager.ActiveTool != EnumTool.Bow) return;
+        if (player.InventoryManager.ActiveTool != EnumTool.Bow) return;
 
         // Get all players levels
         Dictionary<string, int> bowLevels = GetSavedLevels();

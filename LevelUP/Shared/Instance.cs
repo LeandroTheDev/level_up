@@ -25,8 +25,8 @@ class Instance
         blockBreak.OverwriteNativeFunctions(this);
     }
     public void OverwriteDispose(){
-        // damageInteraction.overwriter.UnpatchAll();
-        // blockBreak.overwriter.UnpatchAll();
+        damageInteraction.overwriter?.UnpatchAll();
+        blockBreak.overwriter?.UnpatchAll();
     }
 
     public static void UpdateLevelAndNotify(IPlayer player, string levelType, int exp, bool disableLevelUpNotify = false) {

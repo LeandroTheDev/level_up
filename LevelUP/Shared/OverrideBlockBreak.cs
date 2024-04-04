@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Vintagestory.API.Common;
+using Vintagestory.API.MathTools;
 
 namespace LevelUP.Shared;
 
@@ -13,29 +14,31 @@ class OverrideBlockBreak
     {
         instance = _instance;
         instance.ToString(); //Suppress Alerts
-        if (!Harmony.HasAnyPatches("levelup_blockbreak") && instance.side == EnumAppSide.Client)
+        if (!Harmony.HasAnyPatches("levelup_blockbreak"))
         {
             overwriter = new Harmony("levelup_blockbreak");
             overwriter.PatchCategory("levelup_blockbreak");
             Debug.Log("Block break has been overwrited");
         }
+        else
+        {
+            if (instance.side == EnumAppSide.Client) Debug.Log("Block break overwriter has already patched, probably by the singleplayer server");
+            else Debug.Log("ERROR: Block break overwriter has already patched, did some mod already has levelup_blockbreak in harmony?");
+        }
     }
 
     // Override Breaking Speed
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(Block), "OnGettingBroken")]
-    public static void OnGettingBroken(Block __instance, IPlayer player, BlockSelection blockSel, ItemSlot itemslot, float remainingResistance, float dt, int counter)
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(BlockBehavior), "GetMiningSpeedModifier")]
+    public static float GetMiningSpeedModifier(float __result, IWorldAccessor world, BlockPos pos, IPlayer byPlayer)
     {
-        // switch (byPlayer.InventoryManager.ActiveTool)
-        // {
-        //     case EnumTool.Axe: return Configuration.AxeGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Axe"));
-        //     case EnumTool.Pickaxe: return Configuration.PickaxeGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Pickaxe"));
-        //     case EnumTool.Shovel: return Configuration.ShovelGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Shovel"));
-        //     case null: break;
-        // }
-
-        // #region native
-        // return 1f;
-        // #endregion
+        switch (byPlayer.InventoryManager.ActiveTool)
+        {
+            case EnumTool.Axe: return __result * Configuration.AxeGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Axe"));
+            case EnumTool.Pickaxe: return __result * Configuration.PickaxeGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Pickaxe"));
+            case EnumTool.Shovel: return __result * Configuration.ShovelGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Shovel"));
+            case null: break;
+        }
+        return __result;
     }
 }
