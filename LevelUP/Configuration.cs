@@ -3,6 +3,21 @@ using System.Collections.Generic;
 namespace LevelUP;
 
 public static class Configuration {
+    public static int GetLevelByLevelTypeEXP(string levelType, int exp) {
+        switch (levelType)
+        {
+            case "Hunter": return HunterGetLevelByEXP(exp);
+            case "Bow": return BowGetLevelByEXP(exp);
+            case "Cutlery": return CutleryGetLevelByEXP(exp);
+            case "Axe": return AxeGetLevelByEXP(exp);
+            case "Pickaxe": return PickaxeGetLevelByEXP(exp);
+            case "Shovel": return ShovelGetLevelByEXP(exp);
+            case "Spear": return SpearGetLevelByEXP(exp);
+            default: break;
+        }
+        return 1;
+    }
+
     #region hunter
     public static readonly Dictionary<string, int> entityExpHunter = [];
 
@@ -90,7 +105,7 @@ public static class Configuration {
 
     #region cutlery
     public static readonly Dictionary<string, int> entityExpCutlery = [];
-    public static readonly int expPerHitCutery = 1;
+    public static readonly int expPerHitCutlery = 1;
 
     public static void PopulateCutleryConfiguration(){
         entityExpCutlery["Dead drifter"] = 5;
@@ -134,6 +149,7 @@ public static class Configuration {
     #region axe
     public static readonly Dictionary<string, int> entityExpAxe = [];
     public static readonly int expPerHitAxe = 1;
+    public static readonly int expPerBlockAxe = 1;
 
     public static void PopulateAxeConfiguration(){
         entityExpAxe["Dead drifter"] = 5;
@@ -172,11 +188,26 @@ public static class Configuration {
         baseDamage += baseDamage *= incrementDamage;
         return baseDamage;
     }
+    
+    public static float AxeGetMiningMultiplyByEXP(int exp) {
+        float baseSpeed = 1.0f;
+        int level = AxeGetLevelByEXP(exp);
+
+        float incrementSpeed = 0.1f;
+        float multiply = 0.0f;
+        while(level > 1) {
+            multiply += incrementSpeed;
+        }
+
+        baseSpeed += baseSpeed *= incrementSpeed;
+        return baseSpeed;
+    }
     #endregion
 
     #region pickaxe
     public static readonly Dictionary<string, int> entityExpPickaxe = [];
     public static readonly int expPerHitPickaxe = 1;
+    public static readonly int expPerBlockPickaxe = 1;
 
     public static void PopulatePickaxeConfiguration(){
         entityExpAxe["Dead drifter"] = 5;
@@ -215,11 +246,26 @@ public static class Configuration {
         baseDamage += baseDamage *= incrementDamage;
         return baseDamage;
     }
+    
+    public static float PickaxeGetMiningMultiplyByEXP(int exp) {
+        float baseSpeed = 1.0f;
+        int level = PickaxeGetLevelByEXP(exp);
+
+        float incrementSpeed = 0.1f;
+        float multiply = 0.0f;
+        while(level > 1) {
+            multiply += incrementSpeed;
+        }
+
+        baseSpeed += baseSpeed *= incrementSpeed;
+        return baseSpeed;
+    }
     #endregion
 
     #region shovel
     public static readonly Dictionary<string, int> entityExpShovel = [];
     public static readonly int expPerHitShovel = 1;
+    public static readonly int expPerBlockShovel = 1;
 
     public static void PopulateShovelConfiguration(){
         entityExpAxe["Dead drifter"] = 5;
@@ -257,6 +303,20 @@ public static class Configuration {
 
         baseDamage += baseDamage *= incrementDamage;
         return baseDamage;
+    }
+    
+    public static float ShovelGetMiningMultiplyByEXP(int exp) {
+        float baseSpeed = 1.0f;
+        int level = ShovelGetLevelByEXP(exp);
+
+        float incrementSpeed = 0.1f;
+        float multiply = 0.0f;
+        while(level > 1) {
+            multiply += incrementSpeed;
+        }
+
+        baseSpeed += baseSpeed *= incrementSpeed;
+        return baseSpeed;
     }
     #endregion
 

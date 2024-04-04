@@ -67,6 +67,6 @@ class LevelCutlery
         // Saving
         SaveLevels(cutleryLevels);
         // Updating
-        playerEntity.WatchedAttributes.SetInt("LevelUP_Cutlery", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(player, "Cutlery", playerExp + exp);
     }
 }

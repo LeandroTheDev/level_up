@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 
@@ -15,6 +16,7 @@ class Instance
     public LevelHunter levelHunter = new();
     public LevelBow levelBow = new();
     public LevelCutlery levelCutlery = new();
+    private readonly Dictionary<string, bool> increaseExpDelay = [];
     
     public void Init(ICoreServerAPI serverAPI)
     {
@@ -40,6 +42,11 @@ class Instance
     }
 
     private void IncreaseExp(IServerPlayer player, string levelType, string reason){
+        // Check for delay
+        if(increaseExpDelay.GetValueOrDefault(player.PlayerName, false)) return;
+        increaseExpDelay[player.PlayerName] = true;
+        Task.Delay(200).ContinueWith((_) => increaseExpDelay.Remove(player.PlayerName));
+
         Dictionary<string, int> GetSavedLevels()
         {
             byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
@@ -63,8 +70,8 @@ class Instance
             // Save it
             SaveLevels(levels);
             // Update it
-            player.Entity.WatchedAttributes.SetInt($"LevelUP_{levelType}", exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitCutery} exp with {levelType} by {reason}");
+            Shared.Instance.UpdateLevelAndNotify(player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitCutlery} exp with {levelType} by {reason}");
         }
         #endregion
         #region cutlery
@@ -72,14 +79,74 @@ class Instance
         if(levelType == "Cutlery" && reason == "Hit") {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitCutery;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitCutlery;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
-            player.Entity.WatchedAttributes.SetInt($"LevelUP_{levelType}", exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitCutery} exp with {levelType} by {reason}");
+            Shared.Instance.UpdateLevelAndNotify(player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitCutlery} exp with {levelType} by {reason}");
+        }
+        #endregion
+        #region axe
+        // Hit
+        if(levelType == "Axe" && reason == "Hit") {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitAxe;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitAxe} exp with {levelType} by {reason}");
+        }
+        #endregion
+        #region pickaxe
+        // Hit
+        if(levelType == "Pickaxe" && reason == "Hit") {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitPickaxe;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitPickaxe} exp with {levelType} by {reason}");
+        }
+        #endregion
+        #region shovel
+        // Hit
+        if(levelType == "Shovel" && reason == "Hit") {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitShovel;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitShovel} exp with {levelType} by {reason}");
+        }
+        #endregion
+        #region spear
+        // Hit
+        if(levelType == "Spear" && reason == "Hit") {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitSpear;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitSpear} exp with {levelType} by {reason}");
         }
         #endregion
     }
@@ -87,63 +154,32 @@ class Instance
     private void UpdatePlayerLevels(IServerPlayer player)
     {
         // Get all players hunter level
-        Dictionary<string, int> GetSavedHunterLevels()
+        Dictionary<string, int> GetSavedLevels(string levelType)
         {
-            byte[] dataBytes = api.WorldManager.SaveGame.GetData("LevelUPData_Hunter");
+            byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
             string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
             return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
         }
+        
         // Hunter Level
-        player.Entity.WatchedAttributes.SetInt("LevelUP_Hunter", GetSavedHunterLevels().GetValueOrDefault(player.PlayerName, 0));
+        Shared.Instance.UpdateLevelAndNotify(player, "Hunter", GetSavedLevels("Hunter").GetValueOrDefault(player.PlayerName, 0), true);
 
-        // Get all players bow level
-        Dictionary<string, int> GetSavedBowLevels()
-        {
-            byte[] dataBytes = api.WorldManager.SaveGame.GetData("LevelUPData_Bow");
-            string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
-        }
         // Bow Level
-        player.Entity.WatchedAttributes.SetInt("LevelUP_Bow", GetSavedBowLevels().GetValueOrDefault(player.PlayerName, 0));
+        Shared.Instance.UpdateLevelAndNotify(player, "Bow", GetSavedLevels("Bow").GetValueOrDefault(player.PlayerName, 0), true);
 
-        // Get all players cutlery level
-        Dictionary<string, int> GetSavedCutleryLevels()
-        {
-            byte[] dataBytes = api.WorldManager.SaveGame.GetData("LevelUPData_Cutlery");
-            string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
-        }
         // Axe Level
-        player.Entity.WatchedAttributes.SetInt("LevelUP_Axe", GetSavedAxeLevels().GetValueOrDefault(player.PlayerName, 0));
+        Shared.Instance.UpdateLevelAndNotify(player, "Cutlery", GetSavedLevels("Cutlery").GetValueOrDefault(player.PlayerName, 0), true);
 
-        // Get all players axe level
-        Dictionary<string, int> GetSavedAxeLevels()
-        {
-            byte[] dataBytes = api.WorldManager.SaveGame.GetData("LevelUPData_Axe");
-            string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
-        }
         // Axe Level
-        player.Entity.WatchedAttributes.SetInt("LevelUP_Axe", GetSavedCutleryLevels().GetValueOrDefault(player.PlayerName, 0));
+        Shared.Instance.UpdateLevelAndNotify(player, "Axe", GetSavedLevels("Axe").GetValueOrDefault(player.PlayerName, 0), true);
 
-        // Get all players pickaxe level
-        Dictionary<string, int> GetSavedPickaxeLevels()
-        {
-            byte[] dataBytes = api.WorldManager.SaveGame.GetData("LevelUPData_Pickaxe");
-            string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
-        }
         // Pickaxe Level
-        player.Entity.WatchedAttributes.SetInt("LevelUP_Pickaxe", GetSavedPickaxeLevels().GetValueOrDefault(player.PlayerName, 0));
+        Shared.Instance.UpdateLevelAndNotify(player, "Pickaxe", GetSavedLevels("Pickaxe").GetValueOrDefault(player.PlayerName, 0), true);
 
-        // Get all players shovel level
-        Dictionary<string, int> GetSavedShovelLevels()
-        {
-            byte[] dataBytes = api.WorldManager.SaveGame.GetData("LevelUPData_Shovel");
-            string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
-        }
         // Shovel Level
-        player.Entity.WatchedAttributes.SetInt("LevelUP_Shovel", GetSavedShovelLevels().GetValueOrDefault(player.PlayerName, 0));
+        Shared.Instance.UpdateLevelAndNotify(player, "Shovel", GetSavedLevels("Shovel").GetValueOrDefault(player.PlayerName, 0), true);
+
+        // Spear Level
+        Shared.Instance.UpdateLevelAndNotify(player, "Spear", GetSavedLevels("Spear").GetValueOrDefault(player.PlayerName, 0), true);
     }
 }
