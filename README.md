@@ -7,10 +7,14 @@ Features:
 - Hunter: Increases all damages sources to others creatures and players, earn xp by killing things
 - Bow: Increases bow damages, earn xp by hitting and killing things with bows
 - Cutlery: Increases knifes damages, earn xp by hitting and killing things with knifes
-- Axe: Increases axes damages and mining speed, earn xp by breaking, hitting and killing things with axes
-- Pickaxe: Increase pickaxes damages and mining speed, earn xp by breaking, hitting and killing things with pickaxes
-- Shovel: Increase shovels damages and mining speed, earn xp by breaking, hitting and killing things with shovels
 - Spear: Increase spear damages, earn xp by hitting and killing things with spear
+- Axe: Increases axes damages and mining speed, earn xp by breaking wood, hitting and killing things with axes
+- Pickaxe: Increase pickaxes damages and mining speed, earn xp by breaking stones, hitting and killing things with pickaxes
+- Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
+
+![image](https://github.com/LeandroTheDev/level_up/assets/106118473/27de8daf-7b07-464d-9d3b-a108c40bac78)
+
+![image](https://github.com/LeandroTheDev/level_up/assets/106118473/395a7d12-62e8-4a88-9faa-797d3a561826)
 
 
 ### Building

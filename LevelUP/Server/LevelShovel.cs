@@ -42,6 +42,8 @@ class LevelShovel
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        // Error treatment
+        if (damageSource == null || damageSource.SourceEntity == null) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -49,10 +51,10 @@ class LevelShovel
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
         // Check if player is using a Shovel
-        if(player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
+        if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
 
         // Get all players levels
         Dictionary<string, int> shovelLevels = GetSavedLevels();
@@ -71,30 +73,39 @@ class LevelShovel
         // Saving
         SaveLevels(shovelLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Shovel", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Shovel", playerExp + exp);
     }
 
-    public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling) {
+    public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
+    {
         EntityPlayer playerEntity = player.Entity;
         // If not a shovel ignore
-        if(player.InventoryManager.ActiveTool != EnumTool.Shovel) return;
+        if (player.InventoryManager.ActiveTool != EnumTool.Shovel) return;
+        switch (breakedBlock.Block.BlockMaterial)
+        {
+            case EnumBlockMaterial.Gravel: break;
+            case EnumBlockMaterial.Soil: break;
+            case EnumBlockMaterial.Snow: break;
+            case EnumBlockMaterial.Sand: break;
+            default: return;
+        }
 
         // Get all players levels
         Dictionary<string, int> shovelLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.expPerBlockShovel;
+        int exp = Configuration.expPerBreakingShovel;
 
         // Get the actual player total exp
         int playerExp = shovelLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.BlockId}, shovel exp earned: {exp}, actual: {playerExp}");
+        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.BlockMaterial}, shovel exp earned: {exp}, actual: {playerExp}");
         // Incrementing
         shovelLevels[playerEntity.GetName()] = playerExp + exp;
 
         // Saving
         SaveLevels(shovelLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Shovel", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Shovel", playerExp + exp);
     }
 }

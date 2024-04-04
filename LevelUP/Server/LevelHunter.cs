@@ -38,6 +38,8 @@ class LevelHunter
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        // Error treatment
+        if (damageSource == null || damageSource.SourceEntity == null) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -45,7 +47,7 @@ class LevelHunter
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
         // Get all players levels
         Dictionary<string, int> hunterLevels = GetSavedLevels();
@@ -64,6 +66,6 @@ class LevelHunter
         // Saving
         SaveLevels(hunterLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Hunter", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hunter", playerExp + exp);
     }
 }

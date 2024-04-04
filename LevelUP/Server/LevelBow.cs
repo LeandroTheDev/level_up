@@ -39,40 +39,40 @@ class LevelBow
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
-        Debug.Log($"SOURCE ENTITY: {damageSource.SourceEntity?.GetType()}");
-        Debug.Log($"SOURCE BLOCK: {damageSource.SourceBlock?.GetType()}");
-        Debug.Log($"SOURCE: {damageSource.Source}");
-        Debug.Log($"CAUSE: {damageSource.GetCauseEntity()?.GetType()}");
-        
-        if (damageSource.SourceEntity is not EntityProjectile && damageSource.GetCauseEntity() is not EntityPlayer) return;
-        // Get entities
-        EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;
-        if(!itemDamage.GetName().Contains("Arrow")) return;
-        EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
+        // Error treatment
+        if (damageSource == null || damageSource.SourceEntity == null) return;
+        // Checking ranged weapon damage
+        if (damageSource.SourceEntity is EntityProjectile && damageSource.GetCauseEntity() is EntityPlayer)
+        {
+            // Get entities
+            EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;
+            if (!itemDamage.GetName().Contains("arrow")) return;
+            EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
 
-        // Get player instance
-        IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+            // Get player instance
+            IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
-        // Check if player is using a bow
-        if (player.InventoryManager.ActiveTool != EnumTool.Bow) return;
+            // Check if player is using a bow
+            if (player.InventoryManager.ActiveTool != EnumTool.Bow) return;
 
-        // Get all players levels
-        Dictionary<string, int> bowLevels = GetSavedLevels();
+            // Get all players levels
+            Dictionary<string, int> bowLevels = GetSavedLevels();
 
-        // Get the exp received
-        int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
+            // Get the exp received
+            int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
 
-        // Get the actual player total exp
-        int playerExp = bowLevels.GetValueOrDefault(playerEntity.GetName(), 0);
+            // Get the actual player total exp
+            int playerExp = bowLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, bow exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, bow exp earned: {exp}, actual: {playerExp}");
 
-        // Incrementing
-        bowLevels[playerEntity.GetName()] = playerExp + exp;
+            // Incrementing
+            bowLevels[playerEntity.GetName()] = playerExp + exp;
 
-        // Saving
-        SaveLevels(bowLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Bow", playerExp + exp);
+            // Saving
+            SaveLevels(bowLevels);
+            // Updating
+            Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Bow", playerExp + exp);
+        }
     }
 }

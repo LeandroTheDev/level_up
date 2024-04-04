@@ -1,8 +1,10 @@
 using System;
 using HarmonyLib;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
@@ -34,7 +36,7 @@ class OverrideDamageInteraction
     [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
     public static bool ReceiveDamage(Entity __instance, DamageSource damageSource, float damage)
     {
-        // Checking if the damage is from a player
+        // Player Does Damage
         if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer)
         {
             // Melee Action
@@ -56,7 +58,8 @@ class OverrideDamageInteraction
                 {
                     damage *= Configuration.CutleryGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Cutlery"));
                     // Increase exp for using cutlery weapons
-                    instance.clientAPI?.channel.SendPacket<string>("Increase_Cutlery_Hit");
+                    if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Cutlery_Hit");
+                    else instance.clientAPI?.channel.SendPacket<string>("Increase_Cutlery_Hit");
                 };
                 #endregion
 
@@ -66,7 +69,8 @@ class OverrideDamageInteraction
                 {
                     damage *= Configuration.AxeGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Axe"));
                     // Increase exp for using axe weapons
-                    instance.clientAPI?.channel.SendPacket<string>("Increase_Axe_Hit");
+                    if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Axe_Hit");
+                    else instance.clientAPI?.channel.SendPacket<string>("Increase_Axe_Hit");
                 };
                 #endregion
 
@@ -76,7 +80,8 @@ class OverrideDamageInteraction
                 {
                     damage *= Configuration.PickaxeGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Pickaxe"));
                     // Increase exp for using pickaxe weapons
-                    instance.clientAPI?.channel.SendPacket<string>("Increase_Pickaxe_Hit");
+                    if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Pickaxe_Hit");
+                    else instance.clientAPI?.channel.SendPacket<string>("Increase_Pickaxe_Hit");
                 };
                 #endregion
 
@@ -86,7 +91,8 @@ class OverrideDamageInteraction
                 {
                     damage *= Configuration.ShovelGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Shovel"));
                     // Increase exp for using shovel weapons
-                    instance.clientAPI?.channel.SendPacket<string>("Increase_Shovel_Hit");
+                    if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Shovel_Hit");
+                    else instance.clientAPI?.channel.SendPacket<string>("Increase_Shovel_Hit");
                 };
                 #endregion
 
@@ -96,23 +102,29 @@ class OverrideDamageInteraction
                 {
                     damage *= Configuration.SpearGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Spear"));
                     // Increase exp for using spear weapons
-                    instance.clientAPI?.channel.SendPacket<string>("Increase_Spear_Hit");
+                    if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Spear_Hit");
+                    else instance.clientAPI?.channel.SendPacket<string>("Increase_Spear_Hit");
                 }
                 #endregion
             }
             // Ranged Action
             else if (damageSource.GetCauseEntity() is EntityPlayer && damageSource.SourceEntity is EntityProjectile)
             {
+                // Get entities
                 EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
-                EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;                
+                EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;
+
+                // Get player instance
+                IPlayer player = __instance.Api.World.PlayerByUid(playerEntity.PlayerUID);
 
                 #region bow
                 // Increase the damage if the damage source is from any arrow
-                if (itemDamage != null && itemDamage.GetName().Contains("Arrow"))
+                if (itemDamage != null && itemDamage.GetName().Contains("arrow"))
                 {
                     damage *= Configuration.BowGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Bow"));
                     // Increase exp for using bow weapons
-                    instance.clientAPI?.channel.SendPacket<string>("Increase_Bow_Hit");
+                    if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Bow_Hit");
+                    else instance.clientAPI?.channel.SendPacket<string>("Increase_Bow_Hit");
                 };
                 #endregion
 
@@ -122,13 +134,20 @@ class OverrideDamageInteraction
                 {
                     damage *= Configuration.SpearGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Spear"));
                     // Increase exp for using spear weapons
-                    instance.clientAPI?.channel.SendPacket<string>("Increase_Spear_Hit");
+                    if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Spear_Hit");
+                    else instance.clientAPI?.channel.SendPacket<string>("Increase_Spear_Hit");
                 };
                 #endregion
             }
             // Invalid
             else Debug.Log($"ERROR: Invalid damage type in OverrideDamageInteraction, cause entity is invalid: {damageSource.GetCauseEntity()} or source entity is invalid: {damageSource.SourceEntity}");
         }
+
+        // Player Receive Damage
+        if (__instance.Api.World.GetEntityById(__instance.EntityId) is EntityPlayer)
+        {
+            // To do
+        };
 
         #region native
         if ((!__instance.Alive || __instance.IsActivityRunning("invulnerable")) && damageSource.Type != EnumDamageType.Heal)

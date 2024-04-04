@@ -41,6 +41,8 @@ class LevelAxe
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        // Error treatment
+        if (damageSource == null || damageSource.SourceEntity == null) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -48,7 +50,7 @@ class LevelAxe
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
         // Check if player is using a Axe
         if(player.InventoryManager.ActiveTool != EnumTool.Axe) return;
@@ -69,30 +71,31 @@ class LevelAxe
 
         // Saving
         SaveLevels(axeLevels);
-        Shared.Instance.UpdateLevelAndNotify(player, "Axe", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Axe", playerExp + exp);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling) {
         EntityPlayer playerEntity = player.Entity;
         // If not a shovel ignore
         if(player.InventoryManager.ActiveTool != EnumTool.Axe) return;
+        if(breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Wood) return;
 
         // Get all players levels
         Dictionary<string, int> axeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.expPerBlockAxe;
+        int exp = Configuration.expPerBreakingAxe;
 
         // Get the actual player total exp
         int playerExp = axeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.BlockId}, axe exp earned: {exp}, actual: {playerExp}");
+        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.BlockMaterial}, axe exp earned: {exp}, actual: {playerExp}");
         // Incrementing
         axeLevels[playerEntity.GetName()] = playerExp + exp;
 
         // Saving
         SaveLevels(axeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Axe", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Axe", playerExp + exp);
     }
 }

@@ -50,13 +50,13 @@ class CharacterView
 
         StringBuilder fulldesc = new();
         fulldesc.AppendLine("Character Levels");
-        fulldesc.AppendLine($"Hunter: {hunterLevel}");
-        fulldesc.AppendLine($"Bow: {bowLevel}");
-        fulldesc.AppendLine($"Cutlery: {cutleryLevel}");
-        fulldesc.AppendLine($"Spear: {spearLevel}");
-        fulldesc.AppendLine($"Axe: {axeLevel}");
-        fulldesc.AppendLine($"Pickaxe: {pickaxeLevel}");
-        fulldesc.AppendLine($"Shovel: {shovelLevel}");
+        fulldesc.AppendLine($"Hunter: {Configuration.HunterGetLevelByEXP(hunterLevel)}");
+        fulldesc.AppendLine($"Bow: {Configuration.BowGetLevelByEXP(bowLevel)}");
+        fulldesc.AppendLine($"Cutlery: {Configuration.CutleryGetLevelByEXP(cutleryLevel)}");
+        fulldesc.AppendLine($"Spear: {Configuration.SpearGetLevelByEXP(spearLevel)}");
+        fulldesc.AppendLine($"Axe: {Configuration.AxeGetLevelByEXP(axeLevel)}");
+        fulldesc.AppendLine($"Pickaxe: {Configuration.PickaxeGetLevelByEXP(pickaxeLevel)}");
+        fulldesc.AppendLine($"Shovel: {Configuration.ShovelGetLevelByEXP(shovelLevel)}");
         return fulldesc.ToString();
     }
 }
