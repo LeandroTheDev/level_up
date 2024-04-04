@@ -10,6 +10,7 @@ Features:
 - Axe: Increases axes damages and mining speed, earn xp by breaking, hitting and killing things with axes
 - Pickaxe: Increase pickaxes damages and mining speed, earn xp by breaking, hitting and killing things with pickaxes
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking, hitting and killing things with shovels
+- Spear: Increase spear damages, earn xp by hitting and killing things with spear
 
 
 ### Building
