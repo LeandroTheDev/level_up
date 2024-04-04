@@ -41,6 +41,8 @@ class LevelPickaxe
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        // Error treatment
+        if (damageSource == null || damageSource.SourceEntity == null) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -48,10 +50,10 @@ class LevelPickaxe
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
         // Check if player is using a Pickaxe
-        if(player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
+        if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
 
         // Get all players levels
         Dictionary<string, int> pickaxeLevels = GetSavedLevels();
@@ -70,19 +72,21 @@ class LevelPickaxe
         // Saving
         SaveLevels(pickaxeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Pickaxe", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", playerExp + exp);
     }
 
-    public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling) {
+    public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
+    {
         EntityPlayer playerEntity = player.Entity;
         // If not a shovel ignore
-        if(player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
+        if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
+        if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Stone && breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Ore) return;
 
         // Get all players levels
         Dictionary<string, int> pickaxeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.expPerBlockPickaxe;
+        int exp = Configuration.expPerBreakingPickaxe;
 
         // Get the actual player total exp
         int playerExp = pickaxeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
@@ -94,6 +98,6 @@ class LevelPickaxe
         // Saving
         SaveLevels(pickaxeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Pickaxe", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", playerExp + exp);
     }
 }

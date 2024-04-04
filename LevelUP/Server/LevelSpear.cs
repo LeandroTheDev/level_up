@@ -39,11 +39,9 @@ class LevelSpear
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
-        Debug.Log($"SOURCE ENTITY: {damageSource.SourceEntity?.GetType()}");
-        Debug.Log($"SOURCE BLOCK: {damageSource.SourceBlock?.GetType()}");
-        Debug.Log($"SOURCE: {damageSource.Source}");
-        Debug.Log($"CAUSE: {damageSource.GetCauseEntity()?.GetType()}");
-
+        // Error treatment
+        if (damageSource == null || damageSource.SourceEntity == null) return;
+        
         EntityProjectile itemDamage;
         EntityPlayer playerEntity;
         IPlayer player;
@@ -53,11 +51,11 @@ class LevelSpear
             // Get damage entity
             itemDamage = damageSource.SourceEntity as EntityProjectile;
             // Check if damage is from a spear
-            if (!itemDamage.GetName().Contains("Spear")) return;
+            if (!itemDamage.GetName().Contains("spear")) return;
             // Get player entity
             playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
             // Get player instance
-            player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+            player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
         }
         // If Spear is a normal attack
         else
@@ -67,7 +65,7 @@ class LevelSpear
             // Get player entity
             playerEntity = damageSource.SourceEntity as EntityPlayer;
             // Get player instance
-            player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+            player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
             // Check if player is using a spear
             if (player.InventoryManager.ActiveTool != EnumTool.Spear) return;
         }
@@ -89,6 +87,6 @@ class LevelSpear
         // Saving
         SaveLevels(spearLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Spear", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Spear", playerExp + exp);
     }
 }

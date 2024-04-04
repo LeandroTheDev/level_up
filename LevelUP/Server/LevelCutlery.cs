@@ -38,6 +38,8 @@ class LevelCutlery
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        // Error treatment
+        if (damageSource == null || damageSource.SourceEntity == null) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -45,7 +47,7 @@ class LevelCutlery
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = playerEntity.Api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
         // Check if player is using a bow
         if(player.InventoryManager.ActiveTool != EnumTool.Knife) return;
@@ -67,6 +69,6 @@ class LevelCutlery
         // Saving
         SaveLevels(cutleryLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(player, "Cutlery", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Cutlery", playerExp + exp);
     }
 }
