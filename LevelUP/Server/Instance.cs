@@ -20,6 +20,7 @@ class Instance
     public LevelPickaxe levelPickaxe = new();
     public LevelShovel levelShovel = new();
     public LevelSpear levelSpear = new();
+    public LevelFarming levelFarming = new();
     private readonly Dictionary<string, bool> increaseExpDelay = [];
 
     public void Init(ICoreServerAPI serverAPI)
@@ -32,6 +33,7 @@ class Instance
         levelPickaxe.Init(this);
         levelShovel.Init(this);
         levelSpear.Init(this);
+        levelFarming.Init(this);
         Debug.Log("Server Levels instanciated");
         channel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
         channel.SetMessageHandler<string>(OnClientMessage);
@@ -50,21 +52,26 @@ class Instance
             case "Increase_Pickaxe_Hit": IncreaseExp(player, "Pickaxe", "Hit"); return;
             case "Increase_Shovel_Hit": IncreaseExp(player, "Shovel", "Hit"); return;
             case "Increase_Spear_Hit": IncreaseExp(player, "Spear", "Hit"); return;
+            case "Increase_Spear_Hit_Throw": IncreaseExp(player, "Spear", "Hit_Throw"); return;
             #endregion
             #region breaking
             case "Block_Breaked_Axe": IncreaseExp(player, "Axe", "Breaking"); return;
             case "Block_Breaked_Pickaxe": IncreaseExp(player, "Pickaxe", "Breaking"); return;
             case "Block_Breaked_Shovel": IncreaseExp(player, "Shovel", "Breaking"); return;
             #endregion
+            #region harvesting
+            case "Tree_Breaked_Axe": IncreaseExp(player, "Axe", "Chop_Tree"); return;
+            case "Cutlery_Harvest_Entity": IncreaseExp(player, "Cutlery", "Harvest"); return;
+                #endregion
         }
     }
 
-    private void IncreaseExp(IServerPlayer player, string levelType, string reason)
+    private void IncreaseExp(IServerPlayer player, string levelType, string reason, bool delayIgnorable = false)
     {
         // Check for delay
-        if (increaseExpDelay.GetValueOrDefault(player.PlayerName, false)) return;
+        if (increaseExpDelay.GetValueOrDefault(player.PlayerName, false) && !delayIgnorable) return;
         increaseExpDelay[player.PlayerName] = true;
-        Task.Delay(200).ContinueWith((_) => increaseExpDelay.Remove(player.PlayerName));
+        Task.Delay(100).ContinueWith((_) => increaseExpDelay.Remove(player.PlayerName));
 
         Dictionary<string, int> GetSavedLevels()
         {
@@ -109,6 +116,20 @@ class Instance
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
             Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitCutlery} exp with {levelType} by {reason}, actual: {exp}");
         }
+        // Harvest
+        else if (levelType == "Cutlery" && reason == "Harvest")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHarvestCutlery;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHarvestCutlery} exp with {levelType} by {reason}, actual: {exp}");
+        }
         #endregion
         #region axe
         // Hit
@@ -138,6 +159,20 @@ class Instance
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
             Debug.Log($"{player.PlayerName} earned {Configuration.expPerBreakingAxe} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        // Chop Tree
+        else if (levelType == "Axe" && reason == "Chop_Tree")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerTreeBreakingAxe;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerTreeBreakingAxe} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region pickaxe
@@ -215,6 +250,20 @@ class Instance
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
             Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitSpear} exp with {levelType} by {reason}, actual: {exp}");
         }
+        // Throw
+        else if (levelType == "Spear" && reason == "Hit_Throw")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerThrowSpear;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerThrowSpear} exp with {levelType} by {reason}, actual: {exp}");
+        }
         #endregion
     }
 
@@ -248,5 +297,8 @@ class Instance
 
         // Spear Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Spear", GetSavedLevels("Spear").GetValueOrDefault(player.PlayerName, 0), true);
+
+        // Farming Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault(player.PlayerName, 0), true);
     }
 }

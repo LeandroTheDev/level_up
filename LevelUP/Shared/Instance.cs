@@ -10,9 +10,9 @@ class Instance
     public ICoreAPI coreAPI;
     public EnumAppSide side = EnumAppSide.Universal;
 
-    // Override
-    readonly OverrideDamageInteraction damageInteraction = new();
-    readonly OverrideBlockBreak blockBreak = new();
+    // Overwrite
+    readonly OverwriteDamageInteraction damageInteraction = new();
+    readonly OverwriteBlockBreak blockBreak = new();
 
     public void InstanciateAPI(object api)
     {
