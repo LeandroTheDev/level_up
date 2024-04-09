@@ -10,7 +10,7 @@ using Vintagestory.GameContent;
 namespace LevelUP.Shared;
 
 [HarmonyPatchCategory("levelup_damageinteraction")]
-class OverrideDamageInteraction
+class OverwriteDamageInteraction
 {
     private static Instance instance;
     public Harmony overwriter;
@@ -31,13 +31,14 @@ class OverrideDamageInteraction
         }
     }
 
-    // Override Damage Interaction
+    // Overwrite Damage Interaction
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
     public static bool ReceiveDamage(Entity __instance, DamageSource damageSource, float damage)
     {
         // Player Does Damage
-        if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer)
+        // Checking if damage sources is from a player
+        if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.Api.World.Side == EnumAppSide.Server)
         {
             // Melee Action
             if (damageSource.SourceEntity is EntityPlayer)
@@ -140,11 +141,12 @@ class OverrideDamageInteraction
                 #endregion
             }
             // Invalid
-            else Debug.Log($"ERROR: Invalid damage type in OverrideDamageInteraction, cause entity is invalid: {damageSource.GetCauseEntity()} or source entity is invalid: {damageSource.SourceEntity}");
+            else Debug.Log($"ERROR: Invalid damage type in OverwriteDamageInteraction, cause entity is invalid: {damageSource.GetCauseEntity()} or source entity is invalid: {damageSource.SourceEntity}");
         }
 
         // Player Receive Damage
-        if (__instance.Api.World.GetEntityById(__instance.EntityId) is EntityPlayer)
+        // Checking if received damage is a player
+        if (__instance.Api.World.Side == EnumAppSide.Server && __instance.Api.World.GetEntityById(__instance.EntityId) is EntityPlayer)
         {
             // To do
         };

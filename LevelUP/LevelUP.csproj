@@ -35,6 +35,13 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="VSEssentials">
+      <HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
 <ItemGroup>
   <Content Include="assets\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

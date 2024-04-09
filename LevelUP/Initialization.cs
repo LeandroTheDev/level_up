@@ -45,6 +45,11 @@ public class Initialization : ModSystem
         sharedInstance.side = forSide;
         return base.ShouldLoad(forSide);
     }
+
+    public override double ExecuteOrder()
+    {
+        return 1;
+    }
 }
 
 public class Debug

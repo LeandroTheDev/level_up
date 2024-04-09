@@ -47,16 +47,22 @@ class CharacterView
         int axeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Axe");
         int pickaxeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Pickaxe");
         int shovelLevel  = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Shovel");
+        int farmingLevel  = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Farming");
 
         StringBuilder fulldesc = new();
         fulldesc.AppendLine("Character Levels");
-        fulldesc.AppendLine($"Hunter: {Configuration.HunterGetLevelByEXP(hunterLevel)}");
+        fulldesc.AppendLine("");
+        fulldesc.AppendLine("-- Hunting Levels -- ");
         fulldesc.AppendLine($"Bow: {Configuration.BowGetLevelByEXP(bowLevel)}");
         fulldesc.AppendLine($"Cutlery: {Configuration.CutleryGetLevelByEXP(cutleryLevel)}");
         fulldesc.AppendLine($"Spear: {Configuration.SpearGetLevelByEXP(spearLevel)}");
+        fulldesc.AppendLine("-- Tools Levels --");
         fulldesc.AppendLine($"Axe: {Configuration.AxeGetLevelByEXP(axeLevel)}");
         fulldesc.AppendLine($"Pickaxe: {Configuration.PickaxeGetLevelByEXP(pickaxeLevel)}");
         fulldesc.AppendLine($"Shovel: {Configuration.ShovelGetLevelByEXP(shovelLevel)}");
+        fulldesc.AppendLine("-- Specialist Levels --");
+        fulldesc.AppendLine($"Hunter: {Configuration.HunterGetLevelByEXP(hunterLevel)}");
+        fulldesc.AppendLine($"Farming: {Configuration.ShovelGetLevelByEXP(farmingLevel)}");
         return fulldesc.ToString();
     }
 }
