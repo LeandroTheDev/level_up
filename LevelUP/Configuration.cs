@@ -607,10 +607,10 @@ public static class Configuration
 
     public static float CutleryGetHarvestMultiplyByEXP(int exp)
     {
-        float baseMultiply = 1.0f;
+        float baseMultiply = 0.5f;
         int level = CutleryGetLevelByEXP(exp);
 
-        float incrementMultiply = 0.1f;
+        float incrementMultiply = 0.2f;
         float multiply = 0.0f;
         while (level > 1)
         {
@@ -621,7 +621,7 @@ public static class Configuration
         baseMultiply += baseMultiply *= incrementMultiply;
         return baseMultiply;
     }
-    
+
     public static bool CutleryRollChanceToNotReduceDurabilityByEXP(int exp)
     {
         int level = CutleryGetLevelByEXP(exp);
@@ -851,7 +851,7 @@ public static class Configuration
         baseSpeed += baseSpeed *= incrementSpeed;
         return baseSpeed;
     }
-    
+
     public static bool AxeRollChanceToNotReduceDurabilityByEXP(int exp)
     {
         int level = AxeGetLevelByEXP(exp);
@@ -1049,7 +1049,7 @@ public static class Configuration
 
     public static float PickaxeGetOreMultiplyByEXP(int exp)
     {
-        float baseMultiply = 1.0f;
+        float baseMultiply = 0.5f;
         int level = PickaxeGetLevelByEXP(exp);
 
         float incrementMultiply = 0.2f;
@@ -1097,7 +1097,7 @@ public static class Configuration
         baseSpeed += baseSpeed *= incrementSpeed;
         return baseSpeed;
     }
-    
+
     public static bool PickaxeRollChanceToNotReduceDurabilityByEXP(int exp)
     {
         int level = PickaxeGetLevelByEXP(exp);
@@ -1326,7 +1326,7 @@ public static class Configuration
         baseSpeed += baseSpeed *= incrementSpeed;
         return baseSpeed;
     }
-    
+
     public static bool ShovelRollChanceToNotReduceDurabilityByEXP(int exp)
     {
         int level = ShovelGetLevelByEXP(exp);
@@ -1538,7 +1538,7 @@ public static class Configuration
         baseDamage += baseDamage *= incrementDamage;
         return baseDamage;
     }
-    
+
     public static bool SpearRollChanceToNotReduceDurabilityByEXP(int exp)
     {
         int level = SpearGetLevelByEXP(exp);
@@ -1638,7 +1638,7 @@ public static class Configuration
         baseMultiply += baseMultiply *= incrementMultiply;
         return baseMultiply;
     }
-    
+
     public static bool FarmingRollChanceToNotReduceDurabilityByEXP(int exp)
     {
         int level = FarmingGetLevelByEXP(exp);
@@ -1753,7 +1753,7 @@ public static class Configuration
         }
         return quantityServings;
     }
-    
+
     public static bool CookingRollChanceToNotReduceDurabilityByEXP(int exp)
     {
         int level = CookingGetLevelByEXP(exp);

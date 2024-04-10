@@ -19,7 +19,7 @@ class LevelAxe
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
-        instance.api.Event.BreakBlock += OnBreakBlock;        
+        instance.api.Event.BreakBlock += OnBreakBlock;
 
         // Populate configuration
         Configuration.PopulateAxeConfiguration();
@@ -41,10 +41,12 @@ class LevelAxe
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        // Check if entity is alive
+        if (!entity.Alive) return;
         // Error treatment
         if (damageSource == null || damageSource.SourceEntity == null) return;
         // The cause of the death is from a projectile
-        if(damageSource.GetCauseEntity() is EntityPlayer) return;
+        if (damageSource.GetCauseEntity() is EntityPlayer) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -55,7 +57,7 @@ class LevelAxe
         IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
         // Check if player is using a Axe
-        if(player.InventoryManager.ActiveTool != EnumTool.Axe) return;
+        if (player.InventoryManager.ActiveTool != EnumTool.Axe) return;
 
         // Get all players levels
         Dictionary<string, int> axeLevels = GetSavedLevels();
@@ -76,11 +78,12 @@ class LevelAxe
         Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Axe", playerExp + exp);
     }
 
-    public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling) {
+    public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
+    {
         EntityPlayer playerEntity = player.Entity;
         // If not a shovel ignore
-        if(player.InventoryManager.ActiveTool != EnumTool.Axe) return;
-        if(breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Wood) return;
+        if (player.InventoryManager.ActiveTool != EnumTool.Axe) return;
+        if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Wood) return;
 
         // Get all players levels
         Dictionary<string, int> axeLevels = GetSavedLevels();
@@ -91,7 +94,8 @@ class LevelAxe
         // Get the actual player total exp
         int playerExp = axeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.BlockMaterial}, axe exp earned: {exp}, actual: {playerExp}");
+        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, axe exp earned: {exp}, actual: {playerExp}");
+        
         // Incrementing
         axeLevels[playerEntity.GetName()] = playerExp + exp;
 
