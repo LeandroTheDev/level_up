@@ -62,6 +62,10 @@ class Instance
             #region harvesting
             case "Tree_Breaked_Axe": IncreaseExp(player, "Axe", "Chop_Tree"); return;
             case "Cutlery_Harvest_Entity": IncreaseExp(player, "Cutlery", "Harvest"); return;
+            case "Soil_Till": IncreaseExp(player, "Farming", "Till"); return;
+            #endregion
+            #region crafting
+            case "Cooking_Finished": IncreaseExp(player, "Cooking", "Cooking_Finished"); return;
                 #endregion
         }
     }
@@ -265,6 +269,38 @@ class Instance
             Debug.Log($"{player.PlayerName} earned {Configuration.expPerThrowSpear} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
+        #region farming
+        // Till Soil
+        if (levelType == "Farming" && reason == "Till")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerTillFarming;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerTillFarming} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
+        #region cooking
+        // Cooking
+        if (levelType == "Cooking" && reason == "Cooking_Finished")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerCookedCooking;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.expPerCookedCooking} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
     }
 
     private void UpdatePlayerLevels(IServerPlayer player)
@@ -300,5 +336,8 @@ class Instance
 
         // Farming Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault(player.PlayerName, 0), true);
+
+        // Cooking Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault(player.PlayerName, 0), true);
     }
 }

@@ -42,7 +42,7 @@ class LevelFarming
         EntityPlayer playerEntity = player.Entity;
         // If not a plant ignore
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Plant && breakedBlock.Block.CropProps == null) return;
-        if (breakedBlock.Block.CropProps.TotalGrowthDays <= 3) return;
+        if (breakedBlock.Block.CropProps.TotalGrowthDays <= 2) return;
 
         // Get all players levels
         Dictionary<string, int> farmingLevels = GetSavedLevels();
