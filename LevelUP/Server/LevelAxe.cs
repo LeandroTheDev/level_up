@@ -19,7 +19,7 @@ class LevelAxe
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
-        instance.api.Event.BreakBlock += OnBreakBlock;
+        instance.api.Event.BreakBlock += OnBreakBlock;        
 
         // Populate configuration
         Configuration.PopulateAxeConfiguration();
@@ -43,6 +43,8 @@ class LevelAxe
     {
         // Error treatment
         if (damageSource == null || damageSource.SourceEntity == null) return;
+        // The cause of the death is from a projectile
+        if(damageSource.GetCauseEntity() is EntityPlayer) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 

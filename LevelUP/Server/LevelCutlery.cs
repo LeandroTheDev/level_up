@@ -40,6 +40,8 @@ class LevelCutlery
     {
         // Error treatment
         if (damageSource == null || damageSource.SourceEntity == null) return;
+        // The cause of the death is from a projectile
+        if(damageSource.GetCauseEntity() is EntityPlayer) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 

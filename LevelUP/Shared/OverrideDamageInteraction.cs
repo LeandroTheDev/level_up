@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -192,5 +193,43 @@ class OverwriteDamageInteraction
         }
         return false;
         #endregion end
+    }
+
+    // Overwrite Durability lost
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(CollectibleObject), "DamageItem")]
+    public static bool DamageItem(IWorldAccessor world, Entity byEntity, ItemSlot itemslot, int amount = 1)
+    {
+        // Error treatment
+        if (itemslot == null || byEntity == null) return true;
+
+        // Check if the entity is a player and if this code is running on the server
+        if (byEntity is EntityPlayer && world.Side == EnumAppSide.Server)
+        {
+            // Refresh player inventory
+            foreach (IPlayer iplayer in instance.serverAPI.api.World.AllOnlinePlayers)
+            {
+                // Find the player instance
+                if (iplayer.PlayerName == byEntity.GetName())
+                {
+                    IServerPlayer player = iplayer as IServerPlayer;
+                    // We need to refresh player inventory with new durability
+                    Task.Delay(100).ContinueWith((_) => player.BroadcastPlayerData(true));
+                    break;
+                }
+            }
+            EntityPlayer playerEntity = byEntity as EntityPlayer;
+            // Get change of not using durability
+            switch (itemslot.Itemstack?.Item?.Tool)
+            {
+                case EnumTool.Bow: return !Configuration.BowRollChanceToNotReduceDurabilityByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Bow"));
+                case EnumTool.Axe: return !Configuration.AxeRollChanceToNotReduceDurabilityByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Axe"));
+                case EnumTool.Knife: return !Configuration.CutleryRollChanceToNotReduceDurabilityByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Cutlery"));
+                case EnumTool.Pickaxe: return !Configuration.PickaxeRollChanceToNotReduceDurabilityByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Pickaxe"));
+                case EnumTool.Shovel: return !Configuration.ShovelRollChanceToNotReduceDurabilityByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Shovel"));
+                case EnumTool.Spear: return !Configuration.SpearRollChanceToNotReduceDurabilityByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Spear"));
+            }
+        }
+        return true;
     }
 }
