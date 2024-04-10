@@ -13,6 +13,7 @@ class Instance
     // Overwrite
     readonly OverwriteDamageInteraction damageInteraction = new();
     readonly OverwriteBlockBreak blockBreak = new();
+    readonly OverwriteBlockInteraction blockInteraction = new();
 
     public void InstanciateAPI(object api)
     {
@@ -25,11 +26,13 @@ class Instance
     {
         damageInteraction.OverwriteNativeFunctions(this);
         blockBreak.OverwriteNativeFunctions(this);
+        blockInteraction.OverwriteNativeFunctions(this);
     }
     public void OverwriteDispose()
     {
         damageInteraction.overwriter?.UnpatchAll();
         blockBreak.overwriter?.UnpatchAll();
+        blockInteraction.overwriter?.UnpatchAll();
     }
 
     public static void UpdateLevelAndNotify(ICoreServerAPI api, IPlayer player, string levelType, int exp, bool disableLevelUpNotify = false)

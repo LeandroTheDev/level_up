@@ -43,26 +43,27 @@ class CharacterView
         int hunterLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Hunter");
         int bowLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Bow");
         int cutleryLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Cutlery");
-        int spearLevel  = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Spear");
+        int spearLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Spear");
         int axeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Axe");
         int pickaxeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Pickaxe");
-        int shovelLevel  = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Shovel");
-        int farmingLevel  = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Farming");
+        int shovelLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Shovel");
+        int farmingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Farming");
+        int cookingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Cooking");
 
         StringBuilder fulldesc = new();
         fulldesc.AppendLine("Character Levels");
         fulldesc.AppendLine("");
-        fulldesc.AppendLine("-- Hunting Levels -- ");
-        fulldesc.AppendLine($"Bow: {Configuration.BowGetLevelByEXP(bowLevel)}");
-        fulldesc.AppendLine($"Cutlery: {Configuration.CutleryGetLevelByEXP(cutleryLevel)}");
-        fulldesc.AppendLine($"Spear: {Configuration.SpearGetLevelByEXP(spearLevel)}");
         fulldesc.AppendLine("-- Tools Levels --");
         fulldesc.AppendLine($"Axe: {Configuration.AxeGetLevelByEXP(axeLevel)}");
         fulldesc.AppendLine($"Pickaxe: {Configuration.PickaxeGetLevelByEXP(pickaxeLevel)}");
         fulldesc.AppendLine($"Shovel: {Configuration.ShovelGetLevelByEXP(shovelLevel)}");
+        fulldesc.AppendLine($"Bow: {Configuration.BowGetLevelByEXP(bowLevel)}");
+        fulldesc.AppendLine($"Spear: {Configuration.SpearGetLevelByEXP(spearLevel)}");
         fulldesc.AppendLine("-- Specialist Levels --");
         fulldesc.AppendLine($"Hunter: {Configuration.HunterGetLevelByEXP(hunterLevel)}");
-        fulldesc.AppendLine($"Farming: {Configuration.ShovelGetLevelByEXP(farmingLevel)}");
+        fulldesc.AppendLine($"Cutlery: {Configuration.CutleryGetLevelByEXP(cutleryLevel)}");
+        fulldesc.AppendLine($"Farming: {Configuration.FarmingGetLevelByEXP(farmingLevel)}");
+        fulldesc.AppendLine($"Cooking: {Configuration.CookingGetLevelByEXP(cookingLevel)}");
         return fulldesc.ToString();
     }
 }
