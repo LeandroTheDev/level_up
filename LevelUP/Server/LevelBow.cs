@@ -46,14 +46,12 @@ class LevelBow
         {
             // Get entities
             EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;
+            // Check if projectile is not from any arrow
             if (!itemDamage.GetName().Contains("arrow")) return;
             EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
 
             // Get player instance
             IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
-
-            // Check if player is using a bow
-            if (player.InventoryManager.ActiveTool != EnumTool.Bow) return;
 
             // Get all players levels
             Dictionary<string, int> bowLevels = GetSavedLevels();

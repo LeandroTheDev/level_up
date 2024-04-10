@@ -13,9 +13,12 @@ Features:
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
 
-![image](https://github.com/LeandroTheDev/level_up/assets/106118473/27de8daf-7b07-464d-9d3b-a108c40bac78)
+- Each tools has a chance to not use durability by the level you have for the specific tool
 
-![image](https://github.com/LeandroTheDev/level_up/assets/106118473/395a7d12-62e8-4a88-9faa-797d3a561826)
+Future features:
+- Less chance to lose arrow on using bows
+
+https://github.com/LeandroTheDev/level_up/assets/106118473/8409a3ee-08ce-42b6-8747-aa7bf6405a26
 
 ### Observations
 Integer limit, this mods saves the experience from the player as int, and C# integer limit is beyond the 2 billions, so if the player exp is reaching this number is quitly dangerous what would happen.
