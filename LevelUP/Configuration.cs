@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace LevelUP;
@@ -16,6 +17,7 @@ public static class Configuration
             case "Shovel": return ShovelGetLevelByEXP(exp);
             case "Spear": return SpearGetLevelByEXP(exp);
             case "Farming": return FarmingGetLevelByEXP(exp);
+            case "Cooking": return CookingGetLevelByEXP(exp);
             default: break;
         }
         return 1;
@@ -279,6 +281,23 @@ public static class Configuration
 
         baseDamage += baseDamage *= incrementDamage;
         return baseDamage;
+    }
+
+    public static float CutleryGetHarvestMultiplyByEXP(int exp)
+    {
+        float baseMultiply = 1.0f;
+        int level = CutleryGetLevelByEXP(exp);
+
+        float incrementMultiply = 0.1f;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementMultiply;
+            level -= 1;
+        }
+
+        baseMultiply += baseMultiply *= incrementMultiply;
+        return baseMultiply;
     }
     #endregion
 
@@ -704,7 +723,7 @@ public static class Configuration
 
     #region farming
     public static readonly Dictionary<int, int> expPerHarvestFarming = [];
-    public static readonly int expPerPlowFarming = 1;
+    public static readonly int expPerTillFarming = 1;
 
     public static void PopulateFarmingConfiguration()
     {
@@ -758,6 +777,96 @@ public static class Configuration
 
         baseMultiply += baseMultiply *= incrementMultiply;
         return baseMultiply;
+    }
+    #endregion
+
+    #region cooking
+    public static readonly int expPerCookedCooking = 3;
+
+    public static void PopulateCookingConfiguration()
+    {
+        Debug.Log("Cooking configuration set");
+    }
+
+    public static int CookingGetLevelByEXP(int exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = 10;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 20 percentage increasing per level
+            expPerLevelBase *= 1.2;
+        }
+        return level;
+    }
+
+    public static float CookingGetSaturationMultiplyByEXP(int exp)
+    {
+        float baseMultiply = 1.0f;
+        int level = CookingGetLevelByEXP(exp);
+
+        float incrementMultiply = 0.1f;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementMultiply;
+            level -= 1;
+        }
+
+        baseMultiply += baseMultiply *= incrementMultiply;
+        return baseMultiply;
+    }
+
+    public static float CookingGetFreshHoursMultiplyByEXP(int exp)
+    {
+        float baseMultiply = 1.0f;
+        int level = CookingGetLevelByEXP(exp);
+
+        float incrementMultiply = 0.1f;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementMultiply;
+            level -= 1;
+        }
+
+        baseMultiply += baseMultiply *= incrementMultiply;
+        return baseMultiply;
+    }
+
+    public static int CookingGetServingsByEXPAndServings(int exp, int quantityServings)
+    {
+        int level = CookingGetLevelByEXP(exp);
+        float chanceToIncrease = 0.0f;
+        int rolls = 1;
+        while (level > 1)
+        {
+            level -= 1;
+            if (chanceToIncrease < 20f)
+                // 2% of chance each level
+                chanceToIncrease += 2.0f;
+            else if (chanceToIncrease < 40f)
+                // 1% of chance each level
+                chanceToIncrease += 1.0f;
+            else if (chanceToIncrease < 60f)
+                // 0.5% of chance each level
+                chanceToIncrease += 0.5f;
+            else
+                // 0.2% of chance each level
+                chanceToIncrease += 0.2f;
+            // Increase rolls change by 1 every 5 levels
+            if (level % 5 == 0) rolls += 1;
+        }
+        while (rolls > 0)
+        {
+            // Randomizes the chance and increase if chances hit
+            if (chanceToIncrease >= new Random().Next(0, 100)) quantityServings += 1;
+        }
+        return quantityServings;
     }
     #endregion
 }
