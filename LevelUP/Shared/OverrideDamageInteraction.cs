@@ -39,7 +39,7 @@ class OverwriteDamageInteraction
     {
         // Player Does Damage
         // Checking if damage sources is from a player
-        if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.Api.World.Side == EnumAppSide.Server)
+        if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.Api.World.Side == EnumAppSide.Server && __instance.Alive)
         {
             // Melee Action
             if (damageSource.SourceEntity is EntityPlayer)
