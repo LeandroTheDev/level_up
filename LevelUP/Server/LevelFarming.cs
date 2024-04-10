@@ -42,13 +42,15 @@ class LevelFarming
         EntityPlayer playerEntity = player.Entity;
         // If not a plant ignore
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Plant && breakedBlock.Block.CropProps == null) return;
-        if (breakedBlock.Block.CropProps.TotalGrowthDays <= 2) return;
+        // if (breakedBlock.Block.CropProps.TotalGrowthDays <= 2) return;
+
+        Debug.Log($"{breakedBlock.Block.Code}");
 
         // Get all players levels
         Dictionary<string, int> farmingLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.expPerHarvestFarming.Get(breakedBlock.Block.Id, 0);
+        int exp = Configuration.expPerHarvestFarming.Get(breakedBlock.Block.Code.ToString(), 0);
 
         // Get the actual player total exp
         int playerExp = farmingLevels.GetValueOrDefault(playerEntity.GetName(), 0);
