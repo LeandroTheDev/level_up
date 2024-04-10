@@ -38,8 +38,6 @@ class LevelCutlery
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
-        // Check if entity is alive
-        if(!entity.Alive) return;
         // Error treatment
         if (damageSource == null || damageSource.SourceEntity == null) return;
         // The cause of the death is from a projectile
