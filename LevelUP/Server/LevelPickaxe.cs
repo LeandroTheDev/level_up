@@ -41,10 +41,12 @@ class LevelPickaxe
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        // Check if entity is alive
+        if (!entity.Alive) return;
         // Error treatment
         if (damageSource == null || damageSource.SourceEntity == null) return;
         // The cause of the death is from a projectile
-        if(damageSource.GetCauseEntity() is EntityPlayer) return;
+        if (damageSource.GetCauseEntity() is EntityPlayer) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -93,7 +95,7 @@ class LevelPickaxe
         // Get the actual player total exp
         int playerExp = pickaxeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.BlockId}, pickaxe exp earned: {exp}, actual: {playerExp}");
+        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
         // Incrementing
         pickaxeLevels[playerEntity.GetName()] = playerExp + exp;
 

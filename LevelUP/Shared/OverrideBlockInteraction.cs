@@ -41,13 +41,9 @@ class OverwriteBlockInteraction
             IServerPlayer player = byPlayer as IServerPlayer;
             // Earny xp by harvesting entity
             instance.serverAPI?.OnClientMessage(player, "Cutlery_Harvest_Entity");
-            var beforeStats = player.Entity.Stats.GetBlended("animalLootDropRate");
 
             // Increasing entity drop rate
             player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.CutleryGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Cutlery")));
-
-            // This is necessary because for some reason this stats is used in Entity class
-            Task.Delay(100).ContinueWith((_) => player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", beforeStats));
         };
     }
 

@@ -39,9 +39,11 @@ class LevelSpear
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
+        // Check if entity is alive
+        if (!entity.Alive) return;
         // Error treatment
         if (damageSource == null || damageSource.SourceEntity == null) return;
-        
+
         EntityProjectile itemDamage;
         EntityPlayer playerEntity;
         IPlayer player;
