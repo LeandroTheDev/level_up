@@ -18,11 +18,16 @@ class LevelCutlery
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
 
-        // Populate configuration
-        Configuration.PopulateCutleryConfiguration();
-
         Debug.Log("Level Cutlery initialized");
     }
+
+#pragma warning disable CA1822
+    public void PopulateConfiguration(ICoreAPI coreAPI)
+    {
+        // Populate configuration
+        Configuration.PopulateCutleryConfiguration(coreAPI);
+    }
+#pragma warning restore CA1822
 
     private Dictionary<string, int> GetSavedLevels()
     {
@@ -41,7 +46,7 @@ class LevelCutlery
         // Error treatment
         if (damageSource == null || damageSource.SourceEntity == null) return;
         // The cause of the death is from a projectile
-        if(damageSource.GetCauseEntity() is EntityPlayer) return;
+        if (damageSource.GetCauseEntity() is EntityPlayer) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -52,13 +57,13 @@ class LevelCutlery
         IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
         // Check if player is using a bow
-        if(player.InventoryManager.ActiveTool != EnumTool.Knife) return;
+        if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;
 
         // Get all players levels
         Dictionary<string, int> cutleryLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpCutlery.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
         int playerExp = cutleryLevels.GetValueOrDefault(playerEntity.GetName(), 0);

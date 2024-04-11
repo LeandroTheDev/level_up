@@ -1,0 +1,14 @@
+{
+    "cutleryEXPPerHit": 1,
+    "cutleryEXPPerHarvest": 5,
+    "cutleryEXPPerLevelBase": 10,
+    "cutleryEXPMultiplyPerLevel": 1.3,
+    "cutleryBaseDamage": 1.0,
+    "cutleryIncrementDamagePerLevel": 0.1,
+    "cutleryBaseHarvestMultiply": 0.5,
+    "cutleryIncrementHarvestMultiplyPerLevel": 0.2,
+    "cutleryBaseDurabilityRestoreChance": 0.0,
+    "cutleryDurabilityRestoreChancePerLevel": 2.0,
+    "cutleryDurabilityRestoreEveryLevelReduceChance": 10,
+    "cutleryDurabilityRestoreReduceChanceForEveryLevel": 0.5
+}

@@ -1,0 +1,6 @@
+{
+    "hunterEXPPerLevelBase": 10,
+    "hunterEXPMultiplyPerLevel": 1.5,
+    "hunterBaseDamage": 1.0,
+    "hunterIncrementDamagePerLevel": 0.1
+}

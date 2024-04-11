@@ -37,18 +37,35 @@ class Instance
 
     public static void UpdateLevelAndNotify(ICoreServerAPI api, IPlayer player, string levelType, int exp, bool disableLevelUpNotify = false)
     {
-        if (!disableLevelUpNotify)
+
+        // Previous exp level, before getting the new experience
+        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, player.Entity.WatchedAttributes.GetInt($"LevelUP_{levelType}", 0));
+        // Actual player level
+        int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
+
+        // Check if player leveled up
+        if (previousLevel < nextLevel)
         {
-            // Previous exp level < Next exp level
-            int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, player.Entity.WatchedAttributes.GetInt($"LevelUP_{levelType}", 0));
-            int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
-            if (previousLevel < nextLevel)
+            // Check if we want to notify
+            if (!disableLevelUpNotify)
             {
                 // Notify player
                 api.SendMessage(player, 0, $"You reached level {nextLevel} in {levelType}", EnumChatType.Notification);
+
                 Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
             }
         }
+
+        // Experience
         player.Entity.WatchedAttributes.SetInt($"LevelUP_{levelType}", exp);
+        // Level
+        player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
+
+        // Mining speed
+        float miningspeed = Configuration.GetMiningSpeedByLevelTypeEXP(levelType, nextLevel);
+        // Check if this levelType has mining speed
+        if (miningspeed != -1)
+            // Set the mining speed for clients
+            player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
     }
 }

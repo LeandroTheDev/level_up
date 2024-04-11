@@ -1,0 +1,15 @@
+{
+    "axeEXPPerHit": 1,
+    "axeEXPPerBreaking": 1,
+    "axeEXPPerTreeBreakingAxe": 10,
+    "axeEXPPerLevelBase": 10,
+    "axeEXPMultiplyPerLevel": 1.8,
+    "axeBaseDamage": 1.0,
+    "axeIncrementDamagePerLevel": 0.1,
+    "axeBaseMiningSpeed": 1.0,
+    "axeIncrementMiningSpeedMultiplyPerLevel": 0.1,
+    "axeBaseDurabilityRestoreChance": 0.0,
+    "axeDurabilityRestoreChancePerLevel": 2.0,
+    "axeDurabilityRestoreEveryLevelReduceChance": 10,
+    "axeDurabilityRestoreReduceChanceForEveryLevel": 0.5
+}

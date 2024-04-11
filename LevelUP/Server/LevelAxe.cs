@@ -20,12 +20,16 @@ class LevelAxe
         instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         instance.api.Event.BreakBlock += OnBreakBlock;
-
-        // Populate configuration
-        Configuration.PopulateAxeConfiguration();
-
         Debug.Log("Level Axe initialized");
     }
+
+    #pragma warning disable CA1822
+    public void PopulateConfiguration(ICoreAPI coreAPI)
+    {
+        // Populate configuration
+        Configuration.PopulateAxeConfiguration(coreAPI);
+    }
+    #pragma warning restore CA1822
 
     private Dictionary<string, int> GetSavedLevels()
     {
@@ -61,7 +65,7 @@ class LevelAxe
         Dictionary<string, int> axeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpAxe.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
         int playerExp = axeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
@@ -79,7 +83,7 @@ class LevelAxe
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
     {
         EntityPlayer playerEntity = player.Entity;
-        // If not a shovel ignore
+        // If not a axe ignore
         if (player.InventoryManager.ActiveTool != EnumTool.Axe) return;
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Wood) return;
 
@@ -87,13 +91,13 @@ class LevelAxe
         Dictionary<string, int> axeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.expPerBreakingAxe;
+        int exp = Configuration.ExpPerBreakingAxe;
 
         // Get the actual player total exp
         int playerExp = axeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
         Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, axe exp earned: {exp}, actual: {playerExp}");
-        
+
         // Incrementing
         axeLevels[playerEntity.GetName()] = playerExp + exp;
 

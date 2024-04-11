@@ -21,11 +21,16 @@ class LevelPickaxe
         // Instanciate break block event
         instance.api.Event.BreakBlock += OnBreakBlock;
 
-        // Populate configuration
-        Configuration.PopulatePickaxeConfiguration();
-
         Debug.Log("Level Pickaxe initialized");
     }
+
+    #pragma warning disable CA1822
+    public void PopulateConfiguration(ICoreAPI coreAPI)
+    {
+        // Populate configuration
+        Configuration.PopulatePickaxeConfiguration(coreAPI);
+    }    
+    #pragma warning restore CA1822
 
     private Dictionary<string, int> GetSavedLevels()
     {
@@ -63,7 +68,7 @@ class LevelPickaxe
         Dictionary<string, int> pickaxeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpPickaxe.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
         int playerExp = pickaxeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
@@ -90,7 +95,7 @@ class LevelPickaxe
         Dictionary<string, int> pickaxeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.expPerBreakingPickaxe;
+        int exp = Configuration.ExpPerBreakingPickaxe;
 
         // Get the actual player total exp
         int playerExp = pickaxeLevels.GetValueOrDefault(playerEntity.GetName(), 0);

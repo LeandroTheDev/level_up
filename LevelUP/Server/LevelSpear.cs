@@ -11,19 +11,22 @@ class LevelSpear
 {
     private Instance instance;
 
-    readonly Dictionary<string, int> entityExp = [];
-
     public void Init(Instance _instance)
     {
         instance = _instance;
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
 
-        // Populate configuration
-        Configuration.PopulateSpearConfiguration();
-
         Debug.Log("Level Spear initialized");
     }
+
+#pragma warning disable CA1822
+    public void PopulateConfiguration(ICoreAPI coreAPI)
+    {
+        // Populate configuration
+        Configuration.PopulateSpearConfiguration(coreAPI);
+    }
+#pragma warning restore CA1822
 
     private Dictionary<string, int> GetSavedLevels()
     {
@@ -74,7 +77,7 @@ class LevelSpear
         Dictionary<string, int> spearLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpSpear.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
         int playerExp = spearLevels.GetValueOrDefault(playerEntity.GetName(), 0);

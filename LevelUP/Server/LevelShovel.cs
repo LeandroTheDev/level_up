@@ -12,8 +12,6 @@ class LevelShovel
 {
     private Instance instance;
 
-    readonly Dictionary<string, int> entityExp = [];
-
     public void Init(Instance _instance)
     {
         instance = _instance;
@@ -22,11 +20,16 @@ class LevelShovel
         // Instanciate break block event
         instance.api.Event.BreakBlock += OnBreakBlock;
 
-        // Populate configuration
-        Configuration.PopulateShovelConfiguration();
-
         Debug.Log("Level Shovel initialized");
     }
+
+    #pragma warning disable CA1822
+    public void PopulateConfiguration(ICoreAPI coreAPI)
+    {
+        // Populate configuration
+        Configuration.PopulateShovelConfiguration(coreAPI);
+    }
+    #pragma warning restore CA1822
 
     private Dictionary<string, int> GetSavedLevels()
     {
@@ -62,7 +65,7 @@ class LevelShovel
         Dictionary<string, int> shovelLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = entityExp.GetValueOrDefault(playerEntity.GetName(), 0);
+        int exp = Configuration.entityExpShovel.GetValueOrDefault(playerEntity.GetName(), 0);
 
         // Get the actual player total exp
         int playerExp = shovelLevels.GetValueOrDefault(playerEntity.GetName(), 0);
@@ -96,13 +99,13 @@ class LevelShovel
         Dictionary<string, int> shovelLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.expPerBreakingShovel;
+        int exp = Configuration.ExpPerBreakingShovel;
 
         // Get the actual player total exp
         int playerExp = shovelLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
         Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, shovel exp earned: {exp}, actual: {playerExp}");
-        
+
         // Incrementing
         shovelLevels[playerEntity.GetName()] = playerExp + exp;
 

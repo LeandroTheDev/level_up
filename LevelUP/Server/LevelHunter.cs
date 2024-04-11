@@ -18,11 +18,16 @@ class LevelHunter
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
 
-        // Populate configuration
-        Configuration.PopulateHunterConfiguration();
-
         Debug.Log("Level Hunter initialized");
     }
+
+#pragma warning disable CA1822
+    public void PopulateConfiguration(ICoreAPI coreAPI)
+    {
+        // Populate configuration
+        Configuration.PopulateHunterConfiguration(coreAPI);
+    }
+#pragma warning restore CA1822
 
     private Dictionary<string, int> GetSavedLevels()
     {
@@ -53,7 +58,9 @@ class LevelHunter
         Dictionary<string, int> hunterLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpHunter.GetValueOrDefault(entity.GetName(), 0);
+
+        Configuration.entityExpHunter.Keys.Foreach(Debug.Log);
 
         // Get the actual player total exp
         int playerExp = hunterLevels.GetValueOrDefault(playerEntity.GetName(), 0);

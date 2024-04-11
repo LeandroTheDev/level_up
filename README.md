@@ -3,9 +3,12 @@ Add a new mechanic to vintage story, a new level system to make your character s
 
 Features:
 - GUI Level in chacter view
-- LEVELS:
+- Each tools has a chance to not use durability by the level you have for the specific tool
+- Fully configurable
+
+LEVELS:
 - Hunter: Increases all damages sources to others creatures and players, earn xp by killing things
-- Bow: Increases bow damages, earn xp by hitting and killing things with bows
+- Bow: Increases bow damages and reduce chance to lose arrows, earn xp by hitting and killing things with bows
 - Cutlery: Increases knifes damages and harvest entity drops, earn xp by harvesting entities, hitting and killing things with knifes
 - Spear: Increase spear damages, earn xp by hitting and killing things with spear
 - Axe: Increases axes damages and mining speed, earn xp by chopping trees, breaking wood, hitting and killing things with axes
@@ -13,10 +16,12 @@ Features:
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
 
-- Each tools has a chance to not use durability by the level you have for the specific tool
-
 Future features:
-- Less chance to lose arrow on using bows
+- Vitality system increasing hp.
+- Vitality system increasing hp regen.
+- Smithing specialist.
+- Cooking specialist.
+- Bow level increase precision.
 
 https://github.com/LeandroTheDev/level_up/assets/106118473/8409a3ee-08ce-42b6-8747-aa7bf6405a26
 
@@ -30,6 +35,8 @@ This mod needs to be in both sides the client and server for working propertly, 
 Increase crop drop rate will only be increased if you harvest a crop with the final stage or the penultimate stage, the same for earning xp harvesting crops, harvesting crops in penultimate stage will decrease the experience gained.
 
 Hunter level damage is increased before the tool damage level, so if you have 2x damage in hunter and 2x damage in spear and you have a spear with 4 damage the calculation is: (4 x 2) x 2 = 16
+
+To change the configurations go to the mod folder in assets folders, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/levelup/wiki) to  know what each configuration does.
 
 ### Considerations
 This mod changes a lot of native codes and can break easily throught updates.
@@ -45,8 +52,6 @@ Learn more about vintage story modding in [Linux](https://github.com/LeandroTheD
 Download the mod template for vintage store with name LevelUP and paste all contents from this project in there
 
 > Linux
-
-> Not necessary but recomendend, if you dont do that you need to get the all the files in Releases/LevelUP/ and add into Mods folder from vintage story every time you build.
 
 Make a symbolic link for fast tests
 - ln -s /path/to/project/Releases/levelup/* /path/to/game/Mods/LevelUP/

@@ -1,0 +1,11 @@
+{
+    "farmingEXPPerTill": 1,
+    "farmingEXPPerLevelBase": 10,
+    "farmingEXPMultiplyPerLevel": 2.5,
+    "farmingBaseHarvestMultiply": 0.5,
+    "farmingIncrementHarvestMultiplyPerLevel": 0.2,
+    "farmingBaseDurabilityRestoreChance": 0.0,
+    "farmingDurabilityRestoreChancePerLevel": 2.0,
+    "farmingDurabilityRestoreEveryLevelReduceChance": 10,
+    "farmingDurabilityRestoreReduceChanceForEveryLevel": 0.5
+}
