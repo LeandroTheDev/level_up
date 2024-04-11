@@ -43,9 +43,9 @@ class OverwriteBlockBreak
     {
         switch (byPlayer.InventoryManager.ActiveTool)
         {
-            case EnumTool.Axe: return __result * Configuration.AxeGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Axe"));
-            case EnumTool.Pickaxe: return __result * Configuration.PickaxeGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Pickaxe"));
-            case EnumTool.Shovel: return __result * Configuration.ShovelGetMiningMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Shovel"));
+            case EnumTool.Axe: return __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f);
+            case EnumTool.Pickaxe: return __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f);
+            case EnumTool.Shovel: return __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f);
             case null: break;
         }
         return __result;

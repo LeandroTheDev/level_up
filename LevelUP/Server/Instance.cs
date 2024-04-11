@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 
@@ -38,6 +39,18 @@ class Instance
         channel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
         channel.SetMessageHandler<string>(OnClientMessage);
         Debug.Log("Server Network registered");
+    }
+
+    public void PopulateConfigurations(ICoreAPI coreAPI)
+    {
+        levelHunter.PopulateConfiguration(coreAPI);
+        levelBow.PopulateConfiguration(coreAPI);
+        levelCutlery.PopulateConfiguration(coreAPI);
+        levelAxe.PopulateConfiguration(coreAPI);
+        levelPickaxe.PopulateConfiguration(coreAPI);
+        levelShovel.PopulateConfiguration(coreAPI);
+        levelSpear.PopulateConfiguration(coreAPI);
+        levelFarming.PopulateConfiguration(coreAPI);
     }
 
     public void OnClientMessage(IServerPlayer player, string message)
@@ -95,14 +108,14 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitBow;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitBow;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitCutlery} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitCutlery} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region cutlery
@@ -111,28 +124,28 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitCutlery;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitCutlery;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitCutlery} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitCutlery} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Harvest
         else if (levelType == "Cutlery" && reason == "Harvest")
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHarvestCutlery;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHarvestCutlery;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHarvestCutlery} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHarvestCutlery} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region axe
@@ -141,42 +154,42 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitAxe;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitAxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitAxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitAxe} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Block breaking
         else if (levelType == "Axe" && reason == "Breaking")
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerBreakingAxe;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerBreakingAxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerBreakingAxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerBreakingAxe} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Chop Tree
         else if (levelType == "Axe" && reason == "Chop_Tree")
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerTreeBreakingAxe;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerTreeBreakingAxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerTreeBreakingAxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerTreeBreakingAxe} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region pickaxe
@@ -185,28 +198,28 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitPickaxe;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitPickaxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitPickaxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitPickaxe} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Break blocks
         else if (levelType == "Pickaxe" && reason == "Breaking")
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerBreakingPickaxe;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerBreakingPickaxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerBreakingPickaxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerBreakingPickaxe} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region shovel
@@ -215,28 +228,28 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitShovel;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitShovel;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitShovel} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitShovel} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Break block
         else if (levelType == "Shovel" && reason == "Breaking")
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerBreakingShovel;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerBreakingShovel;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerBreakingShovel} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerBreakingShovel} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region spear
@@ -245,28 +258,28 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerHitSpear;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitSpear;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerHitSpear} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitSpear} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Throw
         else if (levelType == "Spear" && reason == "Hit_Throw")
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerThrowSpear;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerThrowSpear;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerThrowSpear} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerThrowSpear} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region farming
@@ -275,14 +288,14 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerTillFarming;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerTillFarming;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerTillFarming} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerTillFarming} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region cooking

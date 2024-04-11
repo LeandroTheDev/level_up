@@ -19,11 +19,16 @@ class LevelBow
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
 
-        // Populate configuration
-        Configuration.PopulateBowConfiguration();
-
         Debug.Log("Level Bow initialized");
     }
+
+    #pragma warning disable CA1822
+    public void PopulateConfiguration(ICoreAPI coreAPI)
+    {
+        // Populate configuration
+        Configuration.PopulateBowConfiguration(coreAPI);
+    }
+    #pragma warning restore CA1822
 
     private Dictionary<string, int> GetSavedLevels()
     {
@@ -57,7 +62,7 @@ class LevelBow
             Dictionary<string, int> bowLevels = GetSavedLevels();
 
             // Get the exp received
-            int exp = entityExp.GetValueOrDefault(entity.GetName(), 0);
+            int exp = Configuration.entityExpBow.GetValueOrDefault(entity.GetName(), 0);
 
             // Get the actual player total exp
             int playerExp = bowLevels.GetValueOrDefault(playerEntity.GetName(), 0);

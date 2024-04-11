@@ -1,0 +1,12 @@
+{
+    "spearEXPPerHit": 1,
+    "spearEXPPerThrow": 2,
+    "spearEXPPerLevelBase": 10,
+    "spearEXPMultiplyPerLevel": 1.5,
+    "spearBaseDamage": 1.0,
+    "spearIncrementDamagePerLevel": 0.1,
+    "spearBaseDurabilityRestoreChance": 0.0,
+    "spearDurabilityRestoreChancePerLevel": 2.0,
+    "spearDurabilityRestoreEveryLevelReduceChance": 10,
+    "spearDurabilityRestoreReduceChanceForEveryLevel": 0.5
+}

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Client;
@@ -10,6 +11,7 @@ using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
 
+#pragma warning disable IDE0060
 [HarmonyPatchCategory("levelup_damageinteraction")]
 class OverwriteDamageInteraction
 {
@@ -231,5 +233,25 @@ class OverwriteDamageInteraction
             }
         }
         return true;
+    }
+
+    // Overwrite Projectile impact
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityProjectile), "impactOnEntity")]
+    public static void ImpactOnEntity(EntityProjectile __instance, Entity entity)
+    {
+        // Check if is not the server and do nothing
+        if (__instance.World.Side != EnumAppSide.Server) return;
+
+        // Check if is a arrow
+        if (__instance.GetName().Contains("arrow"))
+        {
+            // Check if arrow is shotted by a player
+            if (__instance.FiredBy is not EntityPlayer) return;
+            EntityPlayer playerEntity = __instance.FiredBy as EntityPlayer;
+
+            // Change the change based on level
+            __instance.DropOnImpactChance = Configuration.BowGetChanceToNotLoseArrowByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Bow"));
+        }
     }
 }

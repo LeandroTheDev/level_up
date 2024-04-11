@@ -11,19 +11,23 @@ class LevelFarming
 {
     private Instance instance;
 
-    readonly Dictionary<string, int> entityExp = [];
-
     public void Init(Instance _instance)
     {
         instance = _instance;
         // Instanciate break block event
         instance.api.Event.BreakBlock += OnBreakBlock;
 
-        // Populate configuration
-        Configuration.PopulateFarmingConfiguration();
-
         Debug.Log("Level Farming initialized");
     }
+
+    #pragma warning disable CA1822
+    public void PopulateConfiguration(ICoreAPI coreAPI)
+    {
+        // Populate configuration
+        Configuration.PopulateFarmingConfiguration(coreAPI);
+    }
+    #pragma warning restore CA1822
+
 
     private Dictionary<string, int> GetSavedLevels()
     {
