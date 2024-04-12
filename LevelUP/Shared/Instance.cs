@@ -1,5 +1,6 @@
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
+using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
 
@@ -42,7 +43,6 @@ class Instance
         int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, player.Entity.WatchedAttributes.GetInt($"LevelUP_{levelType}", 0));
         // Actual player level
         int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
-
         // Check if player leveled up
         if (previousLevel < nextLevel)
         {
@@ -53,6 +53,24 @@ class Instance
                 api.SendMessage(player, 0, $"You reached level {nextLevel} in {levelType}", EnumChatType.Notification);
 
                 Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
+            }
+            
+            // if vitality leveled we need to update the player max health
+            if (levelType == "Vitality")
+            {
+                // Get player stats
+                EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
+                // Check if stats is null
+                if (playerStats == null) { Debug.Log($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
+
+                // Getting health stats
+                playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByEXP(exp);
+                playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByEXP(exp);
+
+                // Refresh for the player
+                playerStats.UpdateMaxHealth();
+
+                Debug.Log($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
             }
         }
 

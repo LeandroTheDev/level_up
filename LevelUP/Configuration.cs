@@ -19,8 +19,10 @@ public static class Configuration
             case "Spear": return SpearGetLevelByEXP(exp);
             case "Farming": return FarmingGetLevelByEXP(exp);
             case "Cooking": return CookingGetLevelByEXP(exp);
+            case "Vitality": return VitalityGetLevelByEXP(exp);
             default: break;
         }
+        Debug.Log($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the configurations file");
         return 1;
     }
 
@@ -543,7 +545,7 @@ public static class Configuration
     public static readonly Dictionary<string, int> entityExpAxe = [];
     private static int axeEXPPerHit = 1;
     private static int axeEXPPerBreaking = 1;
-    private static int axeEXPPerTreeBreakingAxe = 10;
+    private static int axeEXPPerTreeBreaking = 10;
 
     private static int axeEXPPerLevelBase = 10;
     private static double axeEXPMultiplyPerLevel = 1.8;
@@ -559,7 +561,7 @@ public static class Configuration
 
     public static int ExpPerHitAxe => axeEXPPerHit;
     public static int ExpPerBreakingAxe => axeEXPPerBreaking;
-    public static int ExpPerTreeBreakingAxe => axeEXPPerTreeBreakingAxe;
+    public static int ExpPerTreeBreakingAxe => axeEXPPerTreeBreaking;
 
     public static void PopulateAxeConfiguration(ICoreAPI api)
     {
@@ -606,12 +608,12 @@ public static class Configuration
                 else axeEXPPerBreaking = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: axeEXPPerBreaking not set");
         }
-        { //axeEXPPerTreeBreakingAxe
-            if (axeLevelStats.TryGetValue("axeEXPPerTreeBreakingAxe", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeEXPPerTreeBreakingAxe is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeEXPPerTreeBreakingAxe is not int is {value.GetType()}");
-                else axeEXPPerTreeBreakingAxe = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: axeEXPPerTreeBreakingAxe not set");
+        { //axeEXPPerTreeBreaking
+            if (axeLevelStats.TryGetValue("axeEXPPerTreeBreaking", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: axeEXPPerTreeBreaking is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeEXPPerTreeBreaking is not int is {value.GetType()}");
+                else axeEXPPerTreeBreaking = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: axeEXPPerTreeBreaking not set");
         }
         { //axeBaseMiningSpeed
             if (axeLevelStats.TryGetValue("axeBaseMiningSpeed", out object value))
@@ -1570,7 +1572,7 @@ public static class Configuration
     private static int vitalityEXPPerLevelBase = 10;
     private static double vitalityEXPMultiplyPerLevel = 2.0;
     private static float vitalityHPIncreasePerLevel = 10.0f;
-    private static float vitalityBaseHP = 20.0f;
+    private static float vitalityBaseHP = 10.0f;
     private static float vitalityBaseHPRegen = 1.0f;
     private static float vitalityHPRegenIncreasePerLevel = 0.1f;
 
@@ -1666,14 +1668,11 @@ public static class Configuration
         int level = VitalityGetLevelByEXP(exp);
 
         float incrementMultiply = vitalityHPIncreasePerLevel;
-        float multiply = 0.0f;
         while (level > 1)
         {
-            multiply += incrementMultiply;
+            baseMultiply += incrementMultiply;
             level -= 1;
         }
-
-        baseMultiply += baseMultiply *= incrementMultiply;
         return baseMultiply;
     }
 

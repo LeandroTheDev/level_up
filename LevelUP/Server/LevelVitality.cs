@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Common;
-using Vintagestory.API.Common.Entities;
-using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
@@ -56,7 +53,7 @@ class LevelVitality
         instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality_Players_Health", JsonSerializer.Serialize(playerState));
     }
 
-    public void PlayerJoin(IServerPlayer player)
+    private void PlayerJoin(IServerPlayer player)
     {
         // Get all players levels
         Dictionary<string, int> VitalityLevels = GetSavedLevels();
@@ -71,7 +68,9 @@ class LevelVitality
 
         // Getting health stats
         playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByEXP(playerExp);
+        playerStats.MaxHealth = playerStats.BaseMaxHealth;
         playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByEXP(playerExp);
+        
         // Reload player health
         if (playerState.TryGetValue(player.PlayerName, out double value)) playerStats.Health = (float)value;
 
@@ -81,7 +80,7 @@ class LevelVitality
         Debug.Log($"{player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
     }
 
-    public void PlayerDisconnect(IServerPlayer player)
+    private void PlayerDisconnect(IServerPlayer player)
     {
         // Get stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Timers;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -23,7 +24,6 @@ class Instance
     public LevelSpear levelSpear = new();
     public LevelFarming levelFarming = new();
     public LevelVitality levelVitality = new();
-    private readonly Dictionary<string, bool> increaseExpDelay = [];
 
     public void Init(ICoreServerAPI serverAPI)
     {
@@ -36,6 +36,7 @@ class Instance
         levelShovel.Init(this);
         levelSpear.Init(this);
         levelFarming.Init(this);
+        levelVitality.Init(this);
         Debug.Log("Server Levels instanciated");
         channel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
         channel.SetMessageHandler<string>(OnClientMessage);
@@ -57,7 +58,8 @@ class Instance
 
     public void OnClientMessage(IServerPlayer player, string bruteMessage)
     {
-        Dictionary<string, object> arguments = new Dictionary<string, object>();
+        // Translate aguments if exist
+        Dictionary<string, object> arguments = [];
         string message;
         if (bruteMessage.Contains('&'))
         {
@@ -65,27 +67,20 @@ class Instance
 
             message = messages[0];
 
+            // Remove message context from the arguments
             string[] argumentsArray = new string[messages.Length - 1];
             Array.Copy(messages, 1, argumentsArray, 0, messages.Length - 1);
 
-            // Receber os argumentos
+            // Swipe arguments
             foreach (string value in argumentsArray)
             {
                 string[] keyValue = value.Split('=');
-                if (keyValue.Length == 2)
-                {
-                    arguments[keyValue[0]] = keyValue[1];
-                }
-                else
-                {
-
-                }
+                // Add argument to the list
+                if (keyValue.Length == 2) arguments[keyValue[0]] = keyValue[1].ToString();
+                else Debug.Log($"ERROR OnClientMessage: invalid argument quantity: {keyValue.Length}");
             }
         }
-        else
-        {
-            message = bruteMessage;
-        }
+        else message = bruteMessage;
 
         switch (message)
         {
@@ -98,8 +93,7 @@ class Instance
             case "Increase_Shovel_Hit": IncreaseExp(player, "Shovel", "Hit"); return;
             case "Increase_Spear_Hit": IncreaseExp(player, "Spear", "Hit"); return;
             case "Increase_Spear_Hit_Throw": IncreaseExp(player, "Spear", "Hit_Throw"); return;
-            case "Increase_Vitality_Hit":
-                IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"] is null || arguments["forceexp"] is not int ? 0 : (int)arguments["forceexp"]); return;
+            case "Increase_Vitality_Hit": IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             #endregion
             #region breaking
             case "Block_Breaked_Axe": IncreaseExp(player, "Axe", "Breaking"); return;
@@ -118,13 +112,8 @@ class Instance
 
     }
 
-    private void IncreaseExp(IServerPlayer player, string levelType, string reason, int forceexp = -1)
+    private void IncreaseExp(IServerPlayer player, string levelType, string reason, int forceexp = 0)
     {
-        // // Check for delay
-        // if (increaseExpDelay.GetValueOrDefault(player.PlayerName, false) && !delayIgnorable) return;
-        // increaseExpDelay[player.PlayerName] = true;
-        // Task.Delay(100).ContinueWith((_) => increaseExpDelay.Remove(player.PlayerName));
-
         Dictionary<string, int> GetSavedLevels()
         {
             byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
@@ -351,7 +340,7 @@ class Instance
         #endregion
         #region vitality
         // Get hit
-        if (levelType == "Vitality" && reason == "Hit" && forceexp != -1)
+        if (levelType == "Vitality" && reason == "Hit" && forceexp > 0)
         {
             // Get levels
             var levels = GetSavedLevels();

@@ -1,7 +1,7 @@
 {
     "axeEXPPerHit": 1,
     "axeEXPPerBreaking": 1,
-    "axeEXPPerTreeBreakingAxe": 10,
+    "axeEXPPerTreeBreaking": 10,
     "axeEXPPerLevelBase": 10,
     "axeEXPMultiplyPerLevel": 1.8,
     "axeBaseDamage": 1.0,

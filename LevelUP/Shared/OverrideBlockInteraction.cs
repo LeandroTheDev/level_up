@@ -30,10 +30,11 @@ class OverwriteBlockInteraction
         }
     }
 
+    #region knife
     // Overwrite Knife Harvesting
     [HarmonyPrefix]
     [HarmonyPatch(typeof(EntityBehaviorHarvestable), "SetHarvested")]
-    public static void SetHarvested(EntityBehaviorHarvestable __instance, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+    public static void SetHarvestedKnifeStart(EntityBehaviorHarvestable __instance, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
         // Check if is from the server
         if (byPlayer is IServerPlayer && __instance.entity.World.Side == EnumAppSide.Server)
@@ -42,10 +43,28 @@ class OverwriteBlockInteraction
             // Earny xp by harvesting entity
             instance.serverAPI?.OnClientMessage(player, "Knife_Harvest_Entity");
 
+            // Store the old drop rate
+            player.Entity.Stats.Set("old_animalLootDropRate", "old_animalLootDropRate", player.Entity.Stats.GetBlended("animalLootDropRate"));
+
             // Increasing entity drop rate
             player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.KnifeGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Knife")));
         };
     }
+    // Overwrite Knife Harvesting
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(EntityBehaviorHarvestable), "SetHarvested")]
+    public static void SetHarvestedKnifeFinish(EntityBehaviorHarvestable __instance, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+    {
+        // Check if is from the server
+        if (byPlayer is IServerPlayer && __instance.entity.World.Side == EnumAppSide.Server)
+        {
+            IServerPlayer player = byPlayer as IServerPlayer;
+
+            // Reload old drop rate
+            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", player.Entity.Stats.GetBlended("old_animalLootDropRate"));
+        };
+    }
+    #endregion
 
     // Overwrite Hoe Till
     [HarmonyPostfix]

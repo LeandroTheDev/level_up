@@ -139,8 +139,8 @@ class OverwriteDamageInteraction
         }
 
         // Player Receive Damage
-        // Checking if received damage is a player
-        if (__instance.Api.World.Side == EnumAppSide.Server && __instance is EntityPlayer)
+        // Checking if received damage is a player and if is a server and if is alive
+        if (__instance is EntityPlayer && __instance.Api.World.Side == EnumAppSide.Server && __instance.Alive)
         {
             // Get player source
             EntityPlayer playerEntity = __instance as EntityPlayer;

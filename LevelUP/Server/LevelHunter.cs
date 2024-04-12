@@ -42,12 +42,12 @@ class LevelHunter
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
-        if (damageSource == null || damageSource.SourceEntity == null) return;
-        // Entity kill is not from a player
-        if (damageSource.SourceEntity is not EntityPlayer) return;
-
+        if (damageSource == null) return;
         // Get player entity
-        EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
+        EntityPlayer playerEntity;
+        if (damageSource.SourceEntity is EntityPlayer) playerEntity = damageSource.SourceEntity as EntityPlayer;
+        else if (damageSource.GetCauseEntity() is EntityPlayer) playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
+        else return;
 
         // Get player instance
         IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
@@ -57,8 +57,6 @@ class LevelHunter
 
         // Get the exp received
         int exp = Configuration.entityExpHunter.GetValueOrDefault(entity.GetName(), 0);
-
-        Configuration.entityExpHunter.Keys.Foreach(Debug.Log);
 
         // Get the actual player total exp
         int playerExp = hunterLevels.GetValueOrDefault(playerEntity.GetName(), 0);

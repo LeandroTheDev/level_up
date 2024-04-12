@@ -43,7 +43,7 @@ class LevelSpear
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
-        if (damageSource == null || damageSource.SourceEntity == null) return;
+        if (damageSource == null) return;
 
         EntityProjectile itemDamage;
         EntityPlayer playerEntity;
