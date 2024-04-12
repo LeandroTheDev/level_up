@@ -6,11 +6,9 @@ using Vintagestory.API.Util;
 
 namespace LevelUP.Server;
 
-class LevelCutlery
+class LevelKnife
 {
     private Instance instance;
-
-    readonly Dictionary<string, int> entityExp = [];
 
     public void Init(Instance _instance)
     {
@@ -18,27 +16,27 @@ class LevelCutlery
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
 
-        Debug.Log("Level Cutlery initialized");
+        Debug.Log("Level Knife initialized");
     }
 
 #pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
-        Configuration.PopulateCutleryConfiguration(coreAPI);
+        Configuration.PopulateKnifeConfiguration(coreAPI);
     }
 #pragma warning restore CA1822
 
     private Dictionary<string, int> GetSavedLevels()
     {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Cutlery");
+        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Knife");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
         return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
     }
 
-    private void SaveLevels(Dictionary<string, int> cutleryLevels)
+    private void SaveLevels(Dictionary<string, int> knifeLevels)
     {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Cutlery", JsonSerializer.Serialize(cutleryLevels));
+        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Knife", JsonSerializer.Serialize(knifeLevels));
     }
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
@@ -60,22 +58,22 @@ class LevelCutlery
         if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;
 
         // Get all players levels
-        Dictionary<string, int> cutleryLevels = GetSavedLevels();
+        Dictionary<string, int> knifeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpCutlery.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpKnife.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
-        int playerExp = cutleryLevels.GetValueOrDefault(playerEntity.GetName(), 0);
+        int playerExp = knifeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, cutlery exp earned: {exp}, actual: {playerExp}");
+        Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, knife exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        cutleryLevels[playerEntity.GetName()] = playerExp + exp;
+        knifeLevels[playerEntity.GetName()] = playerExp + exp;
 
         // Saving
-        SaveLevels(cutleryLevels);
+        SaveLevels(knifeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Cutlery", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", playerExp + exp);
     }
 }

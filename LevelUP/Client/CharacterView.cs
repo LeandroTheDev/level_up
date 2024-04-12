@@ -42,28 +42,29 @@ class CharacterView
     {
         int hunterLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hunter");
         int bowLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow");
-        int cutleryLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cutlery");
+        int knifeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife");
         int spearLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear");
         int axeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe");
         int pickaxeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe");
         int shovelLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel");
         int farmingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming");
         // int cookingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking");
+        int vitalityLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Vitality");
 
         StringBuilder fulldesc = new();
         fulldesc.AppendLine("Character Levels");
-        fulldesc.AppendLine("");
         fulldesc.AppendLine("-- Tools Levels --");
         fulldesc.AppendLine($"Axe: {axeLevel}");
         fulldesc.AppendLine($"Pickaxe: {pickaxeLevel}");
         fulldesc.AppendLine($"Shovel: {shovelLevel}");
         fulldesc.AppendLine($"Bow: {bowLevel}");
         fulldesc.AppendLine($"Spear: {spearLevel}");
+        fulldesc.AppendLine($"Knife: {knifeLevel}");
         fulldesc.AppendLine("-- Specialist Levels --");
         fulldesc.AppendLine($"Hunter: {hunterLevel}");
-        fulldesc.AppendLine($"Cutlery: {cutleryLevel}");
         fulldesc.AppendLine($"Farming: {farmingLevel}");
         // fulldesc.AppendLine($"Cooking: {cookingLevel}");
+        fulldesc.AppendLine($"Vitality: {vitalityLevel}");
         return fulldesc.ToString();
     }
 }

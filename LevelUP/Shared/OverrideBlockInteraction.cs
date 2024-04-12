@@ -30,7 +30,7 @@ class OverwriteBlockInteraction
         }
     }
 
-    // Overwrite Cutlery Harvesting
+    // Overwrite Knife Harvesting
     [HarmonyPrefix]
     [HarmonyPatch(typeof(EntityBehaviorHarvestable), "SetHarvested")]
     public static void SetHarvested(EntityBehaviorHarvestable __instance, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
@@ -40,10 +40,10 @@ class OverwriteBlockInteraction
         {
             IServerPlayer player = byPlayer as IServerPlayer;
             // Earny xp by harvesting entity
-            instance.serverAPI?.OnClientMessage(player, "Cutlery_Harvest_Entity");
+            instance.serverAPI?.OnClientMessage(player, "Knife_Harvest_Entity");
 
             // Increasing entity drop rate
-            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.CutleryGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Cutlery")));
+            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.KnifeGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Knife")));
         };
     }
 

@@ -12,7 +12,7 @@ public static class Configuration
         {
             case "Hunter": return HunterGetLevelByEXP(exp);
             case "Bow": return BowGetLevelByEXP(exp);
-            case "Cutlery": return CutleryGetLevelByEXP(exp);
+            case "Knife": return KnifeGetLevelByEXP(exp);
             case "Axe": return AxeGetLevelByEXP(exp);
             case "Pickaxe": return PickaxeGetLevelByEXP(exp);
             case "Shovel": return ShovelGetLevelByEXP(exp);
@@ -136,6 +136,8 @@ public static class Configuration
     private static float bowChanceToNotLoseArrowBaseIncreasePerLevel = 2.0f;
     private static int bowChanceToNotLoseArrowReduceIncreaseEveryLevel = 5;
     private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.5f;
+    private static float bowBaseAimAccuracy = 1.0f;
+    private static float bowIncreaseAimAccuracyPerLevel = 0.5f;
 
     public static int ExpPerHitBow => bowEXPPerHit;
 
@@ -233,6 +235,20 @@ public static class Configuration
                 else bowChanceToNotLoseArrowReduceQuantityEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceQuantityEveryLevel not set");
         }
+        { //bowBaseAimAccuracy
+            if (bowLevelStats.TryGetValue("bowBaseAimAccuracy", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: bowBaseAimAccuracy is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseAimAccuracy is not double is {value.GetType()}");
+                else bowBaseAimAccuracy = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: bowBaseAimAccuracy not set");
+        }
+        { //bowIncreaseAimAccuracyPerLevel
+            if (bowLevelStats.TryGetValue("bowIncreaseAimAccuracyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel is not double is {value.GetType()}");
+                else bowIncreaseAimAccuracyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel not set");
+        }
 
         // Get entity exp
         Dictionary<string, object> tmpentityExpBow = api.Assets.Get(new AssetLocation("levelup:config/entityexp/bow.json")).ToObject<Dictionary<string, object>>();
@@ -317,149 +333,163 @@ public static class Configuration
         else return 0.0f;
     }
 
+    public static int BowGetAimAccuracyByEXP(int exp)
+    {
+
+        int level = BowGetLevelByEXP(exp);
+        // Exp base for level
+        double accuracyPerLevelBase = bowBaseAimAccuracy;
+        while (level > 1)
+        {
+            accuracyPerLevelBase += bowIncreaseAimAccuracyPerLevel;
+            level -= 1;
+        }
+        return level;
+    }
+
     #endregion
 
-    #region cutlery
-    public static readonly Dictionary<string, int> entityExpCutlery = [];
-    private static int cutleryEXPPerHit = 1;
-    private static int cutleryEXPPerHarvest = 5;
+    #region knife
+    public static readonly Dictionary<string, int> entityExpKnife = [];
+    private static int knifeEXPPerHit = 1;
+    private static int knifeEXPPerHarvest = 5;
 
-    private static int cutleryEXPPerLevelBase = 10;
-    private static double cutleryEXPMultiplyPerLevel = 1.3;
-    private static float cutleryBaseDamage = 1.0f;
-    private static float cutleryIncrementDamagePerLevel = 0.1f;
-    private static float cutleryBaseHarvestMultiply = 0.5f;
-    private static float cutleryIncrementHarvestMultiplyPerLevel = 0.2f;
-    private static float cutleryBaseDurabilityRestoreChance = 0.0f;
-    private static float cutleryDurabilityRestoreChancePerLevel = 2.0f;
-    private static int cutleryDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float cutleryDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int knifeEXPPerLevelBase = 10;
+    private static double knifeEXPMultiplyPerLevel = 1.3;
+    private static float knifeBaseDamage = 1.0f;
+    private static float knifeIncrementDamagePerLevel = 0.1f;
+    private static float knifeBaseHarvestMultiply = 0.5f;
+    private static float knifeIncrementHarvestMultiplyPerLevel = 0.2f;
+    private static float knifeBaseDurabilityRestoreChance = 0.0f;
+    private static float knifeDurabilityRestoreChancePerLevel = 2.0f;
+    private static int knifeDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float knifeDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
 
-    public static int ExpPerHitCutlery => cutleryEXPPerHit;
-    public static int ExpPerHarvestCutlery => cutleryEXPPerHarvest;
+    public static int ExpPerHitKnife => knifeEXPPerHit;
+    public static int ExpPerHarvestKnife => knifeEXPPerHarvest;
 
-    public static void PopulateCutleryConfiguration(ICoreAPI api)
+    public static void PopulateKnifeConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> cutleryLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/cutlery.json")).ToObject<Dictionary<string, object>>();
-        { //cutleryEXPPerLevelBase
-            if (cutleryLevelStats.TryGetValue("cutleryEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryEXPPerLevelBase is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cutleryEXPPerLevelBase is not int is {value.GetType()}");
-                else cutleryEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryEXPPerLevelBase not set");
+        Dictionary<string, object> knifeLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/knife.json")).ToObject<Dictionary<string, object>>();
+        { //knifeEXPPerLevelBase
+            if (knifeLevelStats.TryGetValue("knifeEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerLevelBase is not int is {value.GetType()}");
+                else knifeEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeEXPPerLevelBase not set");
         }
-        { //cutleryEXPMultiplyPerLevel
-            if (cutleryLevelStats.TryGetValue("cutleryEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryEXPMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cutleryEXPMultiplyPerLevel is not double is {value.GetType()}");
-                else cutleryEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryEXPMultiplyPerLevel not set");
+        { //knifeEXPMultiplyPerLevel
+            if (knifeLevelStats.TryGetValue("knifeEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else knifeEXPMultiplyPerLevel = (double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeEXPMultiplyPerLevel not set");
         }
-        { //cutleryBaseDamage
-            if (cutleryLevelStats.TryGetValue("cutleryBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryBaseDamage is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cutleryBaseDamage is not double is {value.GetType()}");
-                else cutleryBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryBaseDamage not set");
+        { //knifeBaseDamage
+            if (knifeLevelStats.TryGetValue("knifeBaseDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeBaseDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeBaseDamage is not double is {value.GetType()}");
+                else knifeBaseDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeBaseDamage not set");
         }
-        { //cutleryIncrementDamagePerLevel
-            if (cutleryLevelStats.TryGetValue("cutleryIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryIncrementDamagePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cutleryIncrementDamagePerLevel is not double is {value.GetType()}");
-                else cutleryIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryIncrementDamagePerLevel not set");
+        { //knifeIncrementDamagePerLevel
+            if (knifeLevelStats.TryGetValue("knifeIncrementDamagePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeIncrementDamagePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeIncrementDamagePerLevel is not double is {value.GetType()}");
+                else knifeIncrementDamagePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeIncrementDamagePerLevel not set");
         }
-        { //cutleryEXPPerHit
-            if (cutleryLevelStats.TryGetValue("cutleryEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryEXPPerHit is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cutleryEXPPerHit is not int is {value.GetType()}");
-                else cutleryEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryEXPPerHit not set");
+        { //knifeEXPPerHit
+            if (knifeLevelStats.TryGetValue("knifeEXPPerHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerHit is not int is {value.GetType()}");
+                else knifeEXPPerHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeEXPPerHit not set");
         }
-        { //cutleryEXPPerHarvest
-            if (cutleryLevelStats.TryGetValue("cutleryEXPPerHarvest", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryEXPPerHarvest is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cutleryEXPPerHarvest is not int is {value.GetType()}");
-                else cutleryEXPPerHarvest = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryEXPPerHarvest not set");
+        { //knifeEXPPerHarvest
+            if (knifeLevelStats.TryGetValue("knifeEXPPerHarvest", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerHarvest is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerHarvest is not int is {value.GetType()}");
+                else knifeEXPPerHarvest = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeEXPPerHarvest not set");
         }
-        { //cutleryBaseHarvestMultiply
-            if (cutleryLevelStats.TryGetValue("cutleryBaseHarvestMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryBaseHarvestMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cutleryBaseHarvestMultiply is not double is {value.GetType()}");
-                else cutleryBaseHarvestMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryBaseHarvestMultiply not set");
+        { //knifeBaseHarvestMultiply
+            if (knifeLevelStats.TryGetValue("knifeBaseHarvestMultiply", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeBaseHarvestMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeBaseHarvestMultiply is not double is {value.GetType()}");
+                else knifeBaseHarvestMultiply = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeBaseHarvestMultiply not set");
         }
-        { //cutleryIncrementHarvestMultiplyPerLevel
-            if (cutleryLevelStats.TryGetValue("cutleryIncrementHarvestMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryIncrementHarvestMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cutleryIncrementHarvestMultiplyPerLevel is not double is {value.GetType()}");
-                else cutleryIncrementHarvestMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryIncrementHarvestMultiplyPerLevel not set");
+        { //knifeIncrementHarvestMultiplyPerLevel
+            if (knifeLevelStats.TryGetValue("knifeIncrementHarvestMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel is not double is {value.GetType()}");
+                else knifeIncrementHarvestMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel not set");
         }
-        { //cutleryBaseDurabilityRestoreChance
-            if (cutleryLevelStats.TryGetValue("cutleryBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cutleryBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else cutleryBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryBaseDurabilityRestoreChance not set");
+        { //knifeBaseDurabilityRestoreChance
+            if (knifeLevelStats.TryGetValue("knifeBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else knifeBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeBaseDurabilityRestoreChance not set");
         }
-        { //cutleryDurabilityRestoreChancePerLevel
-            if (cutleryLevelStats.TryGetValue("cutleryDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cutleryDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else cutleryDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryDurabilityRestoreChancePerLevel not set");
+        { //knifeDurabilityRestoreChancePerLevel
+            if (knifeLevelStats.TryGetValue("knifeDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else knifeDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreChancePerLevel not set");
         }
-        { //cutleryDurabilityRestoreEveryLevelReduceChance
-            if (cutleryLevelStats.TryGetValue("cutleryDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cutleryDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else cutleryDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryDurabilityRestoreEveryLevelReduceChance not set");
+        { //knifeDurabilityRestoreEveryLevelReduceChance
+            if (knifeLevelStats.TryGetValue("knifeDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else knifeDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreEveryLevelReduceChance not set");
         }
-        { //cutleryDurabilityRestoreReduceChanceForEveryLevel
-            if (cutleryLevelStats.TryGetValue("cutleryDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cutleryDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cutleryDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else cutleryDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cutleryDurabilityRestoreReduceChanceForEveryLevel not set");
+        { //knifeDurabilityRestoreReduceChanceForEveryLevel
+            if (knifeLevelStats.TryGetValue("knifeDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else knifeDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreReduceChanceForEveryLevel not set");
         }
 
         // Get entity exp
-        Dictionary<string, object> tmpentityExpCutlery = api.Assets.Get(new AssetLocation("levelup:config/entityexp/cutlery.json")).ToObject<Dictionary<string, object>>();
-        foreach (KeyValuePair<string, object> pair in tmpentityExpCutlery)
+        Dictionary<string, object> tmpentityExpKnife = api.Assets.Get(new AssetLocation("levelup:config/entityexp/knife.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmpentityExpKnife)
         {
-            if (pair.Value is long value) entityExpCutlery.Add(pair.Key, (int)value);
-            else Debug.Log($"CONFIGURATION ERROR: entityExpCutlery {pair.Key} is not int");
+            if (pair.Value is long value) entityExpKnife.Add(pair.Key, (int)value);
+            else Debug.Log($"CONFIGURATION ERROR: entityExpKnife {pair.Key} is not int");
         }
 
-        Debug.Log("Cutlery configuration set");
+        Debug.Log("Knife configuration set");
     }
 
-    public static int CutleryGetLevelByEXP(int exp)
+    public static int KnifeGetLevelByEXP(int exp)
     {
 
         int level = 0;
         // Exp base for level
-        double expPerLevelBase = cutleryEXPPerLevelBase;
+        double expPerLevelBase = knifeEXPPerLevelBase;
         double calcExp = double.Parse(exp.ToString());
         while (calcExp > 0)
         {
             level += 1;
             calcExp -= expPerLevelBase;
             // 10 percentage increasing per level
-            expPerLevelBase *= cutleryEXPMultiplyPerLevel;
+            expPerLevelBase *= knifeEXPMultiplyPerLevel;
         }
         return level;
     }
 
-    public static float CutleryGetDamageMultiplyByEXP(int exp)
+    public static float KnifeGetDamageMultiplyByEXP(int exp)
     {
-        float baseDamage = cutleryBaseDamage;
-        int level = CutleryGetLevelByEXP(exp);
+        float baseDamage = knifeBaseDamage;
+        int level = KnifeGetLevelByEXP(exp);
 
-        float incrementDamage = cutleryIncrementDamagePerLevel;
+        float incrementDamage = knifeIncrementDamagePerLevel;
         float multiply = 0.0f;
         while (level > 1)
         {
@@ -471,12 +501,12 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float CutleryGetHarvestMultiplyByEXP(int exp)
+    public static float KnifeGetHarvestMultiplyByEXP(int exp)
     {
-        float baseMultiply = cutleryBaseHarvestMultiply;
-        int level = CutleryGetLevelByEXP(exp);
+        float baseMultiply = knifeBaseHarvestMultiply;
+        int level = KnifeGetLevelByEXP(exp);
 
-        float incrementMultiply = cutleryIncrementHarvestMultiplyPerLevel;
+        float incrementMultiply = knifeIncrementHarvestMultiplyPerLevel;
         float multiply = 0.0f;
         while (level > 1)
         {
@@ -488,17 +518,17 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static bool CutleryRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool KnifeRollChanceToNotReduceDurabilityByEXP(int exp)
     {
-        int level = CutleryGetLevelByEXP(exp);
-        float baseChanceToNotReduce = cutleryBaseDurabilityRestoreChance;
-        float chanceToNotReduce = cutleryDurabilityRestoreChancePerLevel;
+        int level = KnifeGetLevelByEXP(exp);
+        float baseChanceToNotReduce = knifeBaseDurabilityRestoreChance;
+        float chanceToNotReduce = knifeDurabilityRestoreChancePerLevel;
         while (level > 1)
         {
             level -= 1;
             // Every {} levels reduce the durability chance multiplicator
-            if (level % cutleryDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= cutleryDurabilityRestoreReduceChanceForEveryLevel;
+            if (level % knifeDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= knifeDurabilityRestoreReduceChanceForEveryLevel;
             // Increasing chance
             baseChanceToNotReduce += chanceToNotReduce;
         }
@@ -1530,6 +1560,150 @@ public static class Configuration
         // Check the chance 
         if (chanceToNotReduce >= new Random().Next(0, 100)) return true;
         else return false;
+    }
+    #endregion
+
+    #region vitality
+    private static int vitalityEXPPerReceiveHit = 1;
+    private static float vitalityEXPMultiplyByDamage = 0.5f;
+    private static int vitalityEXPIncreaseByAmountDamage = 1;
+    private static int vitalityEXPPerLevelBase = 10;
+    private static double vitalityEXPMultiplyPerLevel = 2.0;
+    private static float vitalityHPIncreasePerLevel = 10.0f;
+    private static float vitalityBaseHP = 20.0f;
+    private static float vitalityBaseHPRegen = 1.0f;
+    private static float vitalityHPRegenIncreasePerLevel = 0.1f;
+
+    public static void PopulateVitalityConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> vitalityLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/vitality.json")).ToObject<Dictionary<string, object>>();
+        { //vitalityEXPPerLevelBase
+            if (vitalityLevelStats.TryGetValue("vitalityEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityEXPPerLevelBase is not int is {value.GetType()}");
+                else vitalityEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityEXPPerLevelBase not set");
+        }
+        { //vitalityEXPMultiplyPerLevel
+            if (vitalityLevelStats.TryGetValue("vitalityEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else vitalityEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityEXPMultiplyPerLevel not set");
+        }
+        { //vitalityEXPPerReceiveHit
+            if (vitalityLevelStats.TryGetValue("vitalityEXPPerReceiveHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPPerReceiveHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityEXPPerReceiveHit is not int is {value.GetType()}");
+                else vitalityEXPPerReceiveHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityEXPPerReceiveHit not set");
+        }
+        { //vitalityEXPMultiplyByDamage
+            if (vitalityLevelStats.TryGetValue("vitalityEXPMultiplyByDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPMultiplyByDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityEXPMultiplyByDamage is not double is {value.GetType()}");
+                else vitalityEXPMultiplyByDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityEXPMultiplyByDamage not set");
+        }
+        { //vitalityHPIncreasePerLevel
+            if (vitalityLevelStats.TryGetValue("vitalityHPIncreasePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityHPIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityHPIncreasePerLevel is not double is {value.GetType()}");
+                else vitalityHPIncreasePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityHPIncreasePerLevel not set");
+        }
+        { //vitalityBaseHP
+            if (vitalityLevelStats.TryGetValue("vitalityBaseHP", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityBaseHP is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityBaseHP is not double is {value.GetType()}");
+                else vitalityBaseHP = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityBaseHP not set");
+        }
+        { //vitalityEXPIncreaseByAmountDamage
+            if (vitalityLevelStats.TryGetValue("vitalityEXPIncreaseByAmountDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPIncreaseByAmountDamage is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityEXPIncreaseByAmountDamage is not int is {value.GetType()}");
+                else vitalityEXPIncreaseByAmountDamage = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityEXPIncreaseByAmountDamage not set");
+        }
+        { //vitalityBaseHPRegen
+            if (vitalityLevelStats.TryGetValue("vitalityBaseHPRegen", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityBaseHPRegen is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityBaseHPRegen is not double is {value.GetType()}");
+                else vitalityBaseHPRegen = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityBaseHPRegen not set");
+        }
+        { //vitalityHPRegenIncreasePerLevel
+            if (vitalityLevelStats.TryGetValue("vitalityHPRegenIncreasePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel is not double is {value.GetType()}");
+                else vitalityHPRegenIncreasePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel not set");
+        }
+
+        Debug.Log("Vitality configuration set");
+    }
+
+    public static int VitalityGetLevelByEXP(int exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = vitalityEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= vitalityEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+
+    public static float VitalityGetMaxHealthByEXP(int exp)
+    {
+        float baseMultiply = vitalityBaseHP;
+        int level = VitalityGetLevelByEXP(exp);
+
+        float incrementMultiply = vitalityHPIncreasePerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementMultiply;
+            level -= 1;
+        }
+
+        baseMultiply += baseMultiply *= incrementMultiply;
+        return baseMultiply;
+    }
+
+    public static float VitalityGetHealthRegenMultiplyByEXP(int exp)
+    {
+        float baseMultiply = vitalityBaseHPRegen;
+        int level = VitalityGetLevelByEXP(exp);
+
+        float incrementMultiply = vitalityHPRegenIncreasePerLevel;
+        while (level > 1)
+        {
+            baseMultiply += incrementMultiply;
+            level -= 1;
+        }
+        return baseMultiply;
+    }
+
+    public static int VitalityEXPEarnedByDAMAGE(float damage)
+    {
+        float baseMultiply = vitalityEXPPerReceiveHit;
+        int calcDamage = (int)Math.Round(damage);
+
+        float multiply = (float)vitalityEXPMultiplyByDamage;
+        while (calcDamage > 1)
+        {
+            // Increase experience
+            if (calcDamage % vitalityEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
+            calcDamage -= 1;
+        }
+        return (int)Math.Round(baseMultiply);
     }
     #endregion
 }

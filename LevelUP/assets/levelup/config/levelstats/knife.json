@@ -1,0 +1,14 @@
+{
+    "knifeEXPPerHit": 1,
+    "knifeEXPPerHarvest": 5,
+    "knifeEXPPerLevelBase": 10,
+    "knifeEXPMultiplyPerLevel": 1.3,
+    "knifeBaseDamage": 1.0,
+    "knifeIncrementDamagePerLevel": 0.1,
+    "knifeBaseHarvestMultiply": 0.5,
+    "knifeIncrementHarvestMultiplyPerLevel": 0.2,
+    "knifeBaseDurabilityRestoreChance": 0.0,
+    "knifeDurabilityRestoreChancePerLevel": 2.0,
+    "knifeDurabilityRestoreEveryLevelReduceChance": 10,
+    "knifeDurabilityRestoreReduceChanceForEveryLevel": 0.5
+}

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Threading.Tasks;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
@@ -16,12 +16,13 @@ class Instance
     // Levels
     public LevelHunter levelHunter = new();
     public LevelBow levelBow = new();
-    public LevelCutlery levelCutlery = new();
+    public LevelKnife levelKnife = new();
     public LevelAxe levelAxe = new();
     public LevelPickaxe levelPickaxe = new();
     public LevelShovel levelShovel = new();
     public LevelSpear levelSpear = new();
     public LevelFarming levelFarming = new();
+    public LevelVitality levelVitality = new();
     private readonly Dictionary<string, bool> increaseExpDelay = [];
 
     public void Init(ICoreServerAPI serverAPI)
@@ -29,7 +30,7 @@ class Instance
         api = serverAPI;
         levelHunter.Init(this);
         levelBow.Init(this);
-        levelCutlery.Init(this);
+        levelKnife.Init(this);
         levelAxe.Init(this);
         levelPickaxe.Init(this);
         levelShovel.Init(this);
@@ -45,27 +46,60 @@ class Instance
     {
         levelHunter.PopulateConfiguration(coreAPI);
         levelBow.PopulateConfiguration(coreAPI);
-        levelCutlery.PopulateConfiguration(coreAPI);
+        levelKnife.PopulateConfiguration(coreAPI);
         levelAxe.PopulateConfiguration(coreAPI);
         levelPickaxe.PopulateConfiguration(coreAPI);
         levelShovel.PopulateConfiguration(coreAPI);
         levelSpear.PopulateConfiguration(coreAPI);
         levelFarming.PopulateConfiguration(coreAPI);
+        levelVitality.PopulateConfiguration(coreAPI);
     }
 
-    public void OnClientMessage(IServerPlayer player, string message)
+    public void OnClientMessage(IServerPlayer player, string bruteMessage)
     {
+        Dictionary<string, object> arguments = new Dictionary<string, object>();
+        string message;
+        if (bruteMessage.Contains('&'))
+        {
+            string[] messages = bruteMessage.Split('&');
+
+            message = messages[0];
+
+            string[] argumentsArray = new string[messages.Length - 1];
+            Array.Copy(messages, 1, argumentsArray, 0, messages.Length - 1);
+
+            // Receber os argumentos
+            foreach (string value in argumentsArray)
+            {
+                string[] keyValue = value.Split('=');
+                if (keyValue.Length == 2)
+                {
+                    arguments[keyValue[0]] = keyValue[1];
+                }
+                else
+                {
+
+                }
+            }
+        }
+        else
+        {
+            message = bruteMessage;
+        }
+
         switch (message)
         {
             case "UpdateLevels": UpdatePlayerLevels(player); return;
             #region hit
-            case "Increase_Cutlery_Hit": IncreaseExp(player, "Cutlery", "Hit"); return;
+            case "Increase_Knife_Hit": IncreaseExp(player, "Knife", "Hit"); return;
             case "Increase_Bow_Hit": IncreaseExp(player, "Bow", "Hit"); return;
             case "Increase_Axe_Hit": IncreaseExp(player, "Axe", "Hit"); return;
             case "Increase_Pickaxe_Hit": IncreaseExp(player, "Pickaxe", "Hit"); return;
             case "Increase_Shovel_Hit": IncreaseExp(player, "Shovel", "Hit"); return;
             case "Increase_Spear_Hit": IncreaseExp(player, "Spear", "Hit"); return;
             case "Increase_Spear_Hit_Throw": IncreaseExp(player, "Spear", "Hit_Throw"); return;
+            case "Increase_Vitality_Hit":
+                IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"] is null || arguments["forceexp"] is not int ? 0 : (int)arguments["forceexp"]); return;
             #endregion
             #region breaking
             case "Block_Breaked_Axe": IncreaseExp(player, "Axe", "Breaking"); return;
@@ -74,21 +108,22 @@ class Instance
             #endregion
             #region harvesting
             case "Tree_Breaked_Axe": IncreaseExp(player, "Axe", "Chop_Tree"); return;
-            case "Cutlery_Harvest_Entity": IncreaseExp(player, "Cutlery", "Harvest"); return;
+            case "Knife_Harvest_Entity": IncreaseExp(player, "Knife", "Harvest"); return;
             case "Soil_Till": IncreaseExp(player, "Farming", "Till"); return;
             #endregion
             #region crafting
             case "Cooking_Finished": IncreaseExp(player, "Cooking", "Cooking_Finished"); return;
                 #endregion
         }
+
     }
 
-    private void IncreaseExp(IServerPlayer player, string levelType, string reason, bool delayIgnorable = false)
+    private void IncreaseExp(IServerPlayer player, string levelType, string reason, int forceexp = -1)
     {
-        // Check for delay
-        if (increaseExpDelay.GetValueOrDefault(player.PlayerName, false) && !delayIgnorable) return;
-        increaseExpDelay[player.PlayerName] = true;
-        Task.Delay(100).ContinueWith((_) => increaseExpDelay.Remove(player.PlayerName));
+        // // Check for delay
+        // if (increaseExpDelay.GetValueOrDefault(player.PlayerName, false) && !delayIgnorable) return;
+        // increaseExpDelay[player.PlayerName] = true;
+        // Task.Delay(100).ContinueWith((_) => increaseExpDelay.Remove(player.PlayerName));
 
         Dictionary<string, int> GetSavedLevels()
         {
@@ -115,37 +150,37 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitCutlery} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitKnife} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
-        #region cutlery
+        #region knife
         // Hit
-        if (levelType == "Cutlery" && reason == "Hit")
+        if (levelType == "Knife" && reason == "Hit")
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitCutlery;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitKnife;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitCutlery} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitKnife} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Harvest
-        else if (levelType == "Cutlery" && reason == "Harvest")
+        else if (levelType == "Knife" && reason == "Harvest")
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHarvestCutlery;
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHarvestKnife;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHarvestCutlery} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHarvestKnife} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region axe
@@ -314,6 +349,22 @@ class Instance
             Debug.Log($"{player.PlayerName} earned {Configuration.expPerCookedCooking} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
+        #region vitality
+        // Get hit
+        if (levelType == "Vitality" && reason == "Hit" && forceexp != -1)
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + forceexp;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
     }
 
     private void UpdatePlayerLevels(IServerPlayer player)
@@ -333,7 +384,7 @@ class Instance
         Shared.Instance.UpdateLevelAndNotify(api, player, "Bow", GetSavedLevels("Bow").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Axe Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Cutlery", GetSavedLevels("Cutlery").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Knife", GetSavedLevels("Knife").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Axe Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Axe", GetSavedLevels("Axe").GetValueOrDefault(player.PlayerName, 0), true);
@@ -352,5 +403,8 @@ class Instance
 
         // Cooking Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault(player.PlayerName, 0), true);
+
+        // Vitality Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault(player.PlayerName, 0), true);
     }
 }
