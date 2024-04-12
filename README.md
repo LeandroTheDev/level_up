@@ -8,27 +8,26 @@ Features:
 
 LEVELS:
 - Hunter: Increases all damages sources to others creatures and players, earn xp by killing things
-- Bow: Increases bow damages and reduce chance to lose arrows, earn xp by hitting and killing things with bows
-- Cutlery: Increases knifes damages and harvest entity drops, earn xp by harvesting entities, hitting and killing things with knifes
+- Bow: Increases bow damage, precision and reduce chance to lose arrows, earn xp by hitting and killing things with bows
+- Knife: Increases knifes damages and harvest entity drops, earn xp by harvesting entities, hitting and killing things with knifes
 - Spear: Increase spear damages, earn xp by hitting and killing things with spear
 - Axe: Increases axes damages and mining speed, earn xp by chopping trees, breaking wood, hitting and killing things with axes
 - Pickaxe: Increase pickaxes damages, ore drops and mining speed, earn xp by breaking stones, hitting and killing things with pickaxes
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
+- Vitality: Increase max health and health regen, earn xp by getting hitted
 
 Future features:
-- Vitality system increasing hp.
-- Vitality system increasing hp regen.
 - Smithing specialist.
 - Cooking specialist.
-- Bow level increase precision.
+- Better level view.
+- Hardcore, lose levels when die.
+- Spear precision based on level.
 
 https://github.com/LeandroTheDev/level_up/assets/106118473/8409a3ee-08ce-42b6-8747-aa7bf6405a26
 
 ### Observations
 Integer limit, this mods saves the experience from the player as int, and C# integer limit is beyond the 2 billions, so if the player exp is reaching this number is quitly dangerous what would happen.
-
-The nearest player in the cooking fire pit will receive the cooking experience when finish, if no players where found you will lose the experience.
 
 This mod needs to be in both sides the client and server for working propertly, you can still build this only in server side, but some things will not work for example the mining speed mechanics will not work because the mining speed is handled by the client, also the level viewer will not be available for the clients.
 
@@ -41,7 +40,7 @@ To change the configurations go to the mod folder in assets folders, if you want
 ### Considerations
 This mod changes a lot of native codes and can break easily throught updates.
 
-Performances leaks can be apparent because of damage increase, drops rates system and level calculation, 
+Performances leaks on server can be apparent because of damage increase, drops rates system and level calculation, 
 memory usage in the server can be slightly bigger because of static configurations.
 
 Players with high numbers of levels can cause more cpu usage in the server side, and also the client when calculating the level.

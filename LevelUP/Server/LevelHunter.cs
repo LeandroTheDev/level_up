@@ -10,8 +10,6 @@ class LevelHunter
 {
     private Instance instance;
 
-    readonly Dictionary<string, int> entityExp = [];
-
     public void Init(Instance _instance)
     {
         instance = _instance;
