@@ -43,7 +43,7 @@ class LevelBow
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
-        if (damageSource == null || damageSource.SourceEntity == null) return;
+        if (damageSource == null) return;
         // Checking ranged weapon damage
         if (damageSource.SourceEntity is EntityProjectile && damageSource.GetCauseEntity() is EntityPlayer)
         {

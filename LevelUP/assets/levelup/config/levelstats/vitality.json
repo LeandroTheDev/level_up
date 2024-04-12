@@ -4,8 +4,8 @@
     "vitalityEXPIncreaseByAmountDamage": 1,
     "vitalityEXPPerLevelBase": 10,
     "vitalityEXPMultiplyPerLevel": 2.0,
-    "vitalityHPIncreasePerLevel": 10.0,
     "vitalityBaseHP": 20.0,
+    "vitalityHPIncreasePerLevel": 2.0,
     "vitalityBaseHPRegen": 1.0,
     "vitalityHPRegenIncreasePerLevel": 0.1
 }
