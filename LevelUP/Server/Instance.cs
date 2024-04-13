@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Timers;
-using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;

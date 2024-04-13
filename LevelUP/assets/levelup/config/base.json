@@ -12,5 +12,6 @@
     "enableLevelShovel": true,
     "enableLevelFarming": true,
     "enableLevelCooking": true,
-    "enableLevelVitality": true
+    "enableLevelVitality": true,
+    "disableServerChannel": false
 }

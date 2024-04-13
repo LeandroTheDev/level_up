@@ -48,7 +48,9 @@ class OverwriteBlockInteraction
 
             // Increasing entity drop rate
             player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.KnifeGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Knife")));
-        };
+        }
+        // Single player treatment
+        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.channel.SendPacket("Knife_Harvest_Entity");
     }
     // Overwrite Knife Harvesting
     [HarmonyPostfix]
@@ -83,6 +85,8 @@ class OverwriteBlockInteraction
                 if (playerEntity.Player is IServerPlayer) instance.serverAPI?.OnClientMessage(playerEntity.Player as IServerPlayer, "Soil_Till");
             }
         }
+        // Single player treatment
+        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && secondsUsed >= 1.0f) instance.clientAPI.channel.SendPacket("Soil_Till");
     }
 
     // // Used for cooking communication

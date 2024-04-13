@@ -5,6 +5,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
+using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
@@ -48,7 +49,7 @@ class LevelShovel
         // Error treatment
         if (damageSource == null || damageSource.SourceEntity == null) return;
         // The cause of the death is from a projectile
-        if (damageSource.GetCauseEntity() is EntityPlayer) return;
+        if (damageSource.GetCauseEntity() is not EntityPlayer && damageSource.SourceEntity is EntityProjectile) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 

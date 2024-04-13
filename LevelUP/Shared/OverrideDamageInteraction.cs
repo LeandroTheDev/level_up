@@ -33,6 +33,7 @@ class OverwriteDamageInteraction
     }
 
     // Overwrite Damage Interaction
+    static bool singlePlayerDoubleCheck = true; // for some reason in single player the client instance is called 2 times in a row
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
     public static bool ReceiveDamage(Entity __instance, DamageSource damageSource, float damage)
@@ -61,6 +62,13 @@ class OverwriteDamageInteraction
                     damage *= Configuration.KnifeGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Knife"));
                     // Increase exp for using knife weapons
                     if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Knife_Hit");
+                    // Single player treatment
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                    {
+                        instance.clientAPI.channel.SendPacket("Increase_Knife_Hit");
+                        singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+                    }
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
                 };
                 #endregion
 
@@ -71,6 +79,13 @@ class OverwriteDamageInteraction
                     damage *= Configuration.AxeGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Axe"));
                     // Increase exp for using axe weapons
                     if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Axe_Hit");
+                    // Single player treatment
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                    {
+                        instance.clientAPI.channel.SendPacket("Increase_Axe_Hit");
+                        singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+                    }
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
                 };
                 #endregion
 
@@ -81,6 +96,13 @@ class OverwriteDamageInteraction
                     damage *= Configuration.PickaxeGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Pickaxe"));
                     // Increase exp for using pickaxe weapons
                     if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Pickaxe_Hit");
+                    // Single player treatment
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                    {
+                        instance.clientAPI.channel.SendPacket("Increase_Pickaxe_Hit");
+                        singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+                    }
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
                 };
                 #endregion
 
@@ -91,6 +113,13 @@ class OverwriteDamageInteraction
                     damage *= Configuration.ShovelGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Shovel"));
                     // Increase exp for using shovel weapons
                     if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Shovel_Hit");
+                    // Single player treatment
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                    {
+                        instance.clientAPI.channel.SendPacket("Increase_Shovel_Hit");
+                        singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+                    }
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
                 };
                 #endregion
 
@@ -101,6 +130,13 @@ class OverwriteDamageInteraction
                     damage *= Configuration.SpearGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Spear"));
                     // Increase exp for using spear weapons
                     if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Spear_Hit");
+                    // Single player treatment
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                    {
+                        instance.clientAPI.channel.SendPacket("Increase_Spear_Hit");
+                        singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+                    }
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
                 }
                 #endregion
             }
@@ -121,6 +157,13 @@ class OverwriteDamageInteraction
                     damage *= Configuration.BowGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Bow"));
                     // Increase exp for using bow weapons
                     if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Bow_Hit");
+                    // Single player treatment
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                    {
+                        instance.clientAPI.channel.SendPacket("Increase_Bow_Hit");
+                        singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+                    }
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
                 };
                 #endregion
 
@@ -131,6 +174,13 @@ class OverwriteDamageInteraction
                     damage *= Configuration.SpearGetDamageMultiplyByEXP(playerEntity.WatchedAttributes.GetInt("LevelUP_Spear"));
                     // Increase exp for using spear weapons
                     if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Spear_Hit");
+                    // Single player treatment
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                    {
+                        instance.clientAPI.channel.SendPacket("Increase_Spear_Hit");
+                        singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+                    }
+                    else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
                 };
                 #endregion
             }
@@ -150,6 +200,13 @@ class OverwriteDamageInteraction
             #region vitality
             if (player is IServerPlayer && instance.serverAPI != null)
                 instance.serverAPI?.OnClientMessage(player as IServerPlayer, $"Increase_Vitality_Hit&forceexp={Configuration.VitalityEXPEarnedByDAMAGE(damage)}");
+            // Single player treatment
+            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+            {
+                instance.clientAPI.channel.SendPacket($"Increase_Vitality_Hit&forceexp={Configuration.VitalityEXPEarnedByDAMAGE(damage)}");
+                singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+            }
+            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
             #endregion
         };
 
@@ -207,16 +264,20 @@ class OverwriteDamageInteraction
         // Check if the entity is a player and if this code is running on the server
         if (byEntity is EntityPlayer && world.Side == EnumAppSide.Server)
         {
-            // Refresh player inventory
-            foreach (IPlayer iplayer in instance.serverAPI.api.World.AllOnlinePlayers)
+            // Dedicated Server needs to broadcast the durability restoration, single player no
+            if (instance.serverAPI != null)
             {
-                // Find the player instance
-                if (iplayer.PlayerName == byEntity.GetName())
+                // Refresh player inventory
+                foreach (IPlayer iplayer in instance.serverAPI.api.World.AllOnlinePlayers)
                 {
-                    IServerPlayer player = iplayer as IServerPlayer;
-                    // We need to refresh player inventory with new durability
-                    Task.Delay(100).ContinueWith((_) => player.BroadcastPlayerData(true));
-                    break;
+                    // Find the player instance
+                    if (iplayer.PlayerName == byEntity.GetName())
+                    {
+                        IServerPlayer player = iplayer as IServerPlayer;
+                        // We need to refresh player inventory with new durability
+                        Task.Delay(100).ContinueWith((_) => player.BroadcastPlayerData(true));
+                        break;
+                    }
                 }
             }
             EntityPlayer playerEntity = byEntity as EntityPlayer;
