@@ -66,6 +66,8 @@ class OverwriteBlockBreak
                 // Earny xp by breaking tree
                 instance.serverAPI?.OnClientMessage(playerEntity.Player as IServerPlayer, "Tree_Breaked_Axe");
             }
+            // Single player treatment
+            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.channel.SendPacket("Tree_Breaked_Axe");
         }
     }
 

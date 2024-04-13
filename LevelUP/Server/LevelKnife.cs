@@ -3,6 +3,7 @@ using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Util;
+using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
@@ -42,9 +43,9 @@ class LevelKnife
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
-        if (damageSource == null || damageSource.SourceEntity == null) return;
+        if (damageSource == null) return;
         // The cause of the death is from a projectile
-        if (damageSource.GetCauseEntity() is EntityPlayer) return;
+        if (damageSource.GetCauseEntity() is not EntityPlayer && damageSource.SourceEntity is EntityProjectile) return;
         // Entity kill is not from a player
         if (damageSource.SourceEntity is not EntityPlayer) return;
 
@@ -53,6 +54,8 @@ class LevelKnife
 
         // Get player instance
         IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+
+        Debug.Log(player.InventoryManager.ActiveTool.ToString());
 
         // Check if player is using a bow
         if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;

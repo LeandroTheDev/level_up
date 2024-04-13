@@ -26,9 +26,10 @@ Future features:
 - Store data based on player uid.
 - Store experience as int64.
 - Earn more pickaxe experience by breaking ores.
-- Chain Armor
-- Leather Armor
+- Chain Armor Armor levels
+- Leather Armor Armor levels
 - Cute level up sound
+- Commands for administration manipulation
 
 https://github.com/LeandroTheDev/level_up/assets/106118473/8409a3ee-08ce-42b6-8747-aa7bf6405a26
 
