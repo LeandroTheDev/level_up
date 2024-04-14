@@ -5,6 +5,7 @@ Features:
 - GUI Level in chacter view
 - Each tools has a chance to not use durability by the level you have for the specific tool
 - Fully configurable
+- Hardcore mode (configurable)
 
 LEVELS:
 - Hunter: Increases all damages sources to others creatures and players, earn xp by killing things
@@ -21,7 +22,6 @@ Future features:
 - Smithing specialist.
 - Cooking specialist.
 - Better level view.
-- Hardcore mode, lose levels when die.
 - Spear precision based on level.
 - Store data based on player uid.
 - Store experience as int64.
@@ -58,7 +58,7 @@ Changes in players stats like oreDropRate, animalLootDropRate is completly overw
 
 This mod might break other levels mods or be breaked.
 
-All the mod calculations and patches is thinking in the server performance, feel free to suggest improviments if you found something getting slow.
+All the mod calculations and patches is thinking in the server performance, feel free to suggest improviments if you find something getting slow.
 
 ### About Level UP
 Level UP is open source project and can easily be accessed on the github, all contents from this mod is completly free.
