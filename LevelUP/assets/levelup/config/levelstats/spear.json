@@ -8,5 +8,7 @@
     "spearBaseDurabilityRestoreChance": 0.0,
     "spearDurabilityRestoreChancePerLevel": 2.0,
     "spearDurabilityRestoreEveryLevelReduceChance": 10,
-    "spearDurabilityRestoreReduceChanceForEveryLevel": 0.5
+    "spearDurabilityRestoreReduceChanceForEveryLevel": 0.5,
+    "spearBaseAimAccuracy": 0.7,
+    "spearIncreaseAimAccuracyPerLevel": 0.01
 }

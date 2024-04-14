@@ -251,7 +251,7 @@ public static class Configuration
         Debug.Log($"CONFIG: enableExtendedLog, value: {enableExtendedLog}");
     }
     #endregion
-    public static int GetLevelByLevelTypeEXP(string levelType, int exp)
+    public static int GetLevelByLevelTypeEXP(string levelType, ulong exp)
     {
         switch (levelType)
         {
@@ -271,7 +271,7 @@ public static class Configuration
         return 1;
     }
 
-    public static float GetMiningSpeedByLevelTypeEXP(string levelType, int exp)
+    public static float GetMiningSpeedByLevelTypeEXP(string levelType, ulong exp)
     {
         switch (levelType)
         {
@@ -334,7 +334,7 @@ public static class Configuration
         Debug.Log("Hunter configuration set");
     }
 
-    public static int HunterGetLevelByEXP(int exp)
+    public static int HunterGetLevelByEXP(ulong exp)
     {
 
         int level = 0;
@@ -351,7 +351,7 @@ public static class Configuration
         return level;
     }
 
-    public static float HunterGetDamageMultiplyByEXP(int exp)
+    public static float HunterGetDamageMultiplyByEXP(ulong exp)
     {
         float baseDamage = hunterBaseDamage;
         int level = HunterGetLevelByEXP(exp);
@@ -510,7 +510,7 @@ public static class Configuration
         Debug.Log("Bow configuration set");
     }
 
-    public static int BowGetLevelByEXP(int exp)
+    public static int BowGetLevelByEXP(ulong exp)
     {
 
         int level = 0;
@@ -527,7 +527,7 @@ public static class Configuration
         return level;
     }
 
-    public static float BowGetDamageMultiplyByEXP(int exp)
+    public static float BowGetDamageMultiplyByEXP(ulong exp)
     {
         float baseDamage = bowBaseDamage;
         int level = BowGetLevelByEXP(exp);
@@ -544,7 +544,7 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static bool BowRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool BowRollChanceToNotReduceDurabilityByEXP(ulong exp)
     {
         int level = BowGetLevelByEXP(exp);
         float baseChanceToNotReduce = bowBaseDurabilityRestoreChance;
@@ -563,7 +563,7 @@ public static class Configuration
         else return false;
     }
 
-    public static float BowGetChanceToNotLoseArrowByEXP(int exp)
+    public static float BowGetChanceToNotLoseArrowByEXP(ulong exp)
     {
         int level = BowGetLevelByEXP(exp);
         float baseChanceToNotLose = bowBaseChanceToNotLoseArrow;
@@ -582,18 +582,18 @@ public static class Configuration
         else return 0.0f;
     }
 
-    public static int BowGetAimAccuracyByEXP(int exp)
+    public static float BowGetAimAccuracyByEXP(ulong exp)
     {
 
         int level = BowGetLevelByEXP(exp);
         // Exp base for level
-        double accuracyPerLevelBase = bowBaseAimAccuracy;
+        float accuracyPerLevelBase = bowBaseAimAccuracy;
         while (level > 1)
         {
             accuracyPerLevelBase += bowIncreaseAimAccuracyPerLevel;
             level -= 1;
         }
-        return level;
+        return accuracyPerLevelBase;
     }
 
     #endregion
@@ -717,7 +717,7 @@ public static class Configuration
         Debug.Log("Knife configuration set");
     }
 
-    public static int KnifeGetLevelByEXP(int exp)
+    public static int KnifeGetLevelByEXP(ulong exp)
     {
 
         int level = 0;
@@ -734,7 +734,7 @@ public static class Configuration
         return level;
     }
 
-    public static float KnifeGetDamageMultiplyByEXP(int exp)
+    public static float KnifeGetDamageMultiplyByEXP(ulong exp)
     {
         float baseDamage = knifeBaseDamage;
         int level = KnifeGetLevelByEXP(exp);
@@ -751,7 +751,7 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float KnifeGetHarvestMultiplyByEXP(int exp)
+    public static float KnifeGetHarvestMultiplyByEXP(ulong exp)
     {
         float baseMultiply = knifeBaseHarvestMultiply;
         int level = KnifeGetLevelByEXP(exp);
@@ -767,7 +767,7 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static bool KnifeRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool KnifeRollChanceToNotReduceDurabilityByEXP(ulong exp)
     {
         int level = KnifeGetLevelByEXP(exp);
         float baseChanceToNotReduce = knifeBaseDurabilityRestoreChance;
@@ -917,7 +917,7 @@ public static class Configuration
         Debug.Log("Axe configuration set");
     }
 
-    public static int AxeGetLevelByEXP(int exp)
+    public static int AxeGetLevelByEXP(ulong exp)
     {
 
         int level = 0;
@@ -934,7 +934,7 @@ public static class Configuration
         return level;
     }
 
-    public static float AxeGetDamageMultiplyByEXP(int exp)
+    public static float AxeGetDamageMultiplyByEXP(ulong exp)
     {
         float baseDamage = axeBaseDamage;
         int level = AxeGetLevelByEXP(exp);
@@ -951,7 +951,7 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float AxeGetMiningMultiplyByEXP(int exp)
+    public static float AxeGetMiningMultiplyByEXP(ulong exp)
     {
         float baseSpeed = axeBaseMiningSpeed;
         int level = AxeGetLevelByEXP(exp);
@@ -968,7 +968,7 @@ public static class Configuration
         return baseSpeed;
     }
 
-    public static bool AxeRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool AxeRollChanceToNotReduceDurabilityByEXP(ulong exp)
     {
         int level = AxeGetLevelByEXP(exp);
         float baseChanceToNotReduce = axeBaseDurabilityRestoreChance;
@@ -990,6 +990,7 @@ public static class Configuration
 
     #region pickaxe
     public static readonly Dictionary<string, int> entityExpPickaxe = [];
+    public static readonly Dictionary<string, int> oresExpPickaxe = [];
     private static int pickaxeEXPPerHit = 1;
     private static int pickaxeEXPPerBreaking = 1;
     private static int pickaxeEXPPerLevelBase = 10;
@@ -1120,10 +1121,20 @@ public static class Configuration
             else Debug.Log($"CONFIGURATION ERROR: entityExpPickaxe {pair.Key} is not int");
         }
 
+        // Get ores exp
+        oresExpPickaxe.Clear();
+        Dictionary<string, object> tmporesExpPickaxe = api.Assets.Get(new AssetLocation("levelup:config/levelstats/pickaxesores.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmporesExpPickaxe)
+        {
+            if (pair.Value is long value) oresExpPickaxe.Add(pair.Key, (int)value);
+            else Debug.Log($"CONFIGURATION ERROR: oresExpPickaxe {pair.Key} is not int");
+        }
+
+
         Debug.Log("Pickaxe configuration set");
     }
 
-    public static int PickaxeGetLevelByEXP(int exp)
+    public static int PickaxeGetLevelByEXP(ulong exp)
     {
 
         int level = 0;
@@ -1140,7 +1151,7 @@ public static class Configuration
         return level;
     }
 
-    public static float PickaxeGetOreMultiplyByEXP(int exp)
+    public static float PickaxeGetOreMultiplyByEXP(ulong exp)
     {
         float baseMultiply = pickaxeBaseOreMultiply;
         int level = PickaxeGetLevelByEXP(exp);
@@ -1157,7 +1168,7 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static float PickaxeGetDamageMultiplyByEXP(int exp)
+    public static float PickaxeGetDamageMultiplyByEXP(ulong exp)
     {
         float baseDamage = pickaxeBaseDamage;
         int level = PickaxeGetLevelByEXP(exp);
@@ -1174,7 +1185,7 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float PickaxeGetMiningMultiplyByEXP(int exp)
+    public static float PickaxeGetMiningMultiplyByEXP(ulong exp)
     {
         float baseSpeed = pickaxeBaseMiningSpeed;
         int level = PickaxeGetLevelByEXP(exp);
@@ -1191,7 +1202,7 @@ public static class Configuration
         return baseSpeed;
     }
 
-    public static bool PickaxeRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool PickaxeRollChanceToNotReduceDurabilityByEXP(ulong exp)
     {
         int level = PickaxeGetLevelByEXP(exp);
         float baseChanceToNotReduce = pickaxeBaseDurabilityRestoreChance;
@@ -1329,7 +1340,7 @@ public static class Configuration
         Debug.Log("Shovel configuration set");
     }
 
-    public static int ShovelGetLevelByEXP(int exp)
+    public static int ShovelGetLevelByEXP(ulong exp)
     {
 
         int level = 0;
@@ -1346,7 +1357,7 @@ public static class Configuration
         return level;
     }
 
-    public static float ShovelGetDamageMultiplyByEXP(int exp)
+    public static float ShovelGetDamageMultiplyByEXP(ulong exp)
     {
         float baseDamage = shovelBaseDamage;
         int level = ShovelGetLevelByEXP(exp);
@@ -1363,7 +1374,7 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float ShovelGetMiningMultiplyByEXP(int exp)
+    public static float ShovelGetMiningMultiplyByEXP(ulong exp)
     {
         float baseSpeed = shovelBaseMiningSpeed;
         int level = ShovelGetLevelByEXP(exp);
@@ -1380,7 +1391,7 @@ public static class Configuration
         return baseSpeed;
     }
 
-    public static bool ShovelRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool ShovelRollChanceToNotReduceDurabilityByEXP(ulong exp)
     {
         int level = ShovelGetLevelByEXP(exp);
         float baseChanceToNotReduce = shovelBaseDurabilityRestoreChance;
@@ -1412,6 +1423,8 @@ public static class Configuration
     private static float spearDurabilityRestoreChancePerLevel = 2.0f;
     private static int spearDurabilityRestoreEveryLevelReduceChance = 10;
     private static float spearDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static float spearBaseAimAccuracy = 1.0f;
+    private static float spearIncreaseAimAccuracyPerLevel = 0.5f;
 
 
     public static int ExpPerHitSpear => spearEXPPerHit;
@@ -1490,6 +1503,21 @@ public static class Configuration
                 else spearDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: spearDurabilityRestoreReduceChanceForEveryLevel not set");
         }
+        { //spearBaseAimAccuracy
+            if (spearLevelStats.TryGetValue("spearBaseAimAccuracy", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: spearBaseAimAccuracy is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearBaseAimAccuracy is not double is {value.GetType()}");
+                else spearBaseAimAccuracy = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: spearBaseAimAccuracy not set");
+        }
+        { //spearIncreaseAimAccuracyPerLevel
+            if (spearLevelStats.TryGetValue("spearIncreaseAimAccuracyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel is not double is {value.GetType()}");
+                else spearIncreaseAimAccuracyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel not set");
+        }
+
 
         // Get entity exp
         entityExpSpear.Clear();
@@ -1502,7 +1530,7 @@ public static class Configuration
         Debug.Log("Spear configuration set");
     }
 
-    public static int SpearGetLevelByEXP(int exp)
+    public static int SpearGetLevelByEXP(ulong exp)
     {
         int level = 0;
         // Exp base for level
@@ -1518,7 +1546,7 @@ public static class Configuration
         return level;
     }
 
-    public static float SpearGetDamageMultiplyByEXP(int exp)
+    public static float SpearGetDamageMultiplyByEXP(ulong exp)
     {
         float baseDamage = spearBaseDamage;
         int level = SpearGetLevelByEXP(exp);
@@ -1535,7 +1563,7 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static bool SpearRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool SpearRollChanceToNotReduceDurabilityByEXP(ulong exp)
     {
         int level = SpearGetLevelByEXP(exp);
         float baseChanceToNotReduce = spearBaseDurabilityRestoreChance;
@@ -1552,6 +1580,20 @@ public static class Configuration
         // Check the chance 
         if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
         else return false;
+    }
+
+    public static float SpearGetAimAccuracyByEXP(ulong exp)
+    {
+
+        int level = SpearGetLevelByEXP(exp);
+        // Exp base for level
+        float accuracyPerLevelBase = spearBaseAimAccuracy;
+        while (level > 1)
+        {
+            accuracyPerLevelBase += spearIncreaseAimAccuracyPerLevel;
+            level -= 1;
+        }
+        return accuracyPerLevelBase;
     }
     #endregion
 
@@ -1649,7 +1691,7 @@ public static class Configuration
         Debug.Log("Farming configuration set");
     }
 
-    public static int FarmingGetLevelByEXP(int exp)
+    public static int FarmingGetLevelByEXP(ulong exp)
     {
         int level = 0;
         // Exp base for level
@@ -1665,7 +1707,7 @@ public static class Configuration
         return level;
     }
 
-    public static float FarmingGetHarvestMultiplyByEXP(int exp)
+    public static float FarmingGetHarvestMultiplyByEXP(ulong exp)
     {
         float baseMultiply = farmingBaseHarvestMultiply;
         int level = FarmingGetLevelByEXP(exp);
@@ -1682,7 +1724,7 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static bool FarmingRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool FarmingRollChanceToNotReduceDurabilityByEXP(ulong exp)
     {
         int level = FarmingGetLevelByEXP(exp);
         float baseChanceToNotReduce = farmingBaseDurabilityRestoreChance;
@@ -1710,7 +1752,7 @@ public static class Configuration
         Debug.Log("Cooking configuration set");
     }
 
-    public static int CookingGetLevelByEXP(int exp)
+    public static int CookingGetLevelByEXP(ulong exp)
     {
         int level = 0;
         // Exp base for level
@@ -1726,7 +1768,7 @@ public static class Configuration
         return level;
     }
 
-    public static float CookingGetSaturationMultiplyByEXP(int exp)
+    public static float CookingGetSaturationMultiplyByEXP(ulong exp)
     {
         float baseMultiply = 1.0f;
         int level = CookingGetLevelByEXP(exp);
@@ -1743,7 +1785,7 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static float CookingGetFreshHoursMultiplyByEXP(int exp)
+    public static float CookingGetFreshHoursMultiplyByEXP(ulong exp)
     {
         float baseMultiply = 1.0f;
         int level = CookingGetLevelByEXP(exp);
@@ -1760,7 +1802,7 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static int CookingGetServingsByEXPAndServings(int exp, int quantityServings)
+    public static int CookingGetServingsByEXPAndServings(ulong exp, int quantityServings)
     {
         int level = CookingGetLevelByEXP(exp);
         float chanceToIncrease = 0.0f;
@@ -1791,7 +1833,7 @@ public static class Configuration
         return quantityServings;
     }
 
-    public static bool CookingRollChanceToNotReduceDurabilityByEXP(int exp)
+    public static bool CookingRollChanceToNotReduceDurabilityByEXP(ulong exp)
     {
         int level = CookingGetLevelByEXP(exp);
         float chanceToNotReduce = 0.0f;
@@ -1898,7 +1940,7 @@ public static class Configuration
         Debug.Log("Vitality configuration set");
     }
 
-    public static int VitalityGetLevelByEXP(int exp)
+    public static int VitalityGetLevelByEXP(ulong exp)
     {
         int level = 0;
         // Exp base for level
@@ -1914,7 +1956,7 @@ public static class Configuration
         return level;
     }
 
-    public static float VitalityGetMaxHealthByEXP(int exp)
+    public static float VitalityGetMaxHealthByEXP(ulong exp)
     {
         float baseMultiply = vitalityBaseHP;
         int level = VitalityGetLevelByEXP(exp);
@@ -1928,7 +1970,7 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static float VitalityGetHealthRegenMultiplyByEXP(int exp)
+    public static float VitalityGetHealthRegenMultiplyByEXP(ulong exp)
     {
         float baseMultiply = vitalityBaseHPRegen;
         int level = VitalityGetLevelByEXP(exp);

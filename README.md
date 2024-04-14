@@ -6,14 +6,15 @@ Features:
 - Each tools has a chance to not use durability by the level you have for the specific tool
 - Fully configurable
 - Hardcore mode (configurable)
+- Commands for administration manipulation
 
 LEVELS:
 - Hunter: Increases all damages sources to others creatures and players, earn xp by killing things
 - Bow: Increases bow damage, precision and reduce chance to lose arrows, earn xp by hitting and killing things with bows
 - Knife: Increases knifes damages and harvest entity drops, earn xp by harvesting entities, hitting and killing things with knifes
-- Spear: Increase spear damages, earn xp by hitting and killing things with spear
+- Spear: Increase spear damages and precision, earn xp by hitting and killing things with spear
 - Axe: Increases axes damages and mining speed, earn xp by chopping trees, breaking wood, hitting and killing things with axes
-- Pickaxe: Increase pickaxes damages, ore drops and mining speed, earn xp by breaking stones, hitting and killing things with pickaxes
+- Pickaxe: Increase pickaxes damages, ore drops and mining speed, earn xp by breaking stones, ores, hitting and killing things with pickaxes
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
 - Vitality: Increase max health and health regen, earn xp by getting hitted
@@ -22,20 +23,14 @@ Future features:
 - Smithing specialist.
 - Cooking specialist.
 - Better level view.
-- Spear precision based on level.
 - Store data based on player uid.
-- Store experience as int64.
-- Earn more pickaxe experience by breaking ores.
 - Chain Armor Armor levels
 - Leather Armor Armor levels
 - Cute level up sound
-- Commands for administration manipulation
 
 https://github.com/LeandroTheDev/level_up/assets/106118473/8409a3ee-08ce-42b6-8747-aa7bf6405a26
 
 ### Observations
-Integer limit, this mods saves the experience from the player as int, and C# integer limit is beyond the 2 billions, so if the player exp is reaching this number is quitly dangerous what would happen.
-
 This mod needs to be in both sides the client and server for working propertly, you can still build this only in server side, but some things will not work for example the mining speed mechanics will not work because the mining speed is handled by the client, also the level viewer will not be available for the clients.
 
 Increase crop drop rate will only be increased if you harvest a crop with the final stage or the penultimate stage, the same for earning xp harvesting crops, harvesting crops in penultimate stage will decrease the experience gained, (default)

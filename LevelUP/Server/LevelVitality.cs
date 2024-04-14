@@ -34,11 +34,11 @@ class LevelVitality
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, int> GetSavedLevels()
+    private Dictionary<string, ulong> GetSavedLevels()
     {
         byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Vitality");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
     }
 
     private Dictionary<string, double> GetSavedState()
@@ -56,10 +56,10 @@ class LevelVitality
     private void PlayerJoin(IServerPlayer player)
     {
         // Get all players levels
-        Dictionary<string, int> VitalityLevels = GetSavedLevels();
+        Dictionary<string, ulong> VitalityLevels = GetSavedLevels();
 
         // Get the actual player total exp
-        int playerExp = VitalityLevels.GetValueOrDefault(player.PlayerName, 0);
+        ulong playerExp = VitalityLevels.GetValueOrDefault<string, ulong>(player.PlayerName, 0);
 
         // Get player stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
@@ -70,7 +70,7 @@ class LevelVitality
         playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByEXP(playerExp);
         playerStats.MaxHealth = playerStats.BaseMaxHealth;
         playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByEXP(playerExp);
-        
+
         // Reload player health
         if (playerState.TryGetValue(player.PlayerName, out double value)) playerStats.Health = (float)value;
 

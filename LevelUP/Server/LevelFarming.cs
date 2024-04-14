@@ -29,14 +29,14 @@ class LevelFarming
     #pragma warning restore CA1822
 
 
-    private Dictionary<string, int> GetSavedLevels()
+    private Dictionary<string, ulong> GetSavedLevels()
     {
         byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Farming");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
     }
 
-    private void SaveLevels(Dictionary<string, int> farmingLevels)
+    private void SaveLevels(Dictionary<string, ulong> farmingLevels)
     {
         instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Farming", JsonSerializer.Serialize(farmingLevels));
     }
@@ -51,20 +51,20 @@ class LevelFarming
         Debug.Log($"{breakedBlock.Block.Code}");
 
         // Get all players levels
-        Dictionary<string, int> farmingLevels = GetSavedLevels();
+        Dictionary<string, ulong> farmingLevels = GetSavedLevels();
 
         // Get the exp received
         int exp = Configuration.expPerHarvestFarming.Get(breakedBlock.Block.Code.ToString(), 0);
 
         // Get the actual player total exp
-        int playerExp = farmingLevels.GetValueOrDefault(playerEntity.GetName(), 0);
+        ulong playerExp = farmingLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         // Incrementing
-        farmingLevels[playerEntity.GetName()] = playerExp + exp;
+        farmingLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(farmingLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Farming", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Farming", farmingLevels[playerEntity.GetName()]);
     }
 }

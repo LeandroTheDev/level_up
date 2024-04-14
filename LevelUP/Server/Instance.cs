@@ -11,6 +11,7 @@ class Instance
 {
     public ICoreServerAPI api;
     private IServerNetworkChannel channel;
+    private readonly Commands commands = new();
 
     // Levels
     public LevelHunter levelHunter = new();
@@ -40,6 +41,9 @@ class Instance
         if (Configuration.enableLevelFarming) levelFarming.Init(this);
         if (Configuration.enableLevelVitality) levelVitality.Init(this);
         Debug.Log("Server Levels instanciated");
+
+        // Register commands
+        commands.Init(this);
 
         // Check for channel communication
         if (!Configuration.disableServerChannel)
@@ -132,14 +136,14 @@ class Instance
 
     private void IncreaseExp(IServerPlayer player, string levelType, string reason, int forceexp = 0)
     {
-        Dictionary<string, int> GetSavedLevels()
+        Dictionary<string, ulong> GetSavedLevels()
         {
             byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
             string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+            return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
         }
 
-        void SaveLevels(Dictionary<string, int> levels)
+        void SaveLevels(Dictionary<string, ulong> levels)
         {
             api.WorldManager.SaveGame.StoreData($"LevelUPData_{levelType}", JsonSerializer.Serialize(levels));
         }
@@ -150,14 +154,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitBow;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitBow;
+
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitKnife} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitBow} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region knife
@@ -166,7 +171,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitKnife;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitKnife;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -180,7 +185,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHarvestKnife;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHarvestKnife;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -196,7 +201,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitAxe;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitAxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -210,7 +215,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerBreakingAxe;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerBreakingAxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -224,7 +229,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerTreeBreakingAxe;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerTreeBreakingAxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -240,7 +245,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitPickaxe;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitPickaxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -254,7 +259,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerBreakingPickaxe;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerBreakingPickaxe;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -270,7 +275,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitShovel;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitShovel;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -284,7 +289,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerBreakingShovel;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerBreakingShovel;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -300,7 +305,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerHitSpear;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitSpear;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -314,7 +319,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerThrowSpear;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerThrowSpear;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -330,7 +335,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.ExpPerTillFarming;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerTillFarming;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -346,7 +351,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + Configuration.expPerCookedCooking;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.expPerCookedCooking;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -362,7 +367,7 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            int exp = levels.GetValueOrDefault(player.PlayerName, 0) + forceexp;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)forceexp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
@@ -376,6 +381,51 @@ class Instance
 
     private void UpdatePlayerLevels(IServerPlayer player)
     {
+        try
+        {
+            // Get all players hunter level
+            Dictionary<string, ulong> GetSavedLevels(string levelType)
+            {
+                byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
+                string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
+                return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
+            }
+
+            // Hunter Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Hunter", GetSavedLevels("Hunter").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Bow Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Bow", GetSavedLevels("Bow").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Axe Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Knife", GetSavedLevels("Knife").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Axe Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Axe", GetSavedLevels("Axe").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Pickaxe Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Pickaxe", GetSavedLevels("Pickaxe").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Shovel Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Shovel", GetSavedLevels("Shovel").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Spear Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Spear", GetSavedLevels("Spear").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Farming Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Cooking Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+            // Vitality Level
+            Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+        }
+        catch (Exception) { LegacyUpdatePlayerLevels(player); }
+    }
+
+    private void LegacyUpdatePlayerLevels(IServerPlayer player)
+    {
         // Get all players hunter level
         Dictionary<string, int> GetSavedLevels(string levelType)
         {
@@ -385,93 +435,133 @@ class Instance
         }
 
         // Hunter Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Hunter", GetSavedLevels("Hunter").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Hunter", GetSavedLevels("Hunter").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Bow Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Bow", GetSavedLevels("Bow").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Bow", GetSavedLevels("Bow").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Axe Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Knife", GetSavedLevels("Knife").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Knife", GetSavedLevels("Knife").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Axe Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Axe", GetSavedLevels("Axe").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Axe", GetSavedLevels("Axe").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Pickaxe Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Pickaxe", GetSavedLevels("Pickaxe").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Pickaxe", GetSavedLevels("Pickaxe").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Shovel Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Shovel", GetSavedLevels("Shovel").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Shovel", GetSavedLevels("Shovel").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Spear Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Spear", GetSavedLevels("Spear").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Spear", GetSavedLevels("Spear").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Farming Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Cooking Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault(player.PlayerName, 0), true);
 
         // Vitality Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault(player.PlayerName, 0), true);
     }
 
     private void ResetPlayerLevels(IServerPlayer player, DamageSource damageSource)
     {
         // Get all players hunter level
-        Dictionary<string, int> GetSavedLevels(string levelType)
+        Dictionary<string, ulong> GetSavedLevels(string levelType)
         {
             byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
             string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+            return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Hunter");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Hunter");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Hunter", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Bow");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Bow");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Bow", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Knife");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Knife");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Knife", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Axe");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Axe");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Axe", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Pickaxe");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Pickaxe");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Pickaxe", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Shovel");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Shovel");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Shovel", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Spear");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Spear");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Spear", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Farming");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Farming");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Farming", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Cooking");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Cooking");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Cooking", JsonSerializer.Serialize(level));
         }
         {
-            Dictionary<string, int> level = GetSavedLevels("Vitality");
-            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            Dictionary<string, ulong> level = GetSavedLevels("Vitality");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality", JsonSerializer.Serialize(level));
         }
     }
