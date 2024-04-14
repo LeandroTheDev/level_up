@@ -1,7 +1,6 @@
-
 {
-    "This file doesn't change anything yet ok?": "ok!",
     "enableHardcore": false,
+    "hardcoreLosePercentage": 0.8,
     "enableDurabilityMechanic": true,
     "enableLevelHunter": true,
     "enableLevelBow": true,
@@ -13,5 +12,6 @@
     "enableLevelFarming": true,
     "enableLevelCooking": true,
     "enableLevelVitality": true,
-    "disableServerChannel": false
+    "disableServerChannel": false,
+    "enableExtendedLog": false
 }

@@ -26,23 +26,43 @@ class Instance
     public void Init(ICoreServerAPI serverAPI)
     {
         api = serverAPI;
-        levelHunter.Init(this);
-        levelBow.Init(this);
-        levelKnife.Init(this);
-        levelAxe.Init(this);
-        levelPickaxe.Init(this);
-        levelShovel.Init(this);
-        levelSpear.Init(this);
-        levelFarming.Init(this);
-        levelVitality.Init(this);
+        // Update player levels when player enters in the world
+        api.Event.PlayerNowPlaying += UpdatePlayerLevels;
+
+        // Enable levels
+        if (Configuration.enableLevelHunter) levelHunter.Init(this);
+        if (Configuration.enableLevelBow) levelBow.Init(this);
+        if (Configuration.enableLevelKnife) levelKnife.Init(this);
+        if (Configuration.enableLevelAxe) levelAxe.Init(this);
+        if (Configuration.enableLevelPickaxe) levelPickaxe.Init(this);
+        if (Configuration.enableLevelShovel) levelShovel.Init(this);
+        if (Configuration.enableLevelSpear) levelSpear.Init(this);
+        if (Configuration.enableLevelFarming) levelFarming.Init(this);
+        if (Configuration.enableLevelVitality) levelVitality.Init(this);
         Debug.Log("Server Levels instanciated");
-        channel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
-        channel.SetMessageHandler<string>(OnClientMessage);
-        Debug.Log("Server Network registered");
+
+        // Check for channel communication
+        if (!Configuration.disableServerChannel)
+        {
+            channel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
+            channel.SetMessageHandler<string>(OnClientMessage);
+            Debug.Log("Server Network registered");
+        }
+
+        // Enable hardcore death event
+        if (Configuration.enableHardcore)
+        {
+            api.Event.PlayerDeath += ResetPlayerLevels;
+            Debug.Log("Hardcore death event instanciated");
+        }
+
+        // Show configurations if enabled
+        if (Configuration.enableExtendedLog) Configuration.LogConfigurations();
     }
 
     public void PopulateConfigurations(ICoreAPI coreAPI)
     {
+        Configuration.UpdateBaseConfigurations(coreAPI);
         levelHunter.PopulateConfiguration(coreAPI);
         levelBow.PopulateConfiguration(coreAPI);
         levelKnife.PopulateConfiguration(coreAPI);
@@ -393,5 +413,66 @@ class Instance
 
         // Vitality Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault(player.PlayerName, 0), true);
+    }
+
+    private void ResetPlayerLevels(IServerPlayer player, DamageSource damageSource)
+    {
+        // Get all players hunter level
+        Dictionary<string, int> GetSavedLevels(string levelType)
+        {
+            byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
+            string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
+            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Hunter");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Hunter", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Bow");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Bow", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Knife");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Knife", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Axe");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Axe", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Pickaxe");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Pickaxe", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Shovel");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Shovel", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Spear");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Spear", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Farming");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Farming", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Cooking");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Cooking", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, int> level = GetSavedLevels("Vitality");
+            if (level.TryGetValue(player.PlayerName, out int value)) level[player.PlayerName] = (int)Math.Round(value * Configuration.hardcoreLosePercentage);
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality", JsonSerializer.Serialize(level));
+        }
     }
 }

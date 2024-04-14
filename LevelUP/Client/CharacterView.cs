@@ -33,7 +33,6 @@ class CharacterView
     // Compose the gui page for the level tab
     private void ComposeLevelTab(GuiComposer composer)
     {
-        instance.channel.SendPacket<string>("UpdateLevels");
         composer.AddRichtext(GetText(), CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15), ElementBounds.Fixed(0.0, 25.0, 385.0, 200.0));
     }
 

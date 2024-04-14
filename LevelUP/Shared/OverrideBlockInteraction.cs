@@ -36,6 +36,8 @@ class OverwriteBlockInteraction
     [HarmonyPatch(typeof(EntityBehaviorHarvestable), "SetHarvested")]
     public static void SetHarvestedKnifeStart(EntityBehaviorHarvestable __instance, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
+        if (!Configuration.enableLevelKnife) return;
+
         // Check if is from the server
         if (byPlayer is IServerPlayer && __instance.entity.World.Side == EnumAppSide.Server)
         {
@@ -48,6 +50,8 @@ class OverwriteBlockInteraction
 
             // Increasing entity drop rate
             player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.KnifeGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Knife")));
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"{player.PlayerName} harvested any entity with knife, multiply drop: {Configuration.KnifeGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Knife"))}");
         }
         // Single player treatment
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.channel.SendPacket("Knife_Harvest_Entity");
@@ -57,6 +61,7 @@ class OverwriteBlockInteraction
     [HarmonyPatch(typeof(EntityBehaviorHarvestable), "SetHarvested")]
     public static void SetHarvestedKnifeFinish(EntityBehaviorHarvestable __instance, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
+        if (!Configuration.enableLevelKnife) return;
         // Check if is from the server
         if (byPlayer is IServerPlayer && __instance.entity.World.Side == EnumAppSide.Server)
         {
@@ -73,6 +78,7 @@ class OverwriteBlockInteraction
     [HarmonyPatch(typeof(ItemHoe), "OnHeldInteractStep")]
     public static void OnHeldInteractStep(bool __result, float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
     {
+        if (!Configuration.enableLevelFarming) return;
         // Check if soil is tilled and is from the server
         if (byEntity.World.Side == EnumAppSide.Server && secondsUsed >= 1.0f)
         {
