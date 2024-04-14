@@ -36,11 +36,11 @@ class Instance
         blockInteraction.overwriter?.UnpatchAll();
     }
 
-    public static void UpdateLevelAndNotify(ICoreServerAPI api, IPlayer player, string levelType, int exp, bool disableLevelUpNotify = false)
+    public static void UpdateLevelAndNotify(ICoreServerAPI api, IPlayer player, string levelType, ulong exp, bool disableLevelUpNotify = false)
     {
 
         // Previous exp level, before getting the new experience
-        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, player.Entity.WatchedAttributes.GetInt($"LevelUP_{levelType}", 0));
+        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}", 0));
         // Actual player level
         int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
         // Check if player leveled up
@@ -54,7 +54,7 @@ class Instance
 
                 Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
             }
-            
+
             // if vitality leveled we need to update the player max health
             if (levelType == "Vitality")
             {
@@ -75,12 +75,63 @@ class Instance
         }
 
         // Experience
-        player.Entity.WatchedAttributes.SetInt($"LevelUP_{levelType}", exp);
+        player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}", (long)exp);
         // Level
         player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
 
         // Mining speed
-        float miningspeed = Configuration.GetMiningSpeedByLevelTypeEXP(levelType, nextLevel);
+        float miningspeed = Configuration.GetMiningSpeedByLevelTypeEXP(levelType, exp);
+        // Check if this levelType has mining speed
+        if (miningspeed != -1)
+            // Set the mining speed for clients
+            player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
+    }
+
+    public static void LegacyUpdateLevelAndNotify(ICoreServerAPI api, IPlayer player, string levelType, int exp, bool disableLevelUpNotify = false)
+    {
+
+        // Previous exp level, before getting the new experience
+        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetInt($"LevelUP_{levelType}", 0));
+        // Actual player level
+        int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)exp);
+        // Check if player leveled up
+        if (previousLevel < nextLevel)
+        {
+            // Check if we want to notify
+            if (!disableLevelUpNotify)
+            {
+                // Notify player
+                api.SendMessage(player, 0, $"You reached level {nextLevel} in {levelType}", EnumChatType.Notification);
+
+                Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
+            }
+
+            // if vitality leveled we need to update the player max health
+            if (levelType == "Vitality")
+            {
+                // Get player stats
+                EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
+                // Check if stats is null
+                if (playerStats == null) { Debug.Log($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
+
+                // Getting health stats
+                playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByEXP((ulong)exp);
+                playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByEXP((ulong)exp);
+
+                // Refresh for the player
+                playerStats.UpdateMaxHealth();
+
+                Debug.Log($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
+            }
+        }
+
+        // Experience
+        player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}", exp);
+        // Level
+        player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
+
+        // Mining speed
+        float miningspeed = Configuration.GetMiningSpeedByLevelTypeEXP(levelType, (ulong)exp);
         // Check if this levelType has mining speed
         if (miningspeed != -1)
             // Set the mining speed for clients

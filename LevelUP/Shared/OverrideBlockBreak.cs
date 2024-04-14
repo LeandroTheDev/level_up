@@ -84,10 +84,10 @@ class OverwriteBlockBreak
         {
             IServerPlayer player = byPlayer as IServerPlayer;
             // Increasing ore drop rate
-            player.Entity.Stats.Set("oreDropRate", "oreDropRate", Configuration.PickaxeGetOreMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Pickaxe")));
+            player.Entity.Stats.Set("oreDropRate", "oreDropRate", Configuration.PickaxeGetOreMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Pickaxe")));
 
             if (Configuration.enableExtendedLog)
-                Debug.Log($"{player.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Pickaxe"))}");
+                Debug.Log($"{player.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Pickaxe"))}");
         }
     }
 
@@ -108,14 +108,14 @@ class OverwriteBlockBreak
                 {
                     IServerPlayer player = byPlayer as IServerPlayer;
                     // Multiply crop drop
-                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Farming")));
+                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Farming")));
                     // Update item stack result
                     __result[index] = itemStack;
                 }
                 index++;
             }
             if (Configuration.enableExtendedLog)
-                Debug.Log($"{byPlayer.PlayerName} breaked a crop, multiply drop: {Configuration.FarmingGetHarvestMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetAsInt("LevelUP_Farming"))}");
+                Debug.Log($"{byPlayer.PlayerName} breaked a crop, multiply drop: {Configuration.FarmingGetHarvestMultiplyByEXP((ulong)byPlayer.Entity.WatchedAttributes.GetLong("LevelUP_Farming"))}");
         }
         return __result;
     }

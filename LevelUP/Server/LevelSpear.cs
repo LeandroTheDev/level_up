@@ -28,14 +28,14 @@ class LevelSpear
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, int> GetSavedLevels()
+    private Dictionary<string, ulong> GetSavedLevels()
     {
         byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Spear");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
     }
 
-    private void SaveLevels(Dictionary<string, int> spearLevels)
+    private void SaveLevels(Dictionary<string, ulong> spearLevels)
     {
         instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Spear", JsonSerializer.Serialize(spearLevels));
     }
@@ -74,22 +74,22 @@ class LevelSpear
         }
 
         // Get all players levels
-        Dictionary<string, int> spearLevels = GetSavedLevels();
+        Dictionary<string, ulong> spearLevels = GetSavedLevels();
 
         // Get the exp received
         int exp = Configuration.entityExpSpear.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
-        int playerExp = spearLevels.GetValueOrDefault(playerEntity.GetName(), 0);
+        ulong playerExp = spearLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, spear exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        spearLevels[playerEntity.GetName()] = playerExp + exp;
+        spearLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(spearLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Spear", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Spear", spearLevels[playerEntity.GetName()]);
     }
 }

@@ -28,14 +28,14 @@ class LevelKnife
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, int> GetSavedLevels()
+    private Dictionary<string, ulong> GetSavedLevels()
     {
         byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Knife");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
     }
 
-    private void SaveLevels(Dictionary<string, int> knifeLevels)
+    private void SaveLevels(Dictionary<string, ulong> knifeLevels)
     {
         instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Knife", JsonSerializer.Serialize(knifeLevels));
     }
@@ -61,22 +61,22 @@ class LevelKnife
         if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;
 
         // Get all players levels
-        Dictionary<string, int> knifeLevels = GetSavedLevels();
+        Dictionary<string, ulong> knifeLevels = GetSavedLevels();
 
         // Get the exp received
         int exp = Configuration.entityExpKnife.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
-        int playerExp = knifeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
+        ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, knife exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        knifeLevels[playerEntity.GetName()] = playerExp + exp;
+        knifeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(knifeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", knifeLevels[playerEntity.GetName()]);
     }
 }

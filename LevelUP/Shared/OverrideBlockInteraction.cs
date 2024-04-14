@@ -49,9 +49,9 @@ class OverwriteBlockInteraction
             player.Entity.Stats.Set("old_animalLootDropRate", "old_animalLootDropRate", player.Entity.Stats.GetBlended("animalLootDropRate"));
 
             // Increasing entity drop rate
-            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.KnifeGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Knife")));
+            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.KnifeGetHarvestMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Knife")));
             if (Configuration.enableExtendedLog)
-                Debug.Log($"{player.PlayerName} harvested any entity with knife, multiply drop: {Configuration.KnifeGetHarvestMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Knife"))}");
+                Debug.Log($"{player.PlayerName} harvested any entity with knife, multiply drop: {Configuration.KnifeGetHarvestMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Knife"))}");
         }
         // Single player treatment
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.channel.SendPacket("Knife_Harvest_Entity");

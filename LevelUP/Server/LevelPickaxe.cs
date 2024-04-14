@@ -23,22 +23,22 @@ class LevelPickaxe
         Debug.Log("Level Pickaxe initialized");
     }
 
-    #pragma warning disable CA1822
+#pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulatePickaxeConfiguration(coreAPI);
-    }    
-    #pragma warning restore CA1822
+    }
+#pragma warning restore CA1822
 
-    private Dictionary<string, int> GetSavedLevels()
+    private Dictionary<string, ulong> GetSavedLevels()
     {
         byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Pickaxe");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
     }
 
-    private void SaveLevels(Dictionary<string, int> pickaxeLevels)
+    private void SaveLevels(Dictionary<string, ulong> pickaxeLevels)
     {
         instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Pickaxe", JsonSerializer.Serialize(pickaxeLevels));
     }
@@ -62,23 +62,23 @@ class LevelPickaxe
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
 
         // Get all players levels
-        Dictionary<string, int> pickaxeLevels = GetSavedLevels();
+        Dictionary<string, ulong> pickaxeLevels = GetSavedLevels();
 
         // Get the exp received
         int exp = Configuration.entityExpPickaxe.GetValueOrDefault(entity.GetName(), 0);
 
         // Get the actual player total exp
-        int playerExp = pickaxeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
+        ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, pickaxe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        pickaxeLevels[playerEntity.GetName()] = playerExp + exp;
+        pickaxeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(pickaxeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", pickaxeLevels[playerEntity.GetName()]);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
@@ -89,21 +89,21 @@ class LevelPickaxe
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Stone && breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Ore) return;
 
         // Get all players levels
-        Dictionary<string, int> pickaxeLevels = GetSavedLevels();
+        Dictionary<string, ulong> pickaxeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.ExpPerBreakingPickaxe;
+        int exp = Configuration.oresExpPickaxe.GetValueOrDefault(breakedBlock.Block.Code.ToString(), Configuration.ExpPerBreakingPickaxe);
 
         // Get the actual player total exp
-        int playerExp = pickaxeLevels.GetValueOrDefault(playerEntity.GetName(), 0);
+        ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
         // Incrementing
-        pickaxeLevels[playerEntity.GetName()] = playerExp + exp;
+        pickaxeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(pickaxeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", playerExp + exp);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", pickaxeLevels[playerEntity.GetName()]);
     }
 }
