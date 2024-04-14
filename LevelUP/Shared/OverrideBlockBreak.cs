@@ -43,9 +43,12 @@ class OverwriteBlockBreak
     {
         switch (byPlayer.InventoryManager.ActiveTool)
         {
-            case EnumTool.Axe: return __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f);
-            case EnumTool.Pickaxe: return __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f);
-            case EnumTool.Shovel: return __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f);
+            case EnumTool.Axe:
+                return Configuration.enableLevelAxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f) : __result;
+            case EnumTool.Pickaxe:
+                return Configuration.enableLevelPickaxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f) : __result;
+            case EnumTool.Shovel:
+                return Configuration.enableLevelShovel ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f) : __result;
             case null: break;
         }
         return __result;
@@ -57,7 +60,7 @@ class OverwriteBlockBreak
     public static void OnBlockBrokenWith(ItemAxe __instance, IWorldAccessor world, Entity byEntity, ItemSlot itemslot, BlockSelection blockSel, float dropQuantityMultiplier = 1f)
     {
         // Check if axe breaked is a player
-        if (byEntity is EntityPlayer)
+        if (Configuration.enableLevelAxe && byEntity is EntityPlayer)
         {
             EntityPlayer playerEntity = byEntity as EntityPlayer;
             // Check if is server side
@@ -77,11 +80,14 @@ class OverwriteBlockBreak
     public static void OnBlockBroken(BlockOre __instance, IWorldAccessor world, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
         // Check if is from the server
-        if (byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
+        if (Configuration.enableLevelPickaxe && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
         {
             IServerPlayer player = byPlayer as IServerPlayer;
             // Increasing ore drop rate
             player.Entity.Stats.Set("oreDropRate", "oreDropRate", Configuration.PickaxeGetOreMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Pickaxe")));
+
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"{player.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByEXP(player.Entity.WatchedAttributes.GetAsInt("LevelUP_Pickaxe"))}");
         }
     }
 
@@ -91,7 +97,7 @@ class OverwriteBlockBreak
     public static ItemStack[] GetDrops(ItemStack[] __result, BlockCrop __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
         // Check if is from the server
-        if (byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
+        if (Configuration.enableLevelFarming && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
         {
             // Swipe all items tack drops
             int index = 0;
@@ -108,6 +114,8 @@ class OverwriteBlockBreak
                 }
                 index++;
             }
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"{byPlayer.PlayerName} breaked a crop, multiply drop: {Configuration.FarmingGetHarvestMultiplyByEXP(byPlayer.Entity.WatchedAttributes.GetAsInt("LevelUP_Farming"))}");
         }
         return __result;
     }

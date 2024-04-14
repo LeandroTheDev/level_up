@@ -4,8 +4,253 @@ using Vintagestory.API.Common;
 
 namespace LevelUP;
 
+#pragma warning disable CA2211
 public static class Configuration
 {
+    #region baseconfigs
+    public static bool enableHardcore = false;
+    public static double hardcoreLosePercentage = 0.8;
+    public static bool enableDurabilityMechanic = true;
+    public static bool enableLevelHunter = true;
+    public static bool enableLevelBow = true;
+    public static bool enableLevelKnife = true;
+    public static bool enableLevelSpear = true;
+    public static bool enableLevelAxe = true;
+    public static bool enableLevelPickaxe = true;
+    public static bool enableLevelShovel = true;
+    public static bool enableLevelFarming = true;
+    public static bool enableLevelCooking = true;
+    public static bool enableLevelVitality = true;
+    public static bool disableServerChannel = false;
+    public static bool enableExtendedLog = false;
+
+    public static void UpdateBaseConfigurations(ICoreAPI api)
+    {
+        Dictionary<string, object> baseConfigs = api.Assets.Get(new AssetLocation("levelup:config/base.json")).ToObject<Dictionary<string, object>>();
+        { //enableHardcore
+            if (baseConfigs.TryGetValue("enableHardcore", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableHardcore is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableHardcore is not boolean is {value.GetType()}");
+                else enableHardcore = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableHardcore not set");
+        }
+        { //hardcoreLosePercentage
+            if (baseConfigs.TryGetValue("hardcoreLosePercentage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hardcoreLosePercentage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hardcoreLosePercentage is not double is {value.GetType()}");
+                else hardcoreLosePercentage = (double)value;
+            else Debug.Log("CONFIGURATION ERROR: hardcoreLosePercentage not set");
+        }
+        { //enableDurabilityMechanic
+            if (baseConfigs.TryGetValue("enableDurabilityMechanic", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableDurabilityMechanic is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableDurabilityMechanic is not boolean is {value.GetType()}");
+                else enableDurabilityMechanic = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableDurabilityMechanic not set");
+        }
+        { //enableLevelHunter
+            if (baseConfigs.TryGetValue("enableLevelHunter", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelHunter is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHunter is not boolean is {value.GetType()}");
+                else enableLevelHunter = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelHunter not set");
+        }
+        { //enableLevelBow
+            if (baseConfigs.TryGetValue("enableLevelBow", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelBow is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelBow is not boolean is {value.GetType()}");
+                else enableLevelBow = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelBow not set");
+        }
+        { //enableLevelKnife
+            if (baseConfigs.TryGetValue("enableLevelKnife", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelKnife is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelKnife is not boolean is {value.GetType()}");
+                else enableLevelKnife = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelKnife not set");
+        }
+        { //enableLevelSpear
+            if (baseConfigs.TryGetValue("enableLevelSpear", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelSpear is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelSpear is not boolean is {value.GetType()}");
+                else enableLevelSpear = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelSpear not set");
+        }
+        { //enableLevelAxe
+            if (baseConfigs.TryGetValue("enableLevelAxe", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelAxe is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelAxe is not boolean is {value.GetType()}");
+                else enableLevelAxe = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelAxe not set");
+        }
+        { //enableLevelPickaxe
+            if (baseConfigs.TryGetValue("enableLevelPickaxe", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelPickaxe is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelPickaxe is not boolean is {value.GetType()}");
+                else enableLevelPickaxe = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelPickaxe not set");
+        }
+        { //enableLevelShovel
+            if (baseConfigs.TryGetValue("enableLevelShovel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelShovel is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelShovel is not boolean is {value.GetType()}");
+                else enableLevelShovel = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelShovel not set");
+        }
+        { //enableLevelFarming
+            if (baseConfigs.TryGetValue("enableLevelFarming", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelFarming is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelFarming is not boolean is {value.GetType()}");
+                else enableLevelFarming = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelFarming not set");
+        }
+
+        { //enableLevelCooking
+            if (baseConfigs.TryGetValue("enableLevelCooking", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelCooking is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelCooking is not boolean is {value.GetType()}");
+                else enableLevelCooking = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelCooking not set");
+        }
+        { //enableLevelVitality
+            if (baseConfigs.TryGetValue("enableLevelVitality", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelVitality is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelVitality is not boolean is {value.GetType()}");
+                else enableLevelVitality = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelVitality not set");
+        }
+        { //disableServerChannel
+            if (baseConfigs.TryGetValue("disableServerChannel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: disableServerChannel is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: disableServerChannel is not boolean is {value.GetType()}");
+                else disableServerChannel = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: disableServerChannel not set");
+        }
+        { //enableExtendedLog
+            if (baseConfigs.TryGetValue("enableExtendedLog", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableExtendedLog is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableExtendedLog is not boolean is {value.GetType()}");
+                else enableExtendedLog = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableExtendedLog not set");
+        }
+    }
+
+    public static void LogConfigurations()
+    {
+        Debug.Log($"CONFIG: hunterEXPPerLevelBase, value: {hunterEXPPerLevelBase}");
+        Debug.Log($"CONFIG: hunterEXPMultiplyPerLevel, value: {hunterEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: hunterBaseDamage, value: {hunterBaseDamage}");
+        Debug.Log($"CONFIG: hunterIncrementDamagePerLevel, value: {hunterIncrementDamagePerLevel}");
+        Debug.Log($"CONFIG: bowEXPPerHit, value: {bowEXPPerHit}");
+        Debug.Log($"CONFIG: bowEXPPerLevelBase, value: {bowEXPPerLevelBase}");
+        Debug.Log($"CONFIG: bowEXPMultiplyPerLevel, value: {bowEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: bowBaseDamage, value: {bowBaseDamage}");
+        Debug.Log($"CONFIG: bowIncrementDamagePerLevel, value: {bowIncrementDamagePerLevel}");
+        Debug.Log($"CONFIG: bowBaseDurabilityRestoreChance, value: {bowBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: bowDurabilityRestoreChancePerLevel, value: {bowDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: bowDurabilityRestoreEveryLevelReduceChance, value: {bowDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: bowDurabilityRestoreReduceChanceForEveryLevel, value: {bowDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: bowBaseChanceToNotLoseArrow, value: {bowBaseChanceToNotLoseArrow}");
+        Debug.Log($"CONFIG: bowChanceToNotLoseArrowBaseIncreasePerLevel, value: {bowChanceToNotLoseArrowBaseIncreasePerLevel}");
+        Debug.Log($"CONFIG: bowChanceToNotLoseArrowReduceIncreaseEveryLevel, value: {bowChanceToNotLoseArrowReduceIncreaseEveryLevel}");
+        Debug.Log($"CONFIG: bowChanceToNotLoseArrowReduceQuantityEveryLevel, value: {bowChanceToNotLoseArrowReduceQuantityEveryLevel}");
+        Debug.Log($"CONFIG: bowBaseAimAccuracy, value: {bowBaseAimAccuracy}");
+        Debug.Log($"CONFIG: bowIncreaseAimAccuracyPerLevel, value: {bowIncreaseAimAccuracyPerLevel}");
+        Debug.Log($"CONFIG: knifeEXPPerHit, value: {knifeEXPPerHit}");
+        Debug.Log($"CONFIG: knifeEXPPerHarvest, value: {knifeEXPPerHarvest}");
+        Debug.Log($"CONFIG: knifeEXPPerLevelBase, value: {knifeEXPPerLevelBase}");
+        Debug.Log($"CONFIG: knifeEXPMultiplyPerLevel, value: {knifeEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: knifeBaseDamage, value: {knifeBaseDamage}");
+        Debug.Log($"CONFIG: knifeIncrementDamagePerLevel, value: {knifeIncrementDamagePerLevel}");
+        Debug.Log($"CONFIG: knifeBaseHarvestMultiply, value: {knifeBaseHarvestMultiply}");
+        Debug.Log($"CONFIG: knifeIncrementHarvestMultiplyPerLevel, value: {knifeIncrementHarvestMultiplyPerLevel}");
+        Debug.Log($"CONFIG: knifeBaseDurabilityRestoreChance, value: {knifeBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: knifeDurabilityRestoreChancePerLevel, value: {knifeDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: knifeDurabilityRestoreEveryLevelReduceChance, value: {knifeDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: knifeDurabilityRestoreReduceChanceForEveryLevel, value: {knifeDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: axeEXPPerHit, value: {axeEXPPerHit}");
+        Debug.Log($"CONFIG: axeEXPPerBreaking, value: {axeEXPPerBreaking}");
+        Debug.Log($"CONFIG: axeEXPPerTreeBreaking, value: {axeEXPPerTreeBreaking}");
+        Debug.Log($"CONFIG: axeEXPPerLevelBase, value: {axeEXPPerLevelBase}");
+        Debug.Log($"CONFIG: axeEXPMultiplyPerLevel, value: {axeEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: axeBaseDamage, value: {axeBaseDamage}");
+        Debug.Log($"CONFIG: axeIncrementDamagePerLevel, value: {axeIncrementDamagePerLevel}");
+        Debug.Log($"CONFIG: axeBaseMiningSpeed, value: {axeBaseMiningSpeed}");
+        Debug.Log($"CONFIG: axeIncrementMiningSpeedMultiplyPerLevel, value: {axeIncrementMiningSpeedMultiplyPerLevel}");
+        Debug.Log($"CONFIG: axeBaseDurabilityRestoreChance, value: {axeBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: axeDurabilityRestoreChancePerLevel, value: {axeDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: axeDurabilityRestoreEveryLevelReduceChance, value: {axeDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: axeDurabilityRestoreReduceChanceForEveryLevel, value: {axeDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: pickaxeEXPPerHit, value: {pickaxeEXPPerHit}");
+        Debug.Log($"CONFIG: pickaxeEXPPerBreaking, value: {pickaxeEXPPerBreaking}");
+        Debug.Log($"CONFIG: pickaxeEXPPerLevelBase, value: {pickaxeEXPPerLevelBase}");
+        Debug.Log($"CONFIG: pickaxeEXPMultiplyPerLevel, value: {pickaxeEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: pickaxeBaseDamage, value: {pickaxeBaseDamage}");
+        Debug.Log($"CONFIG: pickaxeIncrementDamagePerLevel, value: {pickaxeIncrementDamagePerLevel}");
+        Debug.Log($"CONFIG: pickaxeBaseMiningSpeed, value: {pickaxeBaseMiningSpeed}");
+        Debug.Log($"CONFIG: pickaxeIncrementMiningSpeedMultiplyPerLevel, value: {pickaxeIncrementMiningSpeedMultiplyPerLevel}");
+        Debug.Log($"CONFIG: pickaxeBaseOreMultiply, value: {pickaxeBaseOreMultiply}");
+        Debug.Log($"CONFIG: pickaxeIncrementOreMultiplyPerLevel, value: {pickaxeIncrementOreMultiplyPerLevel}");
+        Debug.Log($"CONFIG: pickaxeBaseDurabilityRestoreChance, value: {pickaxeBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: pickaxeDurabilityRestoreChancePerLevel, value: {pickaxeDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: pickaxeDurabilityRestoreEveryLevelReduceChance, value: {pickaxeDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: pickaxeDurabilityRestoreReduceChanceForEveryLevel, value: {pickaxeDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: shovelEXPPerHit, value: {shovelEXPPerHit}");
+        Debug.Log($"CONFIG: shovelEXPPerBreaking, value: {shovelEXPPerBreaking}");
+        Debug.Log($"CONFIG: shovelEXPPerLevelBase, value: {shovelEXPPerLevelBase}");
+        Debug.Log($"CONFIG: shovelEXPMultiplyPerLevel, value: {shovelEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: shovelBaseDamage, value: {shovelBaseDamage}");
+        Debug.Log($"CONFIG: shovelIncrementDamagePerLevel, value: {shovelIncrementDamagePerLevel}");
+        Debug.Log($"CONFIG: shovelBaseMiningSpeed, value: {shovelBaseMiningSpeed}");
+        Debug.Log($"CONFIG: shovelIncrementMiningSpeedMultiplyPerLevel, value: {shovelIncrementMiningSpeedMultiplyPerLevel}");
+        Debug.Log($"CONFIG: shovelBaseDurabilityRestoreChance, value: {shovelBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: shovelDurabilityRestoreChancePerLevel, value: {shovelDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: shovelDurabilityRestoreEveryLevelReduceChance, value: {shovelDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: shovelDurabilityRestoreReduceChanceForEveryLevel, value: {shovelDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: spearEXPPerHit, value: {spearEXPPerHit}");
+        Debug.Log($"CONFIG: spearEXPPerThrow, value: {spearEXPPerThrow}");
+        Debug.Log($"CONFIG: spearEXPPerLevelBase, value: {spearEXPPerLevelBase}");
+        Debug.Log($"CONFIG: spearEXPMultiplyPerLevel, value: {spearEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: spearBaseDamage, value: {spearBaseDamage}");
+        Debug.Log($"CONFIG: spearIncrementDamagePerLevel, value: {spearIncrementDamagePerLevel}");
+        Debug.Log($"CONFIG: spearBaseDurabilityRestoreChance, value: {spearBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: spearDurabilityRestoreChancePerLevel, value: {spearDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: spearDurabilityRestoreEveryLevelReduceChance, value: {spearDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: spearDurabilityRestoreReduceChanceForEveryLevel, value: {spearDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: farmingEXPPerTill, value: {farmingEXPPerTill}");
+        Debug.Log($"CONFIG: farmingEXPPerLevelBase, value: {farmingEXPPerLevelBase}");
+        Debug.Log($"CONFIG: farmingEXPMultiplyPerLevel, value: {farmingEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: farmingBaseHarvestMultiply, value: {farmingBaseHarvestMultiply}");
+        Debug.Log($"CONFIG: farmingIncrementHarvestMultiplyPerLevel, value: {farmingIncrementHarvestMultiplyPerLevel}");
+        Debug.Log($"CONFIG: farmingBaseDurabilityRestoreChance, value: {farmingBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: farmingDurabilityRestoreChancePerLevel, value: {farmingDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: farmingDurabilityRestoreEveryLevelReduceChance, value: {farmingDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: farmingDurabilityRestoreReduceChanceForEveryLevel, value: {farmingDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: vitalityEXPPerReceiveHit, value: {vitalityEXPPerReceiveHit}");
+        Debug.Log($"CONFIG: vitalityEXPMultiplyByDamage, value: {vitalityEXPMultiplyByDamage}");
+        Debug.Log($"CONFIG: vitalityEXPIncreaseByAmountDamage, value: {vitalityEXPIncreaseByAmountDamage}");
+        Debug.Log($"CONFIG: vitalityEXPPerLevelBase, value: {vitalityEXPPerLevelBase}");
+        Debug.Log($"CONFIG: vitalityEXPMultiplyPerLevel, value: {vitalityEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: vitalityHPIncreasePerLevel, value: {vitalityHPIncreasePerLevel}");
+        Debug.Log($"CONFIG: vitalityBaseHP, value: {vitalityBaseHP}");
+        Debug.Log($"CONFIG: vitalityBaseHPRegen, value: {vitalityBaseHPRegen}");
+        Debug.Log($"CONFIG: enableHardcore, value: {enableHardcore}");
+        Debug.Log($"CONFIG: hardcoreLosePercentage, value: {hardcoreLosePercentage}");
+        Debug.Log($"CONFIG: enableDurabilityMechanic, value: {enableDurabilityMechanic}");
+        Debug.Log($"CONFIG: enableLevelHunter, value: {enableLevelHunter}");
+        Debug.Log($"CONFIG: enableLevelBow, value: {enableLevelBow}");
+        Debug.Log($"CONFIG: enableLevelKnife, value: {enableLevelKnife}");
+        Debug.Log($"CONFIG: enableLevelSpear, value: {enableLevelSpear}");
+        Debug.Log($"CONFIG: enableLevelAxe, value: {enableLevelAxe}");
+        Debug.Log($"CONFIG: enableLevelPickaxe, value: {enableLevelPickaxe}");
+        Debug.Log($"CONFIG: enableLevelShovel, value: {enableLevelShovel}");
+        Debug.Log($"CONFIG: enableLevelFarming, value: {enableLevelFarming}");
+        Debug.Log($"CONFIG: enableLevelCooking, value: {enableLevelCooking}");
+        Debug.Log($"CONFIG: enableLevelVitality, value: {enableLevelVitality}");
+        Debug.Log($"CONFIG: disableServerChannel, value: {disableServerChannel}");
+        Debug.Log($"CONFIG: enableExtendedLog, value: {enableExtendedLog}");
+    }
+    #endregion
     public static int GetLevelByLevelTypeEXP(string levelType, int exp)
     {
         switch (levelType)
@@ -78,6 +323,7 @@ public static class Configuration
         }
 
         // Get entity exp
+        entityExpHunter.Clear();
         Dictionary<string, object> tmpentityExpHunter = api.Assets.Get(new AssetLocation("levelup:config/entityexp/hunter.json")).ToObject<Dictionary<string, object>>();
         foreach (KeyValuePair<string, object> pair in tmpentityExpHunter)
         {
@@ -118,7 +364,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseDamage += baseDamage *= incrementDamage;
+        baseDamage += baseDamage * incrementDamage;
         return baseDamage;
     }
     #endregion
@@ -253,6 +499,7 @@ public static class Configuration
         }
 
         // Get entity exp
+        entityExpBow.Clear();
         Dictionary<string, object> tmpentityExpBow = api.Assets.Get(new AssetLocation("levelup:config/entityexp/bow.json")).ToObject<Dictionary<string, object>>();
         foreach (KeyValuePair<string, object> pair in tmpentityExpBow)
         {
@@ -293,7 +540,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseDamage += baseDamage *= incrementDamage;
+        baseDamage += baseDamage * incrementDamage;
         return baseDamage;
     }
 
@@ -459,6 +706,7 @@ public static class Configuration
         }
 
         // Get entity exp
+        entityExpKnife.Clear();
         Dictionary<string, object> tmpentityExpKnife = api.Assets.Get(new AssetLocation("levelup:config/entityexp/knife.json")).ToObject<Dictionary<string, object>>();
         foreach (KeyValuePair<string, object> pair in tmpentityExpKnife)
         {
@@ -499,7 +747,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseDamage += baseDamage *= incrementDamage;
+        baseDamage += baseDamage * incrementDamage;
         return baseDamage;
     }
 
@@ -515,8 +763,7 @@ public static class Configuration
             multiply += incrementMultiply;
             level -= 1;
         }
-
-        baseMultiply += baseMultiply *= incrementMultiply;
+        baseMultiply += baseMultiply * multiply;
         return baseMultiply;
     }
 
@@ -659,6 +906,7 @@ public static class Configuration
         }
 
         // Get entity exp
+        entityExpAxe.Clear();
         Dictionary<string, object> tmpentityExpAxe = api.Assets.Get(new AssetLocation("levelup:config/entityexp/axe.json")).ToObject<Dictionary<string, object>>();
         foreach (KeyValuePair<string, object> pair in tmpentityExpAxe)
         {
@@ -699,7 +947,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseDamage += baseDamage *= incrementDamage;
+        baseDamage += baseDamage * incrementDamage;
         return baseDamage;
     }
 
@@ -716,7 +964,7 @@ public static class Configuration
             multiply += incrementSpeed;
         }
 
-        baseSpeed += baseSpeed *= incrementSpeed;
+        baseSpeed += baseSpeed * incrementSpeed;
         return baseSpeed;
     }
 
@@ -864,6 +1112,7 @@ public static class Configuration
         }
 
         // Get entity exp
+        entityExpPickaxe.Clear();
         Dictionary<string, object> tmpentityExpPickaxe = api.Assets.Get(new AssetLocation("levelup:config/entityexp/pickaxe.json")).ToObject<Dictionary<string, object>>();
         foreach (KeyValuePair<string, object> pair in tmpentityExpPickaxe)
         {
@@ -904,7 +1153,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseMultiply += baseMultiply *= incrementMultiply;
+        baseMultiply += baseMultiply * multiply;
         return baseMultiply;
     }
 
@@ -921,7 +1170,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseDamage += baseDamage *= incrementDamage;
+        baseDamage += baseDamage * incrementDamage;
         return baseDamage;
     }
 
@@ -938,7 +1187,7 @@ public static class Configuration
             multiply += incrementSpeed;
         }
 
-        baseSpeed += baseSpeed *= incrementSpeed;
+        baseSpeed += baseSpeed * incrementSpeed;
         return baseSpeed;
     }
 
@@ -1069,6 +1318,7 @@ public static class Configuration
             else Debug.Log("CONFIGURATION ERROR: shovelDurabilityRestoreReduceChanceForEveryLevel not set");
         }
         // Get entity exp
+        entityExpShovel.Clear();
         Dictionary<string, object> tmpentityExpShovel = api.Assets.Get(new AssetLocation("levelup:config/entityexp/shovel.json")).ToObject<Dictionary<string, object>>();
         foreach (KeyValuePair<string, object> pair in tmpentityExpShovel)
         {
@@ -1109,7 +1359,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseDamage += baseDamage *= incrementDamage;
+        baseDamage += baseDamage * incrementDamage;
         return baseDamage;
     }
 
@@ -1126,7 +1376,7 @@ public static class Configuration
             multiply += incrementSpeed;
         }
 
-        baseSpeed += baseSpeed *= incrementSpeed;
+        baseSpeed += baseSpeed * incrementSpeed;
         return baseSpeed;
     }
 
@@ -1242,6 +1492,7 @@ public static class Configuration
         }
 
         // Get entity exp
+        entityExpSpear.Clear();
         Dictionary<string, object> tmpentityExpSpear = api.Assets.Get(new AssetLocation("levelup:config/entityexp/spear.json")).ToObject<Dictionary<string, object>>();
         foreach (KeyValuePair<string, object> pair in tmpentityExpSpear)
         {
@@ -1280,7 +1531,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseDamage += baseDamage *= incrementDamage;
+        baseDamage += baseDamage * incrementDamage;
         return baseDamage;
     }
 
@@ -1387,6 +1638,7 @@ public static class Configuration
 
 
         // Get crop exp
+        expPerHarvestFarming.Clear();
         Dictionary<string, object> tmpexpPerHarvestFarming = api.Assets.Get(new AssetLocation("levelup:config/levelstats/farmingcrops.json")).ToObject<Dictionary<string, object>>();
         foreach (KeyValuePair<string, object> pair in tmpexpPerHarvestFarming)
         {
@@ -1426,7 +1678,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseMultiply += baseMultiply *= incrementMultiply;
+        baseMultiply += baseMultiply * multiply;
         return baseMultiply;
     }
 
@@ -1487,7 +1739,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseMultiply += baseMultiply *= incrementMultiply;
+        baseMultiply += baseMultiply * multiply;
         return baseMultiply;
     }
 
@@ -1504,7 +1756,7 @@ public static class Configuration
             level -= 1;
         }
 
-        baseMultiply += baseMultiply *= incrementMultiply;
+        baseMultiply += baseMultiply * multiply;
         return baseMultiply;
     }
 
