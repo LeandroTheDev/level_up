@@ -18,14 +18,16 @@ LEVELS:
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
 - Vitality: Increase max health and health regen, earn xp by getting hitted
+- Leather Armor: Reduce damage received using leather armors, earn xp by getting hitted using leather armors
+- Chain Armor: Reduce damage received using chain armors, earn xp by getting hitted using chain armors
 
 Future features:
 - Smithing specialist.
 - Cooking specialist.
 - Better level view.
 - Store data based on player uid.
-- Chain Armor Armor levels
-- Leather Armor Armor levels
+- Shield levels
+- Sword levels
 - Cute level up sound
 
 https://github.com/LeandroTheDev/level_up/assets/106118473/8409a3ee-08ce-42b6-8747-aa7bf6405a26

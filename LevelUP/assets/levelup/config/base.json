@@ -12,6 +12,8 @@
     "enableLevelFarming": true,
     "enableLevelCooking": true,
     "enableLevelVitality": true,
+    "enableLevelLeatherArmor": true,
+    "enableLevelChainArmor": true,
     "disableServerChannel": false,
-    "enableExtendedLog": false
+    "enableExtendedLog": true
 }
