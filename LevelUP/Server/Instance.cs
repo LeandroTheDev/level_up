@@ -23,6 +23,8 @@ class Instance
     public LevelSpear levelSpear = new();
     public LevelFarming levelFarming = new();
     public LevelVitality levelVitality = new();
+    public LevelLeatherArmor levelLeatherArmor = new();
+    public LevelChainArmor levelChainArmor = new();
 
     public void Init(ICoreServerAPI serverAPI)
     {
@@ -40,6 +42,8 @@ class Instance
         if (Configuration.enableLevelSpear) levelSpear.Init(this);
         if (Configuration.enableLevelFarming) levelFarming.Init(this);
         if (Configuration.enableLevelVitality) levelVitality.Init(this);
+        if (Configuration.enableLevelLeatherArmor) levelLeatherArmor.Init(this);
+        if (Configuration.enableLevelChainArmor) levelChainArmor.Init(this);
         Debug.Log("Server Levels instanciated");
 
         // Register commands
@@ -76,6 +80,8 @@ class Instance
         levelSpear.PopulateConfiguration(coreAPI);
         levelFarming.PopulateConfiguration(coreAPI);
         levelVitality.PopulateConfiguration(coreAPI);
+        levelLeatherArmor.PopulateConfiguration(coreAPI);
+        levelChainArmor.PopulateConfiguration(coreAPI);
     }
 
     public void OnClientMessage(IServerPlayer player, string bruteMessage)
@@ -116,6 +122,8 @@ class Instance
             case "Increase_Spear_Hit": IncreaseExp(player, "Spear", "Hit"); return;
             case "Increase_Spear_Hit_Throw": IncreaseExp(player, "Spear", "Hit_Throw"); return;
             case "Increase_Vitality_Hit": IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"].ToString().ToInt()); return;
+            case "Increase_LeatherArmor_Hit": IncreaseExp(player, "LeatherArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
+            case "Increase_ChainArmor_Hit": IncreaseExp(player, "ChainArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             #endregion
             #region breaking
             case "Block_Breaked_Axe": IncreaseExp(player, "Axe", "Breaking"); return;
@@ -377,92 +385,85 @@ class Instance
             Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
+        #region leatherarmor
+        // Get hit
+        if (levelType == "LeatherArmor" && reason == "Hit" && forceexp > 0)
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)forceexp;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
+        #region chainarmor
+        // Get hit
+        if (levelType == "ChainArmor" && reason == "Hit" && forceexp > 0)
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)forceexp;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
     }
 
     private void UpdatePlayerLevels(IServerPlayer player)
     {
-        try
-        {
-            // Get all players hunter level
-            Dictionary<string, ulong> GetSavedLevels(string levelType)
-            {
-                byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
-                string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-                return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-            }
-
-            // Hunter Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Hunter", GetSavedLevels("Hunter").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Bow Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Bow", GetSavedLevels("Bow").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Axe Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Knife", GetSavedLevels("Knife").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Axe Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Axe", GetSavedLevels("Axe").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Pickaxe Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Pickaxe", GetSavedLevels("Pickaxe").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Shovel Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Shovel", GetSavedLevels("Shovel").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Spear Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Spear", GetSavedLevels("Spear").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Farming Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Cooking Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-
-            // Vitality Level
-            Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
-        }
-        catch (Exception) { LegacyUpdatePlayerLevels(player); }
-    }
-
-    private void LegacyUpdatePlayerLevels(IServerPlayer player)
-    {
         // Get all players hunter level
-        Dictionary<string, int> GetSavedLevels(string levelType)
+        Dictionary<string, ulong> GetSavedLevels(string levelType)
         {
             byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
             string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, int>>(data);
+            return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
         }
 
         // Hunter Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Hunter", GetSavedLevels("Hunter").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Hunter", GetSavedLevels("Hunter").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Bow Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Bow", GetSavedLevels("Bow").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Bow", GetSavedLevels("Bow").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Axe Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Knife", GetSavedLevels("Knife").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Knife", GetSavedLevels("Knife").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Axe Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Axe", GetSavedLevels("Axe").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Axe", GetSavedLevels("Axe").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Pickaxe Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Pickaxe", GetSavedLevels("Pickaxe").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Pickaxe", GetSavedLevels("Pickaxe").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Shovel Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Shovel", GetSavedLevels("Shovel").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Shovel", GetSavedLevels("Shovel").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Spear Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Spear", GetSavedLevels("Spear").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Spear", GetSavedLevels("Spear").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Farming Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Cooking Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
         // Vitality Level
-        Shared.Instance.LegacyUpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault(player.PlayerName, 0), true);
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+        // Leather Armor Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "LeatherArmor", GetSavedLevels("LeatherArmor").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+        // Chain Armor Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "ChainArmor", GetSavedLevels("ChainArmor").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
     }
 
     private void ResetPlayerLevels(IServerPlayer player, DamageSource damageSource)
@@ -563,6 +564,24 @@ class Instance
                 level[player.PlayerName] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("LeatherArmor");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_LeatherArmor", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("ChainArmor");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_ChainArmor", JsonSerializer.Serialize(level));
         }
     }
 }

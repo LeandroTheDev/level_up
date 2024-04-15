@@ -1,0 +1,13 @@
+{
+    "chainArmorEXPPerReceiveHit": 1,
+    "chainArmorEXPMultiplyByDamage": 0.5,
+    "chainArmorEXPIncreaseByAmountDamage": 1,
+    "chainArmorEXPPerLevelBase": 10,
+    "chainArmorEXPMultiplyPerLevel": 2.0,
+    "chainArmorBaseDamageReduction": 0.0,
+    "chainArmorDamageReductionPerLevel": 0.05,
+    "chainArmorBaseDurabilityRestoreChance": 0.0,
+    "chainArmorDurabilityRestoreChancePerLevel": 2.0,
+    "chainArmorDurabilityRestoreEveryLevelReduceChance": 10,
+    "chainArmorDurabilityRestoreReduceChanceForEveryLevel": 0.5
+}

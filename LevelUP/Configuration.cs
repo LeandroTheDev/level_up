@@ -21,6 +21,8 @@ public static class Configuration
     public static bool enableLevelFarming = true;
     public static bool enableLevelCooking = true;
     public static bool enableLevelVitality = true;
+    public static bool enableLevelLeatherArmor = true;
+    public static bool enableLevelChainArmor = true;
     public static bool disableServerChannel = false;
     public static bool enableExtendedLog = false;
 
@@ -118,6 +120,20 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelVitality is not boolean is {value.GetType()}");
                 else enableLevelVitality = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: enableLevelVitality not set");
+        }
+        { //enableLevelLeatherArmor
+            if (baseConfigs.TryGetValue("enableLevelLeatherArmor", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelLeatherArmor is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelLeatherArmor is not boolean is {value.GetType()}");
+                else enableLevelLeatherArmor = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelLeatherArmor not set");
+        }
+        { //enableLevelChainArmor
+            if (baseConfigs.TryGetValue("enableLevelChainArmor", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelChainArmor is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelChainArmor is not boolean is {value.GetType()}");
+                else enableLevelChainArmor = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelChainArmor not set");
         }
         { //disableServerChannel
             if (baseConfigs.TryGetValue("disableServerChannel", out object value))
@@ -233,7 +249,28 @@ public static class Configuration
         Debug.Log($"CONFIG: vitalityEXPMultiplyPerLevel, value: {vitalityEXPMultiplyPerLevel}");
         Debug.Log($"CONFIG: vitalityHPIncreasePerLevel, value: {vitalityHPIncreasePerLevel}");
         Debug.Log($"CONFIG: vitalityBaseHP, value: {vitalityBaseHP}");
-        Debug.Log($"CONFIG: vitalityBaseHPRegen, value: {vitalityBaseHPRegen}");
+        Debug.Log($"CONFIG: leatherArmorEXPPerReceiveHit, value: {leatherArmorEXPPerReceiveHit}");
+        Debug.Log($"CONFIG: leatherArmorEXPMultiplyByDamage, value: {leatherArmorEXPMultiplyByDamage}");
+        Debug.Log($"CONFIG: leatherArmorEXPIncreaseByAmountDamage, value: {leatherArmorEXPIncreaseByAmountDamage}");
+        Debug.Log($"CONFIG: leatherArmorEXPPerLevelBase, value: {leatherArmorEXPPerLevelBase}");
+        Debug.Log($"CONFIG: leatherArmorEXPMultiplyPerLevel, value: {leatherArmorEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: leatherArmorBaseDamageReduction, value: {leatherArmorBaseDamageReduction}");
+        Debug.Log($"CONFIG: leatherArmorDamageReductionPerLevel, value: {leatherArmorDamageReductionPerLevel}");
+        Debug.Log($"CONFIG: leatherArmorBaseDurabilityRestoreChance, value: {leatherArmorBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: leatherArmorDurabilityRestoreChancePerLevel, value: {leatherArmorDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: leatherArmorDurabilityRestoreEveryLevelReduceChance, value: {leatherArmorDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: leatherArmorDurabilityRestoreReduceChanceForEveryLevel, value: {leatherArmorDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: chainArmorEXPPerReceiveHit, value: {chainArmorEXPPerReceiveHit}");
+        Debug.Log($"CONFIG: chainArmorEXPMultiplyByDamage, value: {chainArmorEXPMultiplyByDamage}");
+        Debug.Log($"CONFIG: chainArmorEXPIncreaseByAmountDamage, value: {chainArmorEXPIncreaseByAmountDamage}");
+        Debug.Log($"CONFIG: chainArmorEXPPerLevelBase, value: {chainArmorEXPPerLevelBase}");
+        Debug.Log($"CONFIG: chainArmorEXPMultiplyPerLevel, value: {chainArmorEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: chainArmorBaseDamageReduction, value: {chainArmorBaseDamageReduction}");
+        Debug.Log($"CONFIG: chainArmorDamageReductionPerLevel, value: {chainArmorDamageReductionPerLevel}");
+        Debug.Log($"CONFIG: chainArmorBaseDurabilityRestoreChance, value: {chainArmorBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: chainArmorDurabilityRestoreChancePerLevel, value: {chainArmorDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: chainArmorDurabilityRestoreEveryLevelReduceChance, value: {chainArmorDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: chainArmorDurabilityRestoreReduceChanceForEveryLevel, value: {chainArmorDurabilityRestoreReduceChanceForEveryLevel}");
         Debug.Log($"CONFIG: enableHardcore, value: {enableHardcore}");
         Debug.Log($"CONFIG: hardcoreLosePercentage, value: {hardcoreLosePercentage}");
         Debug.Log($"CONFIG: enableDurabilityMechanic, value: {enableDurabilityMechanic}");
@@ -247,6 +284,8 @@ public static class Configuration
         Debug.Log($"CONFIG: enableLevelFarming, value: {enableLevelFarming}");
         Debug.Log($"CONFIG: enableLevelCooking, value: {enableLevelCooking}");
         Debug.Log($"CONFIG: enableLevelVitality, value: {enableLevelVitality}");
+        Debug.Log($"CONFIG: enableLevelLeatherArmor, value: {enableLevelLeatherArmor}");
+        Debug.Log($"CONFIG: enableLevelChainArmor, value: {enableLevelChainArmor}");
         Debug.Log($"CONFIG: disableServerChannel, value: {disableServerChannel}");
         Debug.Log($"CONFIG: enableExtendedLog, value: {enableExtendedLog}");
     }
@@ -265,9 +304,11 @@ public static class Configuration
             case "Farming": return FarmingGetLevelByEXP(exp);
             case "Cooking": return CookingGetLevelByEXP(exp);
             case "Vitality": return VitalityGetLevelByEXP(exp);
+            case "LeatherArmor": return LeatherArmorGetLevelByEXP(exp);
+            case "ChainArmor": return ChainArmorGetLevelByEXP(exp);
             default: break;
         }
-        Debug.Log($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the configurations file");
+        Debug.Log($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the Configuratiin.cs");
         return 1;
     }
 
@@ -1998,5 +2039,339 @@ public static class Configuration
         }
         return (int)Math.Round(baseMultiply);
     }
+    #endregion
+
+    #region leatherarmor
+    public static readonly Dictionary<string, double> expMultiplyHitLeatherArmor = [];
+    private static int leatherArmorEXPPerReceiveHit = 1;
+    private static float leatherArmorEXPMultiplyByDamage = 0.5f;
+    private static int leatherArmorEXPIncreaseByAmountDamage = 1;
+    private static int leatherArmorEXPPerLevelBase = 10;
+    private static double leatherArmorEXPMultiplyPerLevel = 2.0;
+    private static float leatherArmorBaseDamageReduction = 0.0f;
+    private static float leatherArmorDamageReductionPerLevel = 0.05f;
+    private static float leatherArmorBaseDurabilityRestoreChance = 0.0f;
+    private static float leatherArmorDurabilityRestoreChancePerLevel = 2.0f;
+    private static int leatherArmorDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float leatherArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+
+    public static void PopulateLeatherArmorConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> leatherArmorLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/leatherarmor.json")).ToObject<Dictionary<string, object>>();
+        { //leatherArmorEXPPerReceiveHit
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPPerReceiveHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit is not int is {value.GetType()}");
+                else leatherArmorEXPPerReceiveHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit not set");
+        }
+        { //leatherArmorEXPMultiplyByDamage
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPMultiplyByDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPMultiplyByDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPMultiplyByDamage is not double is {value.GetType()}");
+                else leatherArmorEXPMultiplyByDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPMultiplyByDamage not set");
+        }
+        { //leatherArmorEXPIncreaseByAmountDamage
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPIncreaseByAmountDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPIncreaseByAmountDamage is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
+                else leatherArmorEXPIncreaseByAmountDamage = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPIncreaseByAmountDamage not set");
+        }
+        { //leatherArmorEXPPerLevelBase
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPPerLevelBase is not int is {value.GetType()}");
+                else leatherArmorEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerLevelBase not set");
+        }
+        { //leatherArmorEXPMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel not set");
+        }
+        { //leatherArmorBaseDamageReduction
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorBaseDamageReduction", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorBaseDamageReduction is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorBaseDamageReduction is not double is {value.GetType()}");
+                else leatherArmorBaseDamageReduction = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorBaseDamageReduction not set");
+        }
+        { //leatherArmorDamageReductionPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorDamageReductionPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel is not double is {value.GetType()}");
+                else leatherArmorDamageReductionPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel not set");
+        }
+        { //leatherArmorBaseDurabilityRestoreChance
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else leatherArmorBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorBaseDurabilityRestoreChance not set");
+        }
+        { //leatherArmorDurabilityRestoreChancePerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else leatherArmorDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreChancePerLevel not set");
+        }
+        { //leatherArmorDurabilityRestoreEveryLevelReduceChance
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else leatherArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreEveryLevelReduceChance not set");
+        }
+        { //leatherArmorDurabilityRestoreReduceChanceForEveryLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else leatherArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+
+        // Get leather armor multiply exp
+        expMultiplyHitLeatherArmor.Clear();
+        Dictionary<string, object> tmpexpMultiplyHitLeatherArmor = api.Assets.Get(new AssetLocation("levelup:config/levelstats/leatherarmoritems.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitLeatherArmor)
+        {
+            if (pair.Value is double value) expMultiplyHitLeatherArmor.Add(pair.Key, (double)value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplyHitLeatherArmor {pair.Key} is not double");
+        }
+        Debug.Log("Leather Armor configuration set");
+    }
+
+
+    public static int LeatherArmorGetLevelByEXP(ulong exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = leatherArmorEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= leatherArmorEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+    public static int LeatherArmorBaseEXPEarnedByDAMAGE(float damage)
+    {
+        float baseMultiply = leatherArmorEXPPerReceiveHit;
+        int calcDamage = (int)Math.Round(damage);
+
+        float multiply = (float)leatherArmorEXPMultiplyByDamage;
+        while (calcDamage > 1)
+        {
+            // Increase experience
+            if (calcDamage % leatherArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
+            calcDamage -= 1;
+        }
+        return (int)Math.Round(baseMultiply);
+    }
+    public static float LeatherArmorDamageReductionByEXP(ulong exp)
+    {
+        int level = LeatherArmorGetLevelByEXP(exp);
+        float baseMultiply = leatherArmorBaseDamageReduction;
+        while (level > 1)
+        {
+            baseMultiply += leatherArmorDamageReductionPerLevel;
+            level -= 1;
+        }
+        return baseMultiply;
+    }
+    public static bool LeatherArmorRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    {
+        int level = LeatherArmorGetLevelByEXP(exp);
+        float baseChanceToNotReduce = leatherArmorBaseDurabilityRestoreChance;
+        float chanceToNotReduce = leatherArmorDurabilityRestoreChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % leatherArmorDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= leatherArmorDurabilityRestoreReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        else return false;
+    }
+    #endregion
+
+    #region chainarmor
+    public static readonly Dictionary<string, double> expMultiplyHitChainArmor = [];
+    private static int chainArmorEXPPerReceiveHit = 1;
+    private static float chainArmorEXPMultiplyByDamage = 0.5f;
+    private static int chainArmorEXPIncreaseByAmountDamage = 1;
+    private static int chainArmorEXPPerLevelBase = 10;
+    private static double chainArmorEXPMultiplyPerLevel = 2.0;
+    private static float chainArmorBaseDamageReduction = 0.0f;
+    private static float chainArmorDamageReductionPerLevel = 0.05f;
+    private static float chainArmorBaseDurabilityRestoreChance = 0.0f;
+    private static float chainArmorDurabilityRestoreChancePerLevel = 2.0f;
+    private static int chainArmorDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float chainArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+
+    public static void PopulateChainArmorConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> chainArmorLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/chainarmor.json")).ToObject<Dictionary<string, object>>();
+        { //chainArmorEXPPerReceiveHit
+            if (chainArmorLevelStats.TryGetValue("chainArmorEXPPerReceiveHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerReceiveHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPPerReceiveHit is not int is {value.GetType()}");
+                else chainArmorEXPPerReceiveHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerReceiveHit not set");
+        }
+        { //chainArmorEXPMultiplyByDamage
+            if (chainArmorLevelStats.TryGetValue("chainArmorEXPMultiplyByDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPMultiplyByDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPMultiplyByDamage is not double is {value.GetType()}");
+                else chainArmorEXPMultiplyByDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPMultiplyByDamage not set");
+        }
+        { //chainArmorEXPIncreaseByAmountDamage
+            if (chainArmorLevelStats.TryGetValue("chainArmorEXPIncreaseByAmountDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPIncreaseByAmountDamage is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
+                else chainArmorEXPIncreaseByAmountDamage = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPIncreaseByAmountDamage not set");
+        }
+        { //chainArmorEXPPerLevelBase
+            if (chainArmorLevelStats.TryGetValue("chainArmorEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPPerLevelBase is not int is {value.GetType()}");
+                else chainArmorEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerLevelBase not set");
+        }
+        { //chainArmorEXPMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel not set");
+        }
+        { //chainArmorBaseDamageReduction
+            if (chainArmorLevelStats.TryGetValue("chainArmorBaseDamageReduction", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorBaseDamageReduction is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorBaseDamageReduction is not double is {value.GetType()}");
+                else chainArmorBaseDamageReduction = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorBaseDamageReduction not set");
+        }
+        { //chainArmorDamageReductionPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorDamageReductionPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDamageReductionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorDamageReductionPerLevel is not double is {value.GetType()}");
+                else chainArmorDamageReductionPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorDamageReductionPerLevel not set");
+        }
+        { //chainArmorBaseDurabilityRestoreChance
+            if (chainArmorLevelStats.TryGetValue("chainArmorBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else chainArmorBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorBaseDurabilityRestoreChance not set");
+        }
+        { //chainArmorDurabilityRestoreChancePerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else chainArmorDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreChancePerLevel not set");
+        }
+        { //chainArmorDurabilityRestoreEveryLevelReduceChance
+            if (chainArmorLevelStats.TryGetValue("chainArmorDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else chainArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreEveryLevelReduceChance not set");
+        }
+        { //chainArmorDurabilityRestoreReduceChanceForEveryLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else chainArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+
+        // Get leather armor multiply exp
+        expMultiplyHitChainArmor.Clear();
+        Dictionary<string, object> tmpexpMultiplyHitChainArmor = api.Assets.Get(new AssetLocation("levelup:config/levelstats/chainarmoritems.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitChainArmor)
+        {
+            if (pair.Value is double value) expMultiplyHitChainArmor.Add(pair.Key, (double)value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplyHitChainArmor {pair.Key} is not double");
+        }
+        Debug.Log("Chain Armor configuration set");
+    }
+
+    public static int ChainArmorGetLevelByEXP(ulong exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = chainArmorEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= chainArmorEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+    public static int ChainArmorBaseEXPEarnedByDAMAGE(float damage)
+    {
+        float baseMultiply = chainArmorEXPPerReceiveHit;
+        int calcDamage = (int)Math.Round(damage);
+
+        float multiply = (float)chainArmorEXPMultiplyByDamage;
+        while (calcDamage > 1)
+        {
+            // Increase experience
+            if (calcDamage % chainArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
+            calcDamage -= 1;
+        }
+        return (int)Math.Round(baseMultiply);
+    }
+    public static float ChainArmorDamageReductionByEXP(ulong exp)
+    {
+        int level = ChainArmorGetLevelByEXP(exp);
+        float baseMultiply = chainArmorBaseDamageReduction;
+        while (level > 1)
+        {
+            baseMultiply += chainArmorDamageReductionPerLevel;
+            level -= 1;
+        }
+        return baseMultiply;
+    }
+    public static bool ChainArmorRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    {
+        int level = ChainArmorGetLevelByEXP(exp);
+        float baseChanceToNotReduce = chainArmorBaseDurabilityRestoreChance;
+        float chanceToNotReduce = chainArmorDurabilityRestoreChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % chainArmorDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= chainArmorDurabilityRestoreReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        else return false;
+    }
+
     #endregion
 }

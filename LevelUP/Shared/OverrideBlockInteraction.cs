@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Common;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -95,54 +97,37 @@ class OverwriteBlockInteraction
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && secondsUsed >= 1.0f) instance.clientAPI.channel.SendPacket("Soil_Till");
     }
 
-    // // Used for cooking communication
-    // private static IServerPlayer temporaryCookPlayer;
-    // // Overwrite fire ticks
-    // [HarmonyPrefix]
-    // [HarmonyPatch(typeof(BlockEntityFirepit), "OnBurnTick")]
-    // public static void OnBurnTick(BlockEntityFirepit __instance, float dt)
-    // {
-    //     // Check if is server side
-    //     if (__instance.Api.World.Side == EnumAppSide.Server)
-    //     {
-    //         // Check if cooking finished
-    //         if (__instance.canSmeltInput() && __instance.inputStackCookingTime > __instance.maxCookingTime())
-    //         {
-    //             Debug.Log("COOKING FINISHED"); //DELETE THIS
-    //             // Get the nearest player from the cooking fire
-    //             IPlayer player = __instance.Api.World.NearestPlayer(__instance.Pos.X, __instance.Pos.Y, __instance.Pos.Z);
-    //             if (player != null && player is IServerPlayer)
-    //             {
-    //                 Debug.Log($"NEAREST PLAYER FINDED {player.PlayerName}"); //DELETE THIS
-    //                 // Create the cook player temporary
-    //                 temporaryCookPlayer = player as IServerPlayer;
-    //                 // Hol up, let him cook
-    //                 instance.serverAPI.OnClientMessage(player as IServerPlayer, "Cooking_Finished"); // Increase player cooking xp
-    //             }
-    //             else
-    //             {
-    //                 // Why did you let him cook? WHY?
-    //             }
-    //         }
-    //     }
-    // }
+    // Overwrite fire ticks
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(BlockEntityFirepit), "OnBurnTick")]
+    public static void OnBurnTick(BlockEntityFirepit __instance, float dt)
+    {
+        // Check if is server side
+        if (__instance.Api.World.Side == EnumAppSide.Server)
+        {
+            // // Check if cooking finished
+            // if (__instance.canSmeltInput() && __instance.inputStackCookingTime > __instance.maxCookingTime())
+            // {
+            //     if (Configuration.enableExtendedLog) Debug.Log("A cooking finished in the world");
+            //     // Get the nearest player from the cooking fire
+            //     IPlayer player = __instance.Api.World.NearestPlayer(__instance.Pos.X, __instance.Pos.Y, __instance.Pos.Z);
+            //     if (player != null && player is IServerPlayer)
+            //     {
+            //         if (Configuration.enableExtendedLog) Debug.Log($"Nearest player finded in cooking position {player.PlayerName}");
+            //         // Hol up, let him cook
+            //         instance.serverAPI.OnClientMessage(player as IServerPlayer, "Cooking_Finished"); // Increase player cooking xp
+            //     }
+            // }
+        }
+    }
 
     // // Overwrite Cooking Smelt
     // [HarmonyPrefix]
     // [HarmonyPatch(typeof(BlockCookingContainer), "DoSmelt")]
     // public static bool DoSmelt(BlockCookingContainer __instance, IWorldAccessor world, ISlotProvider cookingSlotsProvider, ItemSlot inputSlot, ItemSlot outputSlot)
     // {
-    //     // If temporary cook player doesnt exist run the native code instead
-    //     if (temporaryCookPlayer == null) return true;
-
-    //     // Get the player instance
-    //     IServerPlayer player = temporaryCookPlayer;
-    //     temporaryCookPlayer = null;
-
-    //     Debug.Log($"TEMPORARY PLAYER EXIST {player.PlayerName}"); //DELETE THIS
-
     //     // This functions is overwrited from CollectiibleObjects.CarryOverFreshness
-    //     void CarryOverFreshness(ICoreAPI api, ItemSlot[] inputSlots, ItemStack[] outStacks, TransitionableProperties perishProps)
+    //     static void CarryOverFreshness(ICoreAPI api, ItemSlot[] inputSlots, ItemStack[] outStacks, TransitionableProperties perishProps)
     //     {
     //         #region native
     //         float num = 0f;
@@ -184,7 +169,7 @@ class OverwriteBlockInteraction
     //                 #endregion
 
     //                 // Increasing fresh hours
-    //                 treeAttribute["freshHours"] = new FloatArrayAttribute([num8 * Configuration.CookingGetFreshHoursMultiplyByEXP(player.Entity.WatchedAttributes.GetInt("LevelUP_Cooking", 0))]);
+    //                 // treeAttribute["freshHours"] = new FloatArrayAttribute([num8 * Configuration.CookingGetFreshHoursMultiplyByEXP(player.Entity.WatchedAttributes.GetInt("LevelUP_Cooking", 0))]);
 
     //                 #region native
     //                 treeAttribute["transitionHours"] = new FloatArrayAttribute([num7]);
@@ -213,7 +198,7 @@ class OverwriteBlockInteraction
     //     #endregion
 
     //     // Increasing quantity servings based on cooking level
-    //     quantityServings += Configuration.CookingGetServingsByEXPAndServings(player.Entity.WatchedAttributes.GetInt("LevelUP_Cooking"), quantityServings);
+    //     // quantityServings += Configuration.CookingGetServingsByEXPAndServings(player.Entity.WatchedAttributes.GetInt("LevelUP_Cooking"), quantityServings);
 
     //     #region native
     //     if (matchingCookingRecipe.DirtyPot)

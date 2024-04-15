@@ -47,8 +47,10 @@ class CharacterView
         int pickaxeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe");
         int shovelLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel");
         int farmingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming");
-        // int cookingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking");
+        int cookingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking");
         int vitalityLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Vitality");
+        int leatherArmorLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor");
+        int chainArmorLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor");
 
         StringBuilder fulldesc = new();
         fulldesc.AppendLine("Character Levels");
@@ -59,10 +61,13 @@ class CharacterView
         fulldesc.AppendLine($"Bow: {bowLevel}");
         fulldesc.AppendLine($"Spear: {spearLevel}");
         fulldesc.AppendLine($"Knife: {knifeLevel}");
+        fulldesc.AppendLine("-- Armor Levels --");
+        fulldesc.AppendLine($"Leather Armor: {leatherArmorLevel}");
+        fulldesc.AppendLine($"Chain Armor: {chainArmorLevel}");
         fulldesc.AppendLine("-- Specialist Levels --");
         fulldesc.AppendLine($"Hunter: {hunterLevel}");
         fulldesc.AppendLine($"Farming: {farmingLevel}");
-        // fulldesc.AppendLine($"Cooking: {cookingLevel}");
+        fulldesc.AppendLine($"Cooking: {cookingLevel}");
         fulldesc.AppendLine($"Vitality: {vitalityLevel}");
         return fulldesc.ToString();
     }
