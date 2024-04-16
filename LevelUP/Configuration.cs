@@ -242,6 +242,18 @@ public static class Configuration
         Debug.Log($"CONFIG: farmingDurabilityRestoreChancePerLevel, value: {farmingDurabilityRestoreChancePerLevel}");
         Debug.Log($"CONFIG: farmingDurabilityRestoreEveryLevelReduceChance, value: {farmingDurabilityRestoreEveryLevelReduceChance}");
         Debug.Log($"CONFIG: farmingDurabilityRestoreReduceChanceForEveryLevel, value: {farmingDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: cookingBaseExpPerCooking, value: {cookingBaseExpPerCooking}");
+        Debug.Log($"CONFIG: cookingEXPPerLevelBase, value: {cookingEXPPerLevelBase}");
+        Debug.Log($"CONFIG: cookingEXPMultiplyPerLevel, value: {cookingEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: cookingBaseFreshHoursMultiply, value: {cookingBaseFreshHoursMultiply}");
+        Debug.Log($"CONFIG: cookingFreshHoursMultiplyPerLevel, value: {cookingFreshHoursMultiplyPerLevel}");
+        Debug.Log($"CONFIG: cookingBaseChanceToIncreaseServings, value: {cookingBaseChanceToIncreaseServings}");
+        Debug.Log($"CONFIG: cookingIncrementChanceToIncreaseServings, value: {cookingIncrementChanceToIncreaseServings}");
+        Debug.Log($"CONFIG: cookingEveryChanceToIncreaseServingsReduceChance, value: {cookingEveryChanceToIncreaseServingsReduceChance}");
+        Debug.Log($"CONFIG: cookingChanceToIncreaseServingsReducerTotal, value: {cookingChanceToIncreaseServingsReducerTotal}");
+        Debug.Log($"CONFIG: cookingBaseRollsChanceToIncreaseServings, value: {cookingBaseRollsChanceToIncreaseServings}");
+        Debug.Log($"CONFIG: cookingEarnRollsChanceToIncreaseServingsEveryLevel, value: {cookingEarnRollsChanceToIncreaseServingsEveryLevel}");
+        Debug.Log($"CONFIG: cookingEarnRollsChanceToIncreaseServingsQuantity, value: {cookingEarnRollsChanceToIncreaseServingsQuantity}");
         Debug.Log($"CONFIG: vitalityEXPPerReceiveHit, value: {vitalityEXPPerReceiveHit}");
         Debug.Log($"CONFIG: vitalityEXPMultiplyByDamage, value: {vitalityEXPMultiplyByDamage}");
         Debug.Log($"CONFIG: vitalityEXPIncreaseByAmountDamage, value: {vitalityEXPIncreaseByAmountDamage}");
@@ -1786,10 +1798,127 @@ public static class Configuration
     #endregion
 
     #region cooking
-    public static readonly int expPerCookedCooking = 3;
+    public static readonly Dictionary<string, double> expMultiplySingleCooking = [];
+    public static readonly Dictionary<string, double> expMultiplyPotsCooking = [];
+    private static int cookingBaseExpPerCooking = 3;
+    private static int cookingEXPPerLevelBase = 10;
+    private static double cookingEXPMultiplyPerLevel = 1.3;
+    private static float cookingBaseFreshHoursMultiply = 1.0f;
+    private static float cookingFreshHoursMultiplyPerLevel = 0.1f;
+    private static float cookingBaseChanceToIncreaseServings = 1.0f;
+    private static float cookingIncrementChanceToIncreaseServings = 2.0f;
+    private static float cookingEveryChanceToIncreaseServingsReduceChance = 20.0f;
+    private static float cookingChanceToIncreaseServingsReducerTotal = 0.5f;
+    private static int cookingBaseRollsChanceToIncreaseServings = 1;
+    private static int cookingEarnRollsChanceToIncreaseServingsEveryLevel = 5;
+    private static int cookingEarnRollsChanceToIncreaseServingsQuantity = 1;
+    public static int ExpPerCookingcooking => cookingBaseExpPerCooking;
 
-    public static void PopulateCookingConfiguration(ICoreAPI _)
+    public static void PopulateCookingConfiguration(ICoreAPI api)
     {
+        Dictionary<string, object> cookingLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/cooking.json")).ToObject<Dictionary<string, object>>();
+        { //cookingBaseExpPerCooking
+            if (cookingLevelStats.TryGetValue("cookingBaseExpPerCooking", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseExpPerCooking is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingBaseExpPerCooking is not int is {value.GetType()}");
+                else cookingBaseExpPerCooking = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingBaseExpPerCooking not set");
+        }
+        { //cookingEXPPerLevelBase
+            if (cookingLevelStats.TryGetValue("cookingEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingEXPPerLevelBase is not int is {value.GetType()}");
+                else cookingEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingEXPPerLevelBase not set");
+        }
+        { //cookingEXPMultiplyPerLevel
+            if (cookingLevelStats.TryGetValue("cookingEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else cookingEXPMultiplyPerLevel = (double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingEXPMultiplyPerLevel not set");
+        }
+        { //cookingBaseFreshHoursMultiply
+            if (cookingLevelStats.TryGetValue("cookingBaseFreshHoursMultiply", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseFreshHoursMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingBaseFreshHoursMultiply is not double is {value.GetType()}");
+                else cookingBaseFreshHoursMultiply = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingBaseFreshHoursMultiply not set");
+        }
+        { //cookingFreshHoursMultiplyPerLevel
+            if (cookingLevelStats.TryGetValue("cookingFreshHoursMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingFreshHoursMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingFreshHoursMultiplyPerLevel is not double is {value.GetType()}");
+                else cookingFreshHoursMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingFreshHoursMultiplyPerLevel not set");
+        }
+        { //cookingBaseChanceToIncreaseServings
+            if (cookingLevelStats.TryGetValue("cookingBaseChanceToIncreaseServings", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseChanceToIncreaseServings is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingBaseChanceToIncreaseServings is not double is {value.GetType()}");
+                else cookingBaseChanceToIncreaseServings = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingBaseChanceToIncreaseServings not set");
+        }
+        { //cookingIncrementChanceToIncreaseServings
+            if (cookingLevelStats.TryGetValue("cookingIncrementChanceToIncreaseServings", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings is not double is {value.GetType()}");
+                else cookingIncrementChanceToIncreaseServings = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings not set");
+        }
+        { //cookingEveryChanceToIncreaseServingsReduceChance
+            if (cookingLevelStats.TryGetValue("cookingEveryChanceToIncreaseServingsReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance is not double is {value.GetType()}");
+                else cookingEveryChanceToIncreaseServingsReduceChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance not set");
+        }
+        { //cookingChanceToIncreaseServingsReducerTotal
+            if (cookingLevelStats.TryGetValue("cookingChanceToIncreaseServingsReducerTotal", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingChanceToIncreaseServingsReducerTotal is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingChanceToIncreaseServingsReducerTotal is not double is {value.GetType()}");
+                else cookingChanceToIncreaseServingsReducerTotal = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingChanceToIncreaseServingsReducerTotal not set");
+        }
+        { //cookingBaseRollsChanceToIncreaseServings
+            if (cookingLevelStats.TryGetValue("cookingBaseRollsChanceToIncreaseServings", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseRollsChanceToIncreaseServings is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingBaseRollsChanceToIncreaseServings is not int is {value.GetType()}");
+                else cookingBaseRollsChanceToIncreaseServings = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingBaseRollsChanceToIncreaseServings not set");
+        }
+        { //cookingEarnRollsChanceToIncreaseServingsEveryLevel
+            if (cookingLevelStats.TryGetValue("cookingEarnRollsChanceToIncreaseServingsEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsEveryLevel is not int is {value.GetType()}");
+                else cookingEarnRollsChanceToIncreaseServingsEveryLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsEveryLevel not set");
+        }
+        { //cookingEarnRollsChanceToIncreaseServingsQuantity
+            if (cookingLevelStats.TryGetValue("cookingEarnRollsChanceToIncreaseServingsQuantity", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity is not int is {value.GetType()}");
+                else cookingEarnRollsChanceToIncreaseServingsQuantity = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity not set");
+        }
+        
+        // Get single food exp multiply
+        expMultiplySingleCooking.Clear();
+        Dictionary<string, object> tmpexpMultiplySingleCooking = api.Assets.Get(new AssetLocation("levelup:config/levelstats/cookingsingles.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplySingleCooking)
+        {
+            if (pair.Value is double value) expMultiplySingleCooking.Add(pair.Key, value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplySingleCooking {pair.Key} is not double");
+        }
+        // Get pots food exp multiply
+        expMultiplyPotsCooking.Clear();
+        Dictionary<string, object> tmpexpMultiplyPotsCooking = api.Assets.Get(new AssetLocation("levelup:config/levelstats/cookingpots.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplyPotsCooking)
+        {
+            if (pair.Value is double value) expMultiplyPotsCooking.Add(pair.Key, value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplyPotsCooking {pair.Key} is not double");
+        }
+        
         Debug.Log("Cooking configuration set");
     }
 
@@ -1797,14 +1926,14 @@ public static class Configuration
     {
         int level = 0;
         // Exp base for level
-        double expPerLevelBase = 10;
+        double expPerLevelBase = cookingEXPPerLevelBase;
         double calcExp = double.Parse(exp.ToString());
         while (calcExp > 0)
         {
             level += 1;
             calcExp -= expPerLevelBase;
             // 20 percentage increasing per level
-            expPerLevelBase *= 1.2;
+            expPerLevelBase *= cookingEXPMultiplyPerLevel;
         }
         return level;
     }
@@ -1828,10 +1957,10 @@ public static class Configuration
 
     public static float CookingGetFreshHoursMultiplyByEXP(ulong exp)
     {
-        float baseMultiply = 1.0f;
+        float baseMultiply = cookingBaseFreshHoursMultiply;
         int level = CookingGetLevelByEXP(exp);
 
-        float incrementMultiply = 0.1f;
+        float incrementMultiply = cookingFreshHoursMultiplyPerLevel;
         float multiply = 0.0f;
         while (level > 1)
         {
@@ -1846,25 +1975,17 @@ public static class Configuration
     public static int CookingGetServingsByEXPAndServings(ulong exp, int quantityServings)
     {
         int level = CookingGetLevelByEXP(exp);
-        float chanceToIncrease = 0.0f;
-        int rolls = 1;
+        float chanceToIncrease = cookingBaseChanceToIncreaseServings;
+        float incrementChance = cookingIncrementChanceToIncreaseServings;
+        int rolls = cookingBaseRollsChanceToIncreaseServings;
         while (level > 1)
         {
             level -= 1;
-            if (chanceToIncrease < 20f)
-                // 2% of chance each level
-                chanceToIncrease += 2.0f;
-            else if (chanceToIncrease < 40f)
-                // 1% of chance each level
-                chanceToIncrease += 1.0f;
-            else if (chanceToIncrease < 60f)
-                // 0.5% of chance each level
-                chanceToIncrease += 0.5f;
-            else
-                // 0.2% of chance each level
-                chanceToIncrease += 0.2f;
+            // Reduce change every {} chanceToIncrease
+            if (chanceToIncrease % cookingEveryChanceToIncreaseServingsReduceChance == 0) incrementChance -= cookingChanceToIncreaseServingsReducerTotal;
+            chanceToIncrease += incrementChance;
             // Increase rolls change by 1 every 5 levels
-            if (level % 5 == 0) rolls += 1;
+            if (level % cookingEarnRollsChanceToIncreaseServingsEveryLevel == 0) rolls += cookingEarnRollsChanceToIncreaseServingsQuantity;
         }
         while (rolls > 0)
         {
@@ -1872,31 +1993,6 @@ public static class Configuration
             if (chanceToIncrease >= new Random().Next(0, 100)) quantityServings += 1;
         }
         return quantityServings;
-    }
-
-    public static bool CookingRollChanceToNotReduceDurabilityByEXP(ulong exp)
-    {
-        int level = CookingGetLevelByEXP(exp);
-        float chanceToNotReduce = 0.0f;
-        while (level > 1)
-        {
-            level -= 1;
-            if (chanceToNotReduce < 20f)
-                // 2% of chance each level
-                chanceToNotReduce += 2.0f;
-            else if (chanceToNotReduce < 40f)
-                // 1% of chance each level
-                chanceToNotReduce += 1.0f;
-            else if (chanceToNotReduce < 60f)
-                // 0.5% of chance each level
-                chanceToNotReduce += 0.5f;
-            else
-                // 0.2% of chance each level
-                chanceToNotReduce += 0.2f;
-        }
-        // Check the chance 
-        if (chanceToNotReduce >= new Random().Next(0, 100)) return true;
-        else return false;
     }
     #endregion
 
