@@ -23,6 +23,7 @@ class Instance
     public LevelSpear levelSpear = new();
     public LevelFarming levelFarming = new();
     public LevelVitality levelVitality = new();
+    public LevelCooking levelCooking = new();
     public LevelLeatherArmor levelLeatherArmor = new();
     public LevelChainArmor levelChainArmor = new();
 
@@ -42,6 +43,7 @@ class Instance
         if (Configuration.enableLevelSpear) levelSpear.Init(this);
         if (Configuration.enableLevelFarming) levelFarming.Init(this);
         if (Configuration.enableLevelVitality) levelVitality.Init(this);
+        if (Configuration.enableLevelCooking) levelCooking.Init(this);
         if (Configuration.enableLevelLeatherArmor) levelLeatherArmor.Init(this);
         if (Configuration.enableLevelChainArmor) levelChainArmor.Init(this);
         Debug.Log("Server Levels instanciated");
@@ -80,6 +82,7 @@ class Instance
         levelSpear.PopulateConfiguration(coreAPI);
         levelFarming.PopulateConfiguration(coreAPI);
         levelVitality.PopulateConfiguration(coreAPI);
+        levelCooking.PopulateConfiguration(coreAPI);
         levelLeatherArmor.PopulateConfiguration(coreAPI);
         levelChainArmor.PopulateConfiguration(coreAPI);
     }
@@ -359,14 +362,14 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.expPerCookedCooking;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerCookingcooking;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.expPerCookedCooking} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerCookingcooking} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region vitality

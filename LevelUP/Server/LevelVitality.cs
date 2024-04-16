@@ -73,6 +73,8 @@ class LevelVitality
 
         // Reload player health
         if (playerState.TryGetValue(player.PlayerName, out double value)) playerStats.Health = (float)value;
+        // If cannot find player will receive the base max health instead
+        else playerStats.Health = playerStats.BaseMaxHealth;
 
         // Refresh for the player
         playerStats.UpdateMaxHealth();

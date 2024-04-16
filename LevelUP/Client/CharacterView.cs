@@ -55,12 +55,8 @@ class CharacterView
         StringBuilder fulldesc = new();
         fulldesc.AppendLine("Character Levels");
         fulldesc.AppendLine("-- Tools Levels --");
-        fulldesc.AppendLine($"Axe: {axeLevel}");
-        fulldesc.AppendLine($"Pickaxe: {pickaxeLevel}");
-        fulldesc.AppendLine($"Shovel: {shovelLevel}");
-        fulldesc.AppendLine($"Bow: {bowLevel}");
-        fulldesc.AppendLine($"Spear: {spearLevel}");
-        fulldesc.AppendLine($"Knife: {knifeLevel}");
+        fulldesc.AppendLine($"Axe: {axeLevel}   Pickaxe: {pickaxeLevel}   Shovel: {shovelLevel}");
+        fulldesc.AppendLine($"Bow: {bowLevel}   Spear: {spearLevel}   Knife: {knifeLevel}");
         fulldesc.AppendLine("-- Armor Levels --");
         fulldesc.AppendLine($"Leather Armor: {leatherArmorLevel}");
         fulldesc.AppendLine($"Chain Armor: {chainArmorLevel}");

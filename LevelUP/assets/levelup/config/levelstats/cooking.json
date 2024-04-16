@@ -1,0 +1,14 @@
+{
+    "cookingBaseExpPerCooking": 3,
+    "cookingEXPPerLevelBase": 10,
+    "cookingEXPMultiplyPerLevel": 1.3,
+    "cookingBaseFreshHoursMultiply": 1.0,
+    "cookingFreshHoursMultiplyPerLevel": 0.1,
+    "cookingBaseChanceToIncreaseServings": 1.0,
+    "cookingIncrementChanceToIncreaseServings": 2.0,
+    "cookingEveryChanceToIncreaseServingsReduceChance": 20.0,
+    "cookingChanceToIncreaseServingsReducerTotal": 0.5,
+    "cookingBaseRollsChanceToIncreaseServings": 1,
+    "cookingEarnRollsChanceToIncreaseServingsEveryLevel": 5,
+    "cookingEarnRollsChanceToIncreaseServingsQuantity": 4
+}

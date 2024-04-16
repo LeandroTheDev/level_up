@@ -18,17 +18,19 @@ LEVELS:
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
 - Vitality: Increase max health and health regen, earn xp by getting hitted
+- Cooking: Increase servings quantity and fresh hours, earn experience by cooking
 - Leather Armor: Reduce damage received using leather armors, earn xp by getting hitted using leather armors
 - Chain Armor: Reduce damage received using chain armors, earn xp by getting hitted using chain armors
 
 Future features:
-- Smithing specialist.
-- Cooking specialist.
-- Better level view.
+- Smithing specialist. (Increase damage, animation speed, chance to double/triple)
+- Better level view. (Images)
 - Store data based on player uid.
-- Shield levels
-- Sword levels
-- Cute level up sound
+- Shield levels.
+- Sword levels. (Increase damage)
+- Cute level up sound.
+
+Not all item codes is added to the json configurations files, some armors/items/meats can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
 
 https://github.com/LeandroTheDev/level_up/assets/106118473/8409a3ee-08ce-42b6-8747-aa7bf6405a26
 
@@ -48,6 +50,8 @@ This mod changes a lot of native codes and can break easily throught updates.
 
 Performances leaks on server can be apparent because of new functions and calculation for damages and levels system,
 this is imperceptible for average computers and servers, but can cause a good cpu consumption on low end computers with high player count.
+
+Level UP doesn't register tickrates for the main game, so level up cannot be the cause for lower tickrate on servers.
 
 Memory usage in the server can be slightly bigger because of static configurations and events on the server side, imperceptible for servers using more than 1gb ram
 
