@@ -1901,7 +1901,7 @@ public static class Configuration
                 else cookingEarnRollsChanceToIncreaseServingsQuantity = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity not set");
         }
-        
+
         // Get single food exp multiply
         expMultiplySingleCooking.Clear();
         Dictionary<string, object> tmpexpMultiplySingleCooking = api.Assets.Get(new AssetLocation("levelup:config/levelstats/cookingsingles.json")).ToObject<Dictionary<string, object>>();
@@ -1918,7 +1918,7 @@ public static class Configuration
             if (pair.Value is double value) expMultiplyPotsCooking.Add(pair.Key, value);
             else Debug.Log($"CONFIGURATION ERROR: expMultiplyPotsCooking {pair.Key} is not double");
         }
-        
+
         Debug.Log("Cooking configuration set");
     }
 
@@ -1991,6 +1991,7 @@ public static class Configuration
         {
             // Randomizes the chance and increase if chances hit
             if (chanceToIncrease >= new Random().Next(0, 100)) quantityServings += 1;
+            rolls -= 1;
         }
         return quantityServings;
     }

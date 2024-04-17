@@ -10,5 +10,5 @@
     "cookingChanceToIncreaseServingsReducerTotal": 0.5,
     "cookingBaseRollsChanceToIncreaseServings": 1,
     "cookingEarnRollsChanceToIncreaseServingsEveryLevel": 5,
-    "cookingEarnRollsChanceToIncreaseServingsQuantity": 4
+    "cookingEarnRollsChanceToIncreaseServingsQuantity": 1
 }

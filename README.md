@@ -41,7 +41,11 @@ Increase crop drop rate will only be increased if you harvest a crop with the fi
 
 Hunter level damage is increased before the tool damage level, so if you have 2x damage in hunter and 2x damage in spear and you have a spear with 4 damage the calculation is: (4 x 2) x 2 = 16.
 
-To change the configurations go to the mod folder in assets folders, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/levelup/wiki) to  know what each configuration does.
+The armor reduction calculation: Every level with that type of armor you gain more base damage reduction for example in level 5 you gain 1 damage reduction using leather armors, wearing more leather armors will increase this value, lets take any example wearing 3 pieces of leather armor: head(0.1) body(0.5) leg(0.3) multiply = 0.9, this means you will increase your damage reduction by 90%, so you will reduce a total of 1.9 damage.
+
+Cooking experience and food status will be considered for the most nearest player from fire pit when the food finish cooking, the calculation for the servings increase is very simple, each level you earn more chance for additional servings, the roll is increased every 5 levels, for example in level 10 you have 3 rolls and 20% chance for increasing, if you are very lucky you can increase a max of 3 servings in level 10.
+
+To change the configurations go to the mod folder in assets folders, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to  know what each configuration does.
 
 Level UP Stores datas based on player name, changing the player name will lose all levels.
 
