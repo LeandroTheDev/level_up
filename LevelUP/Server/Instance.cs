@@ -139,7 +139,7 @@ class Instance
             case "Soil_Till": IncreaseExp(player, "Farming", "Till"); return;
             #endregion
             #region crafting
-            case "Cooking_Finished": IncreaseExp(player, "Cooking", "Cooking_Finished"); return;
+            case "Cooking_Finished": IncreaseExp(player, "Cooking", "Cooking_Finished", arguments["forceexp"].ToString().ToInt()); return;
                 #endregion
         }
 
@@ -358,18 +358,18 @@ class Instance
         #endregion
         #region cooking
         // Cooking
-        if (levelType == "Cooking" && reason == "Cooking_Finished")
+        if (levelType == "Cooking" && reason == "Cooking_Finished" && forceexp > 0)
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerCookingcooking;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)forceexp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerCookingcooking} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region vitality
