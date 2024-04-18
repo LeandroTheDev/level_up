@@ -20,13 +20,13 @@ class LevelFarming
         Debug.Log("Level Farming initialized");
     }
 
-    #pragma warning disable CA1822
+#pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulateFarmingConfiguration(coreAPI);
     }
-    #pragma warning restore CA1822
+#pragma warning restore CA1822
 
 
     private Dictionary<string, ulong> GetSavedLevels()
@@ -45,10 +45,7 @@ class LevelFarming
     {
         EntityPlayer playerEntity = player.Entity;
         // If not a plant ignore
-        if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Plant && breakedBlock.Block.CropProps == null) return;
-        // if (breakedBlock.Block.CropProps.TotalGrowthDays <= 2) return;
-
-        Debug.Log($"{breakedBlock.Block.Code}");
+        if (breakedBlock.Block?.BlockMaterial != EnumBlockMaterial.Plant && breakedBlock.Block.CropProps == null) return;
 
         // Get all players levels
         Dictionary<string, ulong> farmingLevels = GetSavedLevels();
@@ -58,6 +55,9 @@ class LevelFarming
 
         // Get the actual player total exp
         ulong playerExp = farmingLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+
+        if (Configuration.enableExtendedLog)
+            Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, farming exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         farmingLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

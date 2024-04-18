@@ -24,13 +24,13 @@ class LevelShovel
         Debug.Log("Level Shovel initialized");
     }
 
-    #pragma warning disable CA1822
+#pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulateShovelConfiguration(coreAPI);
     }
-    #pragma warning restore CA1822
+#pragma warning restore CA1822
 
     private Dictionary<string, ulong> GetSavedLevels()
     {
@@ -71,7 +71,8 @@ class LevelShovel
         // Get the actual player total exp
         ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, shovel exp earned: {exp}, actual: {playerExp}");
+        if (Configuration.enableExtendedLog)
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, shovel exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         shovelLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

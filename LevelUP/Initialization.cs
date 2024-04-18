@@ -32,6 +32,8 @@ public class Initialization : ModSystem
     public override void Start(ICoreAPI api)
     {
         base.Start(api);
+
+        Debug.LoadLogger(api.Logger);
         sharedInstance.InstanciateAPI(api);
         sharedInstance.OverwriteFunctions();
     }
@@ -62,8 +64,18 @@ public class Initialization : ModSystem
 
 public class Debug
 {
+    private static readonly OperatingSystem system = Environment.OSVersion;
+    static private ILogger loggerForNonTerminalUsers;
+
+    static public void LoadLogger(ILogger logger) => loggerForNonTerminalUsers = logger;
     static public void Log(string message)
     {
-        Console.WriteLine($"{DateTime.Now:d.M.yyyy HH:mm:ss} [LevelUP] {message}");
+        // Check if is linux or other based system and if the terminal is active for the logs to be show
+        if ((system.Platform == PlatformID.Unix || system.Platform == PlatformID.Other) && Environment.UserInteractive)
+            // Based terminal users
+            Console.WriteLine($"{DateTime.Now:d.M.yyyy HH:mm:ss} [LevelUP] {message}");
+        else
+            // Unbased non terminal users
+            loggerForNonTerminalUsers?.Log(EnumLogType.Notification, $"[LevelUP] {message}");
     }
 }

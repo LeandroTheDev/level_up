@@ -16,6 +16,7 @@ LEVELS:
 - Axe: Increases axes damages and mining speed, earn xp by chopping trees, breaking wood, hitting and killing things with axes
 - Pickaxe: Increase pickaxes damages, ore drops and mining speed, earn xp by breaking stones, ores, hitting and killing things with pickaxes
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
+- Hammer: Increase hammer damages and chance to double/triple/quadruple the smithing results in anvil, earn xp by smithing, killing things and hitting with hammers.
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
 - Vitality: Increase max health and health regen, earn xp by getting hitted
 - Cooking: Increase servings quantity and fresh hours, earn experience by cooking
@@ -23,7 +24,7 @@ LEVELS:
 - Chain Armor: Reduce damage received using chain armors, earn xp by getting hitted using chain armors
 
 Future features:
-- Smithing specialist. (Increase damage, animation speed, chance to double/triple)
+- Hammer increase animation speed based on level
 - Better level view. (Images)
 - Store data based on player uid.
 - Shield levels.

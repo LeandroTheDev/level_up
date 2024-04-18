@@ -100,35 +100,53 @@ class OverwriteBlockInteraction
     #endregion
 
     #region cooking
+    static int cookingFirePitOverflow = 0;
     // Overwrite Fire Pit
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BlockEntityFirepit), "heatInput")]
     public static void HeatInput(BlockEntityFirepit __instance, float dt)
     {
-        if (!Configuration.enableLevelCooking) return;
+        // if (!Configuration.enableLevelCooking || __instance.Api.World.Side != EnumAppSide.Server) return;
 
+        // Hol up, let him cook
         float maxCookingTime = __instance.inputSlot.Itemstack.Collectible.GetMeltingDuration(__instance.Api.World, (ISlotProvider)__instance.Inventory, __instance.inputSlot);
         float cookingTime = __instance.inputStackCookingTime;
+
+        if (Configuration.enableExtendedLog && (int)cookingTime % 10 == 0 && cookingTime > 0 && cookingTime < maxCookingTime)
+            Debug.Log($"Cooking: {cookingTime} / {maxCookingTime}");
+
+        // Check if him finished cooking
         if (cookingTime >= maxCookingTime)
         {
+            // Check if input stack exists on exp earn, this means the player is reheating the food, disabling the experience mechanic
+            if (Configuration.expMultiplySingleCooking.TryGetValue(__instance.inputStack.Collectible.Code.ToString(), out double _)) return;
+            else if (Configuration.expMultiplyPotsCooking.TryGetValue(__instance.inputStack.Collectible.Code.ToString(), out double _)) return;
+
             // Check if the output existed before the cooking finished
             bool firstOutput = __instance.outputStack == null;
 
-            if (Configuration.enableExtendedLog) Debug.Log($"{__instance.inputStack.Collectible.Code} finished cooking, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"{__instance.inputStack.Collectible.Code} finished cooking, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
+
+            // Overflow check
+            if (cookingFirePitOverflow >= Configuration.cookingFirePitOverflow)
+            {
+                Debug.Log($"Cooking overflowed, too many players? or there is a missing recipe causing reheating bug? recipe: {__instance.inputStack.Collectible.Code}, stats and experience ignored, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}, if recipe is missing please add in configs/levelstats/cookingpots.json or configs/levelstats/cookingsingles.json");
+                return;
+            }
+
             // Run on secondary thread to not freeze the server
             Task thread = Task.Run(() =>
             {
-                // Check if input stack exists on exp earn, this means the player is reheating the food
-                if (Configuration.expMultiplySingleCooking.TryGetValue(__instance.inputStack.Collectible.Code.ToString(), out double _)) return;
-
                 // Because output is magically added by something we need to constantly check it
                 while (__instance.outputStack == null) { }
                 // Finally receive output
                 ItemStack output = __instance.outputStack;
-                // Check if output is not any item
-                if (output is null) return;
+                // Check if output doesn't exist
+                if (output is null || output.Collectible is null) return;
 
-                if (Configuration.enableExtendedLog) Debug.Log($"Cooking output: {output.Collectible.Code}, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
+                if (Configuration.enableExtendedLog)
+                    Debug.Log($"Cooking output: {output.Collectible.Code}, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
 
                 // Update player experience to the most proximity player
                 // or if is single player get the player playing
@@ -176,69 +194,63 @@ class OverwriteBlockInteraction
                 {
                     if (firstOutput)
                     {
-                        try
+                        // Increase the fresh hours based in player experience
                         {
-                            // Increase the fresh hours based in player experience
+                            // For pots the fresh foods is stored as raw in the pot
+                            // by knowing that we need to increase fresh hours foreach inventory slot from this pot
+                            TreeAttribute attribute = output.Attributes["contents"] as TreeAttribute;
+
+                            if (Configuration.enableExtendedLog)
+                                Debug.Log("Increasing cooking ingredients fresh hours...");
+
+                            // Swipe all foods in inventory
+                            foreach (var contents in attribute)
                             {
-                                // For pots the fresh foods is stored as raw in the pot
-                                // by knowing that we need to increase fresh hours foreach inventory slot from this pot
-                                TreeAttribute attribute = output.Attributes["contents"] as TreeAttribute;
+                                ItemstackAttribute contentAttribute = contents.Value as ItemstackAttribute;
+                                ItemStack item = contentAttribute.value;
+
+                                // Get food datas
+                                TreeAttribute itemAttribute = item.Attributes["transitionstate"] as TreeAttribute;
+                                FloatArrayAttribute freshHours = itemAttribute.GetAttribute("freshHours") as FloatArrayAttribute;
 
                                 if (Configuration.enableExtendedLog)
-                                    Debug.Log("Increasing cooking ingredients fresh hours...");
+                                    Debug.Log($"Cooking: previously fresh hours: {freshHours.value[0]}");
 
-                                // Swipe all foods in inventory
-                                foreach (var contents in attribute)
-                                {
-                                    ItemstackAttribute contentAttribute = contents.Value as ItemstackAttribute;
-                                    ItemStack item = contentAttribute.value;
-
-                                    // Get food datas
-                                    TreeAttribute itemAttribute = item.Attributes["transitionstate"] as TreeAttribute;
-                                    FloatArrayAttribute freshHours = itemAttribute.GetAttribute("freshHours") as FloatArrayAttribute;
-
-                                    if (Configuration.enableExtendedLog)
-                                        Debug.Log($"Cooking: previously fresh hours: {freshHours.value[0]}");
-
-                                    // Increase fresh hours
-                                    freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"));
-
-                                    if (Configuration.enableExtendedLog)
-                                        Debug.Log($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"))}");
-
-                                    // Updating
-                                    itemAttribute.SetAttribute("freshHours", freshHours);
-                                    item.Attributes["transitionstate"] = itemAttribute;
-                                    contentAttribute.value = item;
-                                }
-                                output.Attributes["contents"] = attribute;
-                            }
-                            // Increase servings quantity
-                            {
-                                // Get data
-                                TreeAttribute attribute = output.Attributes as TreeAttribute;
-                                // Get the servings quantity
-                                FloatAttribute servingsQuantity = attribute["quantityServings"] as FloatAttribute;
+                                // Increase fresh hours
+                                freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"));
 
                                 if (Configuration.enableExtendedLog)
-                                    Debug.Log($"Cooking: previously servings: {servingsQuantity.value}");
-
-                                // Increasing servings quantity
-                                servingsQuantity.value = Configuration.CookingGetServingsByEXPAndServings((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"), (int)servingsQuantity.value); ;
-
-                                if (Configuration.enableExtendedLog)
-                                    Debug.Log($"Cooking: servings now: {servingsQuantity.value}");
+                                    Debug.Log($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"))}");
 
                                 // Updating
-                                attribute["quantityServings"] = servingsQuantity;
-                                output.Attributes = attribute;
+                                itemAttribute.SetAttribute("freshHours", freshHours);
+                                item.Attributes["transitionstate"] = itemAttribute;
+                                contentAttribute.value = item;
                             }
+                            output.Attributes["contents"] = attribute;
                         }
-                        catch (Exception ex)
+                        // Increase servings quantity
                         {
-                            Debug.Log(ex.Message);
+                            // Get data
+                            TreeAttribute attribute = output.Attributes as TreeAttribute;
+                            // Get the servings quantity
+                            FloatAttribute servingsQuantity = attribute["quantityServings"] as FloatAttribute;
+
+                            if (Configuration.enableExtendedLog)
+                                Debug.Log($"Cooking: previously servings: {servingsQuantity.value}");
+
+                            // Increasing servings quantity
+                            servingsQuantity.value = Configuration.CookingGetServingsByEXPAndServings((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"), (int)servingsQuantity.value); ;
+
+                            if (Configuration.enableExtendedLog)
+                                Debug.Log($"Cooking: servings now: {servingsQuantity.value}");
+
+                            // Updating
+                            attribute["quantityServings"] = servingsQuantity;
+                            output.Attributes = attribute;
                         }
                     }
+
                     // Dedicated Servers
                     if (instance.serverAPI != null)
                         instance.serverAPI.OnClientMessage(player as IServerPlayer, $"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots))}");
@@ -253,9 +265,120 @@ class OverwriteBlockInteraction
                 if (!thread.IsCompleted)
                 {
                     Debug.Log("WARNING: Output thread in cooking function has forcelly disposed, did the server is overloaded? cooking experience and status have been lost");
-                    thread.Dispose();
                 };
+                thread.Dispose();
+                if (cookingFirePitOverflow > 0)
+                    cookingFirePitOverflow -= 1;
             });
+        }
+    }
+    #endregion
+
+    #region hammer
+    // // Overwrite the hammer animations
+    // [HarmonyPrefix]
+    // [HarmonyPatch(typeof(ItemHammer), "startHitAction")]
+    // public static bool StartHitAction(ItemHammer __instance, ItemSlot slot, EntityAgent byEntity, bool merge)
+    // {
+    //     #region native
+    //     void strikeAnvilSound()
+    //     {
+    //         IPlayer player = (byEntity as EntityPlayer).Player;
+    //         if (player != null && player.CurrentBlockSelection != null)
+    //         {
+    //             player.Entity.World.PlaySoundAt(merge ? new AssetLocation("sounds/effect/anvilmergehit") : new AssetLocation("sounds/effect/anvilhit"), player.Entity, player, 0.9f + (float)byEntity.World.Rand.NextDouble() * 0.2f, 16f, 0.35f);
+    //         }
+    //     }
+    //     if (!slot.Itemstack.TempAttributes.GetBool("isAnvilAction"))
+    //     {
+    //         string heldTpHitAnimation = __instance.GetHeldTpHitAnimation(slot, byEntity);
+    //         float soundAtFrame = CollectibleBehaviorAnimationAuthoritative.getSoundAtFrame(byEntity, heldTpHitAnimation);
+    //         float hitDamageAtFrame = CollectibleBehaviorAnimationAuthoritative.getHitDamageAtFrame(byEntity, heldTpHitAnimation);
+    //         #endregion
+
+    //         // Receive player experience
+    //         ulong playerExp = (ulong)byEntity.WatchedAttributes.GetLong("LevelUP_Hammer");
+    //         // Reduce frame counts
+    //         soundAtFrame /= Configuration.HammerGetAnimationSpeedByEXP(playerExp);
+    //         hitDamageAtFrame /= Configuration.HammerGetAnimationSpeedByEXP(playerExp);
+
+    //         #region native
+    //         slot.Itemstack.TempAttributes.SetBool("isAnvilAction", value: true);
+    //         byEntity.AnimManager.RegisterFrameCallback(new AnimFrameCallback
+    //         {
+    //             Animation = heldTpHitAnimation,
+    //             Frame = soundAtFrame,
+    //             Callback = delegate
+    //             {
+    //                 strikeAnvilSound();
+    //             }
+    //         });
+    //         byEntity.AnimManager.RegisterFrameCallback(new AnimFrameCallback
+    //         {
+    //             Animation = heldTpHitAnimation,
+    //             Frame = hitDamageAtFrame,
+    //             Callback = delegate
+    //             {
+    //                 strikeAnvilSound();
+    //             }
+    //         });
+    //     }
+    //     #endregion
+    //     return false;
+    // }
+
+    // Overwrite the hammer smithing
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(BlockEntityAnvil), "CheckIfFinished")]
+    public static void CheckIfFinished(BlockEntityAnvil __instance, IPlayer byPlayer)
+    {
+        // Error treatment
+        if (__instance.SelectedRecipe?.Output?.ResolvedItemstack != null || byPlayer != null)
+        {
+            bool MatchesRecipe()
+            {
+                if (__instance.SelectedRecipe == null)
+                {
+                    return false;
+                }
+                int ymax = Math.Min(6, __instance.SelectedRecipe.QuantityLayers);
+                bool[,,] recipeVoxels = __instance.recipeVoxels;
+                for (int x = 0; x < 16; x++)
+                {
+                    for (int y = 0; y < ymax; y++)
+                    {
+                        for (int z = 0; z < 16; z++)
+                        {
+                            byte desiredMat = (byte)(recipeVoxels[x, y, z] ? 1u : 0u);
+                            if (__instance.Voxels[x, y, z] != desiredMat)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            // Check if is finished
+            if (__instance.SelectedRecipe != null && MatchesRecipe() && __instance.Api.World is IServerWorldAccessor)
+            {
+                // Get player hammer level
+                ulong playerExp = (ulong)byPlayer.Entity.WatchedAttributes.GetLong("LevelUP_Hammer");
+                // Multiply by the change
+                __instance.SelectedRecipe.Output.ResolvedItemstack.StackSize *= Configuration.HammerGetResultMultiplyByEXP(playerExp);
+
+                if (Configuration.enableExtendedLog)
+                    Debug.Log($"{byPlayer.PlayerName} finished smithing {__instance.SelectedRecipe.Output.ResolvedItemstack.Collectible?.Code} with a result size of: {__instance.SelectedRecipe.Output.ResolvedItemstack.StackSize}");
+            }
+
+            // Check if player is using the hammer
+            if (byPlayer.InventoryManager.ActiveTool == EnumTool.Hammer)
+                // Dedicated Servers
+                if (instance.serverAPI != null)
+                    instance.serverAPI.OnClientMessage(byPlayer as IServerPlayer, "Increase_Hammer_Hit");
+                // Single player treatment
+                else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
+                    instance.clientAPI.channel.SendPacket("Increase_Hammer_Hit");
         }
     }
     #endregion

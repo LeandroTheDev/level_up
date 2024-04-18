@@ -133,6 +133,21 @@ class OverwriteDamageInteraction
 
                     }
                     #endregion
+
+                    #region hammer
+                    // Increase the damage if actual tool is a hammer
+                    if (Configuration.enableLevelHammer && player.InventoryManager.ActiveTool == EnumTool.Hammer)
+                    {
+                        damage *= Configuration.HammerGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Hammer"));
+                        // Increase exp for using hammer weapons
+                        if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Hammer_Hit");
+                        // Single player treatment
+                        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+
+                            instance.clientAPI.channel.SendPacket("Increase_Hammer_Hit");
+
+                    }
+                    #endregion
                 }
                 // Ranged Action
                 else if (damageSource.GetCauseEntity() is EntityPlayer && damageSource.SourceEntity is EntityProjectile)
@@ -398,7 +413,7 @@ class OverwriteDamageInteraction
             }
             EntityPlayer playerEntity = byEntity as EntityPlayer;
             // Get change of not using durability
-            switch (itemslot.Itemstack?.Item?.Tool)
+            switch (itemslot.Itemstack?.Collectible?.Tool)
             {
                 case EnumTool.Bow: return !Configuration.BowRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Bow"));
                 case EnumTool.Axe: return !Configuration.AxeRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Axe"));
@@ -406,6 +421,7 @@ class OverwriteDamageInteraction
                 case EnumTool.Pickaxe: return !Configuration.PickaxeRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Pickaxe"));
                 case EnumTool.Shovel: return !Configuration.ShovelRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Shovel"));
                 case EnumTool.Spear: return !Configuration.SpearRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Spear"));
+                case EnumTool.Hammer: return !Configuration.HammerRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Hammer"));
             }
         }
         return true;

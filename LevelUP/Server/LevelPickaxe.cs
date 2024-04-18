@@ -70,7 +70,8 @@ class LevelPickaxe
         // Get the actual player total exp
         ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
-        Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, pickaxe exp earned: {exp}, actual: {playerExp}");
+        if (Configuration.enableExtendedLog)
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, pickaxe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         pickaxeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

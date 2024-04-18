@@ -20,13 +20,13 @@ class LevelBow
         Debug.Log("Level Bow initialized");
     }
 
-    #pragma warning disable CA1822
+#pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulateBowConfiguration(coreAPI);
     }
-    #pragma warning restore CA1822
+#pragma warning restore CA1822
 
     private Dictionary<string, ulong> GetSavedLevels()
     {
@@ -65,7 +65,8 @@ class LevelBow
             // Get the actual player total exp
             ulong playerExp = bowLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, bow exp earned: {exp}, actual: {playerExp}");
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, bow exp earned: {exp}, actual: {playerExp}");
 
             // Incrementing
             bowLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

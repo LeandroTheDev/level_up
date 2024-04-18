@@ -2,48 +2,47 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
-class LevelKnife
+class LevelHammer
 {
-    private Instance instance;
+    public Instance instance;
 
     public void Init(Instance _instance)
     {
         instance = _instance;
-        // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
-
-        Debug.Log("Level Knife initialized");
+        Debug.Log("Level Hammer initialized");
     }
 
 #pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
-        Configuration.PopulateKnifeConfiguration(coreAPI);
+        Configuration.PopulateHammerConfiguration(coreAPI);
     }
 #pragma warning restore CA1822
 
     private Dictionary<string, ulong> GetSavedLevels()
     {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Knife");
+        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Hammer");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
         return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
     }
 
-    private void SaveLevels(Dictionary<string, ulong> knifeLevels)
+    private void SaveLevels(Dictionary<string, ulong> hammerLevels)
     {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Knife", JsonSerializer.Serialize(knifeLevels));
+        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Hammer", JsonSerializer.Serialize(hammerLevels));
     }
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
-        if (damageSource == null) return;
+        if (damageSource == null || damageSource.SourceEntity == null) return;
         // The cause of the death is from a projectile
         if (damageSource.GetCauseEntity() is not EntityPlayer && damageSource.SourceEntity is EntityProjectile) return;
         // Entity kill is not from a player
@@ -55,29 +54,27 @@ class LevelKnife
         // Get player instance
         IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
 
-        Debug.Log(player.InventoryManager.ActiveTool.ToString());
-
-        // Check if player is using a bow
-        if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;
+        // Check if player is using a Hammer
+        if (player.InventoryManager.ActiveTool != EnumTool.Hammer) return;
 
         // Get all players levels
-        Dictionary<string, ulong> knifeLevels = GetSavedLevels();
+        Dictionary<string, ulong> hammerLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpKnife.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpHammer.GetValueOrDefault(playerEntity.GetName(), 0);
 
         // Get the actual player total exp
-        ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = hammerLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, knife exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, hammer exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        knifeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        hammerLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
 
         // Saving
-        SaveLevels(knifeLevels);
+        SaveLevels(hammerLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", knifeLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hammer", hammerLevels[playerEntity.GetName()]);
     }
 }
