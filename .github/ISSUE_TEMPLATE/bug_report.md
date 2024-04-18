@@ -11,4 +11,7 @@ assignees: LeandroTheDev
 What is the bug, and how you can get the bug.
 
 **Logs with enableExtendedLog**
-You can enable the extended log in mod configuration, the logs will help to find whats the problem.
+You can enable the extended log in mod configuration, the logs will help to find whats the problem
+
+**Singleplayer or Server?**
+You are experienced this bug in singleplayer game or in a server game?
