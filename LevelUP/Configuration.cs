@@ -15,6 +15,7 @@ public static class Configuration
     public static bool enableLevelBow = true;
     public static bool enableLevelKnife = true;
     public static bool enableLevelSpear = true;
+    public static bool enableLevelHammer = true;
     public static bool enableLevelAxe = true;
     public static bool enableLevelPickaxe = true;
     public static bool enableLevelShovel = true;
@@ -23,6 +24,7 @@ public static class Configuration
     public static bool enableLevelVitality = true;
     public static bool enableLevelLeatherArmor = true;
     public static bool enableLevelChainArmor = true;
+    public static int cookingFirePitOverflow = 10;
     public static bool disableServerChannel = false;
     public static bool enableExtendedLog = false;
 
@@ -78,6 +80,13 @@ public static class Configuration
                 else enableLevelSpear = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: enableLevelSpear not set");
         }
+        { //enableLevelHammer
+            if (baseConfigs.TryGetValue("enableLevelHammer", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelHammer is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHammer is not boolean is {value.GetType()}");
+                else enableLevelHammer = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelHammer not set");
+        }
         { //enableLevelAxe
             if (baseConfigs.TryGetValue("enableLevelAxe", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelAxe is null");
@@ -98,6 +107,13 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelShovel is not boolean is {value.GetType()}");
                 else enableLevelShovel = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: enableLevelShovel not set");
+        }
+        { //enableLevelHammer
+            if (baseConfigs.TryGetValue("enableLevelHammer", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelHammer is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHammer is not boolean is {value.GetType()}");
+                else enableLevelHammer = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelHammer not set");
         }
         { //enableLevelFarming
             if (baseConfigs.TryGetValue("enableLevelFarming", out object value))
@@ -134,6 +150,13 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelChainArmor is not boolean is {value.GetType()}");
                 else enableLevelChainArmor = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: enableLevelChainArmor not set");
+        }
+        { //cookingFirePitOverflow
+            if (baseConfigs.TryGetValue("cookingFirePitOverflow", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingFirePitOverflow is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingFirePitOverflow is not int is {value.GetType()}");
+                else cookingFirePitOverflow = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingFirePitOverflow not set");
         }
         { //disableServerChannel
             if (baseConfigs.TryGetValue("disableServerChannel", out object value))
@@ -233,6 +256,29 @@ public static class Configuration
         Debug.Log($"CONFIG: spearDurabilityRestoreChancePerLevel, value: {spearDurabilityRestoreChancePerLevel}");
         Debug.Log($"CONFIG: spearDurabilityRestoreEveryLevelReduceChance, value: {spearDurabilityRestoreEveryLevelReduceChance}");
         Debug.Log($"CONFIG: spearDurabilityRestoreReduceChanceForEveryLevel, value: {spearDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: hammerEXPPerHit, value: {hammerEXPPerHit}");
+        Debug.Log($"CONFIG: hammerEXPPerLevelBase, value: {hammerEXPPerLevelBase}");
+        Debug.Log($"CONFIG: hammerEXPMultiplyPerLevel, value: {hammerEXPMultiplyPerLevel}");
+        Debug.Log($"CONFIG: hammerBaseDamage, value: {hammerBaseDamage}");
+        Debug.Log($"CONFIG: hammerIncrementDamagePerLevel, value: {hammerIncrementDamagePerLevel}");
+        Debug.Log($"CONFIG: hammerBaseDurabilityRestoreChance, value: {hammerBaseDurabilityRestoreChance}");
+        Debug.Log($"CONFIG: hammerDurabilityRestoreChancePerLevel, value: {hammerDurabilityRestoreChancePerLevel}");
+        Debug.Log($"CONFIG: hammerDurabilityRestoreEveryLevelReduceChance, value: {hammerDurabilityRestoreEveryLevelReduceChance}");
+        Debug.Log($"CONFIG: hammerDurabilityRestoreReduceChanceForEveryLevel, value: {hammerDurabilityRestoreReduceChanceForEveryLevel}");
+        Debug.Log($"CONFIG: hammerBaseSmithAnimationSpeed, value: {hammerBaseSmithAnimationSpeed}");
+        Debug.Log($"CONFIG: hammerIncreaseSmithAnimationSpeedPerLevel, value: {hammerIncreaseSmithAnimationSpeedPerLevel}");
+        Debug.Log($"CONFIG: hammerBaseChanceToDouble, value: {hammerBaseChanceToDouble}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToDoublePerLevel, value: {hammerIncreaseChanceToDoublePerLevel}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToDoublePerLevelReducerPerLevel, value: {hammerIncreaseChanceToDoublePerLevelReducerPerLevel}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToDoublePerLevelReducer, value: {hammerIncreaseChanceToDoublePerLevelReducer}");
+        Debug.Log($"CONFIG: hammerBaseChanceToTriple, value: {hammerBaseChanceToTriple}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToTriplePerLevel, value: {hammerIncreaseChanceToTriplePerLevel}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToTriplePerLevelReducerPerLevel, value: {hammerIncreaseChanceToTriplePerLevelReducerPerLevel}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToTriplePerLevelReducer, value: {hammerIncreaseChanceToTriplePerLevelReducer}");
+        Debug.Log($"CONFIG: hammerBaseChanceToQuadruple, value: {hammerBaseChanceToQuadruple}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToQuadruplePerLevel, value: {hammerIncreaseChanceToQuadruplePerLevel}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel, value: {hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel}");
+        Debug.Log($"CONFIG: hammerIncreaseChanceToQuadruplePerLevelReducer, value: {hammerIncreaseChanceToQuadruplePerLevelReducer}");
         Debug.Log($"CONFIG: farmingEXPPerTill, value: {farmingEXPPerTill}");
         Debug.Log($"CONFIG: farmingEXPPerLevelBase, value: {farmingEXPPerLevelBase}");
         Debug.Log($"CONFIG: farmingEXPMultiplyPerLevel, value: {farmingEXPMultiplyPerLevel}");
@@ -293,11 +339,13 @@ public static class Configuration
         Debug.Log($"CONFIG: enableLevelAxe, value: {enableLevelAxe}");
         Debug.Log($"CONFIG: enableLevelPickaxe, value: {enableLevelPickaxe}");
         Debug.Log($"CONFIG: enableLevelShovel, value: {enableLevelShovel}");
+        Debug.Log($"CONFIG: enableLevelHammer, value: {enableLevelHammer}");
         Debug.Log($"CONFIG: enableLevelFarming, value: {enableLevelFarming}");
         Debug.Log($"CONFIG: enableLevelCooking, value: {enableLevelCooking}");
         Debug.Log($"CONFIG: enableLevelVitality, value: {enableLevelVitality}");
         Debug.Log($"CONFIG: enableLevelLeatherArmor, value: {enableLevelLeatherArmor}");
         Debug.Log($"CONFIG: enableLevelChainArmor, value: {enableLevelChainArmor}");
+        Debug.Log($"CONFIG: cookingFirePitOverflow, value: {cookingFirePitOverflow}");
         Debug.Log($"CONFIG: disableServerChannel, value: {disableServerChannel}");
         Debug.Log($"CONFIG: enableExtendedLog, value: {enableExtendedLog}");
     }
@@ -313,6 +361,7 @@ public static class Configuration
             case "Pickaxe": return PickaxeGetLevelByEXP(exp);
             case "Shovel": return ShovelGetLevelByEXP(exp);
             case "Spear": return SpearGetLevelByEXP(exp);
+            case "Hammer": return HammerGetLevelByEXP(exp);
             case "Farming": return FarmingGetLevelByEXP(exp);
             case "Cooking": return CookingGetLevelByEXP(exp);
             case "Vitality": return VitalityGetLevelByEXP(exp);
@@ -1647,6 +1696,329 @@ public static class Configuration
             level -= 1;
         }
         return accuracyPerLevelBase;
+    }
+    #endregion
+
+    #region hammer
+    public static readonly Dictionary<string, int> entityExpHammer = [];
+    private static int hammerEXPPerHit = 1;
+    private static int hammerEXPPerLevelBase = 10;
+    private static double hammerEXPMultiplyPerLevel = 1.5;
+    private static float hammerBaseDamage = 1.0f;
+    private static float hammerIncrementDamagePerLevel = 0.1f;
+    private static float hammerBaseDurabilityRestoreChance = 0.0f;
+    private static float hammerDurabilityRestoreChancePerLevel = 2.0f;
+    private static int hammerDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float hammerDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static float hammerBaseSmithAnimationSpeed = 1.0f;
+    private static float hammerIncreaseSmithAnimationSpeedPerLevel = 0.1f;
+    private static float hammerBaseChanceToDouble = 0.0f;
+    private static float hammerIncreaseChanceToDoublePerLevel = 2.0f;
+    private static int hammerIncreaseChanceToDoublePerLevelReducerPerLevel = 5;
+    private static float hammerIncreaseChanceToDoublePerLevelReducer = 0.2f;
+    private static float hammerBaseChanceToTriple = 0.0f;
+    private static float hammerIncreaseChanceToTriplePerLevel = 1.0f;
+    private static int hammerIncreaseChanceToTriplePerLevelReducerPerLevel = 5;
+    private static float hammerIncreaseChanceToTriplePerLevelReducer = 0.1f;
+    private static float hammerBaseChanceToQuadruple = 0.0f;
+    private static float hammerIncreaseChanceToQuadruplePerLevel = 0.5f;
+    private static int hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel = 5;
+    private static float hammerIncreaseChanceToQuadruplePerLevelReducer = 0.05f;
+
+    public static int ExpPerHitHammer => hammerEXPPerHit;
+
+    public static void PopulateHammerConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> hammerLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/hammer.json")).ToObject<Dictionary<string, object>>();
+        { //hammerEXPPerLevelBase
+            if (hammerLevelStats.TryGetValue("hammerEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerEXPPerLevelBase is not int is {value.GetType()}");
+                else hammerEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerEXPPerLevelBase not set");
+        }
+        { //hammerEXPMultiplyPerLevel
+            if (hammerLevelStats.TryGetValue("hammerEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else hammerEXPMultiplyPerLevel = (double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerEXPMultiplyPerLevel not set");
+        }
+        { //hammerBaseDamage
+            if (hammerLevelStats.TryGetValue("hammerBaseDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseDamage is not double is {value.GetType()}");
+                else hammerBaseDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerBaseDamage not set");
+        }
+        { //hammerIncrementDamagePerLevel
+            if (hammerLevelStats.TryGetValue("hammerIncrementDamagePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncrementDamagePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncrementDamagePerLevel is not double is {value.GetType()}");
+                else hammerIncrementDamagePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncrementDamagePerLevel not set");
+        }
+        { //hammerEXPPerHit
+            if (hammerLevelStats.TryGetValue("hammerEXPPerHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerEXPPerHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerEXPPerHit is not int is {value.GetType()}");
+                else hammerEXPPerHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerEXPPerHit not set");
+        }
+        { //hammerBaseDurabilityRestoreChance
+            if (hammerLevelStats.TryGetValue("hammerBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else hammerBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerBaseDurabilityRestoreChance not set");
+        }
+        { //hammerDurabilityRestoreChancePerLevel
+            if (hammerLevelStats.TryGetValue("hammerDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else hammerDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreChancePerLevel not set");
+        }
+        { //hammerDurabilityRestoreEveryLevelReduceChance
+            if (hammerLevelStats.TryGetValue("hammerDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else hammerDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreEveryLevelReduceChance not set");
+        }
+        { //hammerDurabilityRestoreReduceChanceForEveryLevel
+            if (hammerLevelStats.TryGetValue("hammerDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else hammerDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+        { //hammerBaseSmithAnimationSpeed
+            if (hammerLevelStats.TryGetValue("hammerBaseSmithAnimationSpeed", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseSmithAnimationSpeed is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseSmithAnimationSpeed is not double is {value.GetType()}");
+                else hammerBaseSmithAnimationSpeed = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerBaseSmithAnimationSpeed not set");
+        }
+        { //hammerIncreaseSmithAnimationSpeedPerLevel
+            if (hammerLevelStats.TryGetValue("hammerIncreaseSmithAnimationSpeedPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseSmithAnimationSpeedPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseSmithAnimationSpeedPerLevel is not double is {value.GetType()}");
+                else hammerIncreaseSmithAnimationSpeedPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseSmithAnimationSpeedPerLevel not set");
+        }
+        { //hammerBaseChanceToDouble
+            if (hammerLevelStats.TryGetValue("hammerBaseChanceToDouble", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToDouble is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseChanceToDouble is not double is {value.GetType()}");
+                else hammerBaseChanceToDouble = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToDouble not set");
+        }
+        { //hammerIncreaseChanceToDoublePerLevel
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToDoublePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevel is not double is {value.GetType()}");
+                else hammerIncreaseChanceToDoublePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevel not set");
+        }
+        { //hammerIncreaseChanceToDoublePerLevelReducerPerLevel
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToDoublePerLevelReducerPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducerPerLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducerPerLevel is not int is {value.GetType()}");
+                else hammerIncreaseChanceToDoublePerLevelReducerPerLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducerPerLevel not set");
+        }
+        { //hammerIncreaseChanceToDoublePerLevelReducer
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToDoublePerLevelReducer", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducer is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducer is not double is {value.GetType()}");
+                else hammerIncreaseChanceToDoublePerLevelReducer = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducer not set");
+        }
+        { //hammerBaseChanceToTriple
+            if (hammerLevelStats.TryGetValue("hammerBaseChanceToTriple", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToTriple is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseChanceToTriple is not double is {value.GetType()}");
+                else hammerBaseChanceToTriple = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToTriple not set");
+        }
+        { //hammerIncreaseChanceToTriplePerLevel
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToTriplePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevel is not double is {value.GetType()}");
+                else hammerIncreaseChanceToTriplePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevel not set");
+        }
+        { //hammerIncreaseChanceToTriplePerLevelReducerPerLevel
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToTriplePerLevelReducerPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducerPerLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducerPerLevel is not int is {value.GetType()}");
+                else hammerIncreaseChanceToTriplePerLevelReducerPerLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducerPerLevel not set");
+        }
+        { //hammerIncreaseChanceToTriplePerLevelReducer
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToTriplePerLevelReducer", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducer is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducer is not double is {value.GetType()}");
+                else hammerIncreaseChanceToTriplePerLevelReducer = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducer not set");
+        }
+        { //hammerBaseChanceToQuadruple
+            if (hammerLevelStats.TryGetValue("hammerBaseChanceToQuadruple", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToQuadruple is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseChanceToQuadruple is not double is {value.GetType()}");
+                else hammerBaseChanceToQuadruple = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToQuadruple not set");
+        }
+        { //hammerIncreaseChanceToQuadruplePerLevel
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToQuadruplePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevel is not double is {value.GetType()}");
+                else hammerIncreaseChanceToQuadruplePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevel not set");
+        }
+        { //hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel is not int is {value.GetType()}");
+                else hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel not set");
+        }
+        { //hammerIncreaseChanceToQuadruplePerLevelReducer
+            if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToQuadruplePerLevelReducer", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer is not double is {value.GetType()}");
+                else hammerIncreaseChanceToQuadruplePerLevelReducer = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer not set");
+        }
+
+        // Get entity exp
+        entityExpHammer.Clear();
+        Dictionary<string, object> tmpentityExpHammer = api.Assets.Get(new AssetLocation("levelup:config/entityexp/hammer.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmpentityExpHammer)
+        {
+            if (pair.Value is long value) entityExpHammer.Add(pair.Key, (int)value);
+            else Debug.Log($"CONFIGURATION ERROR: entityExpHammer {pair.Key} is not int");
+        }
+        Debug.Log("Hammer configuration set");
+    }
+
+    public static int HammerGetLevelByEXP(ulong exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = hammerEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= hammerEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+
+    public static float HammerGetDamageMultiplyByEXP(ulong exp)
+    {
+        float baseDamage = hammerBaseDamage;
+        int level = HammerGetLevelByEXP(exp);
+
+        float incrementDamage = hammerIncrementDamagePerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementDamage;
+            level -= 1;
+        }
+
+        baseDamage += baseDamage * incrementDamage;
+        return baseDamage;
+    }
+
+    public static bool HammerRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    {
+        int level = HammerGetLevelByEXP(exp);
+        float baseChanceToNotReduce = hammerBaseDurabilityRestoreChance;
+        float chanceToNotReduce = hammerDurabilityRestoreChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % hammerDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= hammerDurabilityRestoreReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        else return false;
+    }
+
+    public static float HammerGetAnimationSpeedByEXP(ulong exp)
+    {
+        float baseSpeed = hammerBaseSmithAnimationSpeed;
+        int level = HammerGetLevelByEXP(exp);
+
+        float incrementDamage = hammerIncreaseSmithAnimationSpeedPerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementDamage;
+            level -= 1;
+        }
+
+        baseSpeed += baseSpeed * incrementDamage;
+        return baseSpeed;
+    }
+
+    public static int HammerGetResultMultiplyByEXP(ulong exp)
+    {
+        int level = HammerGetLevelByEXP(exp);
+        // We calculate the most difficulty to most easily
+        { // Quadruple
+            int baseLevel = level;
+            float baseChance = hammerBaseChanceToQuadruple;
+            float incrementChance = hammerIncreaseChanceToQuadruplePerLevel;
+            while (baseLevel > 1)
+            {
+                baseLevel -= 1;
+                // Reduce chance every {} chanceToIncrease
+                if (level % hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToQuadruplePerLevelReducer;
+                baseChance += incrementChance;
+            }
+            // Randomizes the chance and increase if chances hit
+            if (baseChance >= new Random().Next(0, 100)) return 4;
+        }
+        { // Triple
+            int baseLevel = level;
+            float baseChance = hammerBaseChanceToTriple;
+            float incrementChance = hammerIncreaseChanceToTriplePerLevel;
+            while (baseLevel > 1)
+            {
+                baseLevel -= 1;
+                // Reduce chance every {} chanceToIncrease
+                if (level % hammerIncreaseChanceToTriplePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToTriplePerLevelReducer;
+                baseChance += incrementChance;
+            }
+            // Randomizes the chance and increase if chances hit
+            if (baseChance >= new Random().Next(0, 100)) return 3;
+        }
+        { // Double
+            int baseLevel = level;
+            float baseChance = hammerBaseChanceToDouble;
+            float incrementChance = hammerIncreaseChanceToDoublePerLevel;
+            while (baseLevel > 1)
+            {
+                baseLevel -= 1;
+                // Reduce chance every {} chanceToIncrease
+                if (level % hammerIncreaseChanceToDoublePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToDoublePerLevelReducer;
+                baseChance += incrementChance;
+            }
+            // Randomizes the chance and increase if chances hit
+            if (baseChance >= new Random().Next(0, 100)) return 2;
+        }
+        return 1;
     }
     #endregion
 

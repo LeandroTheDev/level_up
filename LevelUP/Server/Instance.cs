@@ -21,6 +21,7 @@ class Instance
     public LevelPickaxe levelPickaxe = new();
     public LevelShovel levelShovel = new();
     public LevelSpear levelSpear = new();
+    public LevelHammer levelHammer = new();
     public LevelFarming levelFarming = new();
     public LevelVitality levelVitality = new();
     public LevelCooking levelCooking = new();
@@ -41,6 +42,7 @@ class Instance
         if (Configuration.enableLevelPickaxe) levelPickaxe.Init(this);
         if (Configuration.enableLevelShovel) levelShovel.Init(this);
         if (Configuration.enableLevelSpear) levelSpear.Init(this);
+        if (Configuration.enableLevelHammer) levelHammer.Init(this);
         if (Configuration.enableLevelFarming) levelFarming.Init(this);
         if (Configuration.enableLevelVitality) levelVitality.Init(this);
         if (Configuration.enableLevelCooking) levelCooking.Init(this);
@@ -80,6 +82,7 @@ class Instance
         levelPickaxe.PopulateConfiguration(coreAPI);
         levelShovel.PopulateConfiguration(coreAPI);
         levelSpear.PopulateConfiguration(coreAPI);
+        levelHammer.PopulateConfiguration(coreAPI);
         levelFarming.PopulateConfiguration(coreAPI);
         levelVitality.PopulateConfiguration(coreAPI);
         levelCooking.PopulateConfiguration(coreAPI);
@@ -124,6 +127,7 @@ class Instance
             case "Increase_Shovel_Hit": IncreaseExp(player, "Shovel", "Hit"); return;
             case "Increase_Spear_Hit": IncreaseExp(player, "Spear", "Hit"); return;
             case "Increase_Spear_Hit_Throw": IncreaseExp(player, "Spear", "Hit_Throw"); return;
+            case "Increase_Hammer_Hit": IncreaseExp(player, "Hammer", "Hit"); return;
             case "Increase_Vitality_Hit": IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_LeatherArmor_Hit": IncreaseExp(player, "LeatherArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_ChainArmor_Hit": IncreaseExp(player, "ChainArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
@@ -338,6 +342,22 @@ class Instance
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
             Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerThrowSpear} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
+        #region hammer
+        // Hit
+        if (levelType == "Hammer" && reason == "Hit")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitHammer;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitHammer} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region farming

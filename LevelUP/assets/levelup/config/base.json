@@ -6,6 +6,7 @@
     "enableLevelBow": true,
     "enableLevelKnife": true,
     "enableLevelSpear": true,
+    "enableLevelHammer": true,
     "enableLevelAxe": true,
     "enableLevelPickaxe": true,
     "enableLevelShovel": true,
@@ -14,6 +15,7 @@
     "enableLevelVitality": true,
     "enableLevelLeatherArmor": true,
     "enableLevelChainArmor": true,
+    "cookingFirePitOverflow": 10,
     "disableServerChannel": false,
     "enableExtendedLog": true
 }
