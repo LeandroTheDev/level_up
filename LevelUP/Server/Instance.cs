@@ -22,6 +22,8 @@ class Instance
     public LevelShovel levelShovel = new();
     public LevelSpear levelSpear = new();
     public LevelHammer levelHammer = new();
+    public LevelSword levelSword = new();
+    public LevelShield levelShield = new();
     public LevelFarming levelFarming = new();
     public LevelVitality levelVitality = new();
     public LevelCooking levelCooking = new();
@@ -43,6 +45,8 @@ class Instance
         if (Configuration.enableLevelShovel) levelShovel.Init(this);
         if (Configuration.enableLevelSpear) levelSpear.Init(this);
         if (Configuration.enableLevelHammer) levelHammer.Init(this);
+        if (Configuration.enableLevelSword) levelSword.Init(this);
+        if (Configuration.enableLevelShield) levelShield.Init(this);
         if (Configuration.enableLevelFarming) levelFarming.Init(this);
         if (Configuration.enableLevelVitality) levelVitality.Init(this);
         if (Configuration.enableLevelCooking) levelCooking.Init(this);
@@ -83,6 +87,8 @@ class Instance
         levelShovel.PopulateConfiguration(coreAPI);
         levelSpear.PopulateConfiguration(coreAPI);
         levelHammer.PopulateConfiguration(coreAPI);
+        levelSword.PopulateConfiguration(coreAPI);
+        levelShield.PopulateConfiguration(coreAPI);
         levelFarming.PopulateConfiguration(coreAPI);
         levelVitality.PopulateConfiguration(coreAPI);
         levelCooking.PopulateConfiguration(coreAPI);
@@ -128,6 +134,7 @@ class Instance
             case "Increase_Spear_Hit": IncreaseExp(player, "Spear", "Hit"); return;
             case "Increase_Spear_Hit_Throw": IncreaseExp(player, "Spear", "Hit_Throw"); return;
             case "Increase_Hammer_Hit": IncreaseExp(player, "Hammer", "Hit"); return;
+            case "Increase_Sword_Hit": IncreaseExp(player, "Sword", "Hit"); return;
             case "Increase_Vitality_Hit": IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_LeatherArmor_Hit": IncreaseExp(player, "LeatherArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_ChainArmor_Hit": IncreaseExp(player, "ChainArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
@@ -360,6 +367,22 @@ class Instance
             Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitHammer} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
+        #region sword
+        // Hit
+        if (levelType == "Sword" && reason == "Hit")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitSword;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitSword} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
         #region farming
         // Till Soil
         if (levelType == "Farming" && reason == "Till")
@@ -473,6 +496,15 @@ class Instance
         // Spear Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Spear", GetSavedLevels("Spear").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
+        // Hammer Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Hammer", GetSavedLevels("Hammer").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+        // Sword Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Sword", GetSavedLevels("Sword").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
+        // Shield Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Shield", GetSavedLevels("Shield").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
+
         // Farming Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault<string, ulong>(player.PlayerName, 0), true);
 
@@ -560,6 +592,33 @@ class Instance
                 level[player.PlayerName] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Spear", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("Hammer");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Hammer", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("Sword");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Sword", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("Shield");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerName] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Shield", JsonSerializer.Serialize(level));
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Farming");

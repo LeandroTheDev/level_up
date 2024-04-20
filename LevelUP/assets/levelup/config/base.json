@@ -10,6 +10,8 @@
     "enableLevelAxe": true,
     "enableLevelPickaxe": true,
     "enableLevelShovel": true,
+    "enableLevelSword": true,
+    "enableLevelShield": true,
     "enableLevelFarming": true,
     "enableLevelCooking": true,
     "enableLevelVitality": true,
