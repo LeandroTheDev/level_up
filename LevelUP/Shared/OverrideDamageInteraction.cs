@@ -40,7 +40,7 @@ class OverwriteDamageInteraction
     public static bool ReceiveDamage(Entity __instance, DamageSource damageSource, float damage)
     {
         // Damage bug treatment
-        if (damage > 0)
+        if (damage > 0 && __instance.ShouldReceiveDamage(damageSource, damage))
         {
             // Player Does Damage
             // Checking if damage sources is from a player and from a server and if entity is alive
@@ -145,6 +145,21 @@ class OverwriteDamageInteraction
                         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
                             instance.clientAPI.channel.SendPacket("Increase_Hammer_Hit");
+
+                    }
+                    #endregion
+
+                    #region sword
+                    // Increase the damage if actual tool is a sword
+                    if (Configuration.enableLevelSword && player.InventoryManager.ActiveTool == EnumTool.Sword)
+                    {
+                        damage *= Configuration.SwordGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Sword"));
+                        // Increase exp for using sword weapons
+                        if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Sword_Hit");
+                        // Single player treatment
+                        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+
+                            instance.clientAPI.channel.SendPacket("Increase_Sword_Hit");
 
                     }
                     #endregion
@@ -390,7 +405,7 @@ class OverwriteDamageInteraction
     public static bool DamageItem(IWorldAccessor world, Entity byEntity, ItemSlot itemslot, int amount = 1)
     {
         // Error treatment
-        if (!Configuration.enableDurabilityMechanic || itemslot == null || byEntity == null) return true;
+        if ((!Configuration.enableDurabilityMechanic || itemslot == null || byEntity == null) && world.Side != EnumAppSide.Server) return true;
 
         // Check if the entity is a player and if this code is running on the server
         if (byEntity is EntityPlayer && world.Side == EnumAppSide.Server)
@@ -406,7 +421,7 @@ class OverwriteDamageInteraction
                     {
                         IServerPlayer player = iplayer as IServerPlayer;
                         // We need to refresh player inventory with new durability
-                        Task.Delay(100).ContinueWith((_) => player.BroadcastPlayerData(true));
+                        Task.Delay(50).ContinueWith((_) => player.BroadcastPlayerData(true));
                         break;
                     }
                 }
@@ -422,7 +437,25 @@ class OverwriteDamageInteraction
                 case EnumTool.Shovel: return !Configuration.ShovelRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Shovel"));
                 case EnumTool.Spear: return !Configuration.SpearRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Spear"));
                 case EnumTool.Hammer: return !Configuration.HammerRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Hammer"));
+                case EnumTool.Sword: return !Configuration.SwordRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Sword"));
             }
+        }
+        else if (world.Side == EnumAppSide.Server)
+        {
+            // This can be incosistent to players too close each other,
+            // but i dont know better way to do that, because we dont have
+            // a damageSource to get the exactly player getting hitted by the entity
+            #region shield
+            // Find the nearest player from the damage source
+            IPlayer player = world.NearestPlayer(byEntity.Pos.X, byEntity.Pos.Y, byEntity.Pos.Z);
+            // Shields
+            if (itemslot.Itemstack?.Collectible?.Code.ToString().Contains("shield") ?? false && player != null)
+            {
+                bool test = !Configuration.ShieldRollChanceToNotReduceDurabilityByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Shield"));
+                Debug.Log($"Shield durability checker: {test}");
+                return test;
+            };
+            #endregion
         }
         return true;
     }
@@ -432,18 +465,20 @@ class OverwriteDamageInteraction
     [HarmonyPatch(typeof(EntityProjectile), "impactOnEntity")]
     public static void ImpactOnEntity(EntityProjectile __instance, Entity entity)
     {
-        // Check if is not the server and do nothing
-        if (Configuration.enableLevelBow || __instance.World.Side != EnumAppSide.Server) return;
-
-        // Check if is a arrow
-        if (__instance.GetName().Contains("arrow"))
+        // Check if bow is enabled and if is from the server side
+        if (Configuration.enableLevelBow && __instance.World.Side == EnumAppSide.Server)
         {
-            // Check if arrow is shotted by a player
-            if (__instance.FiredBy is not EntityPlayer) return;
-            EntityPlayer playerEntity = __instance.FiredBy as EntityPlayer;
-
-            // Change the change based on level
-            __instance.DropOnImpactChance = Configuration.BowGetChanceToNotLoseArrowByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Bow"));
+            // Check if is a arrow
+            if (__instance.Code.ToString().Contains("arrow"))
+            {
+                // Check if arrow is shotted by a player
+                if (__instance.FiredBy is EntityPlayer)
+                {
+                    EntityPlayer playerEntity = __instance.FiredBy as EntityPlayer;
+                    // Change the change based on level
+                    __instance.DropOnImpactChance = Configuration.BowGetChanceToNotLoseArrowByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Bow"));
+                }
+            }
         }
     }
 

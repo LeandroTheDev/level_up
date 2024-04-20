@@ -16,7 +16,9 @@ LEVELS:
 - Axe: Increases axes damages and mining speed, earn xp by chopping trees, breaking wood, hitting and killing things with axes
 - Pickaxe: Increase pickaxes damages, ore drops and mining speed, earn xp by breaking stones, ores, hitting and killing things with pickaxes
 - Shovel: Increase shovels damages and mining speed, earn xp by breaking soil/gravel/sand, hitting and killing things with shovels
-- Hammer: Increase hammer damages and chance to double/triple/quadruple the smithing results in anvil, earn xp by smithing, killing things and hitting with hammers.
+- Hammer: Increase hammers damages and chance to double/triple/quadruple the smithing results in anvil, earn xp by smithing, hitting and killing things with hammers.
+- Sword: Increase swords damages, earn xp by hitting and killing things with swords
+- Shield: Add a chance to not lose durability, earn xp by defending with shields
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
 - Vitality: Increase max health and health regen, earn xp by getting hitted
 - Cooking: Increase servings quantity and fresh hours, earn experience by cooking
@@ -27,8 +29,6 @@ Future features:
 - Hammer increase animation speed based on level
 - Better level view. (Images)
 - Store data based on player uid.
-- Shield levels.
-- Sword levels. (Increase damage)
 - Cute level up sound.
 
 Not all item codes is added to the json configurations files, some armors/items/meats can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
@@ -65,6 +65,8 @@ Changes in players stats like oreDropRate, animalLootDropRate is completly overw
 This mod might break other levels mods or be breaked.
 
 All the mod calculations and patches is thinking in the server performance, feel free to suggest improviments if you find something getting slow.
+
+Level UP is not compatible with mods that fully overwrite the ReceiveDamage function for Entity class
 
 ### About Level UP
 Level UP is open source project and can easily be accessed on the github, all contents from this mod is completly free.

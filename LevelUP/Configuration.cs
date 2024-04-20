@@ -19,6 +19,8 @@ public static class Configuration
     public static bool enableLevelAxe = true;
     public static bool enableLevelPickaxe = true;
     public static bool enableLevelShovel = true;
+    public static bool enableLevelSword = true;
+    public static bool enableLevelShield = true;
     public static bool enableLevelFarming = true;
     public static bool enableLevelCooking = true;
     public static bool enableLevelVitality = true;
@@ -114,6 +116,20 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHammer is not boolean is {value.GetType()}");
                 else enableLevelHammer = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: enableLevelHammer not set");
+        }
+        { //enableLevelSword
+            if (baseConfigs.TryGetValue("enableLevelSword", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelSword is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelSword is not boolean is {value.GetType()}");
+                else enableLevelSword = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelSword not set");
+        }
+        { //enableLevelShield
+            if (baseConfigs.TryGetValue("enableLevelShield", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelShield is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelShield is not boolean is {value.GetType()}");
+                else enableLevelShield = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelShield not set");
         }
         { //enableLevelFarming
             if (baseConfigs.TryGetValue("enableLevelFarming", out object value))
@@ -340,6 +356,8 @@ public static class Configuration
         Debug.Log($"CONFIG: enableLevelPickaxe, value: {enableLevelPickaxe}");
         Debug.Log($"CONFIG: enableLevelShovel, value: {enableLevelShovel}");
         Debug.Log($"CONFIG: enableLevelHammer, value: {enableLevelHammer}");
+        Debug.Log($"CONFIG: enableLevelSword, value: {enableLevelSword}");
+        Debug.Log($"CONFIG: enableLevelShield, value: {enableLevelShield}");
         Debug.Log($"CONFIG: enableLevelFarming, value: {enableLevelFarming}");
         Debug.Log($"CONFIG: enableLevelCooking, value: {enableLevelCooking}");
         Debug.Log($"CONFIG: enableLevelVitality, value: {enableLevelVitality}");
@@ -362,6 +380,8 @@ public static class Configuration
             case "Shovel": return ShovelGetLevelByEXP(exp);
             case "Spear": return SpearGetLevelByEXP(exp);
             case "Hammer": return HammerGetLevelByEXP(exp);
+            case "Sword": return SwordGetLevelByEXP(exp);
+            case "Shield": return ShieldGetLevelByEXP(exp);
             case "Farming": return FarmingGetLevelByEXP(exp);
             case "Cooking": return CookingGetLevelByEXP(exp);
             case "Vitality": return VitalityGetLevelByEXP(exp);
@@ -2019,6 +2039,301 @@ public static class Configuration
             if (baseChance >= new Random().Next(0, 100)) return 2;
         }
         return 1;
+    }
+    #endregion
+
+    #region sword
+    public static readonly Dictionary<string, int> entityExpSword = [];
+    private static int swordEXPPerHit = 1;
+    private static int swordEXPPerLevelBase = 10;
+    private static double swordEXPMultiplyPerLevel = 2.0;
+    private static float swordBaseDamage = 1.0f;
+    private static float swordIncrementDamagePerLevel = 0.1f;
+    private static float swordBaseDurabilityRestoreChance = 0.0f;
+    private static float swordDurabilityRestoreChancePerLevel = 2.0f;
+    private static int swordDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float swordDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+
+
+    public static int ExpPerHitSword => swordEXPPerHit;
+
+    public static void PopulateSwordConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> swordLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/sword.json")).ToObject<Dictionary<string, object>>();
+        { //swordEXPPerLevelBase
+            if (swordLevelStats.TryGetValue("swordEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: swordEXPPerLevelBase is not int is {value.GetType()}");
+                else swordEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: swordEXPPerLevelBase not set");
+        }
+        { //swordEXPMultiplyPerLevel
+            if (swordLevelStats.TryGetValue("swordEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else swordEXPMultiplyPerLevel = (double)value;
+            else Debug.Log("CONFIGURATION ERROR: swordEXPMultiplyPerLevel not set");
+        }
+        { //swordBaseDamage
+            if (swordLevelStats.TryGetValue("swordBaseDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordBaseDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordBaseDamage is not double is {value.GetType()}");
+                else swordBaseDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: swordBaseDamage not set");
+        }
+        { //swordIncrementDamagePerLevel
+            if (swordLevelStats.TryGetValue("swordIncrementDamagePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordIncrementDamagePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordIncrementDamagePerLevel is not double is {value.GetType()}");
+                else swordIncrementDamagePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: swordIncrementDamagePerLevel not set");
+        }
+        { //swordEXPPerHit
+            if (swordLevelStats.TryGetValue("swordEXPPerHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordEXPPerHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: swordEXPPerHit is not int is {value.GetType()}");
+                else swordEXPPerHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: swordEXPPerHit not set");
+        }
+        { //swordBaseDurabilityRestoreChance
+            if (swordLevelStats.TryGetValue("swordBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else swordBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: swordBaseDurabilityRestoreChance not set");
+        }
+        { //swordDurabilityRestoreChancePerLevel
+            if (swordLevelStats.TryGetValue("swordDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else swordDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreChancePerLevel not set");
+        }
+        { //swordDurabilityRestoreEveryLevelReduceChance
+            if (swordLevelStats.TryGetValue("swordDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: swordDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else swordDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreEveryLevelReduceChance not set");
+        }
+        { //swordDurabilityRestoreReduceChanceForEveryLevel
+            if (swordLevelStats.TryGetValue("swordDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else swordDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+
+        // Get entity exp
+        entityExpSword.Clear();
+        Dictionary<string, object> tmpentityExpSword = api.Assets.Get(new AssetLocation("levelup:config/entityexp/sword.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmpentityExpSword)
+        {
+            if (pair.Value is long value) entityExpSword.Add(pair.Key, (int)value);
+            else Debug.Log($"CONFIGURATION ERROR: entityExpSword {pair.Key} is not int");
+        }
+
+        Debug.Log("Swird configuration set");
+    }
+
+    public static int SwordGetLevelByEXP(ulong exp)
+    {
+
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = swordEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= swordEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+
+    public static float SwordGetDamageMultiplyByEXP(ulong exp)
+    {
+        float baseDamage = swordBaseDamage;
+        int level = SwordGetLevelByEXP(exp);
+
+        float incrementDamage = swordIncrementDamagePerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementDamage;
+            level -= 1;
+        }
+
+        baseDamage += baseDamage * incrementDamage;
+        return baseDamage;
+    }
+
+    public static bool SwordRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    {
+        int level = SwordGetLevelByEXP(exp);
+        float baseChanceToNotReduce = swordBaseDurabilityRestoreChance;
+        float chanceToNotReduce = swordDurabilityRestoreChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % swordDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= swordDurabilityRestoreReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        else return false;
+    }
+    #endregion
+
+    #region shield
+    private static int shieldEXPPerHit = 1;
+    private static int shieldEXPPerLevelBase = 10;
+    private static double shieldEXPMultiplyPerLevel = 2.0;
+    private static float shieldBaseDamage = 1.0f;
+    private static float shieldIncrementDamagePerLevel = 0.1f;
+    private static float shieldBaseDurabilityRestoreChance = 0.0f;
+    private static float shieldDurabilityRestoreChancePerLevel = 2.0f;
+    private static int shieldDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float shieldDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+
+
+    public static int ExpPerHitShield => shieldEXPPerHit;
+
+    public static void PopulateShieldConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> shieldLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/shield.json")).ToObject<Dictionary<string, object>>();
+        { //shieldEXPPerLevelBase
+            if (shieldLevelStats.TryGetValue("shieldEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shieldEXPPerLevelBase is not int is {value.GetType()}");
+                else shieldEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldEXPPerLevelBase not set");
+        }
+        { //shieldEXPMultiplyPerLevel
+            if (shieldLevelStats.TryGetValue("shieldEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else shieldEXPMultiplyPerLevel = (double)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel not set");
+        }
+        { //shieldBaseDamage
+            if (shieldLevelStats.TryGetValue("shieldBaseDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldBaseDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseDamage is not double is {value.GetType()}");
+                else shieldBaseDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldBaseDamage not set");
+        }
+        { //shieldIncrementDamagePerLevel
+            if (shieldLevelStats.TryGetValue("shieldIncrementDamagePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldIncrementDamagePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldIncrementDamagePerLevel is not double is {value.GetType()}");
+                else shieldIncrementDamagePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldIncrementDamagePerLevel not set");
+        }
+        { //shieldEXPPerHit
+            if (shieldLevelStats.TryGetValue("shieldEXPPerHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldEXPPerHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shieldEXPPerHit is not int is {value.GetType()}");
+                else shieldEXPPerHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldEXPPerHit not set");
+        }
+        { //shieldBaseDurabilityRestoreChance
+            if (shieldLevelStats.TryGetValue("shieldBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else shieldBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldBaseDurabilityRestoreChance not set");
+        }
+        { //shieldDurabilityRestoreChancePerLevel
+            if (shieldLevelStats.TryGetValue("shieldDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else shieldDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreChancePerLevel not set");
+        }
+        { //shieldDurabilityRestoreEveryLevelReduceChance
+            if (shieldLevelStats.TryGetValue("shieldDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shieldDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else shieldDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreEveryLevelReduceChance not set");
+        }
+        { //shieldDurabilityRestoreReduceChanceForEveryLevel
+            if (shieldLevelStats.TryGetValue("shieldDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else shieldDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+
+        // Get entity exp
+        entityExpSword.Clear();
+        Dictionary<string, object> tmpentityExpSword = api.Assets.Get(new AssetLocation("levelup:config/entityexp/sword.json")).ToObject<Dictionary<string, object>>();
+        foreach (KeyValuePair<string, object> pair in tmpentityExpSword)
+        {
+            if (pair.Value is long value) entityExpSword.Add(pair.Key, (int)value);
+            else Debug.Log($"CONFIGURATION ERROR: entityExpSword {pair.Key} is not int");
+        }
+
+        Debug.Log("Swird configuration set");
+    }
+
+    public static int ShieldGetLevelByEXP(ulong exp)
+    {
+
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = shieldEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= shieldEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+
+    public static float ShieldGetDamageMultiplyByEXP(ulong exp)
+    {
+        float baseDamage = shieldBaseDamage;
+        int level = ShieldGetLevelByEXP(exp);
+
+        float incrementDamage = shieldIncrementDamagePerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementDamage;
+            level -= 1;
+        }
+
+        baseDamage += baseDamage * incrementDamage;
+        return baseDamage;
+    }
+
+    public static bool ShieldRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    {
+        int level = ShieldGetLevelByEXP(exp);
+        float baseChanceToNotReduce = shieldBaseDurabilityRestoreChance;
+        float chanceToNotReduce = shieldDurabilityRestoreChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % shieldDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= shieldDurabilityRestoreReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        else return false;
     }
     #endregion
 

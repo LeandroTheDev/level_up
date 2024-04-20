@@ -46,6 +46,9 @@ class CharacterView
         int axeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe");
         int pickaxeLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe");
         int shovelLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel");
+        int hammerLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer");
+        int swordLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Sword");
+        int shieldLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield");
         int farmingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming");
         int cookingLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking");
         int vitalityLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Vitality");
@@ -57,6 +60,7 @@ class CharacterView
         fulldesc.AppendLine("-- Tools Levels --");
         fulldesc.AppendLine($"Axe: {axeLevel}   Pickaxe: {pickaxeLevel}   Shovel: {shovelLevel}");
         fulldesc.AppendLine($"Bow: {bowLevel}   Spear: {spearLevel}   Knife: {knifeLevel}");
+        fulldesc.AppendLine($"Hammer: {hammerLevel}   Sword: {swordLevel}   Shield: {shieldLevel}");
         fulldesc.AppendLine("-- Armor Levels --");
         fulldesc.AppendLine($"Leather Armor: {leatherArmorLevel}");
         fulldesc.AppendLine($"Chain Armor: {chainArmorLevel}");
