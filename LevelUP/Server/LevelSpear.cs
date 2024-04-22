@@ -58,7 +58,7 @@ class LevelSpear
             // Get player entity
             playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
             // Get player instance
-            player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+            player = playerEntity.Player;
         }
         // If Spear is a normal attack
         else
@@ -68,7 +68,7 @@ class LevelSpear
             // Get player entity
             playerEntity = damageSource.SourceEntity as EntityPlayer;
             // Get player instance
-            player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+            player = playerEntity.Player;
             // Check if player is using a spear
             if (player.InventoryManager.ActiveTool != EnumTool.Spear) return;
         }
@@ -77,13 +77,13 @@ class LevelSpear
         Dictionary<string, ulong> spearLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpSpear.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpSpear.GetValueOrDefault(entity.Code.ToString(), 0);
 
         // Get the actual player total exp
         ulong playerExp = spearLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, spear exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, spear exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         spearLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

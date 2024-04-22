@@ -53,7 +53,7 @@ class LevelKnife
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = playerEntity.Player;
 
         Debug.Log(player.InventoryManager.ActiveTool.ToString());
 
@@ -64,13 +64,13 @@ class LevelKnife
         Dictionary<string, ulong> knifeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpKnife.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpKnife.GetValueOrDefault(entity.Code.ToString(), 0);
 
         // Get the actual player total exp
         ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, knife exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, knife exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         knifeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

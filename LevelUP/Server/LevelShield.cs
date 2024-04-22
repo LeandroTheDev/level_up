@@ -10,7 +10,7 @@ namespace LevelUP.Server;
 
 class LevelShield
 {
-    private Instance instance;
+    public Instance instance;
 
     public void Init(Instance _instance)
     {

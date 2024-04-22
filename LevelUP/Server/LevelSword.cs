@@ -54,7 +54,7 @@ class LevelSword
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = playerEntity.Player;
 
         // Check if player is using a Pickaxe
         if (player.InventoryManager.ActiveTool != EnumTool.Sword) return;
@@ -63,13 +63,13 @@ class LevelSword
         Dictionary<string, ulong> swordLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpSword.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString(), 0);
 
         // Get the actual player total exp
         ulong playerExp = swordLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, sword exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, sword exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         swordLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

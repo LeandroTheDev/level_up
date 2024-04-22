@@ -79,7 +79,8 @@ class LevelVitality
         // Refresh for the player
         playerStats.UpdateMaxHealth();
 
-        Debug.Log($"{player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
+        if (Configuration.enableExtendedLog)
+            Debug.Log($"{player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
     }
 
     private void PlayerDisconnect(IServerPlayer player)
