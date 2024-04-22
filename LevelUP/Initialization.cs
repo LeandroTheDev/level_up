@@ -34,6 +34,7 @@ public class Initialization : ModSystem
         base.Start(api);
 
         Debug.LoadLogger(api.Logger);
+        Debug.Log("Running on Version: 1.1.5");
         sharedInstance.InstanciateAPI(api);
         sharedInstance.OverwriteFunctions();
     }

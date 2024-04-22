@@ -56,13 +56,13 @@ class LevelHunter
         Dictionary<string, ulong> hunterLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpHunter.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpHunter.GetValueOrDefault(entity.Code.ToString(), 0);
 
         // Get the actual player total exp
         ulong playerExp = hunterLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, hunter exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, hunter exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         hunterLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

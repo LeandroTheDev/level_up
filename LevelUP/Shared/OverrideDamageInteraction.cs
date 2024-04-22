@@ -4,8 +4,11 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
+using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
@@ -399,10 +402,10 @@ class OverwriteDamageInteraction
         #endregion end
     }
 
-    // Overwrite Durability lost
+    // Overwrite Durability lost start
     [HarmonyPrefix]
     [HarmonyPatch(typeof(CollectibleObject), "DamageItem")]
-    public static bool DamageItem(IWorldAccessor world, Entity byEntity, ItemSlot itemslot, int amount = 1)
+    public static bool DamageItemStart(IWorldAccessor world, Entity byEntity, ItemSlot itemslot, int amount = 1)
     {
         // Error treatment
         if ((!Configuration.enableDurabilityMechanic || itemslot == null || byEntity == null) && world.Side != EnumAppSide.Server) return true;
@@ -410,22 +413,6 @@ class OverwriteDamageInteraction
         // Check if the entity is a player and if this code is running on the server
         if (byEntity is EntityPlayer && world.Side == EnumAppSide.Server)
         {
-            // Dedicated Server needs to broadcast the durability restoration, single player no
-            if (instance.serverAPI != null)
-            {
-                // Refresh player inventory
-                foreach (IPlayer iplayer in instance.serverAPI.api.World.AllOnlinePlayers)
-                {
-                    // Find the player instance
-                    if (iplayer.PlayerName == byEntity.GetName())
-                    {
-                        IServerPlayer player = iplayer as IServerPlayer;
-                        // We need to refresh player inventory with new durability
-                        Task.Delay(50).ContinueWith((_) => player.BroadcastPlayerData(true));
-                        break;
-                    }
-                }
-            }
             EntityPlayer playerEntity = byEntity as EntityPlayer;
             // Get change of not using durability
             switch (itemslot.Itemstack?.Collectible?.Tool)
@@ -440,24 +427,30 @@ class OverwriteDamageInteraction
                 case EnumTool.Sword: return !Configuration.SwordRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Sword"));
             }
         }
-        else if (world.Side == EnumAppSide.Server)
-        {
-            // This can be incosistent to players too close each other,
-            // but i dont know better way to do that, because we dont have
-            // a damageSource to get the exactly player getting hitted by the entity
-            #region shield
-            // Find the nearest player from the damage source
-            IPlayer player = world.NearestPlayer(byEntity.Pos.X, byEntity.Pos.Y, byEntity.Pos.Z);
-            // Shields
-            if (itemslot.Itemstack?.Collectible?.Code.ToString().Contains("shield") ?? false && player != null)
-            {
-                bool test = !Configuration.ShieldRollChanceToNotReduceDurabilityByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Shield"));
-                Debug.Log($"Shield durability checker: {test}");
-                return test;
-            };
-            #endregion
-        }
         return true;
+    }
+
+    // Overwrite Durability lost finish
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CollectibleObject), "DamageItem")]
+    public static void DamageItemFinish(IWorldAccessor world, Entity byEntity, ItemSlot itemslot, int amount = 1)
+    {
+        // Dedicated Server needs to broadcast the durability restoration
+        if (instance.serverAPI != null)
+        {
+            // Refresh player inventory
+            foreach (IPlayer iplayer in instance.serverAPI.api.World.AllOnlinePlayers)
+            {
+                // Find the player instance
+                if (iplayer.PlayerName == byEntity.GetName())
+                {
+                    IServerPlayer player = iplayer as IServerPlayer;
+                    // We need to refresh player inventory with restored durability
+                    player.BroadcastPlayerData(true);
+                    break;
+                }
+            }
+        }
     }
 
     // Overwrite Projectile impact
@@ -529,6 +522,101 @@ class OverwriteDamageInteraction
         if (Configuration.enableLevelSpear && byEntity is EntityPlayer)
             byEntity.Attributes.SetFloat("aimingAccuracy", byEntity.Attributes.GetFloat("old_aimingAccuracy"));
     }
+    #endregion
+    #region shield
+    // Overwrite the Shield function start
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
+    public static bool ApplyShieldProtectionStart(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
+    {
+        if (instance.serverAPI != null)
+            instance.serverAPI.OnClientMessage(player as IServerPlayer, "Increase_Shield_Hit");
+        else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
+            instance.clientAPI.channel.SendPacket("Increase_Shield_Hit");
+        return false;
+    }
+    // Overwrite the Shield function end
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
+    public static float ApplyShieldProtectionFinish(float __result, ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
+    {
+        #region native
+        double horizontalAngleProtectionRange = 1.0471975803375244;
+        ItemSlot[] shieldSlots = [
+            player.Entity.LeftHandItemSlot,
+            player.Entity.RightHandItemSlot
+        ];
+        for (int i = 0; i < shieldSlots.Length; i++)
+        {
+            ItemSlot shieldSlot = shieldSlots[i];
+            JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
+            if (attr == null || !attr.Exists) continue;
+            string usetype = (player.Entity.Controls.Sneak ? "active" : "passive");
+            float dmgabsorb = attr["damageAbsorption"][usetype].AsFloat();
+            float chance = attr["protectionChance"][usetype].AsFloat();
+            (player as IServerPlayer)?.SendMessage(GlobalConstants.DamageLogChatGroup, Lang.Get("[0:0.#] damage blocked by shield", Math.Min(dmgabsorb, damage), damage), EnumChatType.Notification);
+            double dx;
+            double dy;
+            double dz;
+            if (dmgSource.HitPosition != null)
+            {
+                dx = dmgSource.HitPosition.X;
+                dy = dmgSource.HitPosition.Y;
+                dz = dmgSource.HitPosition.Z;
+            }
+            else if (dmgSource.SourceEntity != null)
+            {
+                dx = dmgSource.SourceEntity.Pos.X - player.Entity.Pos.X;
+                dy = dmgSource.SourceEntity.Pos.Y - player.Entity.Pos.Y;
+                dz = dmgSource.SourceEntity.Pos.Z - player.Entity.Pos.Z;
+            }
+            else
+            {
+                if (!(dmgSource.SourcePos != null)) break;
+                dx = dmgSource.SourcePos.X - player.Entity.Pos.X;
+                dy = dmgSource.SourcePos.Y - player.Entity.Pos.Y;
+                dz = dmgSource.SourcePos.Z - player.Entity.Pos.Z;
+            }
+            double playerYaw = player.Entity.Pos.Yaw + (float)Math.PI / 2f;
+            double playerPitch = player.Entity.Pos.Pitch;
+            double attackYaw = Math.Atan2(dx, dz);
+            double a = dy;
+            float b = (float)Math.Sqrt(dx * dx + dz * dz);
+            float attackPitch = (float)Math.Atan2(a, b);
+            bool inProtectionRange = (!(Math.Abs(attackPitch) > (float)Math.PI * 13f / 36f)) ? ((double)Math.Abs(GameMath.AngleRadDistance((float)playerYaw, (float)attackYaw)) < horizontalAngleProtectionRange) : (Math.Abs(GameMath.AngleRadDistance((float)playerPitch, attackPitch)) < (float)Math.PI / 6f);
+            if (inProtectionRange && instance.serverAPI?.api.World.Rand.NextDouble() < (double)chance)
+            {
+                #endregion
 
+                // Reduces the damage received more than normal based on shield level
+                float damageReduction = dmgabsorb * Configuration.ShieldGetReductionMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Shield"));
+                damage = Math.Max(0f, damage - damageReduction);
+                if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduction} in shield damage");
+
+                #region native
+                string loc = shieldSlot.Itemstack.ItemAttributes["blockSound"].AsString("held/shieldblock");
+                instance.serverAPI?.api.World.PlaySoundAt(AssetLocation.Create(loc, shieldSlot.Itemstack.Collectible.Code.Domain).WithPathPrefixOnce("sounds/").WithPathAppendixOnce(".oog"), player);
+                instance.serverAPI?.api.Network.BroadcastEntityPacket(player.Entity.EntityId, 200, SerializerUtil.Serialize("shieldBlock" + ((i == 0) ? "L" : "R")));
+                if (instance.serverAPI != null)
+                {
+                    #endregion
+
+                    // Roll chance for not losing the durability
+                    if (!Configuration.ShieldRollChanceToNotReduceDurabilityByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Shield")))
+                    {
+                        #region native
+                        shieldSlot.Itemstack.Collectible.DamageItem(instance.serverAPI.api.World, dmgSource.SourceEntity, shieldSlot);
+                        shieldSlot.MarkDirty();
+                        #endregion
+                    }
+                    else if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} success rolled the chance to not lose shield  durability");
+
+                    #region native
+                }
+            }
+        }
+        return damage;
+        #endregion
+    }
     #endregion
 }

@@ -55,7 +55,7 @@ class LevelAxe
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = playerEntity.Player;
 
         // Check if player is using a Axe
         if (player.InventoryManager.ActiveTool != EnumTool.Axe) return;
@@ -64,13 +64,13 @@ class LevelAxe
         Dictionary<string, ulong> axeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpAxe.GetValueOrDefault(entity.GetName(), 0);
+        int exp = Configuration.entityExpAxe.GetValueOrDefault(entity.Code.ToString(), 0);
 
         // Get the actual player total exp
         ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, axe exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, axe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         axeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

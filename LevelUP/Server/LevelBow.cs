@@ -54,19 +54,19 @@ class LevelBow
             EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
 
             // Get player instance
-            IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+            IPlayer player = playerEntity.Player;
 
             // Get all players levels
             Dictionary<string, ulong> bowLevels = GetSavedLevels();
 
             // Get the exp received
-            int exp = Configuration.entityExpBow.GetValueOrDefault(entity.GetName(), 0);
+            int exp = Configuration.entityExpBow.GetValueOrDefault(entity.Code.ToString(), 0);
 
             // Get the actual player total exp
             ulong playerExp = bowLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
             if (Configuration.enableExtendedLog)
-                Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, bow exp earned: {exp}, actual: {playerExp}");
+                Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
 
             // Incrementing
             bowLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

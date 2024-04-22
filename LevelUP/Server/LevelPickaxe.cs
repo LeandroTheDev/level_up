@@ -56,7 +56,7 @@ class LevelPickaxe
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = playerEntity.Player;
 
         // Check if player is using a Pickaxe
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
@@ -71,7 +71,7 @@ class LevelPickaxe
         ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, pickaxe exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         pickaxeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

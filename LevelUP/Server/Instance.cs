@@ -135,6 +135,7 @@ class Instance
             case "Increase_Spear_Hit_Throw": IncreaseExp(player, "Spear", "Hit_Throw"); return;
             case "Increase_Hammer_Hit": IncreaseExp(player, "Hammer", "Hit"); return;
             case "Increase_Sword_Hit": IncreaseExp(player, "Sword", "Hit"); return;
+            case "Increase_Shield_Hit": IncreaseExp(player, "Shield", "Hit"); return;
             case "Increase_Vitality_Hit": IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_LeatherArmor_Hit": IncreaseExp(player, "LeatherArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_ChainArmor_Hit": IncreaseExp(player, "ChainArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
@@ -381,6 +382,22 @@ class Instance
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
             Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitSword} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
+        #region shield
+        // Hit
+        if (levelType == "Shield" && reason == "Hit")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitShield;
+            // Increment
+            levels[player.PlayerName] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitShield} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region farming

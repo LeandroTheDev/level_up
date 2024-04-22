@@ -389,7 +389,7 @@ public static class Configuration
             case "ChainArmor": return ChainArmorGetLevelByEXP(exp);
             default: break;
         }
-        Debug.Log($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the Configuratiin.cs");
+        Debug.Log($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the Configuration.cs");
         return 1;
     }
 
@@ -681,7 +681,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Bow durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
 
@@ -904,7 +906,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Knife durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
 
@@ -1105,7 +1109,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Axe durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
     #endregion
@@ -1339,7 +1345,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Pickaxe durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
     #endregion
@@ -1528,7 +1536,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Shovel durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
     #endregion
@@ -1700,7 +1710,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Spear durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
 
@@ -1971,7 +1983,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Hammer durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
 
@@ -2185,7 +2199,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Sword durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
     #endregion
@@ -2194,8 +2210,8 @@ public static class Configuration
     private static int shieldEXPPerHit = 1;
     private static int shieldEXPPerLevelBase = 10;
     private static double shieldEXPMultiplyPerLevel = 2.0;
-    private static float shieldBaseDamage = 1.0f;
-    private static float shieldIncrementDamagePerLevel = 0.1f;
+    private static float shieldBaseReduction = 1.0f;
+    private static float shieldIncreamentReductionPerLevel = 0.1f;
     private static float shieldBaseDurabilityRestoreChance = 0.0f;
     private static float shieldDurabilityRestoreChancePerLevel = 2.0f;
     private static int shieldDurabilityRestoreEveryLevelReduceChance = 10;
@@ -2221,19 +2237,19 @@ public static class Configuration
                 else shieldEXPMultiplyPerLevel = (double)value;
             else Debug.Log("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel not set");
         }
-        { //shieldBaseDamage
-            if (shieldLevelStats.TryGetValue("shieldBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldBaseDamage is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseDamage is not double is {value.GetType()}");
-                else shieldBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldBaseDamage not set");
+        { //shieldBaseReduction
+            if (shieldLevelStats.TryGetValue("shieldBaseReduction", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldBaseReduction is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseReduction is not double is {value.GetType()}");
+                else shieldBaseReduction = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldBaseReduction not set");
         }
-        { //shieldIncrementDamagePerLevel
-            if (shieldLevelStats.TryGetValue("shieldIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldIncrementDamagePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldIncrementDamagePerLevel is not double is {value.GetType()}");
-                else shieldIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldIncrementDamagePerLevel not set");
+        { //shieldIncreamentReductionPerLevel
+            if (shieldLevelStats.TryGetValue("shieldIncreamentReductionPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldIncreamentReductionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldIncreamentReductionPerLevel is not double is {value.GetType()}");
+                else shieldIncreamentReductionPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldIncreamentReductionPerLevel not set");
         }
         { //shieldEXPPerHit
             if (shieldLevelStats.TryGetValue("shieldEXPPerHit", out object value))
@@ -2300,21 +2316,21 @@ public static class Configuration
         return level;
     }
 
-    public static float ShieldGetDamageMultiplyByEXP(ulong exp)
+    public static float ShieldGetReductionMultiplyByEXP(ulong exp)
     {
-        float baseDamage = shieldBaseDamage;
+        float baseReduction = shieldBaseReduction;
         int level = ShieldGetLevelByEXP(exp);
 
-        float incrementDamage = shieldIncrementDamagePerLevel;
+        float incrementReduction = shieldIncreamentReductionPerLevel;
         float multiply = 0.0f;
         while (level > 1)
         {
-            multiply += incrementDamage;
+            multiply += incrementReduction;
             level -= 1;
         }
 
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        baseReduction += incrementReduction;
+        return baseReduction;
     }
 
     public static bool ShieldRollChanceToNotReduceDurabilityByEXP(ulong exp)
@@ -2332,7 +2348,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Shield durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
     #endregion
@@ -2479,7 +2497,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Farming durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
     #endregion
@@ -2987,7 +3007,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Leather Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
     #endregion
@@ -3153,7 +3175,9 @@ public static class Configuration
             baseChanceToNotReduce += chanceToNotReduce;
         }
         // Check the chance 
-        if (baseChanceToNotReduce >= new Random().Next(0, 100)) return true;
+        int chance = new Random().Next(0, 100);
+        if(enableExtendedLog) Debug.Log($"Chain Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
 

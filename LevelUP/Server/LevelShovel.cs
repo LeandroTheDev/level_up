@@ -57,7 +57,7 @@ class LevelShovel
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = playerEntity.Player;
 
         // Check if player is using a Shovel
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
@@ -66,13 +66,13 @@ class LevelShovel
         Dictionary<string, ulong> shovelLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpShovel.GetValueOrDefault(playerEntity.GetName(), 0);
+        int exp = Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0);
 
         // Get the actual player total exp
         ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, shovel exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, shovel exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         shovelLevels[playerEntity.GetName()] = playerExp + (ulong)exp;

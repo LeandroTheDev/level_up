@@ -52,7 +52,7 @@ class LevelHammer
         EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
 
         // Get player instance
-        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = playerEntity.Player;
 
         // Check if player is using a Hammer
         if (player.InventoryManager.ActiveTool != EnumTool.Hammer) return;
@@ -67,7 +67,7 @@ class LevelHammer
         ulong playerExp = hammerLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.GetName()}, hammer exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         hammerLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
