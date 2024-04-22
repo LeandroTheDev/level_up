@@ -337,6 +337,7 @@ class OverwriteBlockInteraction
         {
             bool MatchesRecipe()
             {
+                #region native
                 if (__instance.SelectedRecipe == null)
                 {
                     return false;
@@ -358,7 +359,9 @@ class OverwriteBlockInteraction
                     }
                 }
                 return true;
+                #endregion
             }
+            
             // Check if is finished
             if (__instance.SelectedRecipe != null && MatchesRecipe() && __instance.Api.World is IServerWorldAccessor)
             {
@@ -372,7 +375,7 @@ class OverwriteBlockInteraction
             }
 
             // Check if player is using the hammer
-            if (byPlayer.InventoryManager.ActiveTool == EnumTool.Hammer)
+            if (byPlayer?.InventoryManager?.ActiveTool == EnumTool.Hammer)
                 // Dedicated Servers
                 if (instance.serverAPI != null)
                     instance.serverAPI.OnClientMessage(byPlayer as IServerPlayer, "Increase_Hammer_Hit");
