@@ -529,6 +529,7 @@ class OverwriteDamageInteraction
     [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
     public static bool ApplyShieldProtectionStart(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
     {
+        if (!Configuration.enableLevelShield) return true;
         if (instance.serverAPI != null)
             instance.serverAPI.OnClientMessage(player as IServerPlayer, "Increase_Shield_Hit");
         else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
@@ -540,6 +541,7 @@ class OverwriteDamageInteraction
     [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
     public static float ApplyShieldProtectionFinish(float __result, ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
     {
+        if (!Configuration.enableLevelShield) return __result;
         #region native
         double horizontalAngleProtectionRange = 1.0471975803375244;
         ItemSlot[] shieldSlots = [
@@ -551,7 +553,7 @@ class OverwriteDamageInteraction
             ItemSlot shieldSlot = shieldSlots[i];
             JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
             if (attr == null || !attr.Exists) continue;
-            string usetype = (player.Entity.Controls.Sneak ? "active" : "passive");
+            string usetype = player.Entity.Controls.Sneak ? "active" : "passive";
             float dmgabsorb = attr["damageAbsorption"][usetype].AsFloat();
             float chance = attr["protectionChance"][usetype].AsFloat();
             (player as IServerPlayer)?.SendMessage(GlobalConstants.DamageLogChatGroup, Lang.Get("[0:0.#] damage blocked by shield", Math.Min(dmgabsorb, damage), damage), EnumChatType.Notification);
@@ -584,7 +586,7 @@ class OverwriteDamageInteraction
             float b = (float)Math.Sqrt(dx * dx + dz * dz);
             float attackPitch = (float)Math.Atan2(a, b);
             bool inProtectionRange = (!(Math.Abs(attackPitch) > (float)Math.PI * 13f / 36f)) ? ((double)Math.Abs(GameMath.AngleRadDistance((float)playerYaw, (float)attackYaw)) < horizontalAngleProtectionRange) : (Math.Abs(GameMath.AngleRadDistance((float)playerPitch, attackPitch)) < (float)Math.PI / 6f);
-            if (inProtectionRange && instance.serverAPI?.api.World.Rand.NextDouble() < (double)chance)
+            if (inProtectionRange && (instance.serverAPI?.api.World.Rand.NextDouble() < (double)chance || instance.clientAPI?.api.World.Rand.NextDouble() < (double)chance))
             {
                 #endregion
 
