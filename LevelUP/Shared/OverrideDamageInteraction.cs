@@ -542,6 +542,7 @@ class OverwriteDamageInteraction
     public static float ApplyShieldProtectionFinish(float __result, ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
     {
         if (!Configuration.enableLevelShield) return __result;
+
         #region native
         double horizontalAngleProtectionRange = 1.0471975803375244;
         ItemSlot[] shieldSlots = [
@@ -586,7 +587,7 @@ class OverwriteDamageInteraction
             float b = (float)Math.Sqrt(dx * dx + dz * dz);
             float attackPitch = (float)Math.Atan2(a, b);
             bool inProtectionRange = (!(Math.Abs(attackPitch) > (float)Math.PI * 13f / 36f)) ? ((double)Math.Abs(GameMath.AngleRadDistance((float)playerYaw, (float)attackYaw)) < horizontalAngleProtectionRange) : (Math.Abs(GameMath.AngleRadDistance((float)playerPitch, attackPitch)) < (float)Math.PI / 6f);
-            if (inProtectionRange && (instance.serverAPI?.api.World.Rand.NextDouble() < (double)chance || instance.clientAPI?.api.World.Rand.NextDouble() < (double)chance))
+            if (inProtectionRange && (instance.serverAPI?.api.World.Rand.NextDouble() < (double)chance || (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && instance.clientAPI.api.World.Rand.NextDouble() < (double)chance)))
             {
                 #endregion
 
@@ -599,7 +600,7 @@ class OverwriteDamageInteraction
                 string loc = shieldSlot.Itemstack.ItemAttributes["blockSound"].AsString("held/shieldblock");
                 instance.serverAPI?.api.World.PlaySoundAt(AssetLocation.Create(loc, shieldSlot.Itemstack.Collectible.Code.Domain).WithPathPrefixOnce("sounds/").WithPathAppendixOnce(".oog"), player);
                 instance.serverAPI?.api.Network.BroadcastEntityPacket(player.Entity.EntityId, 200, SerializerUtil.Serialize("shieldBlock" + ((i == 0) ? "L" : "R")));
-                if (instance.serverAPI != null)
+                if (instance.serverAPI != null || (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer))
                 {
                     #endregion
 
