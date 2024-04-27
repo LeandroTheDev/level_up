@@ -524,20 +524,6 @@ class OverwriteDamageInteraction
     }
     #endregion
     #region shield
-    // Overwrite the Shield function start
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
-    public static bool ApplyShieldProtectionStart(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
-    {
-        if (!Configuration.enableLevelShield) return true;
-        // Servers
-        if (instance.serverAPI != null)
-            instance.serverAPI.OnClientMessage(player as IServerPlayer, "Increase_Shield_Hit");
-        // Single player treatment
-        else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-            instance.clientAPI.channel.SendPacket("Increase_Shield_Hit");
-        return false;
-    }
     // Overwrite the Shield function end
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
@@ -550,11 +536,11 @@ class OverwriteDamageInteraction
 
         #region native
         double horizontalAngleProtectionRange = 1.0471975803375244;
-        ItemSlot[] shieldSlots = new ItemSlot[2]
-        {
+        ItemSlot[] shieldSlots =
+        [
             player.Entity.LeftHandItemSlot,
             player.Entity.RightHandItemSlot
-        };
+        ];
         for (int i = 0; i < shieldSlots.Length; i++)
         {
             ItemSlot shieldSlot = shieldSlots[i];
@@ -563,7 +549,7 @@ class OverwriteDamageInteraction
             {
                 continue;
             }
-            string usetype = (player.Entity.Controls.Sneak ? "active" : "passive");
+            string usetype = player.Entity.Controls.Sneak ? "active" : "passive";
             float dmgabsorb = attr["damageAbsorption"][usetype].AsFloat();
             float chance = attr["protectionChance"][usetype].AsFloat();
             (player as IServerPlayer)?.SendMessage(GlobalConstants.DamageLogChatGroup, Lang.Get("{0:0.#} of {1:0.#} damage blocked by shield", Math.Min(dmgabsorb, damage), damage), EnumChatType.Notification);
@@ -598,7 +584,7 @@ class OverwriteDamageInteraction
             double a = dy;
             float b = (float)Math.Sqrt(dx * dx + dz * dz);
             float attackPitch = (float)Math.Atan2(a, b);
-            bool inProtectionRange = ((!(Math.Abs(attackPitch) > (float)Math.PI * 13f / 36f)) ? ((double)Math.Abs(GameMath.AngleRadDistance((float)playerYaw, (float)attackYaw)) < horizontalAngleProtectionRange) : (Math.Abs(GameMath.AngleRadDistance((float)playerPitch, attackPitch)) < (float)Math.PI / 6f));
+            bool inProtectionRange = (!(Math.Abs(attackPitch) > (float)Math.PI * 13f / 36f)) ? ((double)Math.Abs(GameMath.AngleRadDistance((float)playerYaw, (float)attackYaw)) < horizontalAngleProtectionRange) : (Math.Abs(GameMath.AngleRadDistance((float)playerPitch, attackPitch)) < (float)Math.PI / 6f);
             if (inProtectionRange && api.World.Rand.NextDouble() < (double)chance)
             {
                 #endregion
@@ -623,6 +609,16 @@ class OverwriteDamageInteraction
                         #endregion
                     }
                 }
+            }
+            // Experience increase
+            if (inProtectionRange)
+            {
+                // Servers
+                if (instance.serverAPI != null)
+                    instance.serverAPI.OnClientMessage(player as IServerPlayer, "Increase_Shield_Hit");
+                // Single player treatment
+                else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
+                    instance.clientAPI.channel.SendPacket("Increase_Shield_Hit");
             }
         }
         #region native
