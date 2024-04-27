@@ -361,17 +361,18 @@ class OverwriteBlockInteraction
                 return true;
                 #endregion
             }
-            
+
             // Check if is finished
             if (__instance.SelectedRecipe != null && MatchesRecipe() && __instance.Api.World is IServerWorldAccessor)
             {
                 // Get player hammer level
                 ulong playerExp = (ulong)byPlayer.Entity.WatchedAttributes.GetLong("LevelUP_Hammer");
+                int multiply = Configuration.HammerGetResultMultiplyByEXP(playerExp);
                 // Multiply by the change
-                __instance.SelectedRecipe.Output.ResolvedItemstack.StackSize *= Configuration.HammerGetResultMultiplyByEXP(playerExp);
+                __instance.SelectedRecipe.Output.ResolvedItemstack.StackSize = __instance.SelectedRecipe.Output.Quantity * multiply;
 
                 if (Configuration.enableExtendedLog)
-                    Debug.Log($"{byPlayer.PlayerName} finished smithing {__instance.SelectedRecipe.Output.ResolvedItemstack.Collectible?.Code} with a result size of: {__instance.SelectedRecipe.Output.ResolvedItemstack.StackSize}");
+                    Debug.Log($"{byPlayer.PlayerName} finished smithing {__instance.SelectedRecipe.Output.ResolvedItemstack.Collectible?.Code} drop quantity: {__instance.SelectedRecipe.Output.Quantity} with a final result size of: {__instance.SelectedRecipe.Output.ResolvedItemstack.StackSize} multiplied by: {multiply}");
             }
 
             // Check if player is using the hammer
