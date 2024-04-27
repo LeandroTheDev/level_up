@@ -530,8 +530,10 @@ class OverwriteDamageInteraction
     public static bool ApplyShieldProtectionStart(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
     {
         if (!Configuration.enableLevelShield) return true;
+        // Servers
         if (instance.serverAPI != null)
             instance.serverAPI.OnClientMessage(player as IServerPlayer, "Increase_Shield_Hit");
+        // Single player treatment
         else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
             instance.clientAPI.channel.SendPacket("Increase_Shield_Hit");
         return false;
@@ -543,21 +545,28 @@ class OverwriteDamageInteraction
     {
         if (!Configuration.enableLevelShield) return __result;
 
+        // Pickup the native api
+        ICoreAPI api = player.Entity.Api;
+
         #region native
         double horizontalAngleProtectionRange = 1.0471975803375244;
-        ItemSlot[] shieldSlots = [
+        ItemSlot[] shieldSlots = new ItemSlot[2]
+        {
             player.Entity.LeftHandItemSlot,
             player.Entity.RightHandItemSlot
-        ];
+        };
         for (int i = 0; i < shieldSlots.Length; i++)
         {
             ItemSlot shieldSlot = shieldSlots[i];
             JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
-            if (attr == null || !attr.Exists) continue;
-            string usetype = player.Entity.Controls.Sneak ? "active" : "passive";
+            if (attr == null || !attr.Exists)
+            {
+                continue;
+            }
+            string usetype = (player.Entity.Controls.Sneak ? "active" : "passive");
             float dmgabsorb = attr["damageAbsorption"][usetype].AsFloat();
             float chance = attr["protectionChance"][usetype].AsFloat();
-            (player as IServerPlayer)?.SendMessage(GlobalConstants.DamageLogChatGroup, Lang.Get("[0:0.#] damage blocked by shield", Math.Min(dmgabsorb, damage), damage), EnumChatType.Notification);
+            (player as IServerPlayer)?.SendMessage(GlobalConstants.DamageLogChatGroup, Lang.Get("{0:0.#} of {1:0.#} damage blocked by shield", Math.Min(dmgabsorb, damage), damage), EnumChatType.Notification);
             double dx;
             double dy;
             double dz;
@@ -575,7 +584,10 @@ class OverwriteDamageInteraction
             }
             else
             {
-                if (!(dmgSource.SourcePos != null)) break;
+                if (!(dmgSource.SourcePos != null))
+                {
+                    break;
+                }
                 dx = dmgSource.SourcePos.X - player.Entity.Pos.X;
                 dy = dmgSource.SourcePos.Y - player.Entity.Pos.Y;
                 dz = dmgSource.SourcePos.Z - player.Entity.Pos.Z;
@@ -586,38 +598,34 @@ class OverwriteDamageInteraction
             double a = dy;
             float b = (float)Math.Sqrt(dx * dx + dz * dz);
             float attackPitch = (float)Math.Atan2(a, b);
-            bool inProtectionRange = (!(Math.Abs(attackPitch) > (float)Math.PI * 13f / 36f)) ? ((double)Math.Abs(GameMath.AngleRadDistance((float)playerYaw, (float)attackYaw)) < horizontalAngleProtectionRange) : (Math.Abs(GameMath.AngleRadDistance((float)playerPitch, attackPitch)) < (float)Math.PI / 6f);
-            if (inProtectionRange && (instance.serverAPI?.api.World.Rand.NextDouble() < (double)chance || (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && instance.clientAPI.api.World.Rand.NextDouble() < (double)chance)))
+            bool inProtectionRange = ((!(Math.Abs(attackPitch) > (float)Math.PI * 13f / 36f)) ? ((double)Math.Abs(GameMath.AngleRadDistance((float)playerYaw, (float)attackYaw)) < horizontalAngleProtectionRange) : (Math.Abs(GameMath.AngleRadDistance((float)playerPitch, attackPitch)) < (float)Math.PI / 6f));
+            if (inProtectionRange && api.World.Rand.NextDouble() < (double)chance)
             {
                 #endregion
-
                 // Reduces the damage received more than normal based on shield level
                 float damageReduction = dmgabsorb * Configuration.ShieldGetReductionMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Shield"));
                 damage = Math.Max(0f, damage - damageReduction);
                 if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduction} in shield damage");
-
                 #region native
+
                 string loc = shieldSlot.Itemstack.ItemAttributes["blockSound"].AsString("held/shieldblock");
-                instance.serverAPI?.api.World.PlaySoundAt(AssetLocation.Create(loc, shieldSlot.Itemstack.Collectible.Code.Domain).WithPathPrefixOnce("sounds/").WithPathAppendixOnce(".oog"), player);
-                instance.serverAPI?.api.Network.BroadcastEntityPacket(player.Entity.EntityId, 200, SerializerUtil.Serialize("shieldBlock" + ((i == 0) ? "L" : "R")));
-                if (instance.serverAPI != null || (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer))
+                api.World.PlaySoundAt(AssetLocation.Create(loc, shieldSlot.Itemstack.Collectible.Code.Domain).WithPathPrefixOnce("sounds/").WithPathAppendixOnce(".ogg"), player);
+                (api as ICoreServerAPI).Network.BroadcastEntityPacket(player.Entity.EntityId, 200, SerializerUtil.Serialize("shieldBlock" + ((i == 0) ? "L" : "R")));
+                if (api.Side == EnumAppSide.Server)
                 {
                     #endregion
-
                     // Roll chance for not losing the durability
                     if (!Configuration.ShieldRollChanceToNotReduceDurabilityByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Shield")))
                     {
                         #region native
-                        shieldSlot.Itemstack.Collectible.DamageItem(instance.serverAPI.api.World, dmgSource.SourceEntity, shieldSlot);
+                        shieldSlot.Itemstack.Collectible.DamageItem(api.World, dmgSource.SourceEntity, shieldSlot);
                         shieldSlot.MarkDirty();
                         #endregion
                     }
-                    else if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} success rolled the chance to not lose shield  durability");
-
-                    #region native
                 }
             }
         }
+        #region native
         return damage;
         #endregion
     }
