@@ -122,6 +122,22 @@ class Instance
         }
         else message = bruteMessage;
 
+        // Lan treatment
+        if (!Configuration.disableServerChannel && arguments.TryGetValue("lanplayername", out object lanName))
+        {
+            IPlayer[] playersOnline = player.Entity.World.AllOnlinePlayers;
+            // Swipe all lan players to find the actual to earn experience
+            foreach (IPlayer lanPlayer in playersOnline)
+                if (lanPlayer.PlayerName == lanName as string) player = lanPlayer as IServerPlayer;
+
+            // If lanName cannot find any player, cancel the function
+            if (lanName as string != player.PlayerName)
+            {
+                Debug.Log($"Channel Error: someone send a packet, but the lan name does not exist in online players: {lanName}, the function has been canceled");
+                return;
+            };
+        }
+
         switch (message)
         {
             case "UpdateLevels": UpdatePlayerLevels(player); return;
