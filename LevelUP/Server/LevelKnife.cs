@@ -55,8 +55,6 @@ class LevelKnife
         // Get player instance
         IPlayer player = playerEntity.Player;
 
-        Debug.Log(player.InventoryManager.ActiveTool.ToString());
-
         // Check if player is using a bow
         if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;
 
