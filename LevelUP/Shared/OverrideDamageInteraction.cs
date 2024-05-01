@@ -40,8 +40,20 @@ class OverwriteDamageInteraction
     static bool singlePlayerDoubleCheck = true; // for some reason in single player the client instance is called 2 times in a row
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
-    public static bool ReceiveDamage(Entity __instance, DamageSource damageSource, float damage)
+    public static bool ReceiveDamageStart(Entity __instance, DamageSource damageSource, float damage)
     {
+        #region compatibility
+        // Compatibility Layer Start Calculation
+        double compatibilityStartDamage = __instance.Stats.GetBlended("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
+        if (compatibilityStartDamage != 0)
+        {
+            // Lose damage by the compatibility layer
+            if (compatibilityStartDamage < 0) damage -= (float)compatibilityStartDamage;
+            // Receive damage by the compatibility layer
+            else damage += (float)compatibilityStartDamage;
+        }
+        #endregion
+
         // Damage bug treatment
         if (damage > 0 && __instance.ShouldReceiveDamage(damageSource, damage))
         {
@@ -211,6 +223,20 @@ class OverwriteDamageInteraction
                 else Debug.Log($"ERROR: Invalid damage type in OverwriteDamageInteraction, cause entity is invalid: {damageSource.GetCauseEntity()} or source entity is invalid: {damageSource.SourceEntity}");
             }
 
+            #region compatibility
+            // Compatibility Layer Final Calculation
+            float compatibilityFinalDamage = __instance.Stats.GetBlended("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage");
+            if (compatibilityFinalDamage != 0)
+            {
+                // Lose damage by the compatibility layer
+                if (compatibilityFinalDamage < 0) damage -= (float)compatibilityFinalDamage;
+                // Receive damage by the compatibility layer
+                else damage += (float)compatibilityFinalDamage;
+            }
+            // 0 Damage treatment
+            if (damage < 0) damage = 0;
+            #endregion
+
             // Player Receive Damage
             // Checking if received damage is a player and if is a server and if is alive
             if (__instance is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
@@ -356,8 +382,13 @@ class OverwriteDamageInteraction
                 #endregion
             };
 
-            singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
+            // Double check bug only if is a player hitting in single player
+            if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer)
+                singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
         }
+
+        // 0 Damage treatment
+        if (damage < 0) damage = 0;
 
         #region native
         if ((!__instance.Alive || __instance.IsActivityRunning("invulnerable")) && damageSource.Type != EnumDamageType.Heal)
@@ -400,6 +431,14 @@ class OverwriteDamageInteraction
         }
         return false;
         #endregion end
+    }
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
+    public static void ReceiveDamageFinish(Entity __instance, DamageSource damageSource, float damage)
+    {
+        // Clean Compatibility layer
+        __instance.Stats.Remove("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage", "LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
+        __instance.Stats.Remove("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage", "LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage");
     }
 
     // Overwrite Durability lost start
