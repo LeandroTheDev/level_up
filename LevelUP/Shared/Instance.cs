@@ -64,13 +64,13 @@ class Instance
                 if (playerStats == null) { Debug.Log($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
 
                 // Getting health stats
-                playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByEXP(exp);
-                playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByEXP(exp);
+                playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByLevel(nextLevel);
+                playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByLevel(nextLevel);
 
                 // Refresh for the player
                 playerStats.UpdateMaxHealth();
 
-                Debug.Log($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
+                if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
             }
         }
 
@@ -80,7 +80,7 @@ class Instance
         player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
 
         // Mining speed
-        float miningspeed = Configuration.GetMiningSpeedByLevelTypeEXP(levelType, exp);
+        float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
         // Check if this levelType has mining speed
         if (miningspeed != -1)
             // Set the mining speed for clients

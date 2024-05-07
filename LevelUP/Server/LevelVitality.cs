@@ -67,9 +67,9 @@ class LevelVitality
         if (playerStats == null) { Debug.Log($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
 
         // Getting health stats
-        playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByEXP(playerExp);
+        playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
         playerStats.MaxHealth = playerStats.BaseMaxHealth;
-        playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByEXP(playerExp);
+        playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
 
         // Reload player health
         if (playerState.TryGetValue(player.PlayerName, out double value)) playerStats.Health = (float)value;
