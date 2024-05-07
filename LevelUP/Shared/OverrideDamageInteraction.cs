@@ -71,14 +71,14 @@ class OverwriteDamageInteraction
 
                     #region hunter            
                     // Increase the damage
-                    damage *= Configuration.HunterGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Hunter"));
+                    damage *= Configuration.HunterGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hunter"));
                     #endregion
 
                     #region knife
                     // Increase the damage if actual tool is a knife
                     if (Configuration.enableLevelKnife && player.InventoryManager.ActiveTool == EnumTool.Knife)
                     {
-                        damage *= Configuration.KnifeGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Knife"));
+                        damage *= Configuration.KnifeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
                         // Increase exp for using knife weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Knife_Hit");
                         // Single player treatment
@@ -93,7 +93,7 @@ class OverwriteDamageInteraction
                     // Increase the damage if actual tool is a axe
                     if (Configuration.enableLevelAxe && player.InventoryManager.ActiveTool == EnumTool.Axe)
                     {
-                        damage *= Configuration.AxeGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Axe"));
+                        damage *= Configuration.AxeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Axe"));
                         // Increase exp for using axe weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Axe_Hit");
                         // Single player treatment
@@ -108,7 +108,7 @@ class OverwriteDamageInteraction
                     // Increase the damage if actual tool is a pickaxe
                     if (Configuration.enableLevelPickaxe && player.InventoryManager.ActiveTool == EnumTool.Pickaxe)
                     {
-                        damage *= Configuration.PickaxeGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Pickaxe"));
+                        damage *= Configuration.PickaxeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
                         // Increase exp for using pickaxe weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Pickaxe_Hit");
                         // Single player treatment
@@ -123,7 +123,7 @@ class OverwriteDamageInteraction
                     // Increase the damage if actual tool is a shovel
                     if (Configuration.enableLevelShovel && player.InventoryManager.ActiveTool == EnumTool.Shovel)
                     {
-                        damage *= Configuration.ShovelGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Shovel"));
+                        damage *= Configuration.ShovelGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"));
                         // Increase exp for using shovel weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Shovel_Hit");
                         // Single player treatment
@@ -138,7 +138,7 @@ class OverwriteDamageInteraction
                     // Increase the damage if actual tool is a spear
                     if (Configuration.enableLevelSpear && player.InventoryManager.ActiveTool == EnumTool.Spear)
                     {
-                        damage *= Configuration.SpearGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Spear"));
+                        damage *= Configuration.SpearGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
                         // Increase exp for using spear weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Spear_Hit");
                         // Single player treatment
@@ -153,7 +153,7 @@ class OverwriteDamageInteraction
                     // Increase the damage if actual tool is a hammer
                     if (Configuration.enableLevelHammer && player.InventoryManager.ActiveTool == EnumTool.Hammer)
                     {
-                        damage *= Configuration.HammerGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Hammer"));
+                        damage *= Configuration.HammerGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
                         // Increase exp for using hammer weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Hammer_Hit");
                         // Single player treatment
@@ -168,7 +168,7 @@ class OverwriteDamageInteraction
                     // Increase the damage if actual tool is a sword
                     if (Configuration.enableLevelSword && player.InventoryManager.ActiveTool == EnumTool.Sword)
                     {
-                        damage *= Configuration.SwordGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Sword"));
+                        damage *= Configuration.SwordGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Sword"));
                         // Increase exp for using sword weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Sword_Hit");
                         // Single player treatment
@@ -193,7 +193,7 @@ class OverwriteDamageInteraction
                     // Increase the damage if the damage source is from any arrow
                     if (Configuration.enableLevelBow && itemDamage != null && itemDamage.GetName().Contains("arrow"))
                     {
-                        damage *= Configuration.BowGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Bow"));
+                        damage *= Configuration.BowGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
                         // Increase exp for using bow weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Bow_Hit");
                         // Single player treatment
@@ -208,7 +208,7 @@ class OverwriteDamageInteraction
                     // Increase the damage if the damage source is from any spear
                     if (Configuration.enableLevelSpear && itemDamage != null && itemDamage.GetName().Contains("spear"))
                     {
-                        damage *= Configuration.SpearGetDamageMultiplyByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Spear"));
+                        damage *= Configuration.SpearGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
                         // Increase exp for using spear weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnClientMessage(player as IServerPlayer, "Increase_Spear_Hit");
                         // Single player treatment
@@ -264,122 +264,129 @@ class OverwriteDamageInteraction
 
                 }
                 #endregion
-                #region leatherarmor
-                if (Configuration.enableLevelLeatherArmor)
+                
+                // Check if the damage received is from a valid entity source damage
+                // in others cases the armor shouldn't reduce damage
+                if (damageSource.GetCauseEntity() != null || damageSource.SourceEntity != null)
                 {
-                    // Check if damage is bigger than player max health
-                    float damageCalculation = damage;
-                    float playerMaxHealth = playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
-                    // If is set the damage experience limit to the player max health
-                    if (playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < damage) damageCalculation = playerMaxHealth;
-
-                    // Swipe all inventorys to receive armor multiply
-                    double multiply = 1.0;
-                    foreach (IInventory playerInventory in player.InventoryManager.Inventories.Values)
+                    #region leatherarmor
+                    if (Configuration.enableLevelLeatherArmor)
                     {
-                        // Get inventory type
-                        string inventoryType = playerInventory.GetType().ToString();
-                        // Check if is armor inventory
-                        if (inventoryType.Contains("InventoryCharacter"))
+                        // Check if damage is bigger than player max health
+                        float damageCalculation = damage;
+                        float playerMaxHealth = playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
+                        // If is set the damage experience limit to the player max health
+                        if (playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < damage) damageCalculation = playerMaxHealth;
+
+                        // Swipe all inventorys to receive armor multiply
+                        double multiply = 1.0;
+                        foreach (IInventory playerInventory in player.InventoryManager.Inventories.Values)
                         {
-                            int index = 0;
-                            // Swipe all items in this inventory
-                            foreach (ItemSlot item in playerInventory)
+                            // Get inventory type
+                            string inventoryType = playerInventory.GetType().ToString();
+                            // Check if is armor inventory
+                            if (inventoryType.Contains("InventoryCharacter"))
                             {
-                                // Check if slot contains item
-                                if (item.Itemstack == null || item.Itemstack.Item == null)
+                                int index = 0;
+                                // Swipe all items in this inventory
+                                foreach (ItemSlot item in playerInventory)
                                 {
+                                    // Check if slot contains item
+                                    if (item.Itemstack == null || item.Itemstack.Item == null)
+                                    {
+                                        index++;
+                                        continue;
+                                    }
+
+                                    // Check if the armor contains experience
+                                    double value = Configuration.expMultiplyHitLeatherArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
+                                    multiply += value;
                                     index++;
-                                    continue;
+
+                                    if (Configuration.enableExtendedLog && value != 0.0)
+                                        Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
                                 }
-
-                                // Check if the armor contains experience
-                                double value = Configuration.expMultiplyHitLeatherArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
-                                multiply += value;
-                                index++;
-
-                                if (Configuration.enableExtendedLog && value != 0.0)
-                                    Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
+                                break;
                             }
-                            break;
+                        }
+
+                        // Check if player is wearing some leather armor
+                        if (multiply > 1.0)
+                        {
+                            // Dedicated Servers
+                            if (player is IServerPlayer && instance.serverAPI != null)
+                                instance.serverAPI?.OnClientMessage(player as IServerPlayer, $"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
+
+                            // Single player treatment
+                            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                                instance.clientAPI.channel.SendPacket($"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+
+
+                            float damageReduction = Configuration.LeatherArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor")) * (float)multiply;
+                            damage -= damageReduction;
+                            if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by leather armor level");
                         }
                     }
-
-                    // Check if player is wearing some leather armor
-                    if (multiply > 1.0)
+                    #endregion
+                    #region chainarmor
+                    if (Configuration.enableLevelChainArmor)
                     {
-                        // Dedicated Servers
-                        if (player is IServerPlayer && instance.serverAPI != null)
-                            instance.serverAPI?.OnClientMessage(player as IServerPlayer, $"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
+                        // Check if damage is bigger than player max health
+                        float damageCalculation = damage;
+                        float playerMaxHealth = playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
+                        // If is set the damage experience limit to the player max health
+                        if (playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < damage) damageCalculation = playerMaxHealth;
 
-                        // Single player treatment
-                        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                            instance.clientAPI.channel.SendPacket($"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
-
-
-                        float damageReduction = Configuration.LeatherArmorDamageReductionByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_LeatherArmor")) * (float)multiply;
-                        damage -= damageReduction;
-                        if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by leather armor level");
-                    }
-                }
-                #endregion
-                #region chainarmor
-                if (Configuration.enableLevelChainArmor)
-                {
-                    // Check if damage is bigger than player max health
-                    float damageCalculation = damage;
-                    float playerMaxHealth = playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
-                    // If is set the damage experience limit to the player max health
-                    if (playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < damage) damageCalculation = playerMaxHealth;
-
-                    // Swipe all inventorys to receive armor multiply
-                    double multiply = 1.0;
-                    foreach (IInventory playerInventory in player.InventoryManager.Inventories.Values)
-                    {
-                        // Get inventory type
-                        string inventoryType = playerInventory.GetType().ToString();
-                        // Check if is armor inventory
-                        if (inventoryType.Contains("InventoryCharacter"))
+                        // Swipe all inventorys to receive armor multiply
+                        double multiply = 1.0;
+                        foreach (IInventory playerInventory in player.InventoryManager.Inventories.Values)
                         {
-                            int index = 0;
-                            // Swipe all items in this inventory
-                            foreach (ItemSlot item in playerInventory)
+                            // Get inventory type
+                            string inventoryType = playerInventory.GetType().ToString();
+                            // Check if is armor inventory
+                            if (inventoryType.Contains("InventoryCharacter"))
                             {
-                                // Check if slot contains item
-                                if (item.Itemstack == null || item.Itemstack.Item == null)
+                                int index = 0;
+                                // Swipe all items in this inventory
+                                foreach (ItemSlot item in playerInventory)
                                 {
+                                    // Check if slot contains item
+                                    if (item.Itemstack == null || item.Itemstack.Item == null)
+                                    {
+                                        index++;
+                                        continue;
+                                    }
+
+                                    // Check if the armor contains experience
+                                    double value = Configuration.expMultiplyHitChainArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
+                                    multiply += value;
                                     index++;
-                                    continue;
+
+                                    if (Configuration.enableExtendedLog && value != 0.0)
+                                        Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
                                 }
-
-                                // Check if the armor contains experience
-                                double value = Configuration.expMultiplyHitChainArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
-                                multiply += value;
-                                index++;
-
-                                if (Configuration.enableExtendedLog && value != 0.0)
-                                    Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
+                                break;
                             }
-                            break;
+                        }
+
+                        // Check if player is wearing some chain armor
+                        if (multiply > 1.0)
+                        {
+                            // Dedicated Servers
+                            if (player is IServerPlayer && instance.serverAPI != null)
+                                instance.serverAPI?.OnClientMessage(player as IServerPlayer, $"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
+                            // Single player treatment
+                            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                                instance.clientAPI.channel.SendPacket($"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+
+                            float damageReduction = Configuration.ChainArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor")) * (float)multiply;
+                            damage -= damageReduction;
+                            if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by chain armor level");
                         }
                     }
-
-                    // Check if player is wearing some chain armor
-                    if (multiply > 1.0)
-                    {
-                        // Dedicated Servers
-                        if (player is IServerPlayer && instance.serverAPI != null)
-                            instance.serverAPI?.OnClientMessage(player as IServerPlayer, $"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
-                        // Single player treatment
-                        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                            instance.clientAPI.channel.SendPacket($"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
-
-                        float damageReduction = Configuration.ChainArmorDamageReductionByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_ChainArmor")) * (float)multiply;
-                        damage -= damageReduction;
-                        if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by chain armor level");
-                    }
+                    #endregion
                 }
-                #endregion
+                else Debug.Log("Alright this is invalid source");
             };
 
             // Double check bug only if is a player hitting in single player
@@ -456,14 +463,14 @@ class OverwriteDamageInteraction
             // Get change of not using durability
             switch (itemslot.Itemstack?.Collectible?.Tool)
             {
-                case EnumTool.Bow: return !Configuration.BowRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Bow"));
-                case EnumTool.Axe: return !Configuration.AxeRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Axe"));
-                case EnumTool.Knife: return !Configuration.KnifeRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Knife"));
-                case EnumTool.Pickaxe: return !Configuration.PickaxeRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Pickaxe"));
-                case EnumTool.Shovel: return !Configuration.ShovelRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Shovel"));
-                case EnumTool.Spear: return !Configuration.SpearRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Spear"));
-                case EnumTool.Hammer: return !Configuration.HammerRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Hammer"));
-                case EnumTool.Sword: return !Configuration.SwordRollChanceToNotReduceDurabilityByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Sword"));
+                case EnumTool.Bow: return !Configuration.BowRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+                case EnumTool.Axe: return !Configuration.AxeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Axe"));
+                case EnumTool.Knife: return !Configuration.KnifeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
+                case EnumTool.Pickaxe: return !Configuration.PickaxeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
+                case EnumTool.Shovel: return !Configuration.ShovelRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"));
+                case EnumTool.Spear: return !Configuration.SpearRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
+                case EnumTool.Hammer: return !Configuration.HammerRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
+                case EnumTool.Sword: return !Configuration.SwordRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Sword"));
             }
         }
         return true;
@@ -508,7 +515,7 @@ class OverwriteDamageInteraction
                 {
                     EntityPlayer playerEntity = __instance.FiredBy as EntityPlayer;
                     // Change the change based on level
-                    __instance.DropOnImpactChance = Configuration.BowGetChanceToNotLoseArrowByEXP((ulong)playerEntity.WatchedAttributes.GetLong("LevelUP_Bow"));
+                    __instance.DropOnImpactChance = Configuration.BowGetChanceToNotLoseArrowByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
                 }
             }
         }
@@ -525,7 +532,7 @@ class OverwriteDamageInteraction
             // Saving aim accurracy
             byEntity.Attributes.SetFloat("old_aimingAccuracy", byEntity.Attributes.GetFloat("aimingAccuracy"));
             // Setting new aim accuracy
-            byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.BowGetAimAccuracyByEXP((ulong)byEntity.WatchedAttributes.GetLong("LevelUP_Bow", 0)));
+            byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0)));
         }
     }
     // Overwrite Bow shot finish
@@ -549,7 +556,7 @@ class OverwriteDamageInteraction
             // Saving aim accurracy
             byEntity.Attributes.SetFloat("old_aimingAccuracy", byEntity.Attributes.GetFloat("aimingAccuracy"));
             // Setting new aim accuracy
-            byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.SpearGetAimAccuracyByEXP((ulong)byEntity.WatchedAttributes.GetLong("LevelUP_Spear", 0)));
+            byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0)));
         }
     }
     // Overwrite Spear shot finish
@@ -628,7 +635,7 @@ class OverwriteDamageInteraction
             {
                 #endregion
                 // Reduces the damage received more than normal based on shield level
-                float damageReduction = dmgabsorb * Configuration.ShieldGetReductionMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Shield"));
+                float damageReduction = dmgabsorb * Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
                 damage = Math.Max(0f, damage - damageReduction);
                 if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduction} in shield damage");
                 #region native
@@ -640,7 +647,7 @@ class OverwriteDamageInteraction
                 {
                     #endregion
                     // Roll chance for not losing the durability
-                    if (!Configuration.ShieldRollChanceToNotReduceDurabilityByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Shield")))
+                    if (!Configuration.ShieldRollChanceToNotReduceDurabilityByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
                     {
                         #region native
                         shieldSlot.Itemstack.Collectible.DamageItem(api.World, dmgSource.SourceEntity, shieldSlot);

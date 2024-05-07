@@ -51,9 +51,9 @@ class OverwriteBlockInteraction
             player.Entity.Stats.Set("old_animalLootDropRate", "old_animalLootDropRate", player.Entity.Stats.GetBlended("animalLootDropRate"));
 
             // Increasing entity drop rate
-            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.KnifeGetHarvestMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Knife")));
+            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")));
             if (Configuration.enableExtendedLog)
-                Debug.Log($"{player.PlayerName} harvested any entity with knife, multiply drop: {Configuration.KnifeGetHarvestMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Knife"))}");
+                Debug.Log($"{player.PlayerName} harvested any entity with knife, multiply drop: {Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))}");
         }
         // Single player treatment and lan treatment
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.channel.SendPacket($"Knife_Harvest_Entity&lanplayername={byPlayer.PlayerName}");
@@ -176,9 +176,9 @@ class OverwriteBlockInteraction
                         FloatArrayAttribute freshHours = attribute.GetAttribute("freshHours") as FloatArrayAttribute;
                         if (Configuration.enableExtendedLog)
                             Debug.Log($"Cooking: previously fresh hours: {freshHours.value[0]}");
-                        freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"));
+                        freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"));
                         if (Configuration.enableExtendedLog)
-                            Debug.Log($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"))}");
+                            Debug.Log($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))}");
                         attribute.SetAttribute("freshHours", freshHours);
                         output.Attributes["transitionstate"] = attribute;
                     }
@@ -217,10 +217,10 @@ class OverwriteBlockInteraction
                                     Debug.Log($"Cooking: previously fresh hours: {freshHours.value[0]}");
 
                                 // Increase fresh hours
-                                freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"));
+                                freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"));
 
                                 if (Configuration.enableExtendedLog)
-                                    Debug.Log($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByEXP((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"))}");
+                                    Debug.Log($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))}");
 
                                 // Updating
                                 itemAttribute.SetAttribute("freshHours", freshHours);
@@ -240,7 +240,7 @@ class OverwriteBlockInteraction
                                 Debug.Log($"Cooking: previously servings: {servingsQuantity.value}");
 
                             // Increasing servings quantity
-                            servingsQuantity.value = Configuration.CookingGetServingsByEXPAndServings((ulong)player.Entity.WatchedAttributes.GetLong("LevelUP_Cooking"), (int)servingsQuantity.value); ;
+                            servingsQuantity.value = Configuration.CookingGetServingsByLevelAndServings(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"), (int)servingsQuantity.value); ;
 
                             if (Configuration.enableExtendedLog)
                                 Debug.Log($"Cooking: servings now: {servingsQuantity.value}");
@@ -366,8 +366,7 @@ class OverwriteBlockInteraction
             if (__instance.SelectedRecipe != null && MatchesRecipe() && __instance.Api.World is IServerWorldAccessor)
             {
                 // Get player hammer level
-                ulong playerExp = (ulong)byPlayer.Entity.WatchedAttributes.GetLong("LevelUP_Hammer");
-                int multiply = Configuration.HammerGetResultMultiplyByEXP(playerExp);
+                int multiply = Configuration.HammerGetResultMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
                 // Multiply by the change
                 __instance.SelectedRecipe.Output.ResolvedItemstack.StackSize = __instance.SelectedRecipe.Output.Quantity * multiply;
 

@@ -393,13 +393,13 @@ public static class Configuration
         return 1;
     }
 
-    public static float GetMiningSpeedByLevelTypeEXP(string levelType, ulong exp)
+    public static float GetMiningSpeedByLevelTypeLevel(string levelType, int level)
     {
         switch (levelType)
         {
-            case "Axe": return AxeGetMiningMultiplyByEXP(exp);
-            case "Pickaxe": return PickaxeGetMiningMultiplyByEXP(exp);
-            case "Shovel": return ShovelGetMiningMultiplyByEXP(exp);
+            case "Axe": return AxeGetMiningMultiplyByLevel(level);
+            case "Pickaxe": return PickaxeGetMiningMultiplyByLevel(level);
+            case "Shovel": return ShovelGetMiningMultiplyByLevel(level);
             default: break;
         }
         return -1.0f;
@@ -473,10 +473,9 @@ public static class Configuration
         return level;
     }
 
-    public static float HunterGetDamageMultiplyByEXP(ulong exp)
+    public static float HunterGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = hunterBaseDamage;
-        int level = HunterGetLevelByEXP(exp);
 
         float incrementDamage = hunterIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -649,10 +648,9 @@ public static class Configuration
         return level;
     }
 
-    public static float BowGetDamageMultiplyByEXP(ulong exp)
+    public static float BowGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = bowBaseDamage;
-        int level = BowGetLevelByEXP(exp);
 
         float incrementDamage = bowIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -666,9 +664,8 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static bool BowRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool BowRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = BowGetLevelByEXP(exp);
         float baseChanceToNotReduce = bowBaseDurabilityRestoreChance;
         float chanceToNotReduce = bowDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -687,9 +684,8 @@ public static class Configuration
         else return false;
     }
 
-    public static float BowGetChanceToNotLoseArrowByEXP(ulong exp)
+    public static float BowGetChanceToNotLoseArrowByLevel(int level)
     {
-        int level = BowGetLevelByEXP(exp);
         float baseChanceToNotLose = bowBaseChanceToNotLoseArrow;
         float chanceToNotLose = bowChanceToNotLoseArrowBaseIncreasePerLevel;
         while (level > 1)
@@ -706,10 +702,8 @@ public static class Configuration
         else return 0.0f;
     }
 
-    public static float BowGetAimAccuracyByEXP(ulong exp)
+    public static float BowGetAimAccuracyByLevel(int level)
     {
-
-        int level = BowGetLevelByEXP(exp);
         // Exp base for level
         float accuracyPerLevelBase = bowBaseAimAccuracy;
         while (level > 1)
@@ -858,10 +852,9 @@ public static class Configuration
         return level;
     }
 
-    public static float KnifeGetDamageMultiplyByEXP(ulong exp)
+    public static float KnifeGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = knifeBaseDamage;
-        int level = KnifeGetLevelByEXP(exp);
 
         float incrementDamage = knifeIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -875,10 +868,9 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float KnifeGetHarvestMultiplyByEXP(ulong exp)
+    public static float KnifeGetHarvestMultiplyByLevel(int level)
     {
         float baseMultiply = knifeBaseHarvestMultiply;
-        int level = KnifeGetLevelByEXP(exp);
 
         float incrementMultiply = knifeIncrementHarvestMultiplyPerLevel;
         float multiply = 0.0f;
@@ -891,9 +883,8 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static bool KnifeRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool KnifeRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = KnifeGetLevelByEXP(exp);
         float baseChanceToNotReduce = knifeBaseDurabilityRestoreChance;
         float chanceToNotReduce = knifeDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -1060,10 +1051,9 @@ public static class Configuration
         return level;
     }
 
-    public static float AxeGetDamageMultiplyByEXP(ulong exp)
+    public static float AxeGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = axeBaseDamage;
-        int level = AxeGetLevelByEXP(exp);
 
         float incrementDamage = axeIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -1077,10 +1067,9 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float AxeGetMiningMultiplyByEXP(ulong exp)
+    public static float AxeGetMiningMultiplyByLevel(int level)
     {
         float baseSpeed = axeBaseMiningSpeed;
-        int level = AxeGetLevelByEXP(exp);
 
         float incrementSpeed = axeIncrementMiningSpeedMultiplyPerLevel;
         float multiply = 0.0f;
@@ -1094,9 +1083,8 @@ public static class Configuration
         return baseSpeed;
     }
 
-    public static bool AxeRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool AxeRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = AxeGetLevelByEXP(exp);
         float baseChanceToNotReduce = axeBaseDurabilityRestoreChance;
         float chanceToNotReduce = axeDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -1279,10 +1267,9 @@ public static class Configuration
         return level;
     }
 
-    public static float PickaxeGetOreMultiplyByEXP(ulong exp)
+    public static float PickaxeGetOreMultiplyByLevel(int level)
     {
         float baseMultiply = pickaxeBaseOreMultiply;
-        int level = PickaxeGetLevelByEXP(exp);
 
         float incrementMultiply = pickaxeIncrementOreMultiplyPerLevel;
         float multiply = 0.0f;
@@ -1296,10 +1283,9 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static float PickaxeGetDamageMultiplyByEXP(ulong exp)
+    public static float PickaxeGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = pickaxeBaseDamage;
-        int level = PickaxeGetLevelByEXP(exp);
 
         float incrementDamage = pickaxeIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -1313,10 +1299,9 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float PickaxeGetMiningMultiplyByEXP(ulong exp)
+    public static float PickaxeGetMiningMultiplyByLevel(int level)
     {
         float baseSpeed = pickaxeBaseMiningSpeed;
-        int level = PickaxeGetLevelByEXP(exp);
 
         float incrementSpeed = pickaxeIncrementMiningSpeedMultiplyPerLevel;
         float multiply = 0.0f;
@@ -1330,9 +1315,8 @@ public static class Configuration
         return baseSpeed;
     }
 
-    public static bool PickaxeRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool PickaxeRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = PickaxeGetLevelByEXP(exp);
         float baseChanceToNotReduce = pickaxeBaseDurabilityRestoreChance;
         float chanceToNotReduce = pickaxeDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -1487,10 +1471,9 @@ public static class Configuration
         return level;
     }
 
-    public static float ShovelGetDamageMultiplyByEXP(ulong exp)
+    public static float ShovelGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = shovelBaseDamage;
-        int level = ShovelGetLevelByEXP(exp);
 
         float incrementDamage = shovelIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -1504,10 +1487,9 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static float ShovelGetMiningMultiplyByEXP(ulong exp)
+    public static float ShovelGetMiningMultiplyByLevel(int level)
     {
         float baseSpeed = shovelBaseMiningSpeed;
-        int level = ShovelGetLevelByEXP(exp);
 
         float incrementSpeed = shovelIncrementMiningSpeedMultiplyPerLevel;
         float multiply = 0.0f;
@@ -1521,9 +1503,8 @@ public static class Configuration
         return baseSpeed;
     }
 
-    public static bool ShovelRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool ShovelRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = ShovelGetLevelByEXP(exp);
         float baseChanceToNotReduce = shovelBaseDurabilityRestoreChance;
         float chanceToNotReduce = shovelDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -1678,10 +1659,9 @@ public static class Configuration
         return level;
     }
 
-    public static float SpearGetDamageMultiplyByEXP(ulong exp)
+    public static float SpearGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = spearBaseDamage;
-        int level = SpearGetLevelByEXP(exp);
 
         float incrementDamage = spearIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -1695,9 +1675,8 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static bool SpearRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool SpearRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = SpearGetLevelByEXP(exp);
         float baseChanceToNotReduce = spearBaseDurabilityRestoreChance;
         float chanceToNotReduce = spearDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -1716,10 +1695,8 @@ public static class Configuration
         else return false;
     }
 
-    public static float SpearGetAimAccuracyByEXP(ulong exp)
+    public static float SpearGetAimAccuracyByLevel(int level)
     {
-
-        int level = SpearGetLevelByEXP(exp);
         // Exp base for level
         float accuracyPerLevelBase = spearBaseAimAccuracy;
         while (level > 1)
@@ -1951,10 +1928,9 @@ public static class Configuration
         return level;
     }
 
-    public static float HammerGetDamageMultiplyByEXP(ulong exp)
+    public static float HammerGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = hammerBaseDamage;
-        int level = HammerGetLevelByEXP(exp);
 
         float incrementDamage = hammerIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -1968,9 +1944,8 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static bool HammerRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool HammerRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = HammerGetLevelByEXP(exp);
         float baseChanceToNotReduce = hammerBaseDurabilityRestoreChance;
         float chanceToNotReduce = hammerDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -1989,10 +1964,9 @@ public static class Configuration
         else return false;
     }
 
-    public static float HammerGetAnimationSpeedByEXP(ulong exp)
+    public static float HammerGetAnimationSpeedByLevel(int level)
     {
         float baseSpeed = hammerBaseSmithAnimationSpeed;
-        int level = HammerGetLevelByEXP(exp);
 
         float incrementDamage = hammerIncreaseSmithAnimationSpeedPerLevel;
         float multiply = 0.0f;
@@ -2006,9 +1980,8 @@ public static class Configuration
         return baseSpeed;
     }
 
-    public static int HammerGetResultMultiplyByEXP(ulong exp)
+    public static int HammerGetResultMultiplyByLevel(int level)
     {
-        int level = HammerGetLevelByEXP(exp);
         // We calculate the most difficulty to most easily
         { // Quadruple
             int baseLevel = level;
@@ -2167,10 +2140,9 @@ public static class Configuration
         return level;
     }
 
-    public static float SwordGetDamageMultiplyByEXP(ulong exp)
+    public static float SwordGetDamageMultiplyByLevel(int level)
     {
         float baseDamage = swordBaseDamage;
-        int level = SwordGetLevelByEXP(exp);
 
         float incrementDamage = swordIncrementDamagePerLevel;
         float multiply = 0.0f;
@@ -2184,9 +2156,8 @@ public static class Configuration
         return baseDamage;
     }
 
-    public static bool SwordRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool SwordRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = SwordGetLevelByEXP(exp);
         float baseChanceToNotReduce = swordBaseDurabilityRestoreChance;
         float chanceToNotReduce = swordDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -2316,10 +2287,9 @@ public static class Configuration
         return level;
     }
 
-    public static float ShieldGetReductionMultiplyByEXP(ulong exp)
+    public static float ShieldGetReductionMultiplyByLevel(int level)
     {
         float baseReduction = shieldBaseReduction;
-        int level = ShieldGetLevelByEXP(exp);
 
         float incrementReduction = shieldIncreamentReductionPerLevel;
         float multiply = 0.0f;
@@ -2333,9 +2303,8 @@ public static class Configuration
         return baseReduction;
     }
 
-    public static bool ShieldRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool ShieldRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = ShieldGetLevelByEXP(exp);
         float baseChanceToNotReduce = shieldBaseDurabilityRestoreChance;
         float chanceToNotReduce = shieldDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -2465,10 +2434,9 @@ public static class Configuration
         return level;
     }
 
-    public static float FarmingGetHarvestMultiplyByEXP(ulong exp)
+    public static float FarmingGetHarvestMultiplyByLevel(int level)
     {
         float baseMultiply = farmingBaseHarvestMultiply;
-        int level = FarmingGetLevelByEXP(exp);
 
         float incrementMultiply = farmingIncrementHarvestMultiplyPerLevel;
         float multiply = 0.0f;
@@ -2482,9 +2450,8 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static bool FarmingRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool FarmingRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = FarmingGetLevelByEXP(exp);
         float baseChanceToNotReduce = farmingBaseDurabilityRestoreChance;
         float chanceToNotReduce = farmingDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -2645,10 +2612,9 @@ public static class Configuration
         return level;
     }
 
-    public static float CookingGetSaturationMultiplyByEXP(ulong exp)
+    public static float CookingGetSaturationMultiplyByLevel(int level)
     {
         float baseMultiply = 1.0f;
-        int level = CookingGetLevelByEXP(exp);
 
         float incrementMultiply = 0.1f;
         float multiply = 0.0f;
@@ -2662,10 +2628,9 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static float CookingGetFreshHoursMultiplyByEXP(ulong exp)
+    public static float CookingGetFreshHoursMultiplyByLevel(int level)
     {
         float baseMultiply = cookingBaseFreshHoursMultiply;
-        int level = CookingGetLevelByEXP(exp);
 
         float incrementMultiply = cookingFreshHoursMultiplyPerLevel;
         float multiply = 0.0f;
@@ -2679,9 +2644,8 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static int CookingGetServingsByEXPAndServings(ulong exp, int quantityServings)
+    public static int CookingGetServingsByLevelAndServings(int level, int quantityServings)
     {
-        int level = CookingGetLevelByEXP(exp);
         float chanceToIncrease = cookingBaseChanceToIncreaseServings;
         float incrementChance = cookingIncrementChanceToIncreaseServings;
         int rolls = cookingBaseRollsChanceToIncreaseServings;
@@ -2801,10 +2765,9 @@ public static class Configuration
         return level;
     }
 
-    public static float VitalityGetMaxHealthByEXP(ulong exp)
+    public static float VitalityGetMaxHealthByLevel(int level)
     {
         float baseMultiply = vitalityBaseHP;
-        int level = VitalityGetLevelByEXP(exp);
 
         float incrementMultiply = vitalityHPIncreasePerLevel;
         while (level > 1)
@@ -2815,10 +2778,9 @@ public static class Configuration
         return baseMultiply;
     }
 
-    public static float VitalityGetHealthRegenMultiplyByEXP(ulong exp)
+    public static float VitalityGetHealthRegenMultiplyByLevel(int level)
     {
         float baseMultiply = vitalityBaseHPRegen;
-        int level = VitalityGetLevelByEXP(exp);
 
         float incrementMultiply = vitalityHPRegenIncreasePerLevel;
         while (level > 1)
@@ -2981,9 +2943,8 @@ public static class Configuration
         }
         return (int)Math.Round(baseMultiply);
     }
-    public static float LeatherArmorDamageReductionByEXP(ulong exp)
+    public static float LeatherArmorDamageReductionByLevel(int level)
     {
-        int level = LeatherArmorGetLevelByEXP(exp);
         float baseMultiply = leatherArmorBaseDamageReduction;
         while (level > 1)
         {
@@ -2992,9 +2953,8 @@ public static class Configuration
         }
         return baseMultiply;
     }
-    public static bool LeatherArmorRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool LeatherArmorRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = LeatherArmorGetLevelByEXP(exp);
         float baseChanceToNotReduce = leatherArmorBaseDurabilityRestoreChance;
         float chanceToNotReduce = leatherArmorDurabilityRestoreChancePerLevel;
         while (level > 1)
@@ -3149,9 +3109,8 @@ public static class Configuration
         }
         return (int)Math.Round(baseMultiply);
     }
-    public static float ChainArmorDamageReductionByEXP(ulong exp)
+    public static float ChainArmorDamageReductionByLevel(int level)
     {
-        int level = ChainArmorGetLevelByEXP(exp);
         float baseMultiply = chainArmorBaseDamageReduction;
         while (level > 1)
         {
@@ -3160,9 +3119,8 @@ public static class Configuration
         }
         return baseMultiply;
     }
-    public static bool ChainArmorRollChanceToNotReduceDurabilityByEXP(ulong exp)
+    public static bool ChainArmorRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        int level = ChainArmorGetLevelByEXP(exp);
         float baseChanceToNotReduce = chainArmorBaseDurabilityRestoreChance;
         float chanceToNotReduce = chainArmorDurabilityRestoreChancePerLevel;
         while (level > 1)
