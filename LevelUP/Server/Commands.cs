@@ -38,6 +38,7 @@ class Commands
             "changeexperience" => ChangeExperience(arguments),
             "addexperience" => AddExperience(arguments),
             "reduceexperience" => ReduceExperience(arguments),
+            "resetplayerstatus" => ResetPlayerStatus(arguments),
             _ => TextCommandResult.Success($"Invalid command {handler}", "1"),
         };
     }
@@ -74,7 +75,7 @@ class Commands
         //1 => LevelType
         //2 => PlayerName to be changed
         //3 => Experience quantity to change
-        if (args.Length != 3) return TextCommandResult.Success($"Invalid arguments", "2");
+        if (args.Length != 4) return TextCommandResult.Success($"Invalid arguments", "2");
 
         // Check if experience is a valid decimal number
         if (!long.TryParse(args[3], out _)) return TextCommandResult.Success($"Invalid experience value, use only decimal numbers", "3");
@@ -100,7 +101,7 @@ class Commands
         //1 => LevelType
         //2 => PlayerName to be changed
         //3 => Experience quantity to change
-        if (args.Length != 3) return TextCommandResult.Success($"Invalid arguments", "2");
+        if (args.Length != 4) return TextCommandResult.Success($"Invalid arguments", "2");
 
         // Check if experience is a valid decimal number
         if (!long.TryParse(args[3], out _)) return TextCommandResult.Success($"Invalid experience value, use only decimal numbers", "3");
@@ -121,5 +122,60 @@ class Commands
         instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
 
         return TextCommandResult.Success($"Reduced {args[2]} experience to {args[3]} on level {args[1]}", "12");
+    }
+
+    private TextCommandResult ResetPlayerStatus(string[] args)
+    {
+        //args:
+        //1 => playerName to reset
+        //2 => Optional: stats type
+        //3 => Optional: quantity
+
+        // To much arguments
+        if (args.Length <= 1 || args.Length > 4) return TextCommandResult.Success($"Invalid arguments", "2");
+
+        // Check if value is a valid decimal number
+        if (args.Length > 3 && !float.TryParse(args[3], out _)) return TextCommandResult.Success($"Invalid quantity value, use only float numbers", "15");
+
+        IServerPlayer playerToBeReseted = null;
+        // Getting the player instance
+        instance.api.World.AllPlayers.Foreach((player) =>
+        {
+            if (player.PlayerName == args[1]) playerToBeReseted = player as IServerPlayer;
+        });
+
+        // Check if the player is online
+        if (playerToBeReseted == null) return TextCommandResult.Success($"Player {args[0]} not found or not online", "14");
+
+        // Specific status
+        if (args.Length == 3)
+        {
+            switch (args[2])
+            {
+                case "oreDropRate": playerToBeReseted.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f); break;
+                case "animalLootDropRate": playerToBeReseted.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f); break;
+                case "aimingAccuracy": playerToBeReseted.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f); break;
+                default: return TextCommandResult.Success($"Invalid status", "16");
+            }
+            return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to vanilla default", "17");
+        }
+        // Specific status + specific quantity
+        else if (args.Length > 3)
+        {
+            switch (args[2])
+            {
+                case "oreDropRate": playerToBeReseted.Entity.Stats.Set("oreDropRate", "oreDropRate", float.Parse(args[3])); break;
+                case "animalLootDropRate": playerToBeReseted.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", float.Parse(args[3])); break;
+                case "aimingAccuracy": playerToBeReseted.Entity.Attributes.SetFloat("aimingAccuracy", float.Parse(args[3])); break;
+                default: return TextCommandResult.Success($"Invalid status", "16");
+            }
+            return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to {args[3]}", "18");
+        }
+
+        // Nothing specific change everthing to default value
+        playerToBeReseted.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f);
+        playerToBeReseted.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f);
+        playerToBeReseted.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f);
+        return TextCommandResult.Success($"{args[1]} status has been reseted to vanilla default", "13");
     }
 }

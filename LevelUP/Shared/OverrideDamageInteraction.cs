@@ -499,6 +499,7 @@ class OverwriteDamageInteraction
         }
     }
 
+    #region bow
     // Overwrite Projectile impact
     [HarmonyPrefix]
     [HarmonyPatch(typeof(EntityProjectile), "impactOnEntity")]
@@ -520,8 +521,6 @@ class OverwriteDamageInteraction
             }
         }
     }
-
-    #region bow
     // Overwrite Bow shot start
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStop")]
