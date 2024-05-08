@@ -2,7 +2,7 @@
 Add a new mechanic to vintage story, a new level system to make your character stronger and efficient during the gameplay, making your feels you are progressing through the gameplay.
 
 Features:
-- GUI Level in chacter view
+- GUI Level in character view
 - Each tools has a chance to not use durability by the level you have for the specific tool
 - Fully configurable
 - Hardcore mode (configurable)
@@ -52,11 +52,10 @@ To change the configurations go to the mod folder in assets folders, if you want
 
 Level UP Stores datas based on player name, changing the player name will lose all levels.
 
+Some people have issues with the drop rate of entities after removing LevelUP, for this theres is a command for administration uses, type /levelup resetplayerstatus PlayerName, this command will reset all status and buffs from the player that can cause bugs on vanilla (Needs to be in all players that played in the moment the LevelUP is present).
+
 ### Considerations
 This mod changes a lot of native codes and can break easily throught updates.
-
-Performances leaks on server can be apparent because of new functions and calculation for damages and levels system,
-this is imperceptible for average computers and servers, but can cause a good cpu consumption on low end computers with high player count.
 
 Level UP doesn't register tickrates for the main game, so level up cannot be the cause for lower tickrate on servers.
 

@@ -118,6 +118,7 @@ class OverwriteBlockInteraction
         // Check if him finished cooking
         if (cookingTime >= maxCookingTime)
         {
+            cookingFirePitOverflow++;
             // Check if input stack exists on exp earn, this means the player is reheating the food, disabling the experience mechanic
             if (Configuration.expMultiplySingleCooking.TryGetValue(__instance.inputStack.Collectible.Code.ToString(), out double _)) return;
             else if (Configuration.expMultiplyPotsCooking.TryGetValue(__instance.inputStack.Collectible.Code.ToString(), out double _)) return;
