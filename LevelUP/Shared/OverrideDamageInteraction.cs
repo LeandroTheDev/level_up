@@ -268,7 +268,6 @@ class OverwriteDamageInteraction
                 // in others cases the armor shouldn't reduce damage
                 if (damageSource.GetCauseEntity() != null || damageSource.SourceEntity != null)
                 {
-                    Debug.Log($"Cause: {damageSource.GetCauseEntity()} source: {damageSource.SourceEntity}");
                     #region leatherarmor
                     if (Configuration.enableLevelLeatherArmor)
                     {
