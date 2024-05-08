@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -264,11 +263,12 @@ class OverwriteDamageInteraction
 
                 }
                 #endregion
-                
+
                 // Check if the damage received is from a valid entity source damage
                 // in others cases the armor shouldn't reduce damage
                 if (damageSource.GetCauseEntity() != null || damageSource.SourceEntity != null)
                 {
+                    Debug.Log($"Cause: {damageSource.GetCauseEntity()} source: {damageSource.SourceEntity}");
                     #region leatherarmor
                     if (Configuration.enableLevelLeatherArmor)
                     {
@@ -386,7 +386,6 @@ class OverwriteDamageInteraction
                     }
                     #endregion
                 }
-                else Debug.Log("Alright this is invalid source");
             };
 
             // Double check bug only if is a player hitting in single player
