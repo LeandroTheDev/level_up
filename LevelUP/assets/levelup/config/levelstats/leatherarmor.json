@@ -9,5 +9,6 @@
     "leatherArmorBaseDurabilityRestoreChance": 0.0,
     "leatherArmorDurabilityRestoreChancePerLevel": 2.0,
     "leatherArmorDurabilityRestoreEveryLevelReduceChance": 10,
-    "leatherArmorDurabilityRestoreReduceChanceForEveryLevel": 0.5
+    "leatherArmorDurabilityRestoreReduceChanceForEveryLevel": 0.5,
+    "leatherArmorDamageLimit": 1000
 }

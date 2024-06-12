@@ -1,6 +1,8 @@
 # Level UP
 Add a new mechanic to vintage story, a new level system to make your character stronger and efficient during the gameplay, making your feels you are progressing through the gameplay.
 
+Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world.
+
 Features:
 - GUI Level in character view
 - Each tools has a chance to not use durability by the level you have for the specific tool
@@ -64,8 +66,6 @@ Memory usage in the server can be slightly bigger because of static configuratio
 Changes in players stats like oreDropRate, animalLootDropRate is completly overwrited, so changing this will not actually give you more animal loots or ore drops, if you want to increase it consider changing in mod configuration the base ore drop and animal loots.
 
 This mod might break other levels mods or be breaked.
-
-Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world.
 
 All the mod calculations and patches is thinking in the server performance, feel free to suggest improviments if you find something getting slow.
 
