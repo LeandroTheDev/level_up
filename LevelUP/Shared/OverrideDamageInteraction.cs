@@ -43,13 +43,13 @@ class OverwriteDamageInteraction
     {
         #region compatibility
         // Compatibility Layer Start Calculation
-        double compatibilityStartDamage = __instance.Stats.GetBlended("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
+        float compatibilityStartDamage = __instance.Stats.GetBlended("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
         if (compatibilityStartDamage != 0)
         {
             // Lose damage by the compatibility layer
-            if (compatibilityStartDamage < 0) damage -= (float)compatibilityStartDamage;
+            if (compatibilityStartDamage < 0) damage -= compatibilityStartDamage;
             // Receive damage by the compatibility layer
-            else damage += (float)compatibilityStartDamage;
+            else damage += compatibilityStartDamage;
         }
         #endregion
 
