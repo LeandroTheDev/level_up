@@ -1,14 +1,10 @@
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
-using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
-using Vintagestory.Server;
 
 namespace LevelUP.Shared;
 
