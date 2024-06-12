@@ -94,12 +94,14 @@ class OverwriteBlockInteraction
             IServerPlayer player = byPlayer as IServerPlayer;
 
             // Reload old drop rate
-            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", player.Entity.Stats.GetBlended("old_animalLootDropRate"));
+            if (player.Entity.Stats.GetBlended("old_animalLootDropRate") != 0.0f)
+                player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", player.Entity.Stats.GetBlended("old_animalLootDropRate"));
         }
         // Singleplayer/Lan compatibility
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer)
         {
-            byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", byPlayer.Entity.Stats.GetBlended("old_animalLootDropRate"));
+            if (byPlayer.Entity.Stats.GetBlended("old_animalLootDropRate") != 0.0f)
+                byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", byPlayer.Entity.Stats.GetBlended("old_animalLootDropRate"));
         }
 
         byPlayer.Entity.Stats.Remove("LevelUP_BlockInteraction_Compatibility_ExtendHarvestDrop_SetHarvestedKnife", "HarvestStart");
