@@ -2678,6 +2678,9 @@ public static class Configuration
     private static float vitalityBaseHP = 10.0f;
     private static float vitalityBaseHPRegen = 1.0f;
     private static float vitalityHPRegenIncreasePerLevel = 0.1f;
+    private static int vitalityDamageLimit = 1000;
+
+    public static int DamageLimitVitality => vitalityDamageLimit;
 
     public static void PopulateVitalityConfiguration(ICoreAPI api)
     {
@@ -2744,6 +2747,13 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel is not double is {value.GetType()}");
                 else vitalityHPRegenIncreasePerLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel not set");
+        }
+        { //vitalityDamageLimit
+            if (vitalityLevelStats.TryGetValue("vitalityDamageLimit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityDamageLimit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityDamageLimit is not int is {value.GetType()}");
+                else vitalityDamageLimit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityDamageLimit not set");
         }
 
         Debug.Log("Vitality configuration set");
@@ -2820,6 +2830,9 @@ public static class Configuration
     private static float leatherArmorDurabilityRestoreChancePerLevel = 2.0f;
     private static int leatherArmorDurabilityRestoreEveryLevelReduceChance = 10;
     private static float leatherArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int leatherArmorDamageLimit = 1000;
+    
+    public static int DamageLimitLeatherArmor => leatherArmorDamageLimit;
 
     public static void PopulateLeatherArmorConfiguration(ICoreAPI api)
     {
@@ -2900,6 +2913,13 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
                 else leatherArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+        { //leatherArmorDamageLimit
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorDamageLimit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDamageLimit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorDamageLimit is not int is {value.GetType()}");
+                else leatherArmorDamageLimit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorDamageLimit not set");
         }
 
         // Get leather armor multiply exp
@@ -2987,6 +3007,9 @@ public static class Configuration
     private static float chainArmorDurabilityRestoreChancePerLevel = 2.0f;
     private static int chainArmorDurabilityRestoreEveryLevelReduceChance = 10;
     private static float chainArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int chainArmorDamageLimit = 1000;
+
+    public static int DamageLimitChainArmor => chainArmorDamageLimit;
 
     public static void PopulateChainArmorConfiguration(ICoreAPI api)
     {
@@ -3067,6 +3090,13 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
                 else chainArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+        { //chainArmorDamageLimit
+            if (chainArmorLevelStats.TryGetValue("chainArmorDamageLimit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDamageLimit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorDamageLimit is not int is {value.GetType()}");
+                else chainArmorDamageLimit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorDamageLimit not set");
         }
 
         // Get leather armor multiply exp

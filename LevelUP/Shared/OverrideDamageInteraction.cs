@@ -246,7 +246,7 @@ class OverwriteDamageInteraction
                 IPlayer player = __instance.World.PlayerByUid(playerEntity.PlayerUID);
 
                 #region vitality
-                if (Configuration.enableLevelVitality)
+                if (Configuration.enableLevelVitality && damage < Configuration.DamageLimitVitality)
                 {
                     // Check if damage is bigger than player max health
                     float damageCalculation = damage;
@@ -269,7 +269,7 @@ class OverwriteDamageInteraction
                 if (damageSource.GetCauseEntity() != null || damageSource.SourceEntity != null)
                 {
                     #region leatherarmor
-                    if (Configuration.enableLevelLeatherArmor)
+                    if (Configuration.enableLevelLeatherArmor && damage < Configuration.DamageLimitLeatherArmor)
                     {
                         // Check if damage is bigger than player max health
                         float damageCalculation = damage;
@@ -328,7 +328,7 @@ class OverwriteDamageInteraction
                     }
                     #endregion
                     #region chainarmor
-                    if (Configuration.enableLevelChainArmor)
+                    if (Configuration.enableLevelChainArmor && damage < Configuration.DamageLimitChainArmor)
                     {
                         // Check if damage is bigger than player max health
                         float damageCalculation = damage;
@@ -442,8 +442,8 @@ class OverwriteDamageInteraction
     public static void ReceiveDamageFinish(Entity __instance, DamageSource damageSource, float damage)
     {
         // Clean Compatibility layer
-        __instance.Stats.Remove("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage", "LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
-        __instance.Stats.Remove("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage", "LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage");
+        __instance.Stats.Remove("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage", "DamageStart");
+        __instance.Stats.Remove("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage", "DamageFinish");
     }
 
     // Overwrite Durability lost start
@@ -480,7 +480,7 @@ class OverwriteDamageInteraction
     public static void DamageItemFinish(IWorldAccessor world, Entity byEntity, ItemSlot itemslot, int amount = 1)
     {
         // Dedicated Server needs to broadcast the durability restoration
-        if (instance.serverAPI != null)
+        if (instance.serverAPI != null && byEntity != null)
         {
             // Refresh player inventory
             foreach (IPlayer iplayer in instance.serverAPI.api.World.AllOnlinePlayers)
