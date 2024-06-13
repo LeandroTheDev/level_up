@@ -43,7 +43,7 @@ class OverwriteDamageInteraction
     {
         #region compatibility
         // Compatibility Layer Start Calculation
-        float compatibilityStartDamage = __instance.Stats.GetBlended("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
+        float compatibilityStartDamage = __instance.Attributes.GetFloat("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
         if (compatibilityStartDamage != 0)
         {
             // Lose damage by the compatibility layer
@@ -224,7 +224,7 @@ class OverwriteDamageInteraction
 
             #region compatibility
             // Compatibility Layer Final Calculation
-            float compatibilityFinalDamage = __instance.Stats.GetBlended("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage");
+            float compatibilityFinalDamage = __instance.Attributes.GetFloat("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage");
             if (compatibilityFinalDamage != 0)
             {
                 // Lose damage by the compatibility layer
@@ -442,8 +442,8 @@ class OverwriteDamageInteraction
     public static void ReceiveDamageFinish(Entity __instance, DamageSource damageSource, float damage)
     {
         // Clean Compatibility layer
-        __instance.Stats.Remove("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage", "DamageStart");
-        __instance.Stats.Remove("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage", "DamageFinish");
+        __instance.Attributes.RemoveAttribute("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
+        __instance.Attributes.RemoveAttribute("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage");
     }
 
     // Overwrite Durability lost start
