@@ -51,7 +51,8 @@ class LevelFarming
         Dictionary<string, ulong> farmingLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.expPerHarvestFarming.Get(breakedBlock.Block.Code.ToString(), 0);
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.expPerHarvestFarming.GetValueOrDefault(breakedBlock.Block.Code.ToString(), 0) + (Configuration.expPerHarvestFarming.GetValueOrDefault(breakedBlock.Block.Code.ToString(), 0) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = farmingLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

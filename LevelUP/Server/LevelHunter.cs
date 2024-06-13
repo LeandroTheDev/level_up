@@ -56,7 +56,8 @@ class LevelHunter
         Dictionary<string, ulong> hunterLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpHunter.GetValueOrDefault(entity.Code.ToString(), 0);
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.entityExpHunter.GetValueOrDefault(playerEntity.GetName(), 0) + (Configuration.entityExpHunter.GetValueOrDefault(playerEntity.GetName(), 0) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = hunterLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

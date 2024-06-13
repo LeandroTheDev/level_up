@@ -62,7 +62,8 @@ class LevelKnife
         Dictionary<string, ulong> knifeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpKnife.GetValueOrDefault(entity.Code.ToString(), 0);
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.entityExpKnife.GetValueOrDefault(playerEntity.GetName(), 0) + (Configuration.entityExpKnife.GetValueOrDefault(playerEntity.GetName(), 0) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

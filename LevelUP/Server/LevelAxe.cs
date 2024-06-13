@@ -64,7 +64,8 @@ class LevelAxe
         Dictionary<string, ulong> axeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpAxe.GetValueOrDefault(entity.Code.ToString(), 0);
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.entityExpAxe.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpAxe.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
@@ -91,7 +92,8 @@ class LevelAxe
         Dictionary<string, ulong> axeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.ExpPerBreakingAxe;
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.ExpPerBreakingAxe + (Configuration.ExpPerBreakingAxe * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

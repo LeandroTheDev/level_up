@@ -66,7 +66,8 @@ class LevelShovel
         Dictionary<string, ulong> shovelLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0);
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
@@ -101,7 +102,8 @@ class LevelShovel
         Dictionary<string, ulong> shovelLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.ExpPerBreakingShovel;
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.ExpPerBreakingShovel + (Configuration.ExpPerBreakingShovel * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
