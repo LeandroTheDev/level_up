@@ -19,16 +19,4 @@ class LevelCooking
         Configuration.PopulateCookingConfiguration(coreAPI);
     }
 #pragma warning restore CA1822
-
-    // private Dictionary<string, ulong> GetSavedLevels()
-    // {
-    //     byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_ChainArmor");
-    //     string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-    //     return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    // }
-
-    // private void SaveState(Dictionary<string, ulong> chainArmorLevels)
-    // {
-    //     instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality_ChainArmor", JsonSerializer.Serialize(chainArmorLevels));
-    // }
 }
