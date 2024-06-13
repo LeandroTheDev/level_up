@@ -43,8 +43,6 @@ class LevelSword
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
-        // Check if entity is alive
-        if (!entity.Alive) return;
         // The cause of the death is from a projectile
         if (damageSource.GetCauseEntity() is not EntityPlayer && damageSource.SourceEntity is EntityProjectile) return;
         // Entity kill is not from a player
@@ -64,7 +62,7 @@ class LevelSword
 
         // Get the exp received
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
+        int exp = (int)(Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString()) + (Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString()) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = swordLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

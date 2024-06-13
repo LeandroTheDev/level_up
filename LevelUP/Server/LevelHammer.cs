@@ -62,7 +62,7 @@ class LevelHammer
 
         // Get the exp received
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.entityExpHammer.GetValueOrDefault(playerEntity.GetName(), 0) + (Configuration.entityExpHammer.GetValueOrDefault(playerEntity.GetName(), 0) * experienceMultiplierCompatibility));
+        int exp = (int)(Configuration.entityExpHammer.GetValueOrDefault(entity.Code.ToString()) + (Configuration.entityExpHammer.GetValueOrDefault(entity.Code.ToString()) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = hammerLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
