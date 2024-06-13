@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
+using Vintagestory.API.Util;
 
 namespace LevelUP;
 
@@ -34,7 +35,7 @@ public class Initialization : ModSystem
         base.Start(api);
 
         Debug.LoadLogger(api.Logger);
-        Debug.Log("Running on Version: 1.1.8.2");
+        Debug.Log($"Running on Version: {Mod.Info.Version}");
         sharedInstance.InstanciateAPI(api);
         sharedInstance.OverwriteFunctions();
     }
