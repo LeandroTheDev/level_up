@@ -60,7 +60,8 @@ class LevelBow
             Dictionary<string, ulong> bowLevels = GetSavedLevels();
 
             // Get the exp received
-            int exp = Configuration.entityExpBow.GetValueOrDefault(entity.Code.ToString(), 0);
+            float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+            int exp = (int)(Configuration.entityExpBow.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpBow.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
 
             // Get the actual player total exp
             ulong playerExp = bowLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

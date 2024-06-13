@@ -37,14 +37,16 @@ class OverwriteBlockBreak
     [HarmonyPatch(typeof(BlockBehavior), "GetMiningSpeedModifier")]
     public static float GetMiningSpeedModifier(float __result, IWorldAccessor world, BlockPos pos, IPlayer byPlayer)
     {
+        float miningSpeedCompatibility = byPlayer.Entity.Attributes.GetFloat("LevelUP_BlockBreak_ExtendMiningSpeed_GetMiningSpeedModifier");
+        byPlayer.Entity.Attributes.RemoveAttribute("LevelUP_BlockBreak_ExtendMiningSpeed_GetMiningSpeedModifier");
         switch (byPlayer.InventoryManager.ActiveTool)
         {
             case EnumTool.Axe:
-                return Configuration.enableLevelAxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f) : __result;
+                return Configuration.enableLevelAxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
             case EnumTool.Pickaxe:
-                return Configuration.enableLevelPickaxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f) : __result;
+                return Configuration.enableLevelPickaxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
             case EnumTool.Shovel:
-                return Configuration.enableLevelShovel ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f) : __result;
+                return Configuration.enableLevelShovel ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
             case null: break;
         }
         return __result;
@@ -93,6 +95,8 @@ class OverwriteBlockBreak
     [HarmonyPatch(typeof(BlockCrop), "GetDrops")]
     public static ItemStack[] GetDrops(ItemStack[] __result, BlockCrop __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
+        int cropDropCompatibility = byPlayer.Entity.Attributes.GetInt("LevelUP_BlockBreak_ExtendCropDrops_GetDrops");
+        byPlayer.Entity.Attributes.RemoveAttribute("LevelUP_BlockBreak_ExtendCropDrops_GetDrops");
         // Check if is from the server
         if (Configuration.enableLevelFarming && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
         {
@@ -105,7 +109,7 @@ class OverwriteBlockBreak
                 {
                     IServerPlayer player = byPlayer as IServerPlayer;
                     // Multiply crop drop
-                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
+                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))) + cropDropCompatibility;
                     // Update item stack result
                     __result[index] = itemStack;
                 }

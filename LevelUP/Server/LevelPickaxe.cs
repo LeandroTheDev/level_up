@@ -65,7 +65,8 @@ class LevelPickaxe
         Dictionary<string, ulong> pickaxeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpPickaxe.GetValueOrDefault(entity.GetName(), 0);
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.entityExpPickaxe.GetValueOrDefault(playerEntity.GetName(), 0) + (Configuration.entityExpPickaxe.GetValueOrDefault(playerEntity.GetName(), 0) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
@@ -93,7 +94,8 @@ class LevelPickaxe
         Dictionary<string, ulong> pickaxeLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.oresExpPickaxe.GetValueOrDefault(breakedBlock.Block.Code.ToString(), Configuration.ExpPerBreakingPickaxe);
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.oresExpPickaxe.GetValueOrDefault(breakedBlock.Block.Code.ToString(), Configuration.ExpPerBreakingPickaxe) + (Configuration.oresExpPickaxe.GetValueOrDefault(breakedBlock.Block.Code.ToString(), Configuration.ExpPerBreakingPickaxe) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

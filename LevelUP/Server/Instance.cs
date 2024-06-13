@@ -175,6 +175,7 @@ class Instance
 
     private void IncreaseExp(IServerPlayer player, string levelType, string reason, int forceexp = 0)
     {
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
         Dictionary<string, ulong> GetSavedLevels()
         {
             byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
@@ -193,7 +194,8 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitBow;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitBow + (Configuration.ExpPerHitBow * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
 
             // Increment
             levels[player.PlayerName] = exp;
@@ -201,7 +203,7 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitBow} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region knife
@@ -210,28 +212,30 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitKnife;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitKnife + (Configuration.ExpPerHitKnife * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitKnife} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Harvest
         else if (levelType == "Knife" && reason == "Harvest")
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHarvestKnife;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHarvestKnife + (Configuration.ExpPerHarvestKnife * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHarvestKnife} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region axe
@@ -240,42 +244,45 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitAxe;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitAxe + (Configuration.ExpPerHitAxe * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitAxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Block breaking
         else if (levelType == "Axe" && reason == "Breaking")
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerBreakingAxe;
+            ulong earnedExp = (ulong)(Configuration.ExpPerBreakingAxe + (Configuration.ExpPerBreakingAxe * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerBreakingAxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Chop Tree
         else if (levelType == "Axe" && reason == "Chop_Tree")
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerTreeBreakingAxe;
+            ulong earnedExp = (ulong)(Configuration.ExpPerTreeBreakingAxe + (Configuration.ExpPerTreeBreakingAxe * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerTreeBreakingAxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region pickaxe
@@ -284,28 +291,30 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitPickaxe;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitPickaxe + (Configuration.ExpPerHitPickaxe * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitPickaxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Break blocks
         else if (levelType == "Pickaxe" && reason == "Breaking")
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerBreakingPickaxe;
+            ulong earnedExp = (ulong)(Configuration.ExpPerBreakingPickaxe + (Configuration.ExpPerBreakingPickaxe * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerBreakingPickaxe} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region shovel
@@ -314,28 +323,30 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitShovel;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitShovel + (Configuration.ExpPerHitShovel * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitShovel} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Break block
         else if (levelType == "Shovel" && reason == "Breaking")
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerBreakingShovel;
+            ulong earnedExp = (ulong)(Configuration.ExpPerBreakingShovel + (Configuration.ExpPerBreakingShovel * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerBreakingShovel} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region spear
@@ -344,28 +355,30 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitSpear;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitSpear + (Configuration.ExpPerHitSpear * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitSpear} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Throw
         else if (levelType == "Spear" && reason == "Hit_Throw")
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerThrowSpear;
+            ulong earnedExp = (ulong)(Configuration.ExpPerThrowSpear + (Configuration.ExpPerThrowSpear * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerThrowSpear} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region hammer
@@ -374,14 +387,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitHammer;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitHammer + (Configuration.ExpPerHitHammer * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitHammer} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region sword
@@ -390,14 +404,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitSword;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitSword + (Configuration.ExpPerHitSword * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitSword} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region shield
@@ -406,14 +421,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerHitShield;
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitShield + (Configuration.ExpPerHitShield * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerHitShield} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region farming
@@ -422,14 +438,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)Configuration.ExpPerTillFarming;
+            ulong earnedExp = (ulong)(Configuration.ExpPerTillFarming + (Configuration.ExpPerTillFarming * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {Configuration.ExpPerTillFarming} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region cooking
@@ -438,14 +455,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)forceexp;
+            ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region vitality
@@ -454,14 +472,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)forceexp;
+            ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region leatherarmor
@@ -470,14 +489,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)forceexp;
+            ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region chainarmor
@@ -486,14 +506,15 @@ class Instance
         {
             // Get levels
             var levels = GetSavedLevels();
-            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + (ulong)forceexp;
+            ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
             // Save it
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {forceexp} exp with {levelType} by {reason}, actual: {exp}");
+            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
     }

@@ -77,7 +77,8 @@ class LevelSpear
         Dictionary<string, ulong> spearLevels = GetSavedLevels();
 
         // Get the exp received
-        int exp = Configuration.entityExpSpear.GetValueOrDefault(entity.Code.ToString(), 0);
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.entityExpSpear.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpSpear.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
 
         // Get the actual player total exp
         ulong playerExp = spearLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
