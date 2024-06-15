@@ -44,13 +44,14 @@ class OverwriteDamageInteraction
         #region compatibility
         // Compatibility Layer Start Calculation
         float compatibilityStartDamage = __instance.Attributes.GetFloat("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
-        if (compatibilityStartDamage != 0)
-        {
-            // Lose damage by the compatibility layer
-            if (compatibilityStartDamage < 0) damage -= compatibilityStartDamage;
+        if (compatibilityStartDamage != 0f)
             // Receive damage by the compatibility layer
-            else damage += compatibilityStartDamage;
-        }
+            damage += compatibilityStartDamage;
+        // Compatibility Layer Multiply Final Calculation
+        float compatibilityStartDamageMultiply = __instance.Attributes.GetFloat("LevelUP_DamageInteraction_Compatibility_MultiplyDamageStart_ReceiveDamage");
+        if (compatibilityStartDamageMultiply != 0f)
+            // Receive damage by the compatibility layer
+            damage += damage * compatibilityStartDamageMultiply;
         #endregion
 
         // Damage bug treatment
@@ -223,17 +224,17 @@ class OverwriteDamageInteraction
             }
 
             #region compatibility
-            // Compatibility Layer Final Calculation
+            // Compatibility Layer Extend Final Calculation
             float compatibilityFinalDamage = __instance.Attributes.GetFloat("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage");
-            if (compatibilityFinalDamage != 0)
-            {
-                // Lose damage by the compatibility layer
-                if (compatibilityFinalDamage < 0) damage -= (float)compatibilityFinalDamage;
+            if (compatibilityFinalDamage != 0f)
                 // Receive damage by the compatibility layer
-                else damage += (float)compatibilityFinalDamage;
-            }
-            // 0 Damage treatment
-            if (damage < 0) damage = 0;
+                damage += compatibilityFinalDamage;
+
+            // Compatibility Layer Multiply Final Calculation
+            float compatibilityFinalDamageMultiply = __instance.Attributes.GetFloat("LevelUP_DamageInteraction_Compatibility_MultiplyDamageFinish_ReceiveDamage");
+            if (compatibilityFinalDamageMultiply != 0f)
+                // Receive damage by the compatibility layer
+                damage += damage * compatibilityFinalDamageMultiply;
             #endregion
 
             // Player Receive Damage
@@ -390,10 +391,10 @@ class OverwriteDamageInteraction
             // Double check bug only if is a player hitting in single player
             if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer)
                 singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
-        }
 
-        // 0 Damage treatment
-        if (damage < 0) damage = 0;
+            // If the armor reduces less than 0, just change to 0
+            if (damage < 0) damage = 0;
+        }
 
         #region native
         if ((!__instance.Alive || __instance.IsActivityRunning("invulnerable")) && damageSource.Type != EnumDamageType.Heal)
@@ -444,6 +445,8 @@ class OverwriteDamageInteraction
         // Clean Compatibility layer
         __instance.Attributes.RemoveAttribute("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
         __instance.Attributes.RemoveAttribute("LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage");
+        __instance.Attributes.RemoveAttribute("LevelUP_DamageInteraction_Compatibility_MultiplyDamageStart_ReceiveDamage");
+        __instance.Attributes.RemoveAttribute("LevelUP_DamageInteraction_Compatibility_MultiplyDamageFinish_ReceiveDamage");
     }
 
     // Overwrite Durability lost start
