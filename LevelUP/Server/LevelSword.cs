@@ -69,7 +69,7 @@ class LevelSword
         // Get the actual player total exp
         ulong playerExp = swordLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
-        if (Configuration.enableExtendedLog)
+        if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, sword exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing

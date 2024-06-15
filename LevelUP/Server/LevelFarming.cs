@@ -57,7 +57,7 @@ class LevelFarming
         // Get the actual player total exp
         ulong playerExp = farmingLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
-        if (Configuration.enableExtendedLog)
+        if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, farming exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing

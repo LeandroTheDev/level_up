@@ -203,7 +203,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region knife
@@ -220,7 +221,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Harvest
         else if (levelType == "Knife" && reason == "Harvest")
@@ -235,7 +237,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region axe
@@ -252,7 +255,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Block breaking
         else if (levelType == "Axe" && reason == "Breaking")
@@ -267,7 +271,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Chop Tree
         else if (levelType == "Axe" && reason == "Chop_Tree")
@@ -282,7 +287,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region pickaxe
@@ -299,7 +305,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Break blocks
         else if (levelType == "Pickaxe" && reason == "Breaking")
@@ -314,7 +321,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region shovel
@@ -331,7 +339,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Break block
         else if (levelType == "Shovel" && reason == "Breaking")
@@ -346,7 +355,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region spear
@@ -363,7 +373,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         // Throw
         else if (levelType == "Spear" && reason == "Hit_Throw")
@@ -378,7 +389,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region hammer
@@ -395,7 +407,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region sword
@@ -412,7 +425,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region shield
@@ -429,7 +443,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region farming
@@ -446,7 +461,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region cooking
@@ -463,7 +479,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region vitality
@@ -480,7 +497,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region leatherarmor
@@ -497,7 +515,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
         #region chainarmor
@@ -514,7 +533,8 @@ class Instance
             SaveLevels(levels);
             // Update it
             Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
-            Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
     }
