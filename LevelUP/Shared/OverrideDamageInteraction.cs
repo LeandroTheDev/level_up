@@ -16,6 +16,11 @@ namespace LevelUP.Shared;
 [HarmonyPatchCategory("levelup_damageinteraction")]
 class OverwriteDamageInteraction
 {
+    #region compatibility
+    public static float LevelUP_DamageInteraction_Compatibility_ExtendDamageFinish_ReceiveDamage = 0f;
+    public static float LevelUP_DamageInteraction_Compatibility_MultiplyDamageFinish_ReceiveDamage = 0f;
+    #endregion
+
     private static Instance instance;
     public Harmony overwriter;
 
@@ -236,7 +241,6 @@ class OverwriteDamageInteraction
                 // Receive damage by the compatibility layer
                 damage += damage * compatibilityFinalDamageMultiply;
             #endregion
-
             // Player Receive Damage
             // Checking if received damage is a player and if is a server and if is alive
             if (__instance is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
@@ -528,22 +532,12 @@ class OverwriteDamageInteraction
     public static void OnHeldInteractStopBowStart(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
     {
         if (Configuration.enableLevelBow && byEntity is EntityPlayer)
-        {
-            // Saving aim accurracy
-            byEntity.Attributes.SetFloat("old_aimingAccuracy", byEntity.Attributes.GetFloat("aimingAccuracy"));
             // Setting new aim accuracy
             byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0)));
-        }
     }
     // Overwrite Bow shot finish
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStop")]
-    public static void OnHeldInteractStopBowFinish(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
-    {
-        // Reset aiming accuracy
-        if (Configuration.enableLevelBow && byEntity is EntityPlayer)
-            byEntity.Attributes.SetFloat("aimingAccuracy", byEntity.Attributes.GetFloat("old_aimingAccuracy"));
-    }
     #endregion
     #region spear
     // Overwrite Spear shot start
@@ -552,21 +546,8 @@ class OverwriteDamageInteraction
     public static void OnHeldInteractStopSpearStart(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
     {
         if (Configuration.enableLevelSpear && byEntity is EntityPlayer)
-        {
-            // Saving aim accurracy
-            byEntity.Attributes.SetFloat("old_aimingAccuracy", byEntity.Attributes.GetFloat("aimingAccuracy"));
             // Setting new aim accuracy
             byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0)));
-        }
-    }
-    // Overwrite Spear shot finish
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ItemSpear), "OnHeldInteractStop")]
-    public static void OnHeldInteractStopSpearFinish(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
-    {
-        // Reset aiming accuracy
-        if (Configuration.enableLevelSpear && byEntity is EntityPlayer)
-            byEntity.Attributes.SetFloat("aimingAccuracy", byEntity.Attributes.GetFloat("old_aimingAccuracy"));
     }
     #endregion
     #region shield

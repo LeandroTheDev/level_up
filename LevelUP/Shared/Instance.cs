@@ -50,8 +50,8 @@ class Instance
             if (!disableLevelUpNotify)
             {
                 // Notify player
-                api.SendMessage(player, 0, $"You reached level {nextLevel} in {levelType}", EnumChatType.Notification);
-
+                if (Configuration.enableLevelUpChatMessages)
+                    api.SendMessage(player, 0, $"You reached level {nextLevel} in {levelType}", EnumChatType.Notification);
                 Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
             }
 

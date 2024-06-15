@@ -19,5 +19,7 @@
     "enableLevelChainArmor": true,
     "cookingFirePitOverflow": 10,
     "disableServerChannel": false,
+    "enableLevelUpChatMessages": true,
+    "enableLevelUpExperienceServerLog": false,
     "enableExtendedLog": true
 }

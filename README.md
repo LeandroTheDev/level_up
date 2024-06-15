@@ -1,13 +1,16 @@
 # Level UP
 Add a new mechanic to vintage story, a new level system to make your character stronger and efficient during the gameplay, making your feels you are progressing through the gameplay.
 
-Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world.
+Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
+
+### IMPORTANT
+This mod drastically changes the player status and its not recoverable in normal ways, PLEASE make a backup of your world, to reset players status you will need to use specific commands, please review the [Wiki-Commands](https://github.com/LeandroTheDev/level_up/wiki/Commands) to get more information to reset player status.
 
 Features:
 - GUI Level in character view
 - Each tools has a chance to not use durability by the level you have for the specific tool
 - Fully configurable
-- Hardcore mode (configurable)
+- Hardcore mode
 - Commands for administration manipulation
 
 LEVELS:
@@ -34,8 +37,6 @@ Future features:
 - Cute level up sound.
 
 Not all item codes is added to the json configurations files, some armors/items/meats/entities/blocks can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
-
-https://github.com/LeandroTheDev/level_up/assets/106118473/8409a3ee-08ce-42b6-8747-aa7bf6405a26
 
 ### Observations
 This mod needs to be in both sides the client and server for working propertly, you can still build this only in server side, but some things will not work for example the mining speed mechanics will not work because the mining speed is handled by the client, also the level viewer will not be available for the clients.
@@ -72,6 +73,8 @@ All the mod calculations and patches is thinking in the server performance, feel
 Level UP is not compatible with mods that fully overwrite the ReceiveDamage function for Entity class and applyShieldProtection for ModSystemWearableStats class
 
 Balancing was not very well thought out, you will probably find some things unusual or very strong, with everything you can make your changes in the settings folder
+
+The configuration enableExtended logs can cause performances problems, because a lot of things in the mod is logged out, if the mod is very stable in your world/modpack please consider desabling it in configurations
 
 ### About Level UP
 Level UP is open source project and can easily be accessed on the github, all contents from this mod is completly free.

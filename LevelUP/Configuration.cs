@@ -28,6 +28,8 @@ public static class Configuration
     public static bool enableLevelChainArmor = true;
     public static int cookingFirePitOverflow = 10;
     public static bool disableServerChannel = false;
+    public static bool enableLevelUpChatMessages = false;
+    public static bool enableLevelUpExperienceServerLog = false;
     public static bool enableExtendedLog = false;
 
     public static void UpdateBaseConfigurations(ICoreAPI api)
@@ -180,6 +182,20 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: disableServerChannel is not boolean is {value.GetType()}");
                 else disableServerChannel = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: disableServerChannel not set");
+        }
+        { //enableLevelUpChatMessages
+            if (baseConfigs.TryGetValue("enableLevelUpChatMessages", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelUpChatMessages is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelUpChatMessages is not boolean is {value.GetType()}");
+                else enableLevelUpChatMessages = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelUpChatMessages not set");
+        }
+        { //enableLevelUpExperienceServerLog
+            if (baseConfigs.TryGetValue("enableLevelUpExperienceServerLog", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelUpExperienceServerLog is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelUpExperienceServerLog is not boolean is {value.GetType()}");
+                else enableLevelUpExperienceServerLog = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelUpExperienceServerLog not set");
         }
         { //enableExtendedLog
             if (baseConfigs.TryGetValue("enableExtendedLog", out object value))
@@ -365,6 +381,8 @@ public static class Configuration
         Debug.Log($"CONFIG: enableLevelChainArmor, value: {enableLevelChainArmor}");
         Debug.Log($"CONFIG: cookingFirePitOverflow, value: {cookingFirePitOverflow}");
         Debug.Log($"CONFIG: disableServerChannel, value: {disableServerChannel}");
+        Debug.Log($"CONFIG: enableLevelUpChatMessages, value: {enableLevelUpChatMessages}");
+        Debug.Log($"CONFIG: enableLevelUpExperienceServerLog, value: {enableLevelUpExperienceServerLog}");
         Debug.Log($"CONFIG: enableExtendedLog, value: {enableExtendedLog}");
     }
     #endregion

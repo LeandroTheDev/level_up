@@ -66,7 +66,7 @@ class LevelBow
             // Get the actual player total exp
             ulong playerExp = bowLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
 
-            if (Configuration.enableExtendedLog)
+            if (Configuration.enableLevelUpExperienceServerLog)
                 Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
 
             // Incrementing
