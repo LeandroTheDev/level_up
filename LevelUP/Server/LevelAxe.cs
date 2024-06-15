@@ -45,7 +45,7 @@ class LevelAxe
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
-        if (damageSource == null || damageSource.SourceEntity == null) return;
+        if (damageSource == null) return;
         // The cause of the death is from a projectile
         if (damageSource.GetCauseEntity() is not EntityPlayer && damageSource.SourceEntity is EntityProjectile) return;
         // Entity kill is not from a player
