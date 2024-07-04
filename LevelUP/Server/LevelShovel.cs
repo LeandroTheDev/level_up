@@ -68,6 +68,10 @@ class LevelShovel
         // Get the exp received
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
         int exp = (int)(Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
+        // Increasing by player class
+        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shovel"));
+        // Minium exp earned is 1
+        if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
         ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
@@ -104,6 +108,10 @@ class LevelShovel
         // Get the exp received
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
         int exp = (int)(Configuration.ExpPerBreakingShovel + (Configuration.ExpPerBreakingShovel * experienceMultiplierCompatibility));
+        // Increasing by player class
+        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shovel"));
+        // Minium exp earned is 1
+        if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
         ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

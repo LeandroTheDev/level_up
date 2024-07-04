@@ -1,0 +1,17 @@
+{
+    "blackguardClassHunterLevelMultiply": 1.0,
+    "blackguardClassBowLevelMultiply": 1.0,
+    "blackguardClassKnifeLevelMultiply": 1.0,
+    "blackguardClassAxeLevelMultiply": 1.0,
+    "blackguardClassPickaxeLevelMultiply": 1.0,
+    "blackguardClassShovelLevelMultiply": 1.0,
+    "blackguardClassSpearLevelMultiply": 1.0,
+    "blackguardClassHammerLevelMultiply": 1.0,
+    "blackguardClassSwordLevelMultiply": 1.0,
+    "blackguardClassShieldLevelMultiply": 1.0,
+    "blackguardClassFarmingLevelMultiply": 1.0,
+    "blackguardClassCookingLevelMultiply": 1.0,
+    "blackguardClassVitalityLevelMultiply": 1.0,
+    "blackguardClassLeatherArmorLevelMultiply": 1.0,
+    "blackguardClassChainArmorLevelMultiply": 1.0
+}

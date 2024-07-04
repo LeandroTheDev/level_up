@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Common;
@@ -79,6 +80,10 @@ class LevelSpear
         // Get the exp received
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
         int exp = (int)(Configuration.entityExpSpear.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpSpear.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
+        // Increasing by player class
+        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Spear"));
+        // Minium exp earned is 1
+        if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
         ulong playerExp = spearLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);

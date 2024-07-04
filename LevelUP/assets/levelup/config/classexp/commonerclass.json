@@ -1,0 +1,17 @@
+{
+    "commonerClassHunterLevelMultiply": 1.0,
+    "commonerClassBowLevelMultiply": 1.0,
+    "commonerClassKnifeLevelMultiply": 1.0,
+    "commonerClassAxeLevelMultiply": 1.0,
+    "commonerClassPickaxeLevelMultiply": 1.0,
+    "commonerClassShovelLevelMultiply": 1.0,
+    "commonerClassSpearLevelMultiply": 1.0,
+    "commonerClassHammerLevelMultiply": 1.0,
+    "commonerClassSwordLevelMultiply": 1.0,
+    "commonerClassShieldLevelMultiply": 1.0,
+    "commonerClassFarmingLevelMultiply": 1.0,
+    "commonerClassCookingLevelMultiply": 1.0,
+    "commonerClassVitalityLevelMultiply": 1.0,
+    "commonerClassLeatherArmorLevelMultiply": 1.0,
+    "commonerClassChainArmorLevelMultiply": 1.0
+}

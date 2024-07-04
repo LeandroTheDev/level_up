@@ -78,7 +78,10 @@ class Instance
 
     public void PopulateConfigurations(ICoreAPI coreAPI)
     {
+        // Base mod Configs
         Configuration.UpdateBaseConfigurations(coreAPI);
+
+        // Levels Configs
         levelHunter.PopulateConfiguration(coreAPI);
         levelBow.PopulateConfiguration(coreAPI);
         levelKnife.PopulateConfiguration(coreAPI);
@@ -94,6 +97,10 @@ class Instance
         levelCooking.PopulateConfiguration(coreAPI);
         levelLeatherArmor.PopulateConfiguration(coreAPI);
         levelChainArmor.PopulateConfiguration(coreAPI);
+
+        // Class Configs
+        Configuration.PopulateHunterClassEXPConfiguration(coreAPI);
+        Configuration.PopulateCommonerClassEXPConfiguration(coreAPI);
     }
 
     public void OnClientMessage(IServerPlayer player, string bruteMessage)
@@ -195,6 +202,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitBow + (Configuration.ExpPerHitBow * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Bow"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
 
             // Increment
@@ -214,6 +225,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitKnife + (Configuration.ExpPerHitKnife * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Knife"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -230,6 +245,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHarvestKnife + (Configuration.ExpPerHarvestKnife * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Bow"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -248,6 +267,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitAxe + (Configuration.ExpPerHitAxe * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Axe"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -264,6 +287,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerBreakingAxe + (Configuration.ExpPerBreakingAxe * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Axe"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -280,6 +307,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerTreeBreakingAxe + (Configuration.ExpPerTreeBreakingAxe * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Axe"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -298,6 +329,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitPickaxe + (Configuration.ExpPerHitPickaxe * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Pickaxe"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -314,6 +349,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerBreakingPickaxe + (Configuration.ExpPerBreakingPickaxe * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Pickaxe"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -332,6 +371,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitShovel + (Configuration.ExpPerHitShovel * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shovel"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -348,6 +391,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerBreakingShovel + (Configuration.ExpPerBreakingShovel * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shovel"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -366,6 +413,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitSpear + (Configuration.ExpPerHitSpear * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Spear"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -382,6 +433,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerThrowSpear + (Configuration.ExpPerThrowSpear * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Spear"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -400,6 +455,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitHammer + (Configuration.ExpPerHitHammer * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Hammer"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -418,6 +477,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitSword + (Configuration.ExpPerHitSword * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Sword"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -436,6 +499,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerHitShield + (Configuration.ExpPerHitShield * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shield"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -454,6 +521,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerTillFarming + (Configuration.ExpPerTillFarming * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Farming"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -472,6 +543,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Cooking"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -490,6 +565,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Vitality"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -508,6 +587,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "LeatherArmor"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -526,6 +609,10 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "ChainArmor"));
+            // Minium exp earned is 1
+            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;

@@ -1,0 +1,17 @@
+{
+    "clockakerClassHunterLevelMultiply": 1.0,
+    "clockakerClassBowLevelMultiply": 1.0,
+    "clockakerClassKnifeLevelMultiply": 1.0,
+    "clockakerClassAxeLevelMultiply": 1.0,
+    "clockakerClassPickaxeLevelMultiply": 1.0,
+    "clockakerClassShovelLevelMultiply": 1.0,
+    "clockakerClassSpearLevelMultiply": 1.0,
+    "clockakerClassHammerLevelMultiply": 1.0,
+    "clockakerClassSwordLevelMultiply": 1.0,
+    "clockakerClassShieldLevelMultiply": 1.0,
+    "clockakerClassFarmingLevelMultiply": 1.0,
+    "clockakerClassCookingLevelMultiply": 1.0,
+    "clockakerClassVitalityLevelMultiply": 1.0,
+    "clockakerClassLeatherArmorLevelMultiply": 1.0,
+    "clockakerClassChainArmorLevelMultiply": 1.0
+}
