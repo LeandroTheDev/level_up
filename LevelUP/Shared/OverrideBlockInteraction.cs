@@ -48,7 +48,7 @@ class OverwriteBlockInteraction
         {
             IServerPlayer player = byPlayer as IServerPlayer;
             // Earny xp by harvesting entity
-            instance.serverAPI?.OnClientMessage(player, "Knife_Harvest_Entity");
+            instance.serverAPI?.OnExperienceEarned(player, "Knife_Harvest_Entity");
 
             // Get the final droprate
             float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) + compatibilityDroprate;
@@ -61,7 +61,7 @@ class OverwriteBlockInteraction
         // Single player treatment and lan treatment
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer)
         {
-            instance.clientAPI.channel.SendPacket($"Knife_Harvest_Entity&lanplayername={byPlayer.PlayerName}");
+            instance.clientAPI.compatibilityChannel.SendPacket($"Knife_Harvest_Entity&lanplayername={byPlayer.PlayerName}");
 
             // Get the final droprate
             float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) + compatibilityDroprate;
@@ -97,11 +97,11 @@ class OverwriteBlockInteraction
                 // Get player entity
                 EntityPlayer playerEntity = byEntity as EntityPlayer;
                 // Increase farming experience
-                if (playerEntity.Player is IServerPlayer) instance.serverAPI?.OnClientMessage(playerEntity.Player as IServerPlayer, "Soil_Till");
+                if (playerEntity.Player is IServerPlayer) instance.serverAPI?.OnExperienceEarned(playerEntity.Player as IServerPlayer, "Soil_Till");
             }
         }
         // Single player treatment and lan treatment
-        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && secondsUsed >= 1.0f) instance.clientAPI.channel.SendPacket($"Soil_Till&lanplayername={byEntity.GetName()}");
+        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && secondsUsed >= 1.0f) instance.clientAPI.compatibilityChannel.SendPacket($"Soil_Till&lanplayername={byEntity.GetName()}");
     }
     #endregion
 
@@ -191,10 +191,10 @@ class OverwriteBlockInteraction
                     }
                     // Dedicated Servers
                     if (instance.serverAPI != null)
-                        instance.serverAPI.OnClientMessage(player as IServerPlayer, $"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle))}");
+                        instance.serverAPI.OnExperienceEarned(player as IServerPlayer, $"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle))}");
                     // Single player treatment and lan treatment
                     else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                        instance.clientAPI.channel.SendPacket($"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle))}&lanplayername={player.PlayerName}");
+                        instance.clientAPI.compatibilityChannel.SendPacket($"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle))}&lanplayername={player.PlayerName}");
                 }
                 // For pots cooking
                 else if (Configuration.expMultiplyPotsCooking.TryGetValue(output.Collectible.Code.ToString(), out double expMultiplyPots))
@@ -260,10 +260,10 @@ class OverwriteBlockInteraction
 
                     // Dedicated Servers
                     if (instance.serverAPI != null)
-                        instance.serverAPI.OnClientMessage(player as IServerPlayer, $"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots))}");
+                        instance.serverAPI.OnExperienceEarned(player as IServerPlayer, $"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots))}");
                     // Single player treatment and lan treatment
                     else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                        instance.clientAPI.channel.SendPacket($"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots))}&lanplayername={player.PlayerName}");
+                        instance.clientAPI.compatibilityChannel.SendPacket($"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots))}&lanplayername={player.PlayerName}");
                 }
             });
             // Thread timeout
@@ -385,10 +385,10 @@ class OverwriteBlockInteraction
             if (byPlayer?.InventoryManager?.ActiveTool == EnumTool.Hammer)
                 // Dedicated Servers
                 if (instance.serverAPI != null)
-                    instance.serverAPI.OnClientMessage(byPlayer as IServerPlayer, "Increase_Hammer_Hit");
+                    instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, "Increase_Hammer_Hit");
                 // Single player treatment
                 else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                    instance.clientAPI.channel.SendPacket($"Increase_Hammer_Hit&lanplayername={byPlayer.PlayerName}");
+                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Hammer_Hit&lanplayername={byPlayer.PlayerName}");
         }
     }
     #endregion

@@ -1,0 +1,27 @@
+{
+    "player_levelup_1": "You reached level ",
+    "player_levelup_2": " in ",
+
+    "character_levels": "Character Levels",
+    "tools_levels": "Tools Levels",
+    "armor_levels": "Armor Levels",
+    "specialist_levels": "Specialist Levels",
+
+    "axe": "Axe",
+    "pickaxe": "Pickaxe",
+    "shovel": "Bhovel",
+    "bow": "Bow",
+    "spear": "Spear",
+    "knife": "Knife",
+    "hammer": "Hammer",
+    "sword": "Sword",
+    "shield": "Shield",
+
+    "leather_armor": "Leather Armor",
+    "chain_armor": "Chain Armor",
+
+    "hunter": "Hunter",
+    "farming": "Farming",
+    "cooking": "Cooking",
+    "vitality": "Vitality"
+}

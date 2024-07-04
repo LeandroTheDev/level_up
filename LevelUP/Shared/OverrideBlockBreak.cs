@@ -66,10 +66,10 @@ class OverwriteBlockBreak
             if (playerEntity.Player is IServerPlayer && world.Side == EnumAppSide.Server)
             {
                 // Earny xp by breaking tree
-                instance.serverAPI?.OnClientMessage(playerEntity.Player as IServerPlayer, "Tree_Breaked_Axe");
+                instance.serverAPI?.OnExperienceEarned(playerEntity.Player as IServerPlayer, "Tree_Breaked_Axe");
             }
             // Single player treatment and lan treatment
-            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.channel.SendPacket($"Tree_Breaked_Axe&lanplayername={byEntity.GetName()}");
+            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.compatibilityChannel.SendPacket($"Tree_Breaked_Axe&lanplayername={byEntity.GetName()}");
         }
     }
 
