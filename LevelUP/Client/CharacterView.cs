@@ -1,6 +1,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
+using Vintagestory.API.Config;
 
 namespace LevelUP.Client;
 
@@ -56,19 +57,19 @@ class CharacterView
         int chainArmorLevel = instance.api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor");
 
         StringBuilder fulldesc = new();
-        fulldesc.AppendLine("Character Levels");
-        fulldesc.AppendLine("-- Tools Levels --");
-        fulldesc.AppendLine($"Axe: {axeLevel}   Pickaxe: {pickaxeLevel}   Shovel: {shovelLevel}");
-        fulldesc.AppendLine($"Bow: {bowLevel}   Spear: {spearLevel}   Knife: {knifeLevel}");
-        fulldesc.AppendLine($"Hammer: {hammerLevel}   Sword: {swordLevel}   Shield: {shieldLevel}");
-        fulldesc.AppendLine("-- Armor Levels --");
-        fulldesc.AppendLine($"Leather Armor: {leatherArmorLevel}");
-        fulldesc.AppendLine($"Chain Armor: {chainArmorLevel}");
-        fulldesc.AppendLine("-- Specialist Levels --");
-        fulldesc.AppendLine($"Hunter: {hunterLevel}");
-        fulldesc.AppendLine($"Farming: {farmingLevel}");
-        fulldesc.AppendLine($"Cooking: {cookingLevel}");
-        fulldesc.AppendLine($"Vitality: {vitalityLevel}");
+        fulldesc.AppendLine(Lang.Get("levelup:character_levels"));
+        fulldesc.AppendLine($"-- {Lang.Get("levelup:tools_levels")} --");
+        fulldesc.AppendLine($"{Lang.Get("levelup:axe")}: {axeLevel}   {Lang.Get("levelup:pickaxe")}: {pickaxeLevel}   {Lang.Get("levelup:shovel")}: {shovelLevel}");
+        fulldesc.AppendLine($"{Lang.Get("levelup:bow")}: {bowLevel}   {Lang.Get("levelup:spear")}: {spearLevel}   {Lang.Get("levelup:knife")}: {knifeLevel}");
+        fulldesc.AppendLine($"{Lang.Get("levelup:armors")}: {hammerLevel}   {Lang.Get("levelup:sword")}: {swordLevel}   {Lang.Get("levelup:shield")}: {shieldLevel}");
+        fulldesc.AppendLine($"-- {Lang.Get("levelup:armor_levels")} --");
+        fulldesc.AppendLine($"{Lang.Get("levelup:leather_armor")}: {leatherArmorLevel}");
+        fulldesc.AppendLine($"{Lang.Get("chain_armor")}: {chainArmorLevel}");
+        fulldesc.AppendLine($"-- {Lang.Get("levelup:specialist_levels")} --");
+        fulldesc.AppendLine($"{Lang.Get("levelup:hunter")}: {hunterLevel}");
+        fulldesc.AppendLine($"{Lang.Get("levelup:farming")}: {farmingLevel}");
+        fulldesc.AppendLine($"{Lang.Get("levelup:cooking")}: {cookingLevel}");
+        fulldesc.AppendLine($"{Lang.Get("levelup:vitality")}: {vitalityLevel}");
         return fulldesc.ToString();
     }
 }

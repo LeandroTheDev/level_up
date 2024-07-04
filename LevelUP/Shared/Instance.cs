@@ -51,9 +51,9 @@ class Instance
             {
                 // Notify player
                 if (Configuration.enableLevelUpChatMessages)
-                    api.SendMessage(player, 0, $"You reached level {nextLevel} in {levelType}", EnumChatType.Notification);
-                Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
+                    Server.Instance.communicationChannel.SendPacket($"playerlevelup&{nextLevel}&{levelType}");
             }
+            Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
 
             // if vitality leveled we need to update the player max health
             if (levelType == "Vitality")

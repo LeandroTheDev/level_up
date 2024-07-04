@@ -10,7 +10,8 @@ namespace LevelUP.Server;
 class Instance
 {
     public ICoreServerAPI api;
-    private IServerNetworkChannel channel;
+    public IServerNetworkChannel compatibilityChannel;
+    static public IServerNetworkChannel communicationChannel;
     private readonly Commands commands = new();
 
     // Levels
@@ -60,10 +61,13 @@ class Instance
         // Check for channel communication
         if (!Configuration.disableServerChannel)
         {
-            channel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
-            channel.SetMessageHandler<string>(OnClientMessage);
-            Debug.Log("Server Network registered");
+            compatibilityChannel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
+            compatibilityChannel.SetMessageHandler<string>(OnExperienceEarned);
+            Debug.Log("Server Compatibility Network registered, this is unsafe");
         }
+        communicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(string));
+        communicationChannel.SetMessageHandler<string>(OnChannelMessage);
+        Debug.Log("Server Communication Network registered");
 
         // Enable hardcore death event
         if (Configuration.enableHardcore)
@@ -103,7 +107,7 @@ class Instance
         Configuration.PopulateCommonerClassEXPConfiguration(coreAPI);
     }
 
-    public void OnClientMessage(IServerPlayer player, string bruteMessage)
+    public void OnExperienceEarned(IServerPlayer player, string bruteMessage)
     {
         // Translate aguments if exist
         Dictionary<string, object> arguments = [];
@@ -147,7 +151,6 @@ class Instance
 
         switch (message)
         {
-            case "UpdateLevels": UpdatePlayerLevels(player); return;
             #region hit
             case "Increase_Knife_Hit": IncreaseExp(player, "Knife", "Hit"); return;
             case "Increase_Bow_Hit": IncreaseExp(player, "Bow", "Hit"); return;
@@ -180,6 +183,14 @@ class Instance
 
     }
 
+    public void OnChannelMessage(IServerPlayer player, string bruteMessage)
+    {
+        switch (bruteMessage)
+        {
+            case "UpdateLevels": UpdatePlayerLevels(player); return;
+        }
+    }
+
     private void IncreaseExp(IServerPlayer player, string levelType, string reason, int forceexp = 0)
     {
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
@@ -205,7 +216,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Bow"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
 
             // Increment
@@ -228,7 +239,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Knife"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -248,7 +259,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Bow"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -270,7 +281,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Axe"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -290,7 +301,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Axe"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -310,7 +321,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Axe"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -332,7 +343,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Pickaxe"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -352,7 +363,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Pickaxe"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -374,7 +385,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shovel"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -394,7 +405,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shovel"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -416,7 +427,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Spear"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -436,7 +447,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Spear"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -458,7 +469,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Hammer"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -480,7 +491,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Sword"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -502,7 +513,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shield"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -524,7 +535,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Farming"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -546,7 +557,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Cooking"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -568,7 +579,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Vitality"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -590,7 +601,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "LeatherArmor"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
@@ -612,7 +623,7 @@ class Instance
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "ChainArmor"));
             // Minium exp earned is 1
-            if(earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerName, 0) + earnedExp;
             // Increment
             levels[player.PlayerName] = exp;
