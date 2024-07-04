@@ -1,0 +1,17 @@
+{
+    "hunterClassHunterLevelMultiply": 1.0,
+    "hunterClassBowLevelMultiply": 1.0,
+    "hunterClassKnifeLevelMultiply": 1.0,
+    "hunterClassAxeLevelMultiply": 1.0,
+    "hunterClassPickaxeLevelMultiply": 1.0,
+    "hunterClassShovelLevelMultiply": 1.0,
+    "hunterClassSpearLevelMultiply": 1.0,
+    "hunterClassHammerLevelMultiply": 1.0,
+    "hunterClassSwordLevelMultiply": 1.0,
+    "hunterClassShieldLevelMultiply": 1.0,
+    "hunterClassFarmingLevelMultiply": 1.0,
+    "hunterClassCookingLevelMultiply": 1.0,
+    "hunterClassVitalityLevelMultiply": 1.0,
+    "hunterClassLeatherArmorLevelMultiply": 1.0,
+    "hunterClassChainArmorLevelMultiply": 1.0
+}

@@ -18,6 +18,7 @@
     "enableLevelLeatherArmor": true,
     "enableLevelChainArmor": true,
     "cookingFirePitOverflow": 10,
+    "minimumEXPEarned": 1,
     "disableServerChannel": false,
     "enableLevelUpChatMessages": true,
     "enableLevelUpExperienceServerLog": false,
