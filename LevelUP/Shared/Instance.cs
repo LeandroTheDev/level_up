@@ -51,7 +51,7 @@ class Instance
             {
                 // Notify player
                 if (Configuration.enableLevelUpChatMessages)
-                    Server.Instance.communicationChannel.SendPacket($"playerlevelup&{nextLevel}&{levelType}");
+                    Server.Instance.communicationChannel.SendPacket($"playerlevelup&{nextLevel}&{levelType}", player as IServerPlayer);
             }
             Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
 

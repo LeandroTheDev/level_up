@@ -29,6 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Protobuf">
+      <HintPath>$(VINTAGE_STORY)/Lib/protobuf-net.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Newtonsoft.Json">
         <HintPath>$(VINTAGE_STORY)\Lib\Newtonsoft.Json.dll</HintPath>
         <Private>false</Private>
