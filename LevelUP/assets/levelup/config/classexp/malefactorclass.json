@@ -1,7 +1,7 @@
 {
-    "malefactorClassHunterLevelMultiply": 1.0,
-    "malefactorClassBowLevelMultiply": 1.0,
-    "malefactorClassKnifeLevelMultiply": 1.0,
+    "malefactorClassHunterLevelMultiply": 1.2,
+    "malefactorClassBowLevelMultiply": 0.6,
+    "malefactorClassKnifeLevelMultiply": 1.5,
     "malefactorClassAxeLevelMultiply": 1.0,
     "malefactorClassPickaxeLevelMultiply": 1.0,
     "malefactorClassShovelLevelMultiply": 1.0,
@@ -9,9 +9,9 @@
     "malefactorClassHammerLevelMultiply": 1.0,
     "malefactorClassSwordLevelMultiply": 1.0,
     "malefactorClassShieldLevelMultiply": 1.0,
-    "malefactorClassFarmingLevelMultiply": 1.0,
-    "malefactorClassCookingLevelMultiply": 1.0,
-    "malefactorClassVitalityLevelMultiply": 1.0,
-    "malefactorClassLeatherArmorLevelMultiply": 1.0,
-    "malefactorClassChainArmorLevelMultiply": 1.0
+    "malefactorClassFarmingLevelMultiply": 1.5,
+    "malefactorClassCookingLevelMultiply": 2.0,
+    "malefactorClassVitalityLevelMultiply": 0.5,
+    "malefactorClassLeatherArmorLevelMultiply": 1.5,
+    "malefactorClassChainArmorLevelMultiply": 1.5
 }

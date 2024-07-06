@@ -1,0 +1,27 @@
+{
+    "player_levelup_1": "Você atingiu o nível ",
+    "player_levelup_2": " em ",
+
+    "character_levels": "Níveis do Personagem",
+    "tools_levels": "Níveis de Equipamentos",
+    "armor_levels": "Níveis de Armaduras",
+    "specialist_levels": "Especializações",
+
+    "axe": "Machado",
+    "pickaxe": "Picareta",
+    "shovel": "Pá",
+    "bow": "Arco",
+    "spear": "Lança",
+    "knife": "Faca",
+    "hammer": "Martelo",
+    "sword": "Espada",
+    "shield": "Escudo",
+
+    "leather_armor": "Armudura de Couro",
+    "chain_armor": "Armadura de Malha",
+
+    "hunter": "Caçador",
+    "farming": "Fazendeiro",
+    "cooking": "Cozinheiro",
+    "vitality": "Vitalidade"
+}
