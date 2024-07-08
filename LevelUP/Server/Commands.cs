@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Common;
@@ -59,14 +58,17 @@ class Commands
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
         Dictionary<string, ulong> levels = JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
 
+        IServerPlayer player = GetPlayerByUsernameOrUID(args[2]);
+        if (player == null) return TextCommandResult.Success($"Player {args[2]} not found or not online", "14");
+
         // Update experience
-        if (levels.TryGetValue(args[2], out ulong _)) levels[args[2]] = ulong.Parse(args[3]);
-        else levels[args[2]] = ulong.Parse(args[3]);
+        if (levels.TryGetValue(player.PlayerUID, out ulong _)) levels[player.PlayerUID] = ulong.Parse(args[3]);
+        else levels[player.PlayerUID] = ulong.Parse(args[3]);
 
         // Save it
         instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
 
-        return TextCommandResult.Success($"Changed experience from {args[2]} to {args[3]} on level {args[1]}", "10");
+        return TextCommandResult.Success($"Changed experience from {player.PlayerName} to {args[3]} on level {args[1]}", "10");
     }
 
     private TextCommandResult AddExperience(string[] args)
@@ -85,14 +87,17 @@ class Commands
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
         Dictionary<string, ulong> levels = JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
 
+        IServerPlayer player = GetPlayerByUsernameOrUID(args[2]);
+        if (player == null) return TextCommandResult.Success($"Player {args[2]} not found or not online", "14");
+
         // Update experience
-        if (levels.TryGetValue(args[2], out ulong _)) levels[args[2]] += ulong.Parse(args[3]);
-        else levels[args[2]] = ulong.Parse(args[3]);
+        if (levels.TryGetValue(player.PlayerUID, out ulong _)) levels[player.PlayerUID] += ulong.Parse(args[3]);
+        else levels[player.PlayerUID] = ulong.Parse(args[3]);
 
         // Save it
         instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
 
-        return TextCommandResult.Success($"Added {args[2]} experience to {args[3]} on level {args[1]}", "11");
+        return TextCommandResult.Success($"Added {player.PlayerName} experience to {args[3]} on level {args[1]}", "11");
     }
 
     private TextCommandResult ReduceExperience(string[] args)
@@ -111,17 +116,20 @@ class Commands
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
         Dictionary<string, ulong> levels = JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
 
+        IServerPlayer player = GetPlayerByUsernameOrUID(args[2]);
+        if (player == null) return TextCommandResult.Success($"Player {args[2]} not found or not online", "14");
+
         // Update experience
-        if (levels.TryGetValue(args[2], out ulong _)) levels[args[2]] -= ulong.Parse(args[3]);
-        else levels[args[2]] = 0;
+        if (levels.TryGetValue(player.PlayerUID, out ulong _)) levels[player.PlayerUID] -= ulong.Parse(args[3]);
+        else levels[player.PlayerUID] = 0;
 
         // Negative experience treatment
-        if (levels[args[2]] < 0) levels[args[2]] = 0;
+        if (levels[player.PlayerUID] < 0) levels[player.PlayerUID] = 0;
 
         // Save it
         instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
 
-        return TextCommandResult.Success($"Reduced {args[2]} experience to {args[3]} on level {args[1]}", "12");
+        return TextCommandResult.Success($"Reduced {player.PlayerName} experience to {args[3]} on level {args[1]}", "12");
     }
 
     private TextCommandResult ResetPlayerStatus(string[] args)
@@ -137,24 +145,17 @@ class Commands
         // Check if value is a valid decimal number
         if (args.Length > 3 && !float.TryParse(args[3], out _)) return TextCommandResult.Success($"Invalid quantity value, use only float numbers", "15");
 
-        IServerPlayer playerToBeReseted = null;
-        // Getting the player instance
-        instance.api.World.AllPlayers.Foreach((player) =>
-        {
-            if (player.PlayerName == args[1]) playerToBeReseted = player as IServerPlayer;
-        });
-
-        // Check if the player is online
-        if (playerToBeReseted == null) return TextCommandResult.Success($"Player {args[0]} not found or not online", "14");
+        IServerPlayer player = GetPlayerByUsernameOrUID(args[1]);
+        if (player == null) return TextCommandResult.Success($"Player {args[1]} not found or not online", "14");
 
         // Specific status
         if (args.Length == 3)
         {
             switch (args[2])
             {
-                case "oreDropRate": playerToBeReseted.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f); break;
-                case "animalLootDropRate": playerToBeReseted.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f); break;
-                case "aimingAccuracy": playerToBeReseted.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f); break;
+                case "oreDropRate": player.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f); break;
+                case "animalLootDropRate": player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f); break;
+                case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f); break;
                 default: return TextCommandResult.Success($"Invalid status", "16");
             }
             return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to vanilla default", "17");
@@ -164,18 +165,27 @@ class Commands
         {
             switch (args[2])
             {
-                case "oreDropRate": playerToBeReseted.Entity.Stats.Set("oreDropRate", "oreDropRate", float.Parse(args[3])); break;
-                case "animalLootDropRate": playerToBeReseted.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", float.Parse(args[3])); break;
-                case "aimingAccuracy": playerToBeReseted.Entity.Attributes.SetFloat("aimingAccuracy", float.Parse(args[3])); break;
+                case "oreDropRate": player.Entity.Stats.Set("oreDropRate", "oreDropRate", float.Parse(args[3])); break;
+                case "animalLootDropRate": player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", float.Parse(args[3])); break;
+                case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", float.Parse(args[3])); break;
                 default: return TextCommandResult.Success($"Invalid status", "16");
             }
             return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to {args[3]}", "18");
         }
 
         // Nothing specific change everthing to default value
-        playerToBeReseted.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f);
-        playerToBeReseted.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f);
-        playerToBeReseted.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f);
+        player.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f);
+        player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f);
+        player.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f);
         return TextCommandResult.Success($"{args[1]} status has been reseted to vanilla default", "13");
+    }
+
+    private IServerPlayer GetPlayerByUsernameOrUID(string usernameOrUID)
+    {
+        foreach (IPlayer player in instance.api.World.AllOnlinePlayers)
+        {
+            if (player.PlayerName == usernameOrUID || player.PlayerUID == usernameOrUID) return player as IServerPlayer;
+        }
+        return null;
     }
 }

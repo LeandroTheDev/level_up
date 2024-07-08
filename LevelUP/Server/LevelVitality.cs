@@ -59,7 +59,7 @@ class LevelVitality
         Dictionary<string, ulong> VitalityLevels = GetSavedLevels();
 
         // Get the actual player total exp
-        ulong playerExp = VitalityLevels.GetValueOrDefault<string, ulong>(player.PlayerName, 0);
+        ulong playerExp = VitalityLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         // Get player stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
@@ -90,7 +90,7 @@ class LevelVitality
         if (playerStats == null) { Debug.Log($"ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
 
         // Update it
-        playerState[player.PlayerName] = playerStats.Health;
+        playerState[player.PlayerUID] = playerStats.Health;
 
         // Save it
         SaveState();

@@ -86,17 +86,17 @@ class LevelSpear
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = spearLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = spearLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, spear exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, spear exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        spearLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        spearLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(spearLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Spear", spearLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Spear", spearLevels[player.PlayerUID]);
     }
 }

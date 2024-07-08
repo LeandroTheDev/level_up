@@ -71,17 +71,17 @@ class LevelKnife
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, knife exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, knife exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        knifeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        knifeLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(knifeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", knifeLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", knifeLevels[player.PlayerUID]);
     }
 }

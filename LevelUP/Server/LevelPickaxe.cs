@@ -74,18 +74,18 @@ class LevelPickaxe
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        pickaxeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        pickaxeLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(pickaxeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", pickaxeLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", pickaxeLevels[player.PlayerUID]);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
@@ -107,15 +107,15 @@ class LevelPickaxe
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
-        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
+        Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
         // Incrementing
-        pickaxeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        pickaxeLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(pickaxeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", pickaxeLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", pickaxeLevels[player.PlayerUID]);
     }
 }

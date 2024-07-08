@@ -70,17 +70,17 @@ class LevelHammer
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = hammerLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = hammerLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        hammerLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        hammerLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(hammerLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hammer", hammerLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hammer", hammerLevels[player.PlayerUID]);
     }
 }

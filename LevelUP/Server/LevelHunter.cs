@@ -65,17 +65,17 @@ class LevelHunter
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = hunterLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = hunterLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, hunter exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, hunter exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        hunterLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        hunterLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(hunterLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hunter", hunterLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hunter", hunterLevels[player.PlayerUID]);
     }
 }
