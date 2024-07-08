@@ -74,18 +74,18 @@ class LevelShovel
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, shovel exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, shovel exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        shovelLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        shovelLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(shovelLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Shovel", shovelLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Shovel", shovelLevels[player.PlayerUID]);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
@@ -114,16 +114,16 @@ class LevelShovel
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
-        Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, shovel exp earned: {exp}, actual: {playerExp}");
+        Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, shovel exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        shovelLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        shovelLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(shovelLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Shovel", shovelLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Shovel", shovelLevels[player.PlayerUID]);
     }
 }

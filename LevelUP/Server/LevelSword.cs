@@ -72,17 +72,17 @@ class LevelSword
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = swordLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = swordLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, sword exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, sword exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        swordLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        swordLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(swordLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Sword", swordLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Sword", swordLevels[player.PlayerUID]);
     }
 }

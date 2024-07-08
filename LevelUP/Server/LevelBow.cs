@@ -69,18 +69,18 @@ class LevelBow
             if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
             // Get the actual player total exp
-            ulong playerExp = bowLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+            ulong playerExp = bowLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
             if (Configuration.enableLevelUpExperienceServerLog)
-                Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
+                Debug.Log($"{player.PlayerName} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
 
             // Incrementing
-            bowLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+            bowLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
             // Saving
             SaveLevels(bowLevels);
             // Updating
-            Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Bow", bowLevels[playerEntity.GetName()]);
+            Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Bow", bowLevels[player.PlayerUID]);
         }
     }
 }

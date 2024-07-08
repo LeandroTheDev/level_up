@@ -76,14 +76,14 @@ class OverwriteDamageInteraction
 
                     #region hunter            
                     // Increase the damage
-                    damage *= Configuration.HunterGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hunter"));
+                    damage *= LevelUP.Configuration.HunterGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hunter"));
                     #endregion
 
                     #region knife
                     // Increase the damage if actual tool is a knife
-                    if (Configuration.enableLevelKnife && player.InventoryManager.ActiveTool == EnumTool.Knife)
+                    if (LevelUP.Configuration.enableLevelKnife && player.InventoryManager.ActiveTool == EnumTool.Knife)
                     {
-                        damage *= Configuration.KnifeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
+                        damage *= LevelUP.Configuration.KnifeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
                         // Increase exp for using knife weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Knife_Hit");
                         // Single player treatment
@@ -96,9 +96,9 @@ class OverwriteDamageInteraction
 
                     #region axe
                     // Increase the damage if actual tool is a axe
-                    if (Configuration.enableLevelAxe && player.InventoryManager.ActiveTool == EnumTool.Axe)
+                    if (LevelUP.Configuration.enableLevelAxe && player.InventoryManager.ActiveTool == EnumTool.Axe)
                     {
-                        damage *= Configuration.AxeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Axe"));
+                        damage *= LevelUP.Configuration.AxeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Axe"));
                         // Increase exp for using axe weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Axe_Hit");
                         // Single player treatment
@@ -111,9 +111,9 @@ class OverwriteDamageInteraction
 
                     #region pickaxe
                     // Increase the damage if actual tool is a pickaxe
-                    if (Configuration.enableLevelPickaxe && player.InventoryManager.ActiveTool == EnumTool.Pickaxe)
+                    if (LevelUP.Configuration.enableLevelPickaxe && player.InventoryManager.ActiveTool == EnumTool.Pickaxe)
                     {
-                        damage *= Configuration.PickaxeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
+                        damage *= LevelUP.Configuration.PickaxeGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
                         // Increase exp for using pickaxe weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Pickaxe_Hit");
                         // Single player treatment
@@ -126,9 +126,9 @@ class OverwriteDamageInteraction
 
                     #region shovel
                     // Increase the damage if actual tool is a shovel
-                    if (Configuration.enableLevelShovel && player.InventoryManager.ActiveTool == EnumTool.Shovel)
+                    if (LevelUP.Configuration.enableLevelShovel && player.InventoryManager.ActiveTool == EnumTool.Shovel)
                     {
-                        damage *= Configuration.ShovelGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"));
+                        damage *= LevelUP.Configuration.ShovelGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"));
                         // Increase exp for using shovel weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Shovel_Hit");
                         // Single player treatment
@@ -141,9 +141,9 @@ class OverwriteDamageInteraction
 
                     #region spear
                     // Increase the damage if actual tool is a spear
-                    if (Configuration.enableLevelSpear && player.InventoryManager.ActiveTool == EnumTool.Spear)
+                    if (LevelUP.Configuration.enableLevelSpear && player.InventoryManager.ActiveTool == EnumTool.Spear)
                     {
-                        damage *= Configuration.SpearGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
+                        damage *= LevelUP.Configuration.SpearGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
                         // Increase exp for using spear weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Spear_Hit");
                         // Single player treatment
@@ -156,9 +156,9 @@ class OverwriteDamageInteraction
 
                     #region hammer
                     // Increase the damage if actual tool is a hammer
-                    if (Configuration.enableLevelHammer && player.InventoryManager.ActiveTool == EnumTool.Hammer)
+                    if (LevelUP.Configuration.enableLevelHammer && player.InventoryManager.ActiveTool == EnumTool.Hammer)
                     {
-                        damage *= Configuration.HammerGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
+                        damage *= LevelUP.Configuration.HammerGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
                         // Increase exp for using hammer weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Hammer_Hit");
                         // Single player treatment
@@ -171,9 +171,9 @@ class OverwriteDamageInteraction
 
                     #region sword
                     // Increase the damage if actual tool is a sword
-                    if (Configuration.enableLevelSword && player.InventoryManager.ActiveTool == EnumTool.Sword)
+                    if (LevelUP.Configuration.enableLevelSword && player.InventoryManager.ActiveTool == EnumTool.Sword)
                     {
-                        damage *= Configuration.SwordGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Sword"));
+                        damage *= LevelUP.Configuration.SwordGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Sword"));
                         // Increase exp for using sword weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Sword_Hit");
                         // Single player treatment
@@ -196,9 +196,9 @@ class OverwriteDamageInteraction
 
                     #region bow
                     // Increase the damage if the damage source is from any arrow
-                    if (Configuration.enableLevelBow && itemDamage != null && itemDamage.GetName().Contains("arrow"))
+                    if (LevelUP.Configuration.enableLevelBow && itemDamage != null && itemDamage.GetName().Contains("arrow"))
                     {
-                        damage *= Configuration.BowGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+                        damage *= LevelUP.Configuration.BowGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
                         // Increase exp for using bow weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Bow_Hit");
                         // Single player treatment
@@ -211,9 +211,9 @@ class OverwriteDamageInteraction
 
                     #region spear
                     // Increase the damage if the damage source is from any spear
-                    if (Configuration.enableLevelSpear && itemDamage != null && itemDamage.GetName().Contains("spear"))
+                    if (LevelUP.Configuration.enableLevelSpear && itemDamage != null && itemDamage.GetName().Contains("spear"))
                     {
-                        damage *= Configuration.SpearGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
+                        damage *= LevelUP.Configuration.SpearGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
                         // Increase exp for using spear weapons
                         if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Spear_Hit");
                         // Single player treatment
@@ -251,7 +251,7 @@ class OverwriteDamageInteraction
                 IPlayer player = __instance.World.PlayerByUid(playerEntity.PlayerUID);
 
                 #region vitality
-                if (Configuration.enableLevelVitality && damage < Configuration.DamageLimitVitality)
+                if (LevelUP.Configuration.enableLevelVitality && damage < LevelUP.Configuration.DamageLimitVitality)
                 {
                     // Check if damage is bigger than player max health
                     float damageCalculation = damage;
@@ -261,10 +261,10 @@ class OverwriteDamageInteraction
 
                     // Dedicated server
                     if (player is IServerPlayer && instance.serverAPI != null)
-                        instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_Vitality_Hit&forceexp={Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation)}");
+                        instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_Vitality_Hit&forceexp={LevelUP.Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation)}");
                     // Single player treatment
                     else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                        instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Vitality_Hit&forceexp={Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation)}&lanplayername={player.PlayerName}");
+                        instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Vitality_Hit&forceexp={LevelUP.Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation)}&lanplayername={player.PlayerName}");
 
                 }
                 #endregion
@@ -274,7 +274,7 @@ class OverwriteDamageInteraction
                 if (damageSource.GetCauseEntity() != null || damageSource.SourceEntity != null)
                 {
                     #region leatherarmor
-                    if (Configuration.enableLevelLeatherArmor && damage < Configuration.DamageLimitLeatherArmor)
+                    if (LevelUP.Configuration.enableLevelLeatherArmor && damage < LevelUP.Configuration.DamageLimitLeatherArmor)
                     {
                         // Check if damage is bigger than player max health
                         float damageCalculation = damage;
@@ -303,11 +303,11 @@ class OverwriteDamageInteraction
                                     }
 
                                     // Check if the armor contains experience
-                                    double value = Configuration.expMultiplyHitLeatherArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
+                                    double value = LevelUP.Configuration.expMultiplyHitLeatherArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
                                     multiply += value;
                                     index++;
 
-                                    if (Configuration.enableExtendedLog && value != 0.0)
+                                    if (LevelUP.Configuration.enableExtendedLog && value != 0.0)
                                         Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
                                 }
                                 break;
@@ -319,21 +319,21 @@ class OverwriteDamageInteraction
                         {
                             // Dedicated Servers
                             if (player is IServerPlayer && instance.serverAPI != null)
-                                instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
+                                instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(LevelUP.Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
 
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(LevelUP.Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
 
 
-                            float damageReduction = Configuration.LeatherArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor")) * (float)multiply;
+                            float damageReduction = LevelUP.Configuration.LeatherArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor")) * (float)multiply;
                             damage -= damageReduction;
-                            if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by leather armor level");
+                            if (LevelUP.Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by leather armor level");
                         }
                     }
                     #endregion
                     #region chainarmor
-                    if (Configuration.enableLevelChainArmor && damage < Configuration.DamageLimitChainArmor)
+                    if (LevelUP.Configuration.enableLevelChainArmor && damage < LevelUP.Configuration.DamageLimitChainArmor)
                     {
                         // Check if damage is bigger than player max health
                         float damageCalculation = damage;
@@ -362,11 +362,11 @@ class OverwriteDamageInteraction
                                     }
 
                                     // Check if the armor contains experience
-                                    double value = Configuration.expMultiplyHitChainArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
+                                    double value = LevelUP.Configuration.expMultiplyHitChainArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
                                     multiply += value;
                                     index++;
 
-                                    if (Configuration.enableExtendedLog && value != 0.0)
+                                    if (LevelUP.Configuration.enableExtendedLog && value != 0.0)
                                         Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
                                 }
                                 break;
@@ -378,14 +378,14 @@ class OverwriteDamageInteraction
                         {
                             // Dedicated Servers
                             if (player is IServerPlayer && instance.serverAPI != null)
-                                instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
+                                instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(LevelUP.Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(LevelUP.Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
 
-                            float damageReduction = Configuration.ChainArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor")) * (float)multiply;
+                            float damageReduction = LevelUP.Configuration.ChainArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor")) * (float)multiply;
                             damage -= damageReduction;
-                            if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by chain armor level");
+                            if (LevelUP.Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by chain armor level");
                         }
                     }
                     #endregion
@@ -459,7 +459,7 @@ class OverwriteDamageInteraction
     public static bool DamageItemStart(IWorldAccessor world, Entity byEntity, ItemSlot itemslot, int amount = 1)
     {
         // Error treatment
-        if ((!Configuration.enableDurabilityMechanic || itemslot == null || byEntity == null) && world.Side != EnumAppSide.Server) return true;
+        if ((!LevelUP.Configuration.enableDurabilityMechanic || itemslot == null || byEntity == null) && world.Side != EnumAppSide.Server) return true;
 
         // Check if the entity is a player and if this code is running on the server
         if (byEntity is EntityPlayer && world.Side == EnumAppSide.Server)
@@ -468,14 +468,14 @@ class OverwriteDamageInteraction
             // Get change of not using durability
             switch (itemslot.Itemstack?.Collectible?.Tool)
             {
-                case EnumTool.Bow: return !Configuration.BowRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
-                case EnumTool.Axe: return !Configuration.AxeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Axe"));
-                case EnumTool.Knife: return !Configuration.KnifeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
-                case EnumTool.Pickaxe: return !Configuration.PickaxeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
-                case EnumTool.Shovel: return !Configuration.ShovelRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"));
-                case EnumTool.Spear: return !Configuration.SpearRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
-                case EnumTool.Hammer: return !Configuration.HammerRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
-                case EnumTool.Sword: return !Configuration.SwordRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Sword"));
+                case EnumTool.Bow: return !LevelUP.Configuration.BowRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+                case EnumTool.Axe: return !LevelUP.Configuration.AxeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Axe"));
+                case EnumTool.Knife: return !LevelUP.Configuration.KnifeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
+                case EnumTool.Pickaxe: return !LevelUP.Configuration.PickaxeRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
+                case EnumTool.Shovel: return !LevelUP.Configuration.ShovelRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"));
+                case EnumTool.Spear: return !LevelUP.Configuration.SpearRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
+                case EnumTool.Hammer: return !LevelUP.Configuration.HammerRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
+                case EnumTool.Sword: return !LevelUP.Configuration.SwordRollChanceToNotReduceDurabilityByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Sword"));
             }
         }
         return true;
@@ -511,7 +511,7 @@ class OverwriteDamageInteraction
     public static void ImpactOnEntity(EntityProjectile __instance, Entity entity)
     {
         // Check if bow is enabled and if is from the server side
-        if (Configuration.enableLevelBow && __instance.World.Side == EnumAppSide.Server)
+        if (LevelUP.Configuration.enableLevelBow && __instance.World.Side == EnumAppSide.Server)
         {
             // Check if is a arrow
             if (__instance.Code.ToString().Contains("arrow"))
@@ -521,7 +521,7 @@ class OverwriteDamageInteraction
                 {
                     EntityPlayer playerEntity = __instance.FiredBy as EntityPlayer;
                     // Change the change based on level
-                    __instance.DropOnImpactChance = Configuration.BowGetChanceToNotLoseArrowByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+                    __instance.DropOnImpactChance = LevelUP.Configuration.BowGetChanceToNotLoseArrowByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
                 }
             }
         }
@@ -531,9 +531,9 @@ class OverwriteDamageInteraction
     [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStop")]
     public static void OnHeldInteractStopBowStart(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
     {
-        if (Configuration.enableLevelBow && byEntity is EntityPlayer)
+        if (LevelUP.Configuration.enableLevelBow && byEntity is EntityPlayer)
             // Setting new aim accuracy
-            byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0)));
+            byEntity.Attributes.SetFloat("aimingAccuracy", LevelUP.Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0)));
     }
     // Overwrite Bow shot finish
     [HarmonyPostfix]
@@ -545,9 +545,9 @@ class OverwriteDamageInteraction
     [HarmonyPatch(typeof(ItemSpear), "OnHeldInteractStop")]
     public static void OnHeldInteractStopSpearStart(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
     {
-        if (Configuration.enableLevelSpear && byEntity is EntityPlayer)
+        if (LevelUP.Configuration.enableLevelSpear && byEntity is EntityPlayer)
             // Setting new aim accuracy
-            byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0)));
+            byEntity.Attributes.SetFloat("aimingAccuracy", LevelUP.Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0)));
     }
     #endregion
     #region shield
@@ -556,7 +556,7 @@ class OverwriteDamageInteraction
     [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
     public static float ApplyShieldProtectionFinish(float __result, ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
     {
-        if (!Configuration.enableLevelShield) return __result;
+        if (!LevelUP.Configuration.enableLevelShield) return __result;
 
         // Pickup the native api
         ICoreAPI api = player.Entity.Api;
@@ -616,9 +616,9 @@ class OverwriteDamageInteraction
             {
                 #endregion
                 // Reduces the damage received more than normal based on shield level
-                float damageReduction = dmgabsorb * Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
+                float damageReduction = dmgabsorb * LevelUP.Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
                 damage = Math.Max(0f, damage - damageReduction);
-                if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduction} in shield damage");
+                if (LevelUP.Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduction} in shield damage");
                 #region native
 
                 string loc = shieldSlot.Itemstack.ItemAttributes["blockSound"].AsString("held/shieldblock");
@@ -628,7 +628,7 @@ class OverwriteDamageInteraction
                 {
                     #endregion
                     // Roll chance for not losing the durability
-                    if (!Configuration.ShieldRollChanceToNotReduceDurabilityByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
+                    if (!LevelUP.Configuration.ShieldRollChanceToNotReduceDurabilityByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
                     {
                         #region native
                         shieldSlot.Itemstack.Collectible.DamageItem(api.World, dmgSource.SourceEntity, shieldSlot);

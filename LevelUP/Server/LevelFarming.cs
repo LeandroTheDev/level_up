@@ -60,17 +60,17 @@ class LevelFarming
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = farmingLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = farmingLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, farming exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, farming exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        farmingLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        farmingLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(farmingLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Farming", farmingLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Farming", farmingLevels[player.PlayerUID]);
     }
 }

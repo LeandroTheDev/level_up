@@ -73,17 +73,17 @@ class LevelAxe
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{playerEntity.GetName()} killed: {entity.Code}, axe exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, axe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        axeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        axeLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(axeLevels);
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Axe", axeLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Axe", axeLevels[player.PlayerUID]);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
@@ -105,17 +105,17 @@ class LevelAxe
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(playerEntity.GetName(), 0);
+        ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableExtendedLog)
-            Debug.Log($"{playerEntity.GetName()} breaked: {breakedBlock.Block.Code}, axe exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, axe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        axeLevels[playerEntity.GetName()] = playerExp + (ulong)exp;
+        axeLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
         SaveLevels(axeLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Axe", axeLevels[playerEntity.GetName()]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Axe", axeLevels[player.PlayerUID]);
     }
 }
