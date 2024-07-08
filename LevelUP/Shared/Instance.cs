@@ -39,9 +39,9 @@ class Instance
     {
 
         // Previous exp level, before getting the new experience
-        int previousLevel = LevelUP.Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}", 0));
+        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}", 0));
         // Actual player level
-        int nextLevel = LevelUP.Configuration.GetLevelByLevelTypeEXP(levelType, exp);
+        int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
         // Check if player leveled up
         if (previousLevel < nextLevel)
         {
@@ -49,7 +49,7 @@ class Instance
             if (!disableLevelUpNotify)
             {
                 // Notify player
-                if (LevelUP.Configuration.enableLevelUpChatMessages)
+                if (Configuration.enableLevelUpChatMessages)
                     Server.Instance.communicationChannel.SendPacket($"playerlevelup&{nextLevel}&{levelType}", player as IServerPlayer);
             }
             Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
@@ -63,13 +63,13 @@ class Instance
                 if (playerStats == null) { Debug.Log($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
 
                 // Getting health stats
-                playerStats.BaseMaxHealth = LevelUP.Configuration.VitalityGetMaxHealthByLevel(nextLevel);
-                playerStats._playerHealthRegenSpeed = LevelUP.Configuration.VitalityGetHealthRegenMultiplyByLevel(nextLevel);
+                playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByLevel(nextLevel);
+                playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByLevel(nextLevel);
 
                 // Refresh for the player
                 playerStats.UpdateMaxHealth();
 
-                if (LevelUP.Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
+                if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
             }
         }
 
@@ -79,7 +79,7 @@ class Instance
         player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
 
         // Mining speed
-        float miningspeed = LevelUP.Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
+        float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
         // Check if this levelType has mining speed
         if (miningspeed != -1)
             // Set the mining speed for clients

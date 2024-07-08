@@ -42,11 +42,11 @@ class OverwriteBlockBreak
         switch (byPlayer.InventoryManager.ActiveTool)
         {
             case EnumTool.Axe:
-                return LevelUP.Configuration.enableLevelAxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                return Configuration.enableLevelAxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
             case EnumTool.Pickaxe:
-                return LevelUP.Configuration.enableLevelPickaxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                return Configuration.enableLevelPickaxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
             case EnumTool.Shovel:
-                return LevelUP.Configuration.enableLevelShovel ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                return Configuration.enableLevelShovel ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
             case null: break;
         }
         return __result;
@@ -58,7 +58,7 @@ class OverwriteBlockBreak
     public static void OnBlockBrokenWith(ItemAxe __instance, IWorldAccessor world, Entity byEntity, ItemSlot itemslot, BlockSelection blockSel, float dropQuantityMultiplier = 1f)
     {
         // Check if axe breaked is a player
-        if (LevelUP.Configuration.enableLevelAxe && byEntity is EntityPlayer)
+        if (Configuration.enableLevelAxe && byEntity is EntityPlayer)
         {
             EntityPlayer playerEntity = byEntity as EntityPlayer;
 
@@ -79,14 +79,14 @@ class OverwriteBlockBreak
     public static void OnBlockBroken(BlockOre __instance, IWorldAccessor world, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
         // Check if is from the server
-        if (LevelUP.Configuration.enableLevelPickaxe && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
+        if (Configuration.enableLevelPickaxe && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
         {
             IServerPlayer player = byPlayer as IServerPlayer;
             // Increasing ore drop rate
-            player.Entity.Stats.Set("oreDropRate", "oreDropRate", LevelUP.Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe")));
+            player.Entity.Stats.Set("oreDropRate", "oreDropRate", Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe")));
 
-            if (LevelUP.Configuration.enableExtendedLog)
-                Debug.Log($"{player.PlayerName} breaked a ore, multiply drop: {LevelUP.Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))}");
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"{player.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))}");
         }
     }
 
@@ -98,25 +98,25 @@ class OverwriteBlockBreak
         int cropDropCompatibility = byPlayer.Entity.Attributes.GetInt("LevelUP_BlockBreak_ExtendCropDrops_GetDrops");
         byPlayer.Entity.Attributes.RemoveAttribute("LevelUP_BlockBreak_ExtendCropDrops_GetDrops");
         // Check if is from the server
-        if (LevelUP.Configuration.enableLevelFarming && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
+        if (Configuration.enableLevelFarming && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
         {
             // Swipe all items tack drops
             int index = 0;
             foreach (ItemStack itemStack in __result)
             {
                 // Check if exist the drop crop in configuration
-                if (LevelUP.Configuration.expPerHarvestFarming.TryGetValue(itemStack.ToString(), out _))
+                if (Configuration.expPerHarvestFarming.TryGetValue(itemStack.ToString(), out _))
                 {
                     IServerPlayer player = byPlayer as IServerPlayer;
                     // Multiply crop drop
-                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * LevelUP.Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))) + cropDropCompatibility;
+                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))) + cropDropCompatibility;
                     // Update item stack result
                     __result[index] = itemStack;
                 }
                 index++;
             }
-            if (LevelUP.Configuration.enableExtendedLog)
-                Debug.Log($"{byPlayer.PlayerName} breaked a crop, multiply drop: {LevelUP.Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))}");
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"{byPlayer.PlayerName} breaked a crop, multiply drop: {Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))}");
         }
         return __result;
     }
