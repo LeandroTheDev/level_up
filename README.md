@@ -7,11 +7,12 @@ Consider always making backup for your world, level up is a mod that changes a l
 This mod drastically changes the player status and its not recoverable in normal ways, PLEASE make a backup of your world, to reset players status you will need to use specific commands, please review the [Wiki-Commands](https://github.com/LeandroTheDev/level_up/wiki/Commands) to get more information to reset player status.
 
 Features:
+- Fully configurable
 - GUI Level in character view
 - Each tools has a chance to not use durability by the level you have for the specific tool
-- Fully configurable
 - Hardcore mode
 - Commands for administration manipulation
+- Classes and custom classes for manipulating the experience gain for each level type
 
 LEVELS:
 - Hunter: Increases all damages sources to others creatures and players, earn xp by killing things
@@ -51,11 +52,13 @@ Cooking experience and food status will be considered for the most nearest playe
 
 Shield calculation only increases the base damage absorved from the shield, working the same as the vanilla if the damage absorved is bigger than damage received the final damage is 0
 
-To change the configurations go to the mod folder in assets folders, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to  know what each configuration does.
+To change the configurations go to the vintage story data, for windows in appdata for linux in .config for server is the path you set in serverconfig.json, find the folder ModConfig/LevelUP, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to  know what each configuration does.
 
-Level UP Stores datas based on player name, changing the player name will lose all levels.
+Level UP Stores datas with player UID, changing the player name will persist all levels.
 
 Some people have issues with the drop rate of entities after removing LevelUP, for this theres is a command for administration uses, type /levelup resetplayerstatus PlayerName, this command will reset all status and buffs from the player that can cause bugs on vanilla (Needs to be in all players that played in the moment the LevelUP is present).
+
+Commands limitations, the command cannot receive player names with spaces, for that consider getting the player UID instead, for handling levels with space for example "Leather Armor" you need to remove the spaces: "LeatherArmor"
 
 ### Considerations
 This mod changes a lot of native codes and can break easily throught updates.
@@ -72,7 +75,7 @@ All the mod calculations and patches is thinking in the server performance, feel
 
 Level UP is not compatible with mods that fully overwrite the ReceiveDamage function for Entity class and applyShieldProtection for ModSystemWearableStats class
 
-Balancing was not very well thought out, you will probably find some things unusual or very strong, with everything you can make your changes in the settings folder
+Balancing was not very well thought out, you will probably find some things unusual or very strong, with everything you can make your changes in the configurations folder
 
 The configuration enableExtended logs can cause performances problems, because a lot of things in the mod is logged out, if the mod is very stable in your world/modpack please consider desabling it in configurations
 
