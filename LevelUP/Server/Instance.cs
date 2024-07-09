@@ -296,8 +296,7 @@ class Instance
         levelChainArmor.PopulateConfiguration(coreAPI);
 
         // Class Configs
-        Configuration.PopulateHunterClassEXPConfiguration(coreAPI);
-        Configuration.PopulateCommonerClassEXPConfiguration(coreAPI);
+        Configuration.PopulateClassConfigurations(coreAPI);
     }
 
     public void OnExperienceEarned(IServerPlayer player, string bruteMessage)

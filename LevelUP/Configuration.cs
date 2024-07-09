@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
 using Vintagestory.API.Common;
 
 namespace LevelUP;
@@ -7,6 +9,74 @@ namespace LevelUP;
 #pragma warning disable CA2211
 public static class Configuration
 {
+    private static Dictionary<string, object> LoadConfigurationByDirectoryAndName(ICoreAPI api, string directory, string name, string defaultDirectory)
+    {
+        string directoryPath = Path.Combine(api.DataBasePath, directory);
+        string configPath = Path.Combine(api.DataBasePath, directory, $"{name}.json");
+        Dictionary<string, object> loadedConfig;
+        try
+        {
+            // Load server configurations
+            string jsonConfig = File.ReadAllText(configPath);
+            loadedConfig = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonConfig);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            Debug.Log($"WARNING: Server configurations directory does not exist creating {name}.json and directory...");
+            try
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"ERROR: Cannot create directory: {ex.Message}");
+            }
+            Debug.Log("Loading default configurations...");
+            // Load default configurations
+            loadedConfig = api.Assets.Get(new AssetLocation(defaultDirectory)).ToObject<Dictionary<string, object>>();
+
+            Debug.Log($"Configurations loaded, saving configs in: {configPath}");
+            try
+            {
+                // Saving default configurations
+                string defaultJson = JsonConvert.SerializeObject(loadedConfig, Formatting.Indented);
+                File.WriteAllText(configPath, defaultJson);
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"ERROR: Cannot save default files to {configPath}, reason: {ex.Message}");
+            }
+        }
+        catch (FileNotFoundException)
+        {
+            Debug.Log($"WARNING: Server configurations {name}.json cannot be found, recreating file from default");
+            Debug.Log("Loading default configurations...");
+            // Load default configurations
+            loadedConfig = api.Assets.Get(new AssetLocation(defaultDirectory)).ToObject<Dictionary<string, object>>();
+
+            Debug.Log($"Configurations loaded, saving configs in: {configPath}");
+            try
+            {
+                // Saving default configurations
+                string defaultJson = JsonConvert.SerializeObject(loadedConfig, Formatting.Indented);
+                File.WriteAllText(configPath, defaultJson);
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"ERROR: Cannot save default files to {configPath}, reason: {ex.Message}");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Debug.Log($"ERROR: Cannot read the server configurations: {ex.Message}");
+            Debug.Log("Loading default values from mod assets...");
+            // Load default configurations
+            loadedConfig = api.Assets.Get(new AssetLocation(defaultDirectory)).ToObject<Dictionary<string, object>>();
+        }
+        return loadedConfig;
+    }
+
     #region baseconfigs
     public static bool enableHardcore = false;
     public static double hardcoreLosePercentage = 0.8;
@@ -35,7 +105,11 @@ public static class Configuration
 
     public static void UpdateBaseConfigurations(ICoreAPI api)
     {
-        Dictionary<string, object> baseConfigs = api.Assets.Get(new AssetLocation("levelup:config/base.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> baseConfigs = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config",
+            "base",
+            "levelup:config/base.json");
         { //enableHardcore
             if (baseConfigs.TryGetValue("enableHardcore", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: enableHardcore is null");
@@ -440,7 +514,11 @@ public static class Configuration
 
     public static void PopulateHunterConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> hunterLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/hunter.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> hunterLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "hunter",
+            "levelup:config/levelstats/bow.json");
         { //hunterEXPPerLevelBase
             if (hunterLevelStats.TryGetValue("hunterEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: hunterEXPPerLevelBase is null");
@@ -472,7 +550,11 @@ public static class Configuration
 
         // Get entity exp
         entityExpHunter.Clear();
-        Dictionary<string, object> tmpentityExpHunter = api.Assets.Get(new AssetLocation("levelup:config/entityexp/hunter.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpHunter = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "bow",
+            "levelup:config/entityexp/hunter.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpHunter)
         {
             if (pair.Value is long value) entityExpHunter.Add(pair.Key, (int)value);
@@ -538,7 +620,12 @@ public static class Configuration
 
     public static void PopulateBowConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> bowLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/bow.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> bowLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "bow",
+            "levelup:config/levelstats/bow.json");
+
         { //bowEXPPerLevelBase
             if (bowLevelStats.TryGetValue("bowEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: bowEXPPerLevelBase is null");
@@ -647,7 +734,11 @@ public static class Configuration
 
         // Get entity exp
         entityExpBow.Clear();
-        Dictionary<string, object> tmpentityExpBow = api.Assets.Get(new AssetLocation("levelup:config/entityexp/bow.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpBow = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "bow",
+            "levelup:config/entityexp/bow.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpBow)
         {
             if (pair.Value is long value) entityExpBow.Add(pair.Key, (int)value);
@@ -763,7 +854,12 @@ public static class Configuration
 
     public static void PopulateKnifeConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> knifeLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/knife.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> knifeLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "knife",
+            "levelup:config/levelstats/knife.json");
+
         { //knifeEXPPerLevelBase
             if (knifeLevelStats.TryGetValue("knifeEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerLevelBase is null");
@@ -851,7 +947,11 @@ public static class Configuration
 
         // Get entity exp
         entityExpKnife.Clear();
-        Dictionary<string, object> tmpentityExpKnife = api.Assets.Get(new AssetLocation("levelup:config/entityexp/knife.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpKnife = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "knife",
+            "levelup:config/entityexp/knife.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpKnife)
         {
             if (pair.Value is long value) entityExpKnife.Add(pair.Key, (int)value);
@@ -955,7 +1055,11 @@ public static class Configuration
 
     public static void PopulateAxeConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> axeLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/axe.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> axeLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "axe",
+            "levelup:config/levelstats/axe.json");
         { //axeEXPPerLevelBase
             if (axeLevelStats.TryGetValue("axeEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: axeEXPPerLevelBase is null");
@@ -1050,7 +1154,11 @@ public static class Configuration
 
         // Get entity exp
         entityExpAxe.Clear();
-        Dictionary<string, object> tmpentityExpAxe = api.Assets.Get(new AssetLocation("levelup:config/entityexp/axe.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpAxe = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "axe",
+            "levelup:config/entityexp/axe.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpAxe)
         {
             if (pair.Value is long value) entityExpAxe.Add(pair.Key, (int)value);
@@ -1154,7 +1262,11 @@ public static class Configuration
 
     public static void PopulatePickaxeConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> pickaxeLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/pickaxe.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> pickaxeLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "pickaxe",
+            "levelup:config/levelstats/pickaxe.json");
         { //pickaxeEXPPerLevelBase
             if (pickaxeLevelStats.TryGetValue("pickaxeEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeEXPPerLevelBase is null");
@@ -1256,7 +1368,11 @@ public static class Configuration
 
         // Get entity exp
         entityExpPickaxe.Clear();
-        Dictionary<string, object> tmpentityExpPickaxe = api.Assets.Get(new AssetLocation("levelup:config/entityexp/pickaxe.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpPickaxe = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "pickaxe",
+            "levelup:config/entityexp/pickaxe.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpPickaxe)
         {
             if (pair.Value is long value) entityExpPickaxe.Add(pair.Key, (int)value);
@@ -1265,7 +1381,11 @@ public static class Configuration
 
         // Get ores exp
         oresExpPickaxe.Clear();
-        Dictionary<string, object> tmporesExpPickaxe = api.Assets.Get(new AssetLocation("levelup:config/levelstats/pickaxesores.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmporesExpPickaxe = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "pickaxe",
+            "levelup:config/levelstats/pickaxesores.json");
         foreach (KeyValuePair<string, object> pair in tmporesExpPickaxe)
         {
             if (pair.Value is long value) oresExpPickaxe.Add(pair.Key, (int)value);
@@ -1383,7 +1503,11 @@ public static class Configuration
 
     public static void PopulateShovelConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> shovelLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/shovel.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> shovelLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "shovel",
+            "levelup:config/levelstats/shovel.json");
         { //shovelEXPPerLevelBase
             if (shovelLevelStats.TryGetValue("shovelEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: shovelEXPPerLevelBase is null");
@@ -1470,7 +1594,11 @@ public static class Configuration
         }
         // Get entity exp
         entityExpShovel.Clear();
-        Dictionary<string, object> tmpentityExpShovel = api.Assets.Get(new AssetLocation("levelup:config/entityexp/shovel.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpShovel = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "shovel",
+            "levelup:config/entityexp/shovel.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpShovel)
         {
             if (pair.Value is long value) entityExpShovel.Add(pair.Key, (int)value);
@@ -1571,7 +1699,11 @@ public static class Configuration
 
     public static void PopulateSpearConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> spearLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/spear.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> spearLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "spear",
+            "levelup:config/levelstats/spear.json");
         { //spearEXPPerLevelBase
             if (spearLevelStats.TryGetValue("spearEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: spearEXPPerLevelBase is null");
@@ -1660,7 +1792,11 @@ public static class Configuration
 
         // Get entity exp
         entityExpSpear.Clear();
-        Dictionary<string, object> tmpentityExpSpear = api.Assets.Get(new AssetLocation("levelup:config/entityexp/spear.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpSpear = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "spear",
+            "levelup:config/entityexp/spear.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpSpear)
         {
             if (pair.Value is long value) entityExpSpear.Add(pair.Key, (int)value);
@@ -1764,7 +1900,11 @@ public static class Configuration
 
     public static void PopulateHammerConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> hammerLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/hammer.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> hammerLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "hammer",
+            "levelup:config/levelstats/hammer.json");
         { //hammerEXPPerLevelBase
             if (hammerLevelStats.TryGetValue("hammerEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: hammerEXPPerLevelBase is null");
@@ -1929,7 +2069,11 @@ public static class Configuration
 
         // Get entity exp
         entityExpHammer.Clear();
-        Dictionary<string, object> tmpentityExpHammer = api.Assets.Get(new AssetLocation("levelup:config/entityexp/hammer.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpHammer = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "hammer",
+            "levelup:config/entityexp/hammer.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpHammer)
         {
             if (pair.Value is long value) entityExpHammer.Add(pair.Key, (int)value);
@@ -2072,7 +2216,11 @@ public static class Configuration
 
     public static void PopulateSwordConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> swordLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/sword.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> swordLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "sword",
+            "levelup:config/levelstats/sword.json");
         { //swordEXPPerLevelBase
             if (swordLevelStats.TryGetValue("swordEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: swordEXPPerLevelBase is null");
@@ -2139,7 +2287,11 @@ public static class Configuration
 
         // Get entity exp
         entityExpSword.Clear();
-        Dictionary<string, object> tmpentityExpSword = api.Assets.Get(new AssetLocation("levelup:config/entityexp/sword.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpentityExpSword = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "sword",
+            "levelup:config/entityexp/sword.json");
         foreach (KeyValuePair<string, object> pair in tmpentityExpSword)
         {
             if (pair.Value is long value) entityExpSword.Add(pair.Key, (int)value);
@@ -2219,7 +2371,11 @@ public static class Configuration
 
     public static void PopulateShieldConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> shieldLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/shield.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> shieldLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "shield",
+            "levelup:config/levelstats/shield.json");
         { //shieldEXPPerLevelBase
             if (shieldLevelStats.TryGetValue("shieldEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: shieldEXPPerLevelBase is null");
@@ -2284,16 +2440,7 @@ public static class Configuration
             else Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreReduceChanceForEveryLevel not set");
         }
 
-        // Get entity exp
-        entityExpSword.Clear();
-        Dictionary<string, object> tmpentityExpSword = api.Assets.Get(new AssetLocation("levelup:config/entityexp/sword.json")).ToObject<Dictionary<string, object>>();
-        foreach (KeyValuePair<string, object> pair in tmpentityExpSword)
-        {
-            if (pair.Value is long value) entityExpSword.Add(pair.Key, (int)value);
-            else Debug.Log($"CONFIGURATION ERROR: entityExpSword {pair.Key} is not int");
-        }
-
-        Debug.Log("Swird configuration set");
+        Debug.Log("Shield configuration set");
     }
 
     public static int ShieldGetLevelByEXP(ulong exp)
@@ -2366,7 +2513,11 @@ public static class Configuration
 
     public static void PopulateFarmingConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> farmingLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/farming.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> farmingLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "farming",
+            "levelup:config/levelstats/farming.json");
         { //farmingEXPPerLevelBase
             if (farmingLevelStats.TryGetValue("farmingEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: farmingEXPPerLevelBase is null");
@@ -2434,7 +2585,11 @@ public static class Configuration
 
         // Get crop exp
         expPerHarvestFarming.Clear();
-        Dictionary<string, object> tmpexpPerHarvestFarming = api.Assets.Get(new AssetLocation("levelup:config/levelstats/farmingcrops.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpexpPerHarvestFarming = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "farmingcrops",
+            "levelup:config/levelstats/farmingcrops.json");
         foreach (KeyValuePair<string, object> pair in tmpexpPerHarvestFarming)
         {
             if (pair.Value is long value) expPerHarvestFarming.Add(pair.Key, (int)value);
@@ -2516,7 +2671,11 @@ public static class Configuration
 
     public static void PopulateCookingConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> cookingLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/cooking.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> cookingLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "cooking",
+            "levelup:config/levelstats/cooking.json");
         { //cookingBaseExpPerCooking
             if (cookingLevelStats.TryGetValue("cookingBaseExpPerCooking", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseExpPerCooking is null");
@@ -2604,7 +2763,11 @@ public static class Configuration
 
         // Get single food exp multiply
         expMultiplySingleCooking.Clear();
-        Dictionary<string, object> tmpexpMultiplySingleCooking = api.Assets.Get(new AssetLocation("levelup:config/levelstats/cookingsingles.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpexpMultiplySingleCooking = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "cookingsingles",
+            "levelup:config/levelstats/cookingsingles.json");
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplySingleCooking)
         {
             if (pair.Value is double value) expMultiplySingleCooking.Add(pair.Key, value);
@@ -2612,7 +2775,11 @@ public static class Configuration
         }
         // Get pots food exp multiply
         expMultiplyPotsCooking.Clear();
-        Dictionary<string, object> tmpexpMultiplyPotsCooking = api.Assets.Get(new AssetLocation("levelup:config/levelstats/cookingpots.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpexpMultiplyPotsCooking = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "cookingpots",
+            "levelup:config/levelstats/cookingpots.json");
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyPotsCooking)
         {
             if (pair.Value is double value) expMultiplyPotsCooking.Add(pair.Key, value);
@@ -2710,7 +2877,11 @@ public static class Configuration
 
     public static void PopulateVitalityConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> vitalityLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/vitality.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> vitalityLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "vitality",
+            "levelup:config/levelstats/vitality.json");
         { //vitalityEXPPerLevelBase
             if (vitalityLevelStats.TryGetValue("vitalityEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPPerLevelBase is null");
@@ -2862,7 +3033,11 @@ public static class Configuration
 
     public static void PopulateLeatherArmorConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> leatherArmorLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/leatherarmor.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> leatherArmorLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "leatherarmor",
+            "levelup:config/levelstats/leatherarmor.json");
         { //leatherArmorEXPPerReceiveHit
             if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPPerReceiveHit", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit is null");
@@ -2950,7 +3125,11 @@ public static class Configuration
 
         // Get leather armor multiply exp
         expMultiplyHitLeatherArmor.Clear();
-        Dictionary<string, object> tmpexpMultiplyHitLeatherArmor = api.Assets.Get(new AssetLocation("levelup:config/levelstats/leatherarmoritems.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpexpMultiplyHitLeatherArmor = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "leatherarmoritems",
+            "levelup:config/levelstats/leatherarmoritems.json");
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitLeatherArmor)
         {
             if (pair.Value is double value) expMultiplyHitLeatherArmor.Add(pair.Key, (double)value);
@@ -3039,7 +3218,11 @@ public static class Configuration
 
     public static void PopulateChainArmorConfiguration(ICoreAPI api)
     {
-        Dictionary<string, object> chainArmorLevelStats = api.Assets.Get(new AssetLocation("levelup:config/levelstats/chainarmor.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> chainArmorLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "chainarmor",
+            "levelup:config/levelstats/chainarmor.json");
         { //chainArmorEXPPerReceiveHit
             if (chainArmorLevelStats.TryGetValue("chainArmorEXPPerReceiveHit", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerReceiveHit is null");
@@ -3127,7 +3310,11 @@ public static class Configuration
 
         // Get leather armor multiply exp
         expMultiplyHitChainArmor.Clear();
-        Dictionary<string, object> tmpexpMultiplyHitChainArmor = api.Assets.Get(new AssetLocation("levelup:config/levelstats/chainarmoritems.json")).ToObject<Dictionary<string, object>>();
+        Dictionary<string, object> tmpexpMultiplyHitChainArmor = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "chainarmoritems",
+            "levelup:config/levelstats/chainarmoritems.json");
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitChainArmor)
         {
             if (pair.Value is double value) expMultiplyHitChainArmor.Add(pair.Key, (double)value);
@@ -3198,1003 +3385,122 @@ public static class Configuration
     #endregion
 
     #region classexp
+    public static Dictionary<string, Dictionary<string, object>> classExperience = [];
     public static float GetEXPMultiplyByClassAndLevelType(string playerClass, string levelType)
     {
-        #region classes
-        static float getHunterEXPByLevelType(string levelType)
+        // Class converssion
+        playerClass += "class";
+        if (classExperience.TryGetValue(playerClass, out Dictionary<string, object> classConfigs))
         {
-            switch (levelType)
+            try
             {
-                case "Hunter": return hunterClassHunterLevelMultiply;
-                case "Bow": return hunterClassBowLevelMultiply;
-                case "Knife": return hunterClassKnifeLevelMultiply;
-                case "Axe": return hunterClassAxeLevelMultiply;
-                case "Pickaxe": return hunterClassPickaxeLevelMultiply;
-                case "Shovel": return hunterClassShovelLevelMultiply;
-                case "Spear": return hunterClassSpearLevelMultiply;
-                case "Hammer": return hunterClassHammerLevelMultiply;
-                case "Sword": return hunterClassSwordLevelMultiply;
-                case "Shield": return hunterClassShieldLevelMultiply;
-                case "Farming": return hunterClassFarmingLevelMultiply;
-                case "Cooking": return hunterClassCookingLevelMultiply;
-                case "Vitality": return hunterClassVitalityLevelMultiply;
-                case "LeatherArmor": return hunterClassLeatherArmorLevelMultiply;
-                case "ChainArmor": return hunterClassChainArmorLevelMultiply;
-                default:
-                    Debug.Log($"ERROR: The leveltype {levelType} does not exist");
-                    return 1.0f;
+                switch (levelType)
+                {
+                    case "Hunter": return (float)classConfigs["classHunterLevelMultiply"];
+                    case "Bow": return (float)classConfigs["classBowLevelMultiply"];
+                    case "Knife": return (float)classConfigs["classKnifeLevelMultiply"];
+                    case "Axe": return (float)classConfigs["classAxeLevelMultiply"];
+                    case "Pickaxe": return (float)classConfigs["classPickaxeLevelMultiply"];
+                    case "Shovel": return (float)classConfigs["classShovelLevelMultiply"];
+                    case "Spear": return (float)classConfigs["classSpearLevelMultiply"];
+                    case "Hammer": return (float)classConfigs["classHammerLevelMultiply"];
+                    case "Sword": return (float)classConfigs["classSwordLevelMultiply"];
+                    case "Shield": return (float)classConfigs["classShieldLevelMultiply"];
+                    case "Farming": return (float)classConfigs["classFarmingLevelMultiply"];
+                    case "Cooking": return (float)classConfigs["classCookingLevelMultiply"];
+                    case "Vitality": return (float)classConfigs["classVitalityLevelMultiply"];
+                    case "LeatherArmor": return (float)classConfigs["classLeatherArmorLevelMultiply"];
+                    case "ChainArmor": return (float)classConfigs["classChainArmorLevelMultiply"];
+                    default:
+                        Debug.Log($"ERROR: The leveltype {levelType} does not exist");
+                        return 1.0f;
+                }
             }
-        }
-        static float getCommonerEXPByLevelType(string levelType)
-        {
-            switch (levelType)
+            catch (Exception)
             {
-                case "Hunter": return commonerClassHunterLevelMultiply;
-                case "Bow": return commonerClassBowLevelMultiply;
-                case "Knife": return commonerClassKnifeLevelMultiply;
-                case "Axe": return commonerClassAxeLevelMultiply;
-                case "Pickaxe": return commonerClassPickaxeLevelMultiply;
-                case "Shovel": return commonerClassShovelLevelMultiply;
-                case "Spear": return commonerClassSpearLevelMultiply;
-                case "Hammer": return commonerClassHammerLevelMultiply;
-                case "Sword": return commonerClassSwordLevelMultiply;
-                case "Shield": return commonerClassShieldLevelMultiply;
-                case "Farming": return commonerClassFarmingLevelMultiply;
-                case "Cooking": return commonerClassCookingLevelMultiply;
-                case "Vitality": return commonerClassVitalityLevelMultiply;
-                case "LeatherArmor": return commonerClassLeatherArmorLevelMultiply;
-                case "ChainArmor": return commonerClassChainArmorLevelMultiply;
-                default:
-                    Debug.Log($"ERROR: The leveltype {levelType} does not exist");
-                    return 1.0f;
-            }
-        }
-        static float getMalefactorEXPByLevelType(string levelType)
-        {
-            switch (levelType)
-            {
-                case "Hunter": return malefactorClassHunterLevelMultiply;
-                case "Bow": return malefactorClassBowLevelMultiply;
-                case "Knife": return malefactorClassKnifeLevelMultiply;
-                case "Axe": return malefactorClassAxeLevelMultiply;
-                case "Pickaxe": return malefactorClassPickaxeLevelMultiply;
-                case "Shovel": return malefactorClassShovelLevelMultiply;
-                case "Spear": return malefactorClassSpearLevelMultiply;
-                case "Hammer": return malefactorClassHammerLevelMultiply;
-                case "Sword": return malefactorClassSwordLevelMultiply;
-                case "Shield": return malefactorClassShieldLevelMultiply;
-                case "Farming": return malefactorClassFarmingLevelMultiply;
-                case "Cooking": return malefactorClassCookingLevelMultiply;
-                case "Vitality": return malefactorClassVitalityLevelMultiply;
-                case "LeatherArmor": return malefactorClassLeatherArmorLevelMultiply;
-                case "ChainArmor": return malefactorClassChainArmorLevelMultiply;
-                default:
-                    Debug.Log($"ERROR: The leveltype {levelType} does not exist");
-                    return 1.0f;
-            }
-        }
-        static float getClockmakerEXPByLevelType(string levelType)
-        {
-            switch (levelType)
-            {
-                case "Hunter": return clockmakerClassHunterLevelMultiply;
-                case "Bow": return clockmakerClassBowLevelMultiply;
-                case "Knife": return clockmakerClassKnifeLevelMultiply;
-                case "Axe": return clockmakerClassAxeLevelMultiply;
-                case "Pickaxe": return clockmakerClassPickaxeLevelMultiply;
-                case "Shovel": return clockmakerClassShovelLevelMultiply;
-                case "Spear": return clockmakerClassSpearLevelMultiply;
-                case "Hammer": return clockmakerClassHammerLevelMultiply;
-                case "Sword": return clockmakerClassSwordLevelMultiply;
-                case "Shield": return clockmakerClassShieldLevelMultiply;
-                case "Farming": return clockmakerClassFarmingLevelMultiply;
-                case "Cooking": return clockmakerClassCookingLevelMultiply;
-                case "Vitality": return clockmakerClassVitalityLevelMultiply;
-                case "LeatherArmor": return clockmakerClassLeatherArmorLevelMultiply;
-                case "ChainArmor": return clockmakerClassChainArmorLevelMultiply;
-                default:
-                    Debug.Log($"ERROR: The leveltype {levelType} does not exist");
-                    return 1.0f;
-            }
-        }
-        static float getBlackguardEXPByLevelType(string levelType)
-        {
-            switch (levelType)
-            {
-                case "Hunter": return blackguardClassHunterLevelMultiply;
-                case "Bow": return blackguardClassBowLevelMultiply;
-                case "Knife": return blackguardClassKnifeLevelMultiply;
-                case "Axe": return blackguardClassAxeLevelMultiply;
-                case "Pickaxe": return blackguardClassPickaxeLevelMultiply;
-                case "Shovel": return blackguardClassShovelLevelMultiply;
-                case "Spear": return blackguardClassSpearLevelMultiply;
-                case "Hammer": return blackguardClassHammerLevelMultiply;
-                case "Sword": return blackguardClassSwordLevelMultiply;
-                case "Shield": return blackguardClassShieldLevelMultiply;
-                case "Farming": return blackguardClassFarmingLevelMultiply;
-                case "Cooking": return blackguardClassCookingLevelMultiply;
-                case "Vitality": return blackguardClassVitalityLevelMultiply;
-                case "LeatherArmor": return blackguardClassLeatherArmorLevelMultiply;
-                case "ChainArmor": return blackguardClassChainArmorLevelMultiply;
-                default:
-                    Debug.Log($"ERROR: The leveltype {levelType} does not exist");
-                    return 1.0f;
-            }
-        }
-        static float getTailorEXPByLevelType(string levelType)
-        {
-            switch (levelType)
-            {
-                case "Hunter": return tailorClassHunterLevelMultiply;
-                case "Bow": return tailorClassBowLevelMultiply;
-                case "Knife": return tailorClassKnifeLevelMultiply;
-                case "Axe": return tailorClassAxeLevelMultiply;
-                case "Pickaxe": return tailorClassPickaxeLevelMultiply;
-                case "Shovel": return tailorClassShovelLevelMultiply;
-                case "Spear": return tailorClassSpearLevelMultiply;
-                case "Hammer": return tailorClassHammerLevelMultiply;
-                case "Sword": return tailorClassSwordLevelMultiply;
-                case "Shield": return tailorClassShieldLevelMultiply;
-                case "Farming": return tailorClassFarmingLevelMultiply;
-                case "Cooking": return tailorClassCookingLevelMultiply;
-                case "Vitality": return tailorClassVitalityLevelMultiply;
-                case "LeatherArmor": return tailorClassLeatherArmorLevelMultiply;
-                case "ChainArmor": return tailorClassChainArmorLevelMultiply;
-                default:
-                    Debug.Log($"ERROR: The leveltype {levelType} does not exist");
-                    return 1.0f;
-            }
-        }
-        #endregion
-
-        switch (playerClass)
-        {
-            case "hunter": return getHunterEXPByLevelType(levelType);
-            case "commoner": return getCommonerEXPByLevelType(levelType);
-            case "malefactor": return getMalefactorEXPByLevelType(levelType);
-            case "clockmaker": return getClockmakerEXPByLevelType(levelType);
-            case "blackguard": return getBlackguardEXPByLevelType(levelType);
-            case "tailor": return getTailorEXPByLevelType(levelType);
-            default:
-                Debug.Log($"ERROR: The class {playerClass} does not exist in the mod calculation, this is a custom class? contact BoboDev to help you or make your own patch");
+                Debug.Log($"ERROR: Unable to find the value from {levelType} in {playerClass} configurations, you probably miss something in the json configuration");
                 return 1.0f;
+            }
         }
+        Debug.Log($"ERROR: The class {playerClass} does not exist in the configurations, probably a custom class without configs");
+        return 1.0f;
     }
 
-    #region hunterclass
-    public static float hunterClassHunterLevelMultiply = 1.0f;
-    public static float hunterClassBowLevelMultiply = 1.0f;
-    public static float hunterClassKnifeLevelMultiply = 1.0f;
-    public static float hunterClassAxeLevelMultiply = 1.0f;
-    public static float hunterClassPickaxeLevelMultiply = 1.0f;
-    public static float hunterClassShovelLevelMultiply = 1.0f;
-    public static float hunterClassSpearLevelMultiply = 1.0f;
-    public static float hunterClassHammerLevelMultiply = 1.0f;
-    public static float hunterClassSwordLevelMultiply = 1.0f;
-    public static float hunterClassShieldLevelMultiply = 1.0f;
-    public static float hunterClassFarmingLevelMultiply = 1.0f;
-    public static float hunterClassCookingLevelMultiply = 1.0f;
-    public static float hunterClassVitalityLevelMultiply = 1.0f;
-    public static float hunterClassLeatherArmorLevelMultiply = 1.0f;
-    public static float hunterClassChainArmorLevelMultiply = 1.0f;
-
-    public static float HunterClassHunterLevelMultiply => hunterClassHunterLevelMultiply;
-    public static float HunterClassBowLevelMultiply => hunterClassBowLevelMultiply;
-    public static float HunterClassKnifeLevelMultiply => hunterClassKnifeLevelMultiply;
-    public static float HunterClassAxeLevelMultiply => hunterClassAxeLevelMultiply;
-    public static float HunterClassPickaxeLevelMultiply => hunterClassPickaxeLevelMultiply;
-    public static float HunterClassShovelLevelMultiply => hunterClassShovelLevelMultiply;
-    public static float HunterClassSpearLevelMultiply => hunterClassSpearLevelMultiply;
-    public static float HunterClassHammerLevelMultiply => hunterClassHammerLevelMultiply;
-    public static float HunterClassSwordLevelMultiply => hunterClassSwordLevelMultiply;
-    public static float HunterClassShieldLevelMultiply => hunterClassShieldLevelMultiply;
-    public static float HunterClassFarmingLevelMultiply => hunterClassFarmingLevelMultiply;
-    public static float HunterClassCookingLevelMultiply => hunterClassCookingLevelMultiply;
-    public static float HunterClassVitalityLevelMultiply => hunterClassVitalityLevelMultiply;
-    public static float HunterClassLeatherArmorMultiply => hunterClassLeatherArmorLevelMultiply;
-    public static float HunterClassChainArmorMultiply => hunterClassChainArmorLevelMultiply;
-
-    public static void PopulateHunterClassEXPConfiguration(ICoreAPI api)
+    public static void PopulateClassConfigurations(ICoreAPI api)
     {
-        Dictionary<string, object> hunterClassEXP = api.Assets.Get(new AssetLocation("levelup:config/classexp/hunterclass.json")).ToObject<Dictionary<string, object>>();
-        { //hunterClassHunterLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassHunterLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassHunterLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassHunterLevelMultiply is not double is {value.GetType()}");
-                else hunterClassHunterLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassHunterLevelMultiply not set");
-        }
-        { //hunterClassBowLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassBowLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassBowLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassBowLevelMultiply is not double is {value.GetType()}");
-                else hunterClassBowLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassBowLevelMultiply not set");
-        }
-        { //hunterClassAxeLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassAxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassAxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassAxeLevelMultiply is not double is {value.GetType()}");
-                else hunterClassAxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassAxeLevelMultiply not set");
-        }
-        { //hunterClassPickaxeLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassPickaxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassPickaxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassPickaxeLevelMultiply is not double is {value.GetType()}");
-                else hunterClassPickaxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassPickaxeLevelMultiply not set");
-        }
-        { //hunterClassShovelLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassShovelLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassShovelLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassShovelLevelMultiply is not double is {value.GetType()}");
-                else hunterClassShovelLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassShovelLevelMultiply not set");
-        }
-        { //hunterClassSpearLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassSpearLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassSpearLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassSpearLevelMultiply is not double is {value.GetType()}");
-                else hunterClassSpearLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassSpearLevelMultiply not set");
-        }
-        { //hunterClassHammerLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassHammerLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassHammerLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassHammerLevelMultiply is not double is {value.GetType()}");
-                else hunterClassHammerLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassHammerLevelMultiply not set");
-        }
+        classExperience.Clear();
+        string directoryPath = Path.Combine(api.DataBasePath, "ModConfig/LevelUP/config/classexp");
+        // Classes directory exists
+        if (Directory.Exists(directoryPath))
+        {
+            Debug.Log("Loading server classes...");
+            string[] configs = Directory.GetFiles(directoryPath);
+            // Swipe all files
+            foreach (string confignameWithExtension in configs)
+            {
+                // Get only the file name
+                string configname = Path.GetFileNameWithoutExtension(confignameWithExtension);
+                try
+                {
+                    // Null check
+                    if (!classExperience.TryGetValue(configname, out _)) classExperience.Add(configname, []);
+                    else {
+                        Debug.Log($"WARNING: {configname} already exist in memory, duplicated class? how?");
+                        continue;
+                    };
 
+                    // Get the configuration for the respective file
+                    Dictionary<string, object> configClass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", configname, null);
+                    foreach (KeyValuePair<string, object> configuration in configClass)
+                    {
+                        // Configuration addition
+                        classExperience[configname].Add(configuration.Key, configuration.Value);
+                    }
+                    Debug.Log($"{configname} configuration set");
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log($"ERROR: Cannot load the class {configname}, probably the file is corrupted? reason: {ex.Message}");
+                }
+            }
 
-        { //hunterClassSwordLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassSwordLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassSwordLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassSwordLevelMultiply is not double is {value.GetType()}");
-                else hunterClassSwordLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassSwordLevelMultiply not set");
+            Debug.Log($"Server classes loaded, total loaded classes: {classExperience.Count}");
         }
-        { //hunterClassShieldLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassShieldLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassShieldLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassShieldLevelMultiply is not double is {value.GetType()}");
-                else hunterClassShieldLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassShieldLevelMultiply not set");
+        // Classes directory doesn't exist
+        else
+        {
+            Debug.Log("WARNING: Server configuration classes directory doesn't exist, creating default classes");
+
+            Dictionary<string, object> hunterclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "hunterclass", "levelup:config/classexp/hunterclass.json");
+            classExperience.Add("hunterclass", []);
+            foreach (KeyValuePair<string, object> pair in hunterclass)
+                classExperience["hunterclass"].Add(pair.Key, pair.Value);
+
+            Dictionary<string, object> commonerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "commonerclass", "levelup:config/classexp/commonerclass.json");
+            classExperience.Add("commonerclass", []);
+            foreach (KeyValuePair<string, object> pair in commonerclass)
+                classExperience["commonerclass"].Add(pair.Key, pair.Value);
+
+            Dictionary<string, object> blackguardclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "blackguardclass", "levelup:config/classexp/blackguardclass.json");
+            classExperience.Add("blackguardclass", []);
+            foreach (KeyValuePair<string, object> pair in blackguardclass)
+                classExperience["blackguardclass"].Add(pair.Key, pair.Value);
+
+            Dictionary<string, object> clockmakerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "clockmakerclass", "levelup:config/classexp/clockmakerclass.json");
+            classExperience.Add("clockmakerclass", []);
+            foreach (KeyValuePair<string, object> pair in clockmakerclass)
+                classExperience["clockmakerclass"].Add(pair.Key, pair.Value);
+
+            Dictionary<string, object> malefactorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "malefactorclass", "levelup:config/classexp/malefactorclass.json");
+            classExperience.Add("malefactorclass", []);
+            foreach (KeyValuePair<string, object> pair in malefactorclass)
+                classExperience["malefactorclass"].Add(pair.Key, pair.Value);
+
+            Dictionary<string, object> tailorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "tailorclass", "levelup:config/classexp/tailorclass.json");
+            classExperience.Add("tailorclass", []);
+            foreach (KeyValuePair<string, object> pair in tailorclass)
+                classExperience["tailorclass"].Add(pair.Key, pair.Value);
         }
-        { //hunterClassFarmingLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassFarmingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassFarmingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassFarmingLevelMultiply is not double is {value.GetType()}");
-                else hunterClassFarmingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassFarmingLevelMultiply not set");
-        }
-        { //hunterClassCookingLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassCookingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassCookingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassCookingLevelMultiply is not double is {value.GetType()}");
-                else hunterClassCookingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassCookingLevelMultiply not set");
-        }
-        { //hunterClassVitalityLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassVitalityLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassVitalityLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassVitalityLevelMultiply is not double is {value.GetType()}");
-                else hunterClassVitalityLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassVitalityLevelMultiply not set");
-        }
-        { //hunterClassLeatherArmorLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassLeatherArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassLeatherArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassLeatherArmorLevelMultiply is not double is {value.GetType()}");
-                else hunterClassLeatherArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassLeatherArmorLevelMultiply not set");
-        }
-        { //hunterClassChainArmorLevelMultiply
-            if (hunterClassEXP.TryGetValue("hunterClassChainArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterClassChainArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterClassChainArmorLevelMultiply is not double is {value.GetType()}");
-                else hunterClassChainArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterClassChainArmorLevelMultiply not set");
-        }
-        Debug.Log("Hunter Class configuration set");
     }
-    #endregion
-    #region commonerclass
-    public static float commonerClassHunterLevelMultiply = 1.0f;
-    public static float commonerClassBowLevelMultiply = 1.0f;
-    public static float commonerClassKnifeLevelMultiply = 1.0f;
-    public static float commonerClassAxeLevelMultiply = 1.0f;
-    public static float commonerClassPickaxeLevelMultiply = 1.0f;
-    public static float commonerClassShovelLevelMultiply = 1.0f;
-    public static float commonerClassSpearLevelMultiply = 1.0f;
-    public static float commonerClassHammerLevelMultiply = 1.0f;
-    public static float commonerClassSwordLevelMultiply = 1.0f;
-    public static float commonerClassShieldLevelMultiply = 1.0f;
-    public static float commonerClassFarmingLevelMultiply = 1.0f;
-    public static float commonerClassCookingLevelMultiply = 1.0f;
-    public static float commonerClassVitalityLevelMultiply = 1.0f;
-    public static float commonerClassLeatherArmorLevelMultiply = 1.0f;
-    public static float commonerClassChainArmorLevelMultiply = 1.0f;
-
-    public static float CommonerClassHunterLevelMultiply => commonerClassHunterLevelMultiply;
-    public static float CommonerClassBowLevelMultiply => commonerClassBowLevelMultiply;
-    public static float CommonerClassKnifeLevelMultiply => commonerClassKnifeLevelMultiply;
-    public static float CommonerClassAxeLevelMultiply => commonerClassAxeLevelMultiply;
-    public static float CommonerClassPickaxeLevelMultiply => commonerClassPickaxeLevelMultiply;
-    public static float CommonerClassShovelLevelMultiply => commonerClassShovelLevelMultiply;
-    public static float CommonerClassSpearLevelMultiply => commonerClassSpearLevelMultiply;
-    public static float CommonerClassHammerLevelMultiply => commonerClassHammerLevelMultiply;
-    public static float CommonerClassSwordLevelMultiply => commonerClassSwordLevelMultiply;
-    public static float CommonerClassShieldLevelMultiply => commonerClassShieldLevelMultiply;
-    public static float CommonerClassFarmingLevelMultiply => commonerClassFarmingLevelMultiply;
-    public static float CommonerClassCookingLevelMultiply => commonerClassCookingLevelMultiply;
-    public static float CommonerClassVitalityLevelMultiply => commonerClassVitalityLevelMultiply;
-    public static float CommonerClassLeatherArmorMultiply => commonerClassLeatherArmorLevelMultiply;
-    public static float CommonerClassChainArmorMultiply => commonerClassChainArmorLevelMultiply;
-
-    public static void PopulateCommonerClassEXPConfiguration(ICoreAPI api)
-    {
-        Dictionary<string, object> commonerClassEXP = api.Assets.Get(new AssetLocation("levelup:config/classexp/commonerclass.json")).ToObject<Dictionary<string, object>>();
-        { //commonerClassHunterLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassHunterLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassHunterLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassHunterLevelMultiply is not double is {value.GetType()}");
-                else commonerClassHunterLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassHunterLevelMultiply not set");
-        }
-        { //commonerClassBowLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassBowLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassBowLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassBowLevelMultiply is not double is {value.GetType()}");
-                else commonerClassBowLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassBowLevelMultiply not set");
-        }
-        { //commonerClassAxeLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassAxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassAxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassAxeLevelMultiply is not double is {value.GetType()}");
-                else commonerClassAxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassAxeLevelMultiply not set");
-        }
-        { //commonerClassPickaxeLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassPickaxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassPickaxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassPickaxeLevelMultiply is not double is {value.GetType()}");
-                else commonerClassPickaxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassPickaxeLevelMultiply not set");
-        }
-        { //commonerClassShovelLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassShovelLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassShovelLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassShovelLevelMultiply is not double is {value.GetType()}");
-                else commonerClassShovelLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassShovelLevelMultiply not set");
-        }
-        { //commonerClassSpearLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassSpearLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassSpearLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassSpearLevelMultiply is not double is {value.GetType()}");
-                else commonerClassSpearLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassSpearLevelMultiply not set");
-        }
-        { //commonerClassHammerLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassHammerLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassHammerLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassHammerLevelMultiply is not double is {value.GetType()}");
-                else commonerClassHammerLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassHammerLevelMultiply not set");
-        }
-
-
-        { //commonerClassSwordLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassSwordLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassSwordLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassSwordLevelMultiply is not double is {value.GetType()}");
-                else commonerClassSwordLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassSwordLevelMultiply not set");
-        }
-        { //commonerClassShieldLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassShieldLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassShieldLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassShieldLevelMultiply is not double is {value.GetType()}");
-                else commonerClassShieldLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassShieldLevelMultiply not set");
-        }
-        { //commonerClassFarmingLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassFarmingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassFarmingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassFarmingLevelMultiply is not double is {value.GetType()}");
-                else commonerClassFarmingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassFarmingLevelMultiply not set");
-        }
-        { //commonerClassCookingLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassCookingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassCookingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassCookingLevelMultiply is not double is {value.GetType()}");
-                else commonerClassCookingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassCookingLevelMultiply not set");
-        }
-        { //commonerClassVitalityLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassVitalityLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassVitalityLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassVitalityLevelMultiply is not double is {value.GetType()}");
-                else commonerClassVitalityLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassVitalityLevelMultiply not set");
-        }
-        { //commonerClassLeatherArmorLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassLeatherArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassLeatherArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassLeatherArmorLevelMultiply is not double is {value.GetType()}");
-                else commonerClassLeatherArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassLeatherArmorLevelMultiply not set");
-        }
-        { //commonerClassChainArmorLevelMultiply
-            if (commonerClassEXP.TryGetValue("commonerClassChainArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: commonerClassChainArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: commonerClassChainArmorLevelMultiply is not double is {value.GetType()}");
-                else commonerClassChainArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: commonerClassChainArmorLevelMultiply not set");
-        }
-        Debug.Log("Commoner Class configuration set");
-    }
-    #endregion
-    #region malefactor
-    public static float malefactorClassHunterLevelMultiply = 1.0f;
-    public static float malefactorClassBowLevelMultiply = 1.0f;
-    public static float malefactorClassKnifeLevelMultiply = 1.0f;
-    public static float malefactorClassAxeLevelMultiply = 1.0f;
-    public static float malefactorClassPickaxeLevelMultiply = 1.0f;
-    public static float malefactorClassShovelLevelMultiply = 1.0f;
-    public static float malefactorClassSpearLevelMultiply = 1.0f;
-    public static float malefactorClassHammerLevelMultiply = 1.0f;
-    public static float malefactorClassSwordLevelMultiply = 1.0f;
-    public static float malefactorClassShieldLevelMultiply = 1.0f;
-    public static float malefactorClassFarmingLevelMultiply = 1.0f;
-    public static float malefactorClassCookingLevelMultiply = 1.0f;
-    public static float malefactorClassVitalityLevelMultiply = 1.0f;
-    public static float malefactorClassLeatherArmorLevelMultiply = 1.0f;
-    public static float malefactorClassChainArmorLevelMultiply = 1.0f;
-
-    public static float MalefactorClassHunterLevelMultiply => malefactorClassHunterLevelMultiply;
-    public static float MalefactorClassBowLevelMultiply => malefactorClassBowLevelMultiply;
-    public static float MalefactorClassKnifeLevelMultiply => malefactorClassKnifeLevelMultiply;
-    public static float MalefactorClassAxeLevelMultiply => malefactorClassAxeLevelMultiply;
-    public static float MalefactorClassPickaxeLevelMultiply => malefactorClassPickaxeLevelMultiply;
-    public static float MalefactorClassShovelLevelMultiply => malefactorClassShovelLevelMultiply;
-    public static float MalefactorClassSpearLevelMultiply => malefactorClassSpearLevelMultiply;
-    public static float MalefactorClassHammerLevelMultiply => malefactorClassHammerLevelMultiply;
-    public static float MalefactorClassSwordLevelMultiply => malefactorClassSwordLevelMultiply;
-    public static float MalefactorClassShieldLevelMultiply => malefactorClassShieldLevelMultiply;
-    public static float MalefactorClassFarmingLevelMultiply => malefactorClassFarmingLevelMultiply;
-    public static float MalefactorClassCookingLevelMultiply => malefactorClassCookingLevelMultiply;
-    public static float MalefactorClassVitalityLevelMultiply => malefactorClassVitalityLevelMultiply;
-    public static float MalefactorClassLeatherArmorMultiply => malefactorClassLeatherArmorLevelMultiply;
-    public static float MalefactorClassChainArmorMultiply => malefactorClassChainArmorLevelMultiply;
-
-    public static void PopulateMalefactorClassEXPConfiguration(ICoreAPI api)
-    {
-        Dictionary<string, object> malefactorClassEXP = api.Assets.Get(new AssetLocation("levelup:config/classexp/malefactorclass.json")).ToObject<Dictionary<string, object>>();
-        { //malefactorClassHunterLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassHunterLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassHunterLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassHunterLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassHunterLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassHunterLevelMultiply not set");
-        }
-        { //malefactorClassBowLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassBowLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassBowLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassBowLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassBowLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassBowLevelMultiply not set");
-        }
-        { //malefactorClassAxeLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassAxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassAxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassAxeLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassAxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassAxeLevelMultiply not set");
-        }
-        { //malefactorClassPickaxeLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassPickaxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassPickaxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassPickaxeLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassPickaxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassPickaxeLevelMultiply not set");
-        }
-        { //malefactorClassShovelLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassShovelLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassShovelLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassShovelLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassShovelLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassShovelLevelMultiply not set");
-        }
-        { //malefactorClassSpearLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassSpearLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassSpearLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassSpearLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassSpearLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassSpearLevelMultiply not set");
-        }
-        { //malefactorClassHammerLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassHammerLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassHammerLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassHammerLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassHammerLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassHammerLevelMultiply not set");
-        }
-
-
-        { //malefactorClassSwordLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassSwordLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassSwordLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassSwordLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassSwordLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassSwordLevelMultiply not set");
-        }
-        { //malefactorClassShieldLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassShieldLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassShieldLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassShieldLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassShieldLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassShieldLevelMultiply not set");
-        }
-        { //malefactorClassFarmingLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassFarmingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassFarmingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassFarmingLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassFarmingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassFarmingLevelMultiply not set");
-        }
-        { //malefactorClassCookingLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassCookingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassCookingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassCookingLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassCookingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassCookingLevelMultiply not set");
-        }
-        { //malefactorClassVitalityLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassVitalityLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassVitalityLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassVitalityLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassVitalityLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassVitalityLevelMultiply not set");
-        }
-        { //malefactorClassLeatherArmorLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassLeatherArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassLeatherArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassLeatherArmorLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassLeatherArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassLeatherArmorLevelMultiply not set");
-        }
-        { //malefactorClassChainArmorLevelMultiply
-            if (malefactorClassEXP.TryGetValue("malefactorClassChainArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: malefactorClassChainArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: malefactorClassChainArmorLevelMultiply is not double is {value.GetType()}");
-                else malefactorClassChainArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: malefactorClassChainArmorLevelMultiply not set");
-        }
-        Debug.Log("Malefactor Class configuration set");
-    }
-    #endregion
-    #region clockmaker
-    public static float clockmakerClassHunterLevelMultiply = 1.0f;
-    public static float clockmakerClassBowLevelMultiply = 1.0f;
-    public static float clockmakerClassKnifeLevelMultiply = 1.0f;
-    public static float clockmakerClassAxeLevelMultiply = 1.0f;
-    public static float clockmakerClassPickaxeLevelMultiply = 1.0f;
-    public static float clockmakerClassShovelLevelMultiply = 1.0f;
-    public static float clockmakerClassSpearLevelMultiply = 1.0f;
-    public static float clockmakerClassHammerLevelMultiply = 1.0f;
-    public static float clockmakerClassSwordLevelMultiply = 1.0f;
-    public static float clockmakerClassShieldLevelMultiply = 1.0f;
-    public static float clockmakerClassFarmingLevelMultiply = 1.0f;
-    public static float clockmakerClassCookingLevelMultiply = 1.0f;
-    public static float clockmakerClassVitalityLevelMultiply = 1.0f;
-    public static float clockmakerClassLeatherArmorLevelMultiply = 1.0f;
-    public static float clockmakerClassChainArmorLevelMultiply = 1.0f;
-
-    public static float ClockmakerClassHunterLevelMultiply => clockmakerClassHunterLevelMultiply;
-    public static float ClockmakerClassBowLevelMultiply => clockmakerClassBowLevelMultiply;
-    public static float ClockmakerClassKnifeLevelMultiply => clockmakerClassKnifeLevelMultiply;
-    public static float ClockmakerClassAxeLevelMultiply => clockmakerClassAxeLevelMultiply;
-    public static float ClockmakerClassPickaxeLevelMultiply => clockmakerClassPickaxeLevelMultiply;
-    public static float ClockmakerClassShovelLevelMultiply => clockmakerClassShovelLevelMultiply;
-    public static float ClockmakerClassSpearLevelMultiply => clockmakerClassSpearLevelMultiply;
-    public static float ClockmakerClassHammerLevelMultiply => clockmakerClassHammerLevelMultiply;
-    public static float ClockmakerClassSwordLevelMultiply => clockmakerClassSwordLevelMultiply;
-    public static float ClockmakerClassShieldLevelMultiply => clockmakerClassShieldLevelMultiply;
-    public static float ClockmakerClassFarmingLevelMultiply => clockmakerClassFarmingLevelMultiply;
-    public static float ClockmakerClassCookingLevelMultiply => clockmakerClassCookingLevelMultiply;
-    public static float ClockmakerClassVitalityLevelMultiply => clockmakerClassVitalityLevelMultiply;
-    public static float ClockmakerClassLeatherArmorMultiply => clockmakerClassLeatherArmorLevelMultiply;
-    public static float ClockmakerClassChainArmorMultiply => clockmakerClassChainArmorLevelMultiply;
-
-    public static void PopulateClockmakerClassEXPConfiguration(ICoreAPI api)
-    {
-        Dictionary<string, object> clockmakerClassEXP = api.Assets.Get(new AssetLocation("levelup:config/classexp/clockmakerclass.json")).ToObject<Dictionary<string, object>>();
-        { //clockmakerClassHunterLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassHunterLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassHunterLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassHunterLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassHunterLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassHunterLevelMultiply not set");
-        }
-        { //clockmakerClassBowLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassBowLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassBowLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassBowLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassBowLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassBowLevelMultiply not set");
-        }
-        { //clockmakerClassAxeLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassAxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassAxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassAxeLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassAxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassAxeLevelMultiply not set");
-        }
-        { //clockmakerClassPickaxeLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassPickaxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassPickaxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassPickaxeLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassPickaxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassPickaxeLevelMultiply not set");
-        }
-        { //clockmakerClassShovelLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassShovelLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassShovelLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassShovelLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassShovelLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassShovelLevelMultiply not set");
-        }
-        { //clockmakerClassSpearLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassSpearLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassSpearLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassSpearLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassSpearLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassSpearLevelMultiply not set");
-        }
-        { //clockmakerClassHammerLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassHammerLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassHammerLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassHammerLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassHammerLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassHammerLevelMultiply not set");
-        }
-
-
-        { //clockmakerClassSwordLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassSwordLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassSwordLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassSwordLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassSwordLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassSwordLevelMultiply not set");
-        }
-        { //clockmakerClassShieldLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassShieldLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassShieldLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassShieldLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassShieldLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassShieldLevelMultiply not set");
-        }
-        { //clockmakerClassFarmingLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassFarmingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassFarmingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassFarmingLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassFarmingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassFarmingLevelMultiply not set");
-        }
-        { //clockmakerClassCookingLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassCookingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassCookingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassCookingLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassCookingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassCookingLevelMultiply not set");
-        }
-        { //clockmakerClassVitalityLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassVitalityLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassVitalityLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassVitalityLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassVitalityLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassVitalityLevelMultiply not set");
-        }
-        { //clockmakerClassLeatherArmorLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassLeatherArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassLeatherArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassLeatherArmorLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassLeatherArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassLeatherArmorLevelMultiply not set");
-        }
-        { //clockmakerClassChainArmorLevelMultiply
-            if (clockmakerClassEXP.TryGetValue("clockmakerClassChainArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: clockmakerClassChainArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: clockmakerClassChainArmorLevelMultiply is not double is {value.GetType()}");
-                else clockmakerClassChainArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: clockmakerClassChainArmorLevelMultiply not set");
-        }
-        Debug.Log("Clockmaker Class configuration set");
-    }
-
-    #endregion
-    #region blackguard
-    public static float blackguardClassHunterLevelMultiply = 1.0f;
-    public static float blackguardClassBowLevelMultiply = 1.0f;
-    public static float blackguardClassKnifeLevelMultiply = 1.0f;
-    public static float blackguardClassAxeLevelMultiply = 1.0f;
-    public static float blackguardClassPickaxeLevelMultiply = 1.0f;
-    public static float blackguardClassShovelLevelMultiply = 1.0f;
-    public static float blackguardClassSpearLevelMultiply = 1.0f;
-    public static float blackguardClassHammerLevelMultiply = 1.0f;
-    public static float blackguardClassSwordLevelMultiply = 1.0f;
-    public static float blackguardClassShieldLevelMultiply = 1.0f;
-    public static float blackguardClassFarmingLevelMultiply = 1.0f;
-    public static float blackguardClassCookingLevelMultiply = 1.0f;
-    public static float blackguardClassVitalityLevelMultiply = 1.0f;
-    public static float blackguardClassLeatherArmorLevelMultiply = 1.0f;
-    public static float blackguardClassChainArmorLevelMultiply = 1.0f;
-
-    public static float BlackguardClassHunterLevelMultiply => blackguardClassHunterLevelMultiply;
-    public static float BlackguardClassBowLevelMultiply => blackguardClassBowLevelMultiply;
-    public static float BlackguardClassKnifeLevelMultiply => blackguardClassKnifeLevelMultiply;
-    public static float BlackguardClassAxeLevelMultiply => blackguardClassAxeLevelMultiply;
-    public static float BlackguardClassPickaxeLevelMultiply => blackguardClassPickaxeLevelMultiply;
-    public static float BlackguardClassShovelLevelMultiply => blackguardClassShovelLevelMultiply;
-    public static float BlackguardClassSpearLevelMultiply => blackguardClassSpearLevelMultiply;
-    public static float BlackguardClassHammerLevelMultiply => blackguardClassHammerLevelMultiply;
-    public static float BlackguardClassSwordLevelMultiply => blackguardClassSwordLevelMultiply;
-    public static float BlackguardClassShieldLevelMultiply => blackguardClassShieldLevelMultiply;
-    public static float BlackguardClassFarmingLevelMultiply => blackguardClassFarmingLevelMultiply;
-    public static float BlackguardClassCookingLevelMultiply => blackguardClassCookingLevelMultiply;
-    public static float BlackguardClassVitalityLevelMultiply => blackguardClassVitalityLevelMultiply;
-    public static float BlackguardClassLeatherArmorMultiply => blackguardClassLeatherArmorLevelMultiply;
-    public static float BlackguardClassChainArmorMultiply => blackguardClassChainArmorLevelMultiply;
-
-    public static void PopulateBlackguardClassEXPConfiguration(ICoreAPI api)
-    {
-        Dictionary<string, object> blackguardClassEXP = api.Assets.Get(new AssetLocation("levelup:config/classexp/blackguardclass.json")).ToObject<Dictionary<string, object>>();
-        { //blackguardClassHunterLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassHunterLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassHunterLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassHunterLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassHunterLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassHunterLevelMultiply not set");
-        }
-        { //blackguardClassBowLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassBowLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassBowLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassBowLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassBowLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassBowLevelMultiply not set");
-        }
-        { //blackguardClassAxeLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassAxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassAxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassAxeLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassAxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassAxeLevelMultiply not set");
-        }
-        { //blackguardClassPickaxeLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassPickaxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassPickaxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassPickaxeLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassPickaxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassPickaxeLevelMultiply not set");
-        }
-        { //blackguardClassShovelLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassShovelLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassShovelLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassShovelLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassShovelLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassShovelLevelMultiply not set");
-        }
-        { //blackguardClassSpearLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassSpearLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassSpearLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassSpearLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassSpearLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassSpearLevelMultiply not set");
-        }
-        { //blackguardClassHammerLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassHammerLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassHammerLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassHammerLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassHammerLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassHammerLevelMultiply not set");
-        }
-
-
-        { //blackguardClassSwordLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassSwordLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassSwordLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassSwordLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassSwordLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassSwordLevelMultiply not set");
-        }
-        { //blackguardClassShieldLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassShieldLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassShieldLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassShieldLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassShieldLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassShieldLevelMultiply not set");
-        }
-        { //blackguardClassFarmingLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassFarmingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassFarmingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassFarmingLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassFarmingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassFarmingLevelMultiply not set");
-        }
-        { //blackguardClassCookingLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassCookingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassCookingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassCookingLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassCookingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassCookingLevelMultiply not set");
-        }
-        { //blackguardClassVitalityLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassVitalityLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassVitalityLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassVitalityLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassVitalityLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassVitalityLevelMultiply not set");
-        }
-        { //blackguardClassLeatherArmorLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassLeatherArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassLeatherArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassLeatherArmorLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassLeatherArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassLeatherArmorLevelMultiply not set");
-        }
-        { //blackguardClassChainArmorLevelMultiply
-            if (blackguardClassEXP.TryGetValue("blackguardClassChainArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: blackguardClassChainArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: blackguardClassChainArmorLevelMultiply is not double is {value.GetType()}");
-                else blackguardClassChainArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: blackguardClassChainArmorLevelMultiply not set");
-        }
-        Debug.Log("blackguardClass Class configuration set");
-    }
-    #endregion
-    #region tailor
-    public static float tailorClassHunterLevelMultiply = 1.0f;
-    public static float tailorClassBowLevelMultiply = 1.0f;
-    public static float tailorClassKnifeLevelMultiply = 1.0f;
-    public static float tailorClassAxeLevelMultiply = 1.0f;
-    public static float tailorClassPickaxeLevelMultiply = 1.0f;
-    public static float tailorClassShovelLevelMultiply = 1.0f;
-    public static float tailorClassSpearLevelMultiply = 1.0f;
-    public static float tailorClassHammerLevelMultiply = 1.0f;
-    public static float tailorClassSwordLevelMultiply = 1.0f;
-    public static float tailorClassShieldLevelMultiply = 1.0f;
-    public static float tailorClassFarmingLevelMultiply = 1.0f;
-    public static float tailorClassCookingLevelMultiply = 1.0f;
-    public static float tailorClassVitalityLevelMultiply = 1.0f;
-    public static float tailorClassLeatherArmorLevelMultiply = 1.0f;
-    public static float tailorClassChainArmorLevelMultiply = 1.0f;
-
-    public static float TailorClassHunterLevelMultiply => tailorClassHunterLevelMultiply;
-    public static float TailorClassBowLevelMultiply => tailorClassBowLevelMultiply;
-    public static float TailorClassKnifeLevelMultiply => tailorClassKnifeLevelMultiply;
-    public static float TailorClassAxeLevelMultiply => tailorClassAxeLevelMultiply;
-    public static float TailorClassPickaxeLevelMultiply => tailorClassPickaxeLevelMultiply;
-    public static float TailorClassShovelLevelMultiply => tailorClassShovelLevelMultiply;
-    public static float TailorClassSpearLevelMultiply => tailorClassSpearLevelMultiply;
-    public static float TailorClassHammerLevelMultiply => tailorClassHammerLevelMultiply;
-    public static float TailorClassSwordLevelMultiply => tailorClassSwordLevelMultiply;
-    public static float TailorClassShieldLevelMultiply => tailorClassShieldLevelMultiply;
-    public static float TailorClassFarmingLevelMultiply => tailorClassFarmingLevelMultiply;
-    public static float TailorClassCookingLevelMultiply => tailorClassCookingLevelMultiply;
-    public static float TailorClassVitalityLevelMultiply => tailorClassVitalityLevelMultiply;
-    public static float TailorClassLeatherArmorMultiply => tailorClassLeatherArmorLevelMultiply;
-    public static float TailorClassChainArmorMultiply => tailorClassChainArmorLevelMultiply;
-
-    public static void PopulateTailorClassEXPConfiguration(ICoreAPI api)
-    {
-        Dictionary<string, object> tailorClassEXP = api.Assets.Get(new AssetLocation("levelup:config/classexp/tailorclass.json")).ToObject<Dictionary<string, object>>();
-        { //tailorClassHunterLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassHunterLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassHunterLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassHunterLevelMultiply is not double is {value.GetType()}");
-                else tailorClassHunterLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassHunterLevelMultiply not set");
-        }
-        { //tailorClassBowLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassBowLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassBowLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassBowLevelMultiply is not double is {value.GetType()}");
-                else tailorClassBowLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassBowLevelMultiply not set");
-        }
-        { //tailorClassAxeLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassAxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassAxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassAxeLevelMultiply is not double is {value.GetType()}");
-                else tailorClassAxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassAxeLevelMultiply not set");
-        }
-        { //tailorClassPickaxeLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassPickaxeLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassPickaxeLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassPickaxeLevelMultiply is not double is {value.GetType()}");
-                else tailorClassPickaxeLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassPickaxeLevelMultiply not set");
-        }
-        { //tailorClassShovelLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassShovelLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassShovelLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassShovelLevelMultiply is not double is {value.GetType()}");
-                else tailorClassShovelLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassShovelLevelMultiply not set");
-        }
-        { //tailorClassSpearLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassSpearLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassSpearLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassSpearLevelMultiply is not double is {value.GetType()}");
-                else tailorClassSpearLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassSpearLevelMultiply not set");
-        }
-        { //tailorClassHammerLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassHammerLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassHammerLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassHammerLevelMultiply is not double is {value.GetType()}");
-                else tailorClassHammerLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassHammerLevelMultiply not set");
-        }
-
-
-        { //tailorClassSwordLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassSwordLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassSwordLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassSwordLevelMultiply is not double is {value.GetType()}");
-                else tailorClassSwordLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassSwordLevelMultiply not set");
-        }
-        { //tailorClassShieldLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassShieldLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassShieldLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassShieldLevelMultiply is not double is {value.GetType()}");
-                else tailorClassShieldLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassShieldLevelMultiply not set");
-        }
-        { //tailorClassFarmingLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassFarmingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassFarmingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassFarmingLevelMultiply is not double is {value.GetType()}");
-                else tailorClassFarmingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassFarmingLevelMultiply not set");
-        }
-        { //tailorClassCookingLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassCookingLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassCookingLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassCookingLevelMultiply is not double is {value.GetType()}");
-                else tailorClassCookingLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassCookingLevelMultiply not set");
-        }
-        { //tailorClassVitalityLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassVitalityLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassVitalityLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassVitalityLevelMultiply is not double is {value.GetType()}");
-                else tailorClassVitalityLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassVitalityLevelMultiply not set");
-        }
-        { //tailorClassLeatherArmorLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassLeatherArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassLeatherArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassLeatherArmorLevelMultiply is not double is {value.GetType()}");
-                else tailorClassLeatherArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassLeatherArmorLevelMultiply not set");
-        }
-        { //tailorClassChainArmorLevelMultiply
-            if (tailorClassEXP.TryGetValue("tailorClassChainArmorLevelMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: tailorClassChainArmorLevelMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: tailorClassChainArmorLevelMultiply is not double is {value.GetType()}");
-                else tailorClassChainArmorLevelMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: tailorClassChainArmorLevelMultiply not set");
-        }
-        Debug.Log("Tailor Class configuration set");
-    }
-    #endregion
     #endregion
 }
