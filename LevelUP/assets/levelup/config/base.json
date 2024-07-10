@@ -1,6 +1,8 @@
 {
     "enableHardcore": false,
     "hardcoreLosePercentage": 0.8,
+    "hardcorePenaltyDelayInWorldSeconds": 1000,
+    "hardcoreMessageWhenDying": true,
     "enableDurabilityMechanic": true,
     "enableLevelHunter": true,
     "enableLevelBow": true,

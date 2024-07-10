@@ -80,6 +80,8 @@ public static class Configuration
     #region baseconfigs
     public static bool enableHardcore = false;
     public static double hardcoreLosePercentage = 0.8;
+    public static int hardcorePenaltyDelayInWorldSeconds = 1000;
+    public static bool hardcoreMessageWhenDying = true;
     public static bool enableDurabilityMechanic = true;
     public static bool enableLevelHunter = true;
     public static bool enableLevelBow = true;
@@ -123,6 +125,20 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hardcoreLosePercentage is not double is {value.GetType()}");
                 else hardcoreLosePercentage = (double)value;
             else Debug.Log("CONFIGURATION ERROR: hardcoreLosePercentage not set");
+        }
+        { //hardcorePenaltyDelayInWorldSeconds
+            if (baseConfigs.TryGetValue("hardcorePenaltyDelayInWorldSeconds", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hardcorePenaltyDelayInWorldSeconds is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hardcorePenaltyDelayInWorldSeconds is not int is {value.GetType()}");
+                else hardcorePenaltyDelayInWorldSeconds = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hardcorePenaltyDelayInWorldSeconds not set");
+        }
+        { //hardcoreMessageWhenDying
+            if (baseConfigs.TryGetValue("hardcoreMessageWhenDying", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hardcoreMessageWhenDying is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: hardcoreMessageWhenDying is not boolean is {value.GetType()}");
+                else hardcoreMessageWhenDying = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: hardcoreMessageWhenDying not set");
         }
         { //enableDurabilityMechanic
             if (baseConfigs.TryGetValue("enableDurabilityMechanic", out object value))

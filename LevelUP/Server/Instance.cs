@@ -139,7 +139,7 @@ class Instance
             Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Axe experience to UID, currently: {AxeExp}");
         }
         #endregion
-    
+
         #region Pickaxe
         var PickaxeLevels = GetSavedLevels("Pickaxe");
         ulong PickaxeExp = PickaxeLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
@@ -885,8 +885,28 @@ class Instance
         Shared.Instance.UpdateLevelAndNotify(api, player, "ChainArmor", GetSavedLevels("ChainArmor").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
     }
 
+    private readonly Dictionary<string, long> playersHardcoreDelay = [];
     private void ResetPlayerLevels(IServerPlayer player, DamageSource damageSource)
     {
+        // Check if delay config is enabled
+        if (Configuration.hardcorePenaltyDelayInWorldSeconds > 0)
+        {
+            // Check if player exist in the delay
+            if (playersHardcoreDelay.TryGetValue(player.PlayerUID, out long delay))
+            {
+                // Check if the player is on delay
+                if (api.World.Calendar.ElapsedSeconds - delay < Configuration.hardcorePenaltyDelayInWorldSeconds)
+                {
+                    if (Configuration.enableExtendedLog)
+                        Debug.Log($"{player.PlayerName} died but hes on the hardcore delay, not losing any exp, seconds to remove from delay: {Configuration.hardcorePenaltyDelayInWorldSeconds - (api.World.Calendar.ElapsedSeconds - delay)}");
+                    return;
+                } 
+                // Exist but is not on delay
+                else playersHardcoreDelay.Remove(player.PlayerUID);
+            }
+            // Player does not exist in hardcore delay so we add and continue to reduction
+            else playersHardcoreDelay.Add(player.PlayerUID, api.World.Calendar.ElapsedSeconds);
+        }
         // Get all players hunter level
         Dictionary<string, ulong> GetSavedLevels(string levelType)
         {
@@ -1029,5 +1049,9 @@ class Instance
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_ChainArmor", JsonSerializer.Serialize(level));
         }
+        if (Configuration.enableExtendedLog)
+            Debug.Log($"{player.PlayerName} died and lost {(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}% of all experience");
+        if (Configuration.hardcoreMessageWhenDying)
+            communicationChannel.SendPacket($"playerhardcoredied&{(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}", player);
     }
 }
