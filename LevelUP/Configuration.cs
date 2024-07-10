@@ -518,7 +518,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "hunter",
-            "levelup:config/levelstats/bow.json");
+            "levelup:config/levelstats/hunter.json");
         { //hunterEXPPerLevelBase
             if (hunterLevelStats.TryGetValue("hunterEXPPerLevelBase", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: hunterEXPPerLevelBase is null");
@@ -1384,7 +1384,7 @@ public static class Configuration
         Dictionary<string, object> tmporesExpPickaxe = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
-            "pickaxe",
+            "pickaxesores",
             "levelup:config/levelstats/pickaxesores.json");
         foreach (KeyValuePair<string, object> pair in tmporesExpPickaxe)
         {
