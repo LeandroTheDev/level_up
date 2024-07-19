@@ -3434,9 +3434,9 @@ public static class Configuration
                         return 1.0f;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Debug.Log($"ERROR: Unable to find the value from {levelType} in {playerClass} configurations, you probably miss something in the json configuration");
+                Debug.Log($"ERROR: Unable to find the value from {levelType} in {playerClass} configurations, you probably miss something in the json configuration, ex message: {ex.Message}");
                 return 1.0f;
             }
         }
