@@ -3414,21 +3414,21 @@ public static class Configuration
             {
                 switch (levelType)
                 {
-                    case "Hunter": return (float)classConfigs["classHunterLevelMultiply"];
-                    case "Bow": return (float)classConfigs["classBowLevelMultiply"];
-                    case "Knife": return (float)classConfigs["classKnifeLevelMultiply"];
-                    case "Axe": return (float)classConfigs["classAxeLevelMultiply"];
-                    case "Pickaxe": return (float)classConfigs["classPickaxeLevelMultiply"];
-                    case "Shovel": return (float)classConfigs["classShovelLevelMultiply"];
-                    case "Spear": return (float)classConfigs["classSpearLevelMultiply"];
-                    case "Hammer": return (float)classConfigs["classHammerLevelMultiply"];
-                    case "Sword": return (float)classConfigs["classSwordLevelMultiply"];
-                    case "Shield": return (float)classConfigs["classShieldLevelMultiply"];
-                    case "Farming": return (float)classConfigs["classFarmingLevelMultiply"];
-                    case "Cooking": return (float)classConfigs["classCookingLevelMultiply"];
-                    case "Vitality": return (float)classConfigs["classVitalityLevelMultiply"];
-                    case "LeatherArmor": return (float)classConfigs["classLeatherArmorLevelMultiply"];
-                    case "ChainArmor": return (float)classConfigs["classChainArmorLevelMultiply"];
+                    case "Hunter": return (float)Convert.ToSingle(classConfigs["classHunterLevelMultiply"]);
+                    case "Bow": return (float)Convert.ToSingle(classConfigs["classBowLevelMultiply"]);
+                    case "Knife": return (float)Convert.ToSingle(classConfigs["classKnifeLevelMultiply"]);
+                    case "Axe": return (float)Convert.ToSingle(classConfigs["classAxeLevelMultiply"]);
+                    case "Pickaxe": return (float)Convert.ToSingle(classConfigs["classPickaxeLevelMultiply"]);
+                    case "Shovel": return (float)Convert.ToSingle(classConfigs["classShovelLevelMultiply"]);
+                    case "Spear": return (float)Convert.ToSingle(classConfigs["classSpearLevelMultiply"]);
+                    case "Hammer": return (float)Convert.ToSingle(classConfigs["classHammerLevelMultiply"]);
+                    case "Sword": return (float)Convert.ToSingle(classConfigs["classSwordLevelMultiply"]);
+                    case "Shield": return (float)Convert.ToSingle(classConfigs["classShieldLevelMultiply"]);
+                    case "Farming": return (float)Convert.ToSingle(classConfigs["classFarmingLevelMultiply"]);
+                    case "Cooking": return (float)Convert.ToSingle(classConfigs["classCookingLevelMultiply"]);
+                    case "Vitality": return (float)Convert.ToSingle(classConfigs["classVitalityLevelMultiply"]);
+                    case "LeatherArmor": return (float)Convert.ToSingle(classConfigs["classLeatherArmorLevelMultiply"]);
+                    case "ChainArmor": return (float)Convert.ToSingle(classConfigs["classChainArmorLevelMultiply"]);
                     default:
                         Debug.Log($"ERROR: The leveltype {levelType} does not exist");
                         return 1.0f;
