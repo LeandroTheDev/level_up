@@ -2890,6 +2890,8 @@ public static class Configuration
     private static int vitalityDamageLimit = 1000;
 
     public static int DamageLimitVitality => vitalityDamageLimit;
+    public static float BaseHPVitality => vitalityBaseHP;
+    public static float BaseHPRegenVitality => vitalityBaseHPRegen;
 
     public static void PopulateVitalityConfiguration(ICoreAPI api)
     {
