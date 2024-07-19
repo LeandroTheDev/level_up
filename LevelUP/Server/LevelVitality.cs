@@ -50,6 +50,16 @@ class LevelVitality
 
     private void SaveState()
     {
+        // Exception Treatment
+        foreach (KeyValuePair<string, double> keyValue in playerState)
+        {
+            // Check infinity bug
+            if (double.IsInfinity(keyValue.Value))
+            {
+                Debug.Log($"ERROR: {keyValue.Key} vitalityState is infinity??, reseting to {Configuration.BaseHPVitality} before saving");
+                playerState[keyValue.Key] = Configuration.BaseHPVitality;
+            }
+        }
         instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality_Players_Health", JsonSerializer.Serialize(playerState));
     }
 
@@ -67,14 +77,29 @@ class LevelVitality
         if (playerStats == null) { Debug.Log($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
 
         // Getting health stats
-        playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
-        playerStats.MaxHealth = playerStats.BaseMaxHealth;
-        playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
+        float playerMaxHealth = Configuration.VitalityGetMaxHealthByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
+        if (float.IsInfinity(playerMaxHealth))
+        {
+            Debug.Log($"ERROR: Max health calculation returned any infinity number, please contact BoboDev and report this issue, base health set to {Configuration.BaseHPVitality}");
+            playerMaxHealth = Configuration.BaseHPVitality;
+        }
+
+        // Getting regen stats
+        float playerRegen = Configuration.VitalityGetHealthRegenMultiplyByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
+        if (float.IsInfinity(playerRegen))
+        {
+            Debug.Log($"ERROR: Regeneration calculation returned any infinity number, please contact BoboDev and report this issue, base regen set to {Configuration.BaseHPRegenVitality}");
+            playerRegen = Configuration.BaseHPRegenVitality;
+        }
+
+        playerStats.BaseMaxHealth = playerMaxHealth;
+        playerStats.MaxHealth = playerMaxHealth;
+        playerStats._playerHealthRegenSpeed = playerRegen;
 
         // Reload player health
         if (playerState.TryGetValue(player.PlayerName, out double value)) playerStats.Health = (float)value;
         // If cannot find player will receive the base max health instead
-        else playerStats.Health = playerStats.BaseMaxHealth;
+        else playerStats.Health = playerMaxHealth;
 
         // Refresh for the player
         playerStats.UpdateMaxHealth();
@@ -89,8 +114,14 @@ class LevelVitality
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
         if (playerStats == null) { Debug.Log($"ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
 
+        // Check error treatment
+        if (float.IsInfinity(playerStats.Health))
+        {
+            Debug.Log($"ERROR SAVING PLAYER STATE: Player Health is infinity, caused by {player.PlayerName} setting the health to 1.0");
+            playerState[player.PlayerUID] = 1.0f;
+        }
         // Update it
-        playerState[player.PlayerUID] = playerStats.Health;
+        else playerState[player.PlayerUID] = playerStats.Health;
 
         // Save it
         SaveState();
