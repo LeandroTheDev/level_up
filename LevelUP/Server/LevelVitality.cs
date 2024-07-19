@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Common;
@@ -124,6 +125,19 @@ class LevelVitality
         else playerState[player.PlayerUID] = playerStats.Health;
 
         // Save it
-        SaveState();
+        try
+        {
+            SaveState();
+        }
+        catch (Exception ex)
+        {
+            Debug.Log($"VITALITY ERROR: Cannot save state after disconnecting, the player {player.PlayerName} crashed, playerLife: {playerStats.Health} reason: {ex.Message}");
+            if (Configuration.enableExtendedLog)
+            {
+                Debug.Log("Debugging all vitality states...");
+                foreach (KeyValuePair<string, double> keyValue in playerState)
+                    Debug.Log($"VITALITY DEBUG: Player: {keyValue.Key} Health: {keyValue.Value}");
+            }
+        }
     }
 }
