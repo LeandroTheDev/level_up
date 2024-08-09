@@ -14,6 +14,7 @@
     "enableLevelShovel": true,
     "enableLevelSword": true,
     "enableLevelShield": true,
+    "enableLevelHand": true,
     "enableLevelFarming": true,
     "enableLevelCooking": true,
     "enableLevelVitality": true,

@@ -93,8 +93,10 @@ public static class Configuration
     public static bool enableLevelShovel = true;
     public static bool enableLevelSword = true;
     public static bool enableLevelShield = true;
+    public static bool enableLevelHand = true;
     public static bool enableLevelFarming = true;
     public static bool enableLevelCooking = true;
+    public static bool enableLevelPanning = true;
     public static bool enableLevelVitality = true;
     public static bool enableLevelLeatherArmor = true;
     public static bool enableLevelChainArmor = true;
@@ -224,6 +226,13 @@ public static class Configuration
                 else enableLevelShield = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: enableLevelShield not set");
         }
+        { //enableLevelHand
+            if (baseConfigs.TryGetValue("enableLevelHand", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelHand is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHand is not boolean is {value.GetType()}");
+                else enableLevelHand = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelHand not set");
+        }
         { //enableLevelFarming
             if (baseConfigs.TryGetValue("enableLevelFarming", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelFarming is null");
@@ -238,6 +247,13 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelCooking is not boolean is {value.GetType()}");
                 else enableLevelCooking = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: enableLevelCooking not set");
+        }
+        { //enableLevelPanning
+            if (baseConfigs.TryGetValue("enableLevelPanning", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelPanning is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelPanning is not boolean is {value.GetType()}");
+                else enableLevelPanning = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelPanning not set");
         }
         { //enableLevelVitality
             if (baseConfigs.TryGetValue("enableLevelVitality", out object value))
@@ -498,8 +514,10 @@ public static class Configuration
             case "Hammer": return HammerGetLevelByEXP(exp);
             case "Sword": return SwordGetLevelByEXP(exp);
             case "Shield": return ShieldGetLevelByEXP(exp);
+            case "Hand": return HandGetLevelByEXP(exp);
             case "Farming": return FarmingGetLevelByEXP(exp);
             case "Cooking": return CookingGetLevelByEXP(exp);
+            case "Panning": return PanningGetLevelByEXP(exp);
             case "Vitality": return VitalityGetLevelByEXP(exp);
             case "LeatherArmor": return LeatherArmorGetLevelByEXP(exp);
             case "ChainArmor": return ChainArmorGetLevelByEXP(exp);
@@ -2314,7 +2332,7 @@ public static class Configuration
             else Debug.Log($"CONFIGURATION ERROR: entityExpSword {pair.Key} is not int");
         }
 
-        Debug.Log("Swird configuration set");
+        Debug.Log("Hand configuration set");
     }
 
     public static int SwordGetLevelByEXP(ulong exp)
@@ -2512,6 +2530,110 @@ public static class Configuration
         else return false;
     }
     #endregion
+
+    #region hand
+    public static readonly Dictionary<string, int> entityExpHand = [];
+    private static int handEXPPerHit = 1;
+    private static int handEXPPerLevelBase = 10;
+    private static double handEXPMultiplyPerLevel = 2.0;
+    private static float handBaseDamage = 1.0f;
+    private static float handIncrementDamagePerLevel = 0.1f;
+
+    public static int ExpPerHitHand => handEXPPerHit;
+
+    public static void PopulateHandConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> handLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "hand",
+            "levelup:config/levelstats/hand.json");
+        { //handEXPPerLevelBase
+            if (handLevelStats.TryGetValue("handEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: handEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: handEXPPerLevelBase is not int is {value.GetType()}");
+                else handEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: handEXPPerLevelBase not set");
+        }
+        { //handEXPMultiplyPerLevel
+            if (handLevelStats.TryGetValue("handEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: handEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: handEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else handEXPMultiplyPerLevel = (double)value;
+            else Debug.Log("CONFIGURATION ERROR: handEXPMultiplyPerLevel not set");
+        }
+        { //handBaseDamage
+            if (handLevelStats.TryGetValue("handBaseDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: handBaseDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: handBaseDamage is not double is {value.GetType()}");
+                else handBaseDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: handBaseDamage not set");
+        }
+        { //handIncrementDamagePerLevel
+            if (handLevelStats.TryGetValue("handIncrementDamagePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: handIncrementDamagePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: handIncrementDamagePerLevel is not double is {value.GetType()}");
+                else handIncrementDamagePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: handIncrementDamagePerLevel not set");
+        }
+        { //handEXPPerHit
+            if (handLevelStats.TryGetValue("handEXPPerHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: handEXPPerHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: handEXPPerHit is not int is {value.GetType()}");
+                else handEXPPerHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: handEXPPerHit not set");
+        }
+
+        // Get entity exp
+        entityExpHand.Clear();
+        Dictionary<string, object> tmpentityExpHand = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "hand",
+            "levelup:config/entityexp/hand.json");
+        foreach (KeyValuePair<string, object> pair in tmpentityExpHand)
+        {
+            if (pair.Value is long value) entityExpHand.Add(pair.Key, (int)value);
+            else Debug.Log($"CONFIGURATION ERROR: entityExpHand {pair.Key} is not int");
+        }
+
+        Debug.Log("Hand configuration set");
+    }
+
+    public static int HandGetLevelByEXP(ulong exp)
+    {
+
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = handEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= handEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+
+    public static float HandGetDamageMultiplyByLevel(int level)
+    {
+        float baseDamage = handBaseDamage;
+
+        float incrementDamage = handIncrementDamagePerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementDamage;
+            level -= 1;
+        }
+
+        baseDamage += baseDamage * incrementDamage;
+        return baseDamage;
+    }
+    #endregion
+
 
     #region farming
     public static readonly Dictionary<string, int> expPerHarvestFarming = [];
@@ -2876,6 +2998,159 @@ public static class Configuration
         return quantityServings;
     }
     #endregion
+
+    #region panning
+    private static int panningBaseExpPerPanning = 3;
+    private static int panningEXPPerLevelBase = 10;
+    private static double panningEXPMultiplyPerLevel = 1.3;
+    private static float panningBaseLootMultiply = 0.0f;
+    private static float panningLootMultiplyPerLevel = 0.1f;
+    private static float panningBaseChanceToDoubleLoot = 0.0f;
+    private static float panningChanceToDoubleLootPerLevel = 1.0f;
+    private static float panningBaseChanceToTripleLoot = 0.0f;
+    private static float panningChanceToTripleLootPerLevel = 0.5f;
+    private static float panningBaseChanceToQuadrupleLoot = 0.0f;
+    private static float panningChanceToQuadrupleLootPerLevel = 0.3f;
+    public static int ExpPerPanning => panningBaseExpPerPanning;
+
+    public static void PopulatePanningConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> panningLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "panning",
+            "levelup:config/levelstats/panning.json");
+        { //panningBaseExpPerpanning
+            if (panningLevelStats.TryGetValue("panningBaseExpPerPanning", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseExpPerPanning is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: panningBaseExpPerPanning is not int is {value.GetType()}");
+                else panningBaseExpPerPanning = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: panningBaseExpPerPanning not set");
+        }
+        { //panningEXPPerLevelBase
+            if (panningLevelStats.TryGetValue("panningEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: panningEXPPerLevelBase is not int is {value.GetType()}");
+                else panningEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: panningEXPPerLevelBase not set");
+        }
+        { //panningEXPMultiplyPerLevel
+            if (panningLevelStats.TryGetValue("panningEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else panningEXPMultiplyPerLevel = (double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningEXPMultiplyPerLevel not set");
+        }
+        { //panningBaseLootMultiply
+            if (panningLevelStats.TryGetValue("panningBaseLootMultiply", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseLootMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningBaseLootMultiply is not double is {value.GetType()}");
+                else panningBaseLootMultiply = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningBaseLootMultiply not set");
+        }
+        { //panningLootMultiplyPerLevel
+            if (panningLevelStats.TryGetValue("panningLootMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningLootMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningLootMultiplyPerLevel is not double is {value.GetType()}");
+                else panningLootMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningLootMultiplyPerLevel not set");
+        }
+        { //panningBaseChanceToDoubleLoot
+            if (panningLevelStats.TryGetValue("panningBaseChanceToDoubleLoot", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseChanceToDoubleLoot is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningBaseChanceToDoubleLoot is not double is {value.GetType()}");
+                else panningBaseChanceToDoubleLoot = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningBaseChanceToDoubleLoot not set");
+        }
+        { //panningChanceToDoubleLootPerLevel
+            if (panningLevelStats.TryGetValue("panningChanceToDoubleLootPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningChanceToDoubleLootPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningChanceToDoubleLootPerLevel is not double is {value.GetType()}");
+                else panningChanceToDoubleLootPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningChanceToDoubleLootPerLevel not set");
+        }
+        { //panningBaseChanceToTripleLoot
+            if (panningLevelStats.TryGetValue("panningBaseChanceToTripleLoot", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseChanceToTripleLoot is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningBaseChanceToTripleLoot is not double is {value.GetType()}");
+                else panningBaseChanceToTripleLoot = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningBaseChanceToTripleLoot not set");
+        }
+        { //panningChanceToTripleLootPerLevel
+            if (panningLevelStats.TryGetValue("panningChanceToTripleLootPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningChanceToTripleLootPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningChanceToTripleLootPerLevel is not double is {value.GetType()}");
+                else panningChanceToTripleLootPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningChanceToTripleLootPerLevel not set");
+        }
+        { //panningBaseChanceToQuadrupleLoot
+            if (panningLevelStats.TryGetValue("panningBaseChanceToQuadrupleLoot", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseChanceToQuadrupleLoot is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningBaseChanceToQuadrupleLoot is not double is {value.GetType()}");
+                else panningBaseChanceToQuadrupleLoot = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningBaseChanceToQuadrupleLoot not set");
+        }
+        { //panningChanceToQuadrupleLootPerLevel
+            if (panningLevelStats.TryGetValue("panningChanceToQuadrupleLootPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel is not double is {value.GetType()}");
+                else panningChanceToQuadrupleLootPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel not set");
+        }
+        Debug.Log("Panning configuration set");
+    }
+
+    public static int PanningGetLevelByEXP(ulong exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = panningEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 20 percentage increasing per level
+            expPerLevelBase *= panningEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+
+    public static float PanningGetLootMultiplyByLevel(int level)
+    {
+        float baseMultiply = panningBaseLootMultiply;
+
+        float incrementMultiply = panningLootMultiplyPerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementMultiply;
+            level -= 1;
+        }
+
+        baseMultiply += baseMultiply * multiply;
+        return baseMultiply;
+    }
+
+    public static int PanningGetLootQuantityMultiplyByLevel(int level)
+    {
+        double chanceToDouble = panningBaseChanceToDoubleLoot;
+        double chanceToTriple = panningChanceToTripleLootPerLevel;
+        double chanceToQuadruple = panningBaseChanceToQuadrupleLoot;
+        for (int i = 0; i < level; i++)
+        {
+            chanceToDouble += panningChanceToDoubleLootPerLevel;
+            chanceToTriple += panningBaseChanceToTripleLoot;
+            chanceToQuadruple += panningChanceToQuadrupleLootPerLevel;
+        }
+        Random random = new Random();
+        if (random.Next(0, 101) <= (int)(chanceToQuadruple * 100)) return 3;
+        if (random.Next(0, 101) <= (int)(chanceToTriple * 100)) return 2;
+        if (random.Next(0, 101) <= (int)(chanceToDouble * 100)) return 1;
+        return 0;
+    }
+    #endregion
+
 
     #region vitality
     private static int vitalityEXPPerReceiveHit = 1;
@@ -3424,8 +3699,10 @@ public static class Configuration
                     case "Hammer": return (float)Convert.ToSingle(classConfigs["classHammerLevelMultiply"]);
                     case "Sword": return (float)Convert.ToSingle(classConfigs["classSwordLevelMultiply"]);
                     case "Shield": return (float)Convert.ToSingle(classConfigs["classShieldLevelMultiply"]);
+                    case "Hand": return (float)Convert.ToSingle(classConfigs["classHandLevelMultiply"]);
                     case "Farming": return (float)Convert.ToSingle(classConfigs["classFarmingLevelMultiply"]);
                     case "Cooking": return (float)Convert.ToSingle(classConfigs["classCookingLevelMultiply"]);
+                    case "Panning": return (float)Convert.ToSingle(classConfigs["classPanningLevelMultiply"]);
                     case "Vitality": return (float)Convert.ToSingle(classConfigs["classVitalityLevelMultiply"]);
                     case "LeatherArmor": return (float)Convert.ToSingle(classConfigs["classLeatherArmorLevelMultiply"]);
                     case "ChainArmor": return (float)Convert.ToSingle(classConfigs["classChainArmorLevelMultiply"]);
@@ -3462,7 +3739,8 @@ public static class Configuration
                 {
                     // Null check
                     if (!classExperience.TryGetValue(configname, out _)) classExperience.Add(configname, []);
-                    else {
+                    else
+                    {
                         Debug.Log($"WARNING: {configname} already exist in memory, duplicated class? how?");
                         continue;
                     };

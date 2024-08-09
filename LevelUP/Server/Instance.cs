@@ -25,9 +25,11 @@ class Instance
     public LevelHammer levelHammer = new();
     public LevelSword levelSword = new();
     public LevelShield levelShield = new();
+    public LevelHand levelHand = new();
     public LevelFarming levelFarming = new();
     public LevelVitality levelVitality = new();
     public LevelCooking levelCooking = new();
+    public LevelPanning levelPanning = new();
     public LevelLeatherArmor levelLeatherArmor = new();
     public LevelChainArmor levelChainArmor = new();
 
@@ -48,9 +50,11 @@ class Instance
         if (Configuration.enableLevelHammer) levelHammer.Init(this);
         if (Configuration.enableLevelSword) levelSword.Init(this);
         if (Configuration.enableLevelShield) levelShield.Init(this);
+        if (Configuration.enableLevelHand) levelHand.Init(this);
         if (Configuration.enableLevelFarming) levelFarming.Init(this);
         if (Configuration.enableLevelVitality) levelVitality.Init(this);
         if (Configuration.enableLevelCooking) levelCooking.Init(this);
+        if (Configuration.enableLevelPanning) levelPanning.Init(this);
         if (Configuration.enableLevelLeatherArmor) levelLeatherArmor.Init(this);
         if (Configuration.enableLevelChainArmor) levelChainArmor.Init(this);
         Debug.Log("Server Levels instanciated");
@@ -78,201 +82,7 @@ class Instance
 
         // Show configurations if enabled
         if (Configuration.enableExtendedLog) Configuration.LogConfigurations();
-
-        api.Event.PlayerJoin += ConvertOldExperienceToPlayerUID;
     }
-
-    private void ConvertOldExperienceToPlayerUID(IServerPlayer byPlayer)
-    {
-        // Get all players saved level
-        Dictionary<string, ulong> GetSavedLevels(string levelType)
-        {
-            byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
-            string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-            return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-        }
-
-        #region Hunter
-        var HunterLevels = GetSavedLevels("Hunter");
-        ulong HunterExp = HunterLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (HunterExp != 0)
-        {
-            HunterLevels[byPlayer.PlayerUID] = HunterExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Hunter", JsonSerializer.Serialize(HunterLevels));
-            HunterLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Hunter experience to UID, currently: {HunterExp}");
-        }
-        #endregion
-
-        #region Bow
-        var BowLevels = GetSavedLevels("Bow");
-        ulong BowExp = BowLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (BowExp != 0)
-        {
-            BowLevels[byPlayer.PlayerUID] = BowExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Bow", JsonSerializer.Serialize(BowLevels));
-            BowLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Bow experience to UID, currently: {BowExp}");
-        }
-        #endregion
-
-        #region Knife
-        var KnifeLevels = GetSavedLevels("Knife");
-        ulong KnifeExp = KnifeLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (KnifeExp != 0)
-        {
-            KnifeLevels[byPlayer.PlayerUID] = KnifeExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Knife", JsonSerializer.Serialize(KnifeLevels));
-            KnifeLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Knife experience to UID, currently: {KnifeExp}");
-        }
-        #endregion
-
-        #region Axe
-        var AxeLevels = GetSavedLevels("Axe");
-        ulong AxeExp = AxeLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (AxeExp != 0)
-        {
-            AxeLevels[byPlayer.PlayerUID] = AxeExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Axe", JsonSerializer.Serialize(AxeLevels));
-            AxeLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Axe experience to UID, currently: {AxeExp}");
-        }
-        #endregion
-
-        #region Pickaxe
-        var PickaxeLevels = GetSavedLevels("Pickaxe");
-        ulong PickaxeExp = PickaxeLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (PickaxeExp != 0)
-        {
-            PickaxeLevels[byPlayer.PlayerUID] = PickaxeExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Pickaxe", JsonSerializer.Serialize(PickaxeLevels));
-            PickaxeLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Pickaxe experience to UID, currently: {PickaxeExp}");
-        }
-        #endregion
-
-        #region Shovel
-        var ShovelLevels = GetSavedLevels("Shovel");
-        ulong ShovelExp = ShovelLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (ShovelExp != 0)
-        {
-            ShovelLevels[byPlayer.PlayerUID] = ShovelExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Shovel", JsonSerializer.Serialize(ShovelLevels));
-            ShovelLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Shovel experience to UID, currently: {ShovelExp}");
-        }
-        #endregion
-
-        #region Spear
-        var SpearLevels = GetSavedLevels("Spear");
-        ulong SpearExp = SpearLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (SpearExp != 0)
-        {
-            SpearLevels[byPlayer.PlayerUID] = SpearExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Spear", JsonSerializer.Serialize(SpearLevels));
-            SpearLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Spear experience to UID, currently: {SpearExp}");
-        }
-        #endregion
-
-        #region Hammer
-        var HammerLevels = GetSavedLevels("Hammer");
-        ulong HammerExp = HammerLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (HammerExp != 0)
-        {
-            HammerLevels[byPlayer.PlayerUID] = HammerExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Hammer", JsonSerializer.Serialize(HammerLevels));
-            HammerLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Hammer experience to UID, currently: {HammerExp}");
-        }
-        #endregion
-
-        #region Sword
-        var SwordLevels = GetSavedLevels("Sword");
-        ulong SwordExp = SwordLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (SwordExp != 0)
-        {
-            SwordLevels[byPlayer.PlayerUID] = SwordExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Sword", JsonSerializer.Serialize(SwordLevels));
-            SwordLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Sword experience to UID, currently: {SwordExp}");
-        }
-        #endregion
-
-        #region Shield
-        var ShieldLevels = GetSavedLevels("Shield");
-        ulong ShieldExp = ShieldLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (ShieldExp != 0)
-        {
-            ShieldLevels[byPlayer.PlayerUID] = ShieldExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Shield", JsonSerializer.Serialize(ShieldLevels));
-            ShieldLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Shield experience to UID, currently: {ShieldExp}");
-        }
-        #endregion
-
-        #region Farming
-        var FarmingLevels = GetSavedLevels("Farming");
-        ulong FarmingExp = FarmingLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (FarmingExp != 0)
-        {
-            FarmingLevels[byPlayer.PlayerUID] = FarmingExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Farming", JsonSerializer.Serialize(FarmingLevels));
-            FarmingLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Farming experience to UID, currently: {FarmingExp}");
-        }
-        #endregion
-
-        #region Cooking
-        var CookingLevels = GetSavedLevels("Cooking");
-        ulong CookingExp = CookingLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (CookingExp != 0)
-        {
-            CookingLevels[byPlayer.PlayerUID] = CookingExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Cooking", JsonSerializer.Serialize(CookingLevels));
-            CookingLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Cooking experience to UID, currently: {CookingExp}");
-        }
-        #endregion
-
-        #region Vitality
-        var VitalityLevels = GetSavedLevels("Vitality");
-        ulong VitalityExp = VitalityLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (VitalityExp != 0)
-        {
-            VitalityLevels[byPlayer.PlayerUID] = VitalityExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality", JsonSerializer.Serialize(VitalityLevels));
-            VitalityLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted Vitality experience to UID, currently: {VitalityExp}");
-        }
-        #endregion
-
-        #region LeatherArmor
-        var LeatherArmorLevels = GetSavedLevels("LeatherArmor");
-        ulong LeatherArmorExp = LeatherArmorLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (LeatherArmorExp != 0)
-        {
-            LeatherArmorLevels[byPlayer.PlayerUID] = LeatherArmorExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_LeatherArmor", JsonSerializer.Serialize(LeatherArmorLevels));
-            LeatherArmorLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted LeatherArmor experience to UID, currently: {LeatherArmorExp}");
-        }
-        #endregion
-
-        #region ChainArmor
-        var ChainArmorLevels = GetSavedLevels("ChainArmor");
-        ulong ChainArmorExp = ChainArmorLevels.GetValueOrDefault<string, ulong>(byPlayer.PlayerName, 0);
-        if (ChainArmorExp != 0)
-        {
-            ChainArmorLevels[byPlayer.PlayerUID] = ChainArmorExp;
-            api.WorldManager.SaveGame.StoreData("LevelUPData_ChainArmor", JsonSerializer.Serialize(ChainArmorLevels));
-            ChainArmorLevels.Remove(byPlayer.PlayerName);
-            Debug.Log($"CONVERSION: {byPlayer.PlayerName} converted ChainArmor experience to UID, currently: {ChainArmorExp}");
-        }
-        #endregion
-    }
-
     public void PopulateConfigurations(ICoreAPI coreAPI)
     {
         // Base mod Configs
@@ -289,9 +99,11 @@ class Instance
         levelHammer.PopulateConfiguration(coreAPI);
         levelSword.PopulateConfiguration(coreAPI);
         levelShield.PopulateConfiguration(coreAPI);
+        levelHand.PopulateConfiguration(coreAPI);
         levelFarming.PopulateConfiguration(coreAPI);
         levelVitality.PopulateConfiguration(coreAPI);
         levelCooking.PopulateConfiguration(coreAPI);
+        levelPanning.PopulateConfiguration(coreAPI);
         levelLeatherArmor.PopulateConfiguration(coreAPI);
         levelChainArmor.PopulateConfiguration(coreAPI);
 
@@ -354,6 +166,7 @@ class Instance
             case "Increase_Hammer_Hit": IncreaseExp(player, "Hammer", "Hit"); return;
             case "Increase_Sword_Hit": IncreaseExp(player, "Sword", "Hit"); return;
             case "Increase_Shield_Hit": IncreaseExp(player, "Shield", "Hit"); return;
+            case "Increase_Hand_Hit": IncreaseExp(player, "Hand", "Hit"); return;
             case "Increase_Vitality_Hit": IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_LeatherArmor_Hit": IncreaseExp(player, "LeatherArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_ChainArmor_Hit": IncreaseExp(player, "ChainArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
@@ -370,6 +183,7 @@ class Instance
             #endregion
             #region crafting
             case "Cooking_Finished": IncreaseExp(player, "Cooking", "Cooking_Finished", arguments["forceexp"].ToString().ToInt()); return;
+            case "Panning_Finished": IncreaseExp(player, "Panning", "Panning_Finished"); return;
                 #endregion
         }
 
@@ -386,6 +200,7 @@ class Instance
     private void IncreaseExp(IServerPlayer player, string levelType, string reason, int forceexp = 0)
     {
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        /// Automatically gets the level from levelType parameter
         Dictionary<string, ulong> GetSavedLevels()
         {
             byte[] dataBytes = api.WorldManager.SaveGame.GetData($"LevelUPData_{levelType}");
@@ -717,6 +532,29 @@ class Instance
                 Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
+        #region hand
+        // Hit
+        if (levelType == "Hand" && reason == "Hit")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong earnedExp = (ulong)(Configuration.ExpPerHitHand + (Configuration.ExpPerHitHand * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Hand"));
+            // Minium exp earned is 1
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            // Increment
+            levels[player.PlayerUID] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
+
         #region farming
         // Till Soil
         if (levelType == "Farming" && reason == "Till")
@@ -748,6 +586,28 @@ class Instance
             ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Cooking"));
+            // Minium exp earned is 1
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            // Increment
+            levels[player.PlayerUID] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
+        #region panning
+        // Panning
+        if (levelType == "Panning" && reason == "Panning_Finished")
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong earnedExp = (ulong)(Configuration.ExpPerPanning + (Configuration.ExpPerPanning * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Panning"));
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
@@ -869,6 +729,9 @@ class Instance
         // Shield Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Shield", GetSavedLevels("Shield").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
 
+        // Hand Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Hand", GetSavedLevels("Hand").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
+
         // Farming Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", GetSavedLevels("Farming").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
 
@@ -900,7 +763,7 @@ class Instance
                     if (Configuration.enableExtendedLog)
                         Debug.Log($"{player.PlayerName} died but hes on the hardcore delay, not losing any exp, seconds to remove from delay: {Configuration.hardcorePenaltyDelayInWorldSeconds - (api.World.Calendar.ElapsedSeconds - delay)}");
                     return;
-                } 
+                }
                 // Exist but is not on delay
                 else playersHardcoreDelay.Remove(player.PlayerUID);
             }
@@ -1005,6 +868,15 @@ class Instance
             api.WorldManager.SaveGame.StoreData("LevelUPData_Shield", JsonSerializer.Serialize(level));
         }
         {
+            Dictionary<string, ulong> level = GetSavedLevels("Hand");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerUID] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Hand", JsonSerializer.Serialize(level));
+        }
+        {
             Dictionary<string, ulong> level = GetSavedLevels("Farming");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
@@ -1021,6 +893,15 @@ class Instance
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Cooking", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("Panning");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerUID] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_Panning", JsonSerializer.Serialize(level));
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Vitality");

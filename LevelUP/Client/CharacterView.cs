@@ -13,8 +13,6 @@ class CharacterView
     GuiDialogCharacterBase characterView;
     private GuiElementContainer levelContainer;
 
-    byte page = 0;
-
     public void Init(Instance _instance)
     {
         instance = _instance;
@@ -27,7 +25,7 @@ class CharacterView
             characterView = instance.api.Gui.LoadedGuis.Find((GuiDialog dlg) => dlg is GuiDialogCharacterBase) as GuiDialogCharacterBase;
             characterView.Tabs.Add(new GuiTab
             {
-                Name = "Level",
+                Name = Lang.Get("levelup:levels_tab"),
                 DataInt = characterView.Tabs.Count
             });
             characterView.RenderTabHandlers.Add(ComposeLevelTab);
@@ -103,6 +101,11 @@ class CharacterView
         levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:shield")}: {GetLevelByLevelName("Shield")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
         #endregion
 
+        #region hand
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:hand.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:hand")}: {GetLevelByLevelName("Hand")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
         #region farming
         levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:farming.png")));
         levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:farming")}: {GetLevelByLevelName("Farming")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
@@ -111,6 +114,11 @@ class CharacterView
         #region cooking
         levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:cooking.png")));
         levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:cooking")}: {GetLevelByLevelName("Cooking")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region panning
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:panning.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:panning")}: {GetLevelByLevelName("Panning")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
         #endregion
 
         #region vitality
@@ -133,7 +141,7 @@ class CharacterView
 
         // Adding the size of scroll button
         GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
-        scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)(clippingBounds.fixedHeight * 3.5));
+        scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)(clippingBounds.fixedHeight * 3.7));
     }
 
     private void OnNewScrollbarValue(float value)
@@ -143,39 +151,4 @@ class CharacterView
     }
 
     private int GetLevelByLevelName(string levelName) => instance.api.World.Player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelName}");
-
-    private static void SetComposerLevel(GuiComposer composer, ElementBounds position, int level)
-    {
-        // Single Digits
-        if (level < 10)
-            // Creating the imagem
-            composer.AddImage(position, new AssetLocation($"levelup:{level}.png"));
-        // Double Digits
-        else if (level < 100)
-        {
-            string levelStr = level.ToString();
-            int firstDigit = int.Parse(levelStr[0].ToString());
-            int secondDigit = int.Parse(levelStr[1].ToString());
-
-            // First digit instanciation
-            ElementBounds firstDigitPosition = ElementBounds.Fixed(
-                position.fixedX - 15,
-                position.fixedY,
-                position.fixedWidth,
-                position.fixedHeight
-            );
-            composer.AddImage(firstDigitPosition, new AssetLocation($"levelup:{firstDigit}.png"));
-
-            // Second digit instanciation
-            ElementBounds secondDigitPosition = ElementBounds.Fixed(
-                position.fixedX + 15,
-                position.fixedY,
-                position.fixedWidth,
-                position.fixedHeight
-            );
-            composer.AddImage(secondDigitPosition, new AssetLocation($"levelup:{secondDigit}.png"));
-        }
-
-        Debug.Log("Ops, you reached the gui limit :P            ");
-    }
 }
