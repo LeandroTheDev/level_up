@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 
 namespace LevelUP.Client;
 
@@ -9,7 +11,7 @@ class CharacterView
     Instance instance;
 
     GuiDialogCharacterBase characterView;
-    private GuiComposer levelTabComposer;
+    private GuiElementContainer levelContainer;
 
     byte page = 0;
 
@@ -35,99 +37,109 @@ class CharacterView
 
     private void ComposeLevelTab(GuiComposer composer)
     {
-        switch (page)
-        {
-            case 0: ComposeFirstPage(composer); break;
+        // Bounds instanciation
+        ElementBounds insetBounds;
+        ElementBounds leftColumn = ElementBounds.Fixed(0.0, 0.0, 300.0, 30.0);
+        ElementBounds clippingBounds;
+        ElementBounds listBounds;
+        ElementBounds containerBounds = ElementBounds.Fixed(0.0, 10.0, 82.0, 82);
+        containerBounds = containerBounds.FlatCopy();
+        double insetWidth = Math.Max(350.0, 350 * 0.5);
+        double insetHeight = Math.Max(325.0, 425 - 160.0);
 
-            case 1: break;
-        }
-        composer.AddButton("Back", OnBackClicked, ElementBounds.Fixed(0.0, 300.0, 20.0, 15.0));
-        composer.AddButton("Next", OnNextClicked, ElementBounds.Fixed(310.0, 300.0, 30.0, 15.0));
+        // Creating the dark background
+        composer.AddInset(insetBounds = leftColumn.BelowCopy(0.0, -3.0).WithFixedSize(insetWidth, insetHeight - leftColumn.fixedY - leftColumn.fixedHeight));
+        // Adding a scrollbar to it in the left side
+        composer.AddVerticalScrollbar(OnNewScrollbarValue, ElementStdBounds.VerticalScrollbar(insetBounds), "LevelUP_Scrollbar");
+        // Creating the Clip for the Scrollbar
+        composer.BeginClip(clippingBounds = insetBounds.ForkContainingChild(10.0, 0.0, 10.0, 10.0));
+        // Creating the container to add items in clip
+        composer.AddContainer(listBounds = clippingBounds.ForkContainingChild(10.0, 10.0, 10.0, 10.0), "LevelUP_Levels_List");
+        levelContainer = composer.GetContainer("LevelUP_Levels_List");
 
-        levelTabComposer = composer;
-        // #region 3
-        // // Leather Armor
-        // composer.AddImage(ElementBounds.Fixed(0.0, 225.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        // composer.AddRichtext(
-        //     $"{Lang.Get("levelup:leather_armor")}: {GetLevelByLevelName("LeatherArmor")}",
-        //     CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15),
-        //     ElementBounds.Fixed(0.0, 300.0, 385.0, 200.0)
-        // );
-        // // Chain Armor
-        // composer.AddImage(ElementBounds.Fixed(100.0, 225.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        // composer.AddRichtext(
-        //     $"{Lang.Get("levelup:chain_armor")}: {GetLevelByLevelName("ChainArmor")}",
-        //     CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15),
-        //     ElementBounds.Fixed(100.0, 300.0, 385.0, 200.0)
-        // );
-        // // Hunter
-        // composer.AddImage(ElementBounds.Fixed(200.0, 225.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        // composer.AddRichtext(
-        //     $"{Lang.Get("levelup:hunter")}: {GetLevelByLevelName("Hunter")}",
-        //     CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15),
-        //     ElementBounds.Fixed(200.0, 300.0, 385.0, 200.0)
-        // );
-        // // Farming
-        // composer.AddImage(ElementBounds.Fixed(300.0, 225.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        // composer.AddRichtext(
-        //     $"{Lang.Get("levelup:farming")}: {GetLevelByLevelName("Farming")}",
-        //     CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15),
-        //     ElementBounds.Fixed(300.0, 300.0, 385.0, 200.0)
-        // );
-        // #endregion
-        // #region 4
-        // // Cooking
-        // composer.AddImage(ElementBounds.Fixed(0.0, 325.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        // composer.AddRichtext(
-        //     $"{Lang.Get("levelup:cooking")}: {GetLevelByLevelName("Cooking")}",
-        //     CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15),
-        //     ElementBounds.Fixed(0.0, 400.0, 385.0, 200.0)
-        // );
-        // // Vitality
-        // composer.AddImage(ElementBounds.Fixed(100.0, 325.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        // composer.AddRichtext(
-        //     $"{Lang.Get("levelup:vitality")}: {GetLevelByLevelName("Vitality")}",
-        //     CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15),
-        //     ElementBounds.Fixed(100.0, 400.0, 385.0, 200.0)
-        // );
-        // #endregion
+        // Adding the levels images and texts
+        #region axe
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds, new AssetLocation("levelup:axe.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:axe")}: {GetLevelByLevelName("Axe")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region pickaxe
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:pickaxe.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:pickaxe")}: {GetLevelByLevelName("Pickaxe")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region shovel
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:shovel.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:shovel")}: {GetLevelByLevelName("Shovel")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region knife
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:knife.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:knife")}: {GetLevelByLevelName("Knife")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region bow
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:bow.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:bow")}: {GetLevelByLevelName("Bow")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region spear
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:spear.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:spear")}: {GetLevelByLevelName("Spear")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region hammer
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:hammer.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:hammer")}: {GetLevelByLevelName("Hammer")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region sword
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:sword.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:sword")}: {GetLevelByLevelName("Sword")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region shield
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:shield.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:shield")}: {GetLevelByLevelName("Shield")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region farming
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:farming.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:farming")}: {GetLevelByLevelName("Farming")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region cooking
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:cooking.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:cooking")}: {GetLevelByLevelName("Cooking")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region vitality
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:vitality.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:vitality")}: {GetLevelByLevelName("Vitality")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region leatherarmor
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:leather_armor.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:leather_armor")}: {GetLevelByLevelName("LeatherArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        #region chainarmor
+        levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:chain_armor.png")));
+        levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:chain_armor")}: {GetLevelByLevelName("ChainArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        #endregion
+
+        // Finishing Clip for scrollbar
+        composer.EndClip();
+
+        // Adding the size of scroll button
+        GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
+        scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)(clippingBounds.fixedHeight * 3.5));
     }
 
-    private void ComposeFirstPage(GuiComposer composer)
+    private void OnNewScrollbarValue(float value)
     {
-        #region 1
-        // Axe
-        composer.AddImage(ElementBounds.Fixed(0.0, 25.0, 385.0, 200.0), new AssetLocation("levelup:axe.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(0.0, 25.0, 385.0, 200.0), GetLevelByLevelName("Axe"));
-        // Pickaxe
-        composer.AddImage(ElementBounds.Fixed(150.0, 25.0, 385.0, 200.0), new AssetLocation("levelup:pickaxe.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(150.0, 25.0, 385.0, 200.0), GetLevelByLevelName("Pickaxe"));
-        // Shovel
-        composer.AddImage(ElementBounds.Fixed(300.0, 25.0, 385.0, 200.0), new AssetLocation("levelup:shovel.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(300.0, 25.0, 385.0, 200.0), GetLevelByLevelName("Shovel"));
-        #endregion
-        #region 2
-        // Knife
-        composer.AddImage(ElementBounds.Fixed(0.0, 125.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(0.0, 125.0, 385.0, 200.0), GetLevelByLevelName("Knife"));
-        // Bow
-        composer.AddImage(ElementBounds.Fixed(150.0, 125.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(150.0, 125.0, 385.0, 200.0), GetLevelByLevelName("Bow"));
-        // Spear
-        composer.AddImage(ElementBounds.Fixed(300.0, 125.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(300.0, 125.0, 385.0, 200.0), GetLevelByLevelName("Spear"));
-        #endregion
-        #region 3
-        // Hammer
-        composer.AddImage(ElementBounds.Fixed(0.0, 225.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(0.0, 225.0, 385.0, 200.0), GetLevelByLevelName("Hammer"));
-        // Sword
-        composer.AddImage(ElementBounds.Fixed(150.0, 225.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(150.0, 225.0, 385.0, 200.0), GetLevelByLevelName("Sword"));
-        // Shield
-        composer.AddImage(ElementBounds.Fixed(300.0, 225.0, 385.0, 200.0), new AssetLocation("levelup:unknown.png"));
-        SetComposerLevel(composer, ElementBounds.Fixed(300.0, 225.0, 385.0, 200.0), GetLevelByLevelName("Shield"));
-        #endregion
+        levelContainer.Bounds.fixedY = 0f - value;
+        levelContainer.Bounds.CalcWorldBounds();
     }
 
     private int GetLevelByLevelName(string levelName) => instance.api.World.Player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelName}");
@@ -165,19 +177,5 @@ class CharacterView
         }
 
         Debug.Log("Ops, you reached the gui limit :P            ");
-    }
-    
-    private bool OnBackClicked()
-    {
-        page--;
-        if (page < 0) page = 0;
-        return true;
-    }
-
-    private bool OnNextClicked()
-    {
-        page++;
-        if (page > 1) page = 1;
-        return true;
     }
 }
