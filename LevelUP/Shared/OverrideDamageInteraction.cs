@@ -183,6 +183,23 @@ class OverwriteDamageInteraction
 
                     }
                     #endregion
+
+                    #region hand
+                    // Increase the damage if the player is not using any weapon
+                    if (Configuration.enableLevelSword && player.InventoryManager.ActiveHotbarSlot != null)
+                    {
+                        // Check if the active slot is empty
+                        if (player.InventoryManager.ActiveHotbarSlot.Itemstack == null)
+                        {
+                            damage *= Configuration.HandGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hand"));
+                            // Increase exp for using hand
+                            if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Hand_Hit");
+                            // Single player treatment
+                            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Hand_Hit&lanplayername={player.PlayerName}");
+                        }
+                    }
+                    #endregion
                 }
                 // Ranged Action
                 else if (damageSource.GetCauseEntity() is EntityPlayer && damageSource.SourceEntity is EntityProjectile)

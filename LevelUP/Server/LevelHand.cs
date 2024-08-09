@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
-using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
-class LevelSword
+class LevelHand
 {
     private Instance instance;
 
@@ -19,27 +18,27 @@ class LevelSword
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
 
-        Debug.Log("Level Sword initialized");
+        Debug.Log("Level Hand initialized");
     }
 
 #pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
-        Configuration.PopulateSwordConfiguration(coreAPI);
+        Configuration.PopulateHandConfiguration(coreAPI);
     }
 #pragma warning restore CA1822
 
     private Dictionary<string, ulong> GetSavedLevels()
     {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Sword");
+        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Hand");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
         return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
     }
 
-    private void SaveLevels(Dictionary<string, ulong> swordLevels)
+    private void SaveLevels(Dictionary<string, ulong> handLevels)
     {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Sword", JsonSerializer.Serialize(swordLevels));
+        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Hand", JsonSerializer.Serialize(handLevels));
     }
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
@@ -57,32 +56,32 @@ class LevelSword
         // Get player instance
         IPlayer player = playerEntity.Player;
 
-        // Check if player is using a Sword
-        if (player.InventoryManager.ActiveTool != EnumTool.Sword) return;
+        // Check if player is using the hands
+        if (player.InventoryManager.ActiveHotbarSlot.Itemstack != null) return;
 
         // Get all players levels
-        Dictionary<string, ulong> swordLevels = GetSavedLevels();
+        Dictionary<string, ulong> handLevels = GetSavedLevels();
 
         // Get the exp received
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
         int exp = (int)(Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString()) + (Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString()) * experienceMultiplierCompatibility));
         // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Sword"));
+        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Hand"));
         // Minium exp earned is 1
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
 
         // Get the actual player total exp
-        ulong playerExp = swordLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = handLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
 
         if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} killed: {entity.Code}, sword exp earned: {exp}, actual: {playerExp}");
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, hand exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        swordLevels[player.PlayerUID] = playerExp + (ulong)exp;
+        handLevels[player.PlayerUID] = playerExp + (ulong)exp;
 
         // Saving
-        SaveLevels(swordLevels);
+        SaveLevels(handLevels);
         // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Sword", swordLevels[player.PlayerUID]);
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hand", handLevels[player.PlayerUID]);
     }
 }

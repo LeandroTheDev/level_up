@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
+using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
@@ -391,5 +393,206 @@ class OverwriteBlockInteraction
                     instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Hammer_Hit&lanplayername={byPlayer.PlayerName}");
         }
     }
+    #endregion
+
+    #region panning
+    // Overwrite Panning mechanic
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(BlockPan), "CreateDrop")]
+    public static bool CreateDrop(BlockPan __instance, EntityAgent byEntity, string fromBlockCode)
+    {
+        // Dedicated Servers
+        if (instance.serverAPI != null)
+        {
+            // Another function setted as private...
+            static ItemStack Resolve(EnumItemClass type, string code)
+            {
+                if (type == EnumItemClass.Block)
+                {
+                    Block block = instance.serverAPI.api.World.GetBlock(new AssetLocation(code));
+                    if (block == null)
+                    {
+                        instance.serverAPI.api.World.Logger.Error("Failed resolving panning block drop with code {0}. Will skip.", code);
+                        return null;
+                    }
+                    return new ItemStack(block);
+                }
+                Item item = instance.serverAPI.api.World.GetItem(new AssetLocation(code));
+                if (item == null)
+                {
+                    instance.serverAPI.api.World.Logger.Error("Failed resolving panning item drop with code {0}. Will skip.", code);
+                    return null;
+                }
+                return new ItemStack(item);
+            }
+
+            // Unfurtunally the dev set the dropsBySourceMat as private, we cannot access it in normal ways
+            // the best we can do is to recreate it again...
+            var dropsBySourceMat = __instance.Attributes["panningDrops"].AsObject<Dictionary<string, PanningDrop[]>>();
+            {
+                foreach (PanningDrop[] drops in dropsBySourceMat.Values)
+                {
+                    for (int i = 0; i < drops.Length; i++)
+                    {
+                        if (!drops[i].Code.Path.Contains("{rocktype}"))
+                        {
+                            // Checking if is the server
+                            drops[i].Resolve(instance.serverAPI.api.World, "panningdrop");
+                        }
+                    }
+                }
+            }
+
+            // Now we are changing the panning code droprate
+            {
+                IPlayer player = (byEntity as EntityPlayer)?.Player;
+                PanningDrop[] drops = null;
+                foreach (string val2 in dropsBySourceMat.Keys)
+                {
+                    if (WildcardUtil.Match(val2, fromBlockCode))
+                    {
+                        drops = dropsBySourceMat[val2];
+                    }
+                }
+                if (drops == null)
+                {
+                    throw new InvalidOperationException("Coding error, no drops defined for source mat " + fromBlockCode);
+                }
+                string rocktype = instance.serverAPI.api.World.GetBlock(new AssetLocation(fromBlockCode))?.Variant["rock"];
+                drops.Shuffle(instance.serverAPI.api.World.Rand);
+                for (int i = 0; i < drops.Length; i++)
+                {
+                    PanningDrop drop = drops[i];
+                    double num = instance.serverAPI.api.World.Rand.NextDouble();
+                    float extraMul = 1f;
+                    if (drop.DropModbyStat != null)
+                    {
+                        extraMul = byEntity.Stats.GetBlended(drop.DropModbyStat);
+                    }
+                    // Increasing chance to drop a item
+                    extraMul += extraMul * Configuration.PanningGetLootMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"));
+                    float val = drop.Chance.nextFloat() * extraMul;
+                    ItemStack stack = drop.ResolvedItemstack;
+                    if (drops[i].Code.Path.Contains("{rocktype}"))
+                    {
+                        stack = Resolve(drops[i].Type, drops[i].Code.Path.Replace("{rocktype}", rocktype));
+                    }
+                    if (num < (double)val && stack != null)
+                    {
+                        stack = stack.Clone();
+                        // Multiplying drop quantity
+                        stack.StackSize += stack.StackSize * Configuration.PanningGetLootQuantityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"));
+                        if (player == null || !player.InventoryManager.TryGiveItemstack(stack, slotNotifyEffect: true))
+                        {
+                            instance.serverAPI.api.World.SpawnItemEntity(stack, byEntity.ServerPos.XYZ);
+                        }
+                        break;
+                    }
+                }
+
+                // Increasing exp for panning
+                instance.serverAPI.OnExperienceEarned(player as IServerPlayer, "Panning_Finished");
+            }
+        }
+        // Singleplayer/Lan
+        else if (instance.clientAPI != null)
+        {
+            // Another function setted as private...
+            static ItemStack Resolve(EnumItemClass type, string code)
+            {
+                if (type == EnumItemClass.Block)
+                {
+                    Block block = instance.clientAPI.api.World.GetBlock(new AssetLocation(code));
+                    if (block == null)
+                    {
+                        instance.clientAPI.api.World.Logger.Error("Failed resolving panning block drop with code {0}. Will skip.", code);
+                        return null;
+                    }
+                    return new ItemStack(block);
+                }
+                Item item = instance.clientAPI.api.World.GetItem(new AssetLocation(code));
+                if (item == null)
+                {
+                    instance.clientAPI.api.World.Logger.Error("Failed resolving panning item drop with code {0}. Will skip.", code);
+                    return null;
+                }
+                return new ItemStack(item);
+            }
+
+            // Unfurtunally the dev set the dropsBySourceMat as private, we cannot access it in normal ways
+            // the best we can do is to recreate it again...
+            var dropsBySourceMat = __instance.Attributes["panningDrops"].AsObject<Dictionary<string, PanningDrop[]>>();
+            {
+                foreach (PanningDrop[] drops in dropsBySourceMat.Values)
+                {
+                    for (int i = 0; i < drops.Length; i++)
+                    {
+                        if (!drops[i].Code.Path.Contains("{rocktype}"))
+                        {
+                            // Checking if is the server
+                            drops[i].Resolve(instance.clientAPI.api.World, "panningdrop");
+                        }
+                    }
+                }
+            }
+
+            // Now we are changing the panning code droprate
+            {
+                IPlayer player = (byEntity as EntityPlayer)?.Player;
+                PanningDrop[] drops = null;
+                foreach (string val2 in dropsBySourceMat.Keys)
+                {
+                    if (WildcardUtil.Match(val2, fromBlockCode))
+                    {
+                        drops = dropsBySourceMat[val2];
+                    }
+                }
+                if (drops == null)
+                {
+                    throw new InvalidOperationException("Coding error, no drops defined for source mat " + fromBlockCode);
+                }
+                string rocktype = instance.clientAPI.api.World.GetBlock(new AssetLocation(fromBlockCode))?.Variant["rock"];
+                drops.Shuffle(instance.clientAPI.api.World.Rand);
+                for (int i = 0; i < drops.Length; i++)
+                {
+                    PanningDrop drop = drops[i];
+                    double num = instance.clientAPI.api.World.Rand.NextDouble();
+                    float extraMul = 1f;
+                    if (drop.DropModbyStat != null)
+                    {
+                        extraMul = byEntity.Stats.GetBlended(drop.DropModbyStat);
+                    }
+                    // Increasing chance to drop a item
+                    extraMul += extraMul * Configuration.PanningGetLootMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"));
+                    float val = drop.Chance.nextFloat() * extraMul;
+                    ItemStack stack = drop.ResolvedItemstack;
+                    if (drops[i].Code.Path.Contains("{rocktype}"))
+                    {
+                        stack = Resolve(drops[i].Type, drops[i].Code.Path.Replace("{rocktype}", rocktype));
+                    }
+                    if (num < (double)val && stack != null)
+                    {
+                        stack = stack.Clone();
+                        // Multiplying drop quantity
+                        int lootMultiplier = Configuration.PanningGetLootQuantityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"));
+                        stack.StackSize += stack.StackSize * lootMultiplier;
+                        if (Configuration.enableExtendedLog)
+                            Debug.Log($"{player.PlayerName} successfully panned, with a item multiply of: {lootMultiplier}");
+                        if (player == null || !player.InventoryManager.TryGiveItemstack(stack, slotNotifyEffect: true))
+                        {
+                            instance.clientAPI.api.World.SpawnItemEntity(stack, byEntity.ServerPos.XYZ);
+                        }
+                        break;
+                    }
+                }
+
+                // Increasing exp for panning
+                instance.clientAPI.compatibilityChannel.SendPacket($"Panning_Finished&lanplayername={player.PlayerName}");
+            }
+
+        }
+        return false;
+    }
+
     #endregion
 }

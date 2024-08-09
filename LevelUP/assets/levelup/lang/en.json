@@ -2,6 +2,7 @@
     "player_levelup_1": "You reached level ",
     "player_levelup_2": " in ",
 
+    "levels_tab": "Levels",
     "character_levels": "Character Levels",
     "tools_levels": "Tools Levels",
     "armor_levels": "Armor Levels",
@@ -16,6 +17,7 @@
     "hammer": "Hammer",
     "sword": "Sword",
     "shield": "Shield",
+    "hand": "Hand",
 
     "leather_armor": "Leather Armor",
     "chain_armor": "Chain Armor",
@@ -23,5 +25,6 @@
     "hunter": "Hunter",
     "farming": "Farming",
     "cooking": "Cooking",
+    "panning": "Panning",
     "vitality": "Vitality"
 }

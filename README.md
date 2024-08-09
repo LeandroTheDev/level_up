@@ -25,16 +25,16 @@ LEVELS:
 - Hammer: Increase hammers damages and chance to double/triple/quadruple the smithing results in anvil, earn xp by smithing, hitting and killing things with hammers.
 - Sword: Increase swords damages, earn xp by hitting and killing things with swords
 - Shield: Increase shield protection, earn xp by defending with shields
+- Hand: Increase unnamerd damage, earn xp by hitting and killing things unnamerd
 - Farming: Increase crop drop rate, earn xp by harvesting crops and till soils
 - Vitality: Increase max health and health regen, earn xp by getting hitted
 - Cooking: Increase servings quantity and fresh hours, earn experience by cooking
+- Panning: Increase panning chance to drop item and chances to double/triple/quadruple the panning results, earn xp by panning
 - Leather Armor: Reduce damage received using leather armors, earn xp by getting hitted using leather armors
 - Chain Armor: Reduce damage received using chain armors, earn xp by getting hitted using chain armors
 
 Future features:
 - Hammer increase animation speed based on level
-- Better level view. (Images)
-- Store data based on player uid.
 - Cute level up sound.
 
 Not all item codes is added to the json configurations files, some armors/items/meats/entities/blocks can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
@@ -52,11 +52,11 @@ Cooking experience and food status will be considered for the most nearest playe
 
 Shield calculation only increases the base damage absorved from the shield, working the same as the vanilla if the damage absorved is bigger than damage received the final damage is 0
 
-To change the configurations go to the vintage story data, for windows in appdata for linux in .config for server is the path you set in serverconfig.json, find the folder ModConfig/LevelUP, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to  know what each configuration does.
+To change the configurations go to the vintage story data, for windows in appdata for linux in .config for server is the path you set in serverconfig.json, find the folder ModConfig/LevelUP, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to  know what each configuration does, if any update from levelup add new configuration you will need to manually added them to fix logs errors, otherwises will have the default value.
 
 Level UP Stores datas with player UID, changing the player name will persist all levels.
 
-Some people have issues with the drop rate of entities after removing LevelUP, for this theres is a command for administration uses, type /levelup resetplayerstatus PlayerName, this command will reset all status and buffs from the player that can cause bugs on vanilla (Needs to be in all players that played in the moment the LevelUP is present).
+Some people have issues with the drop rate of entities after removing LevelUP, for this theres is a command for administration uses, type /levelup resetplayerstatus PlayerName or PlayerUID, this command will reset all status and buffs from the player that can cause bugs on vanilla (Needs to be in all players that played in the moment the LevelUP is present).
 
 Commands limitations, the command cannot receive player names with spaces, for that consider getting the player UID instead, for handling levels with space for example "Leather Armor" you need to remove the spaces: "LeatherArmor"
 

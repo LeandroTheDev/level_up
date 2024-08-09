@@ -9,8 +9,10 @@
     "classHammerLevelMultiply": 1.0,
     "classSwordLevelMultiply": 1.0,
     "classShieldLevelMultiply": 1.0,
+    "classHandLevelMultiply": 1.0,
     "classFarmingLevelMultiply": 1.0,
     "classCookingLevelMultiply": 1.0,
+    "classPanningLevelMultiply": 1.0,
     "classVitalityLevelMultiply": 1.0,
     "classLeatherArmorLevelMultiply": 1.0,
     "classChainArmorLevelMultiply": 1.0

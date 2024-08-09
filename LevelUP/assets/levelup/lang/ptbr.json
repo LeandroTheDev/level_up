@@ -2,6 +2,7 @@
     "player_levelup_1": "Você atingiu o nível ",
     "player_levelup_2": " em ",
 
+    "levels_tab": "Níveis",
     "character_levels": "Níveis do Personagem",
     "tools_levels": "Níveis de Equipamentos",
     "armor_levels": "Níveis de Armaduras",
@@ -16,6 +17,7 @@
     "hammer": "Martelo",
     "sword": "Espada",
     "shield": "Escudo",
+    "hand": "Punhos",
 
     "leather_armor": "Armudura de Couro",
     "chain_armor": "Armadura de Malha",
@@ -23,5 +25,6 @@
     "hunter": "Caçador",
     "farming": "Fazendeiro",
     "cooking": "Cozinheiro",
+    "panning": "Penerar",
     "vitality": "Vitalidade"
 }
