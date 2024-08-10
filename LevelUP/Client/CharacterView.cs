@@ -141,7 +141,7 @@ class CharacterView
 
         // Adding the size of scroll button
         GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
-        scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)(clippingBounds.fixedHeight * 3.7));
+        scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)(clippingBounds.fixedHeight * 3.9));
     }
 
     private void OnNewScrollbarValue(float value)
