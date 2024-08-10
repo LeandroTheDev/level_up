@@ -17,6 +17,7 @@
     "enableLevelHand": true,
     "enableLevelFarming": true,
     "enableLevelCooking": true,
+    "enableLevelPanning": true,
     "enableLevelVitality": true,
     "enableLevelLeatherArmor": true,
     "enableLevelChainArmor": true,
