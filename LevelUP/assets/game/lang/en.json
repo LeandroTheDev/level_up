@@ -1,0 +1,13 @@
+{
+    "levelupdocs-hunter": "About the Hunter",
+    "levelupdocs-hunter-title": "Level: Hunter",
+    "levelupdocs-hunter-text": "<strong>Hunter</strong><br><i>Hunter: The art of hunting</i><br><br>As a hunter you can get experience by killing any type of entity.<br><br><strong>Upgrades</strong><br>Hunter levels will grant you more damage from all sources of damage you deal to any entities.",
+
+    "levelupdocs-axe": "About the Axe",
+    "levelupdocs-axe-title": "Level: Axe",
+    "levelupdocs-axe-text": "<strong>Axe</strong><br><i>Axe: Cunning lumberjacks</i><br><br>Using your axe to chop down trees and break wood will grant you experience with axes.<br><br><strong>Upgrades</strong><br>Axe levels will grant you more damage to your axe, and will increase your breaking speed when using axes.",
+
+    "levelupdocs-bow": "About the Bow",
+    "levelupdocs-bow-title": "Level: Bow",
+    "levelupdocs-bow-text": "<strong>Bow</strong><br><i>Bow: Arrow Man</i><br><br>Killing entities with your bow will grant experience with bows.<br><br><strong>Upgrades</strong><br>Bow levels will grant you more damage when using bows, reduce the chance of losing the arrow after hitting, and ensure greater accuracy."
+}
