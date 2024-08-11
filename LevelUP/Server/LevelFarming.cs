@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Common;
-using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 
@@ -44,20 +43,18 @@ class LevelFarming
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
     {
-        EntityPlayer playerEntity = player.Entity;
-        // If not a plant ignore
-        if (breakedBlock.Block?.BlockMaterial != EnumBlockMaterial.Plant && breakedBlock.Block.CropProps == null) return;
-
-        // Get all players levels
-        Dictionary<string, ulong> farmingLevels = GetSavedLevels();
-
         // Get the exp received
         float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
         int exp = (int)(Configuration.expPerHarvestFarming.GetValueOrDefault(breakedBlock.Block.Code.ToString(), 0) + (Configuration.expPerHarvestFarming.GetValueOrDefault(breakedBlock.Block.Code.ToString(), 0) * experienceMultiplierCompatibility));
+        // No crop exp finded
+        if (exp <= 0) return;
         // Increasing by player class
         exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Farming"));
         // Minium exp earned is 1
         if (exp <= 0) exp = Configuration.minimumEXPEarned;
+
+        // Get all players levels
+        Dictionary<string, ulong> farmingLevels = GetSavedLevels();
 
         // Get the actual player total exp
         ulong playerExp = farmingLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);

@@ -90,7 +90,6 @@ class LevelPickaxe
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
     {
-        EntityPlayer playerEntity = player.Entity;
         // If not a shovel ignore
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Stone && breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Ore) return;

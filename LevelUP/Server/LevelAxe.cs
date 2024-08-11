@@ -88,7 +88,6 @@ class LevelAxe
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
     {
-        EntityPlayer playerEntity = player.Entity;
         // If not a axe ignore
         if (player.InventoryManager.ActiveTool != EnumTool.Axe) return;
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Wood) return;

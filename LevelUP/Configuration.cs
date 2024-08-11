@@ -534,6 +534,7 @@ public static class Configuration
             case "Axe": return AxeGetMiningMultiplyByLevel(level);
             case "Pickaxe": return PickaxeGetMiningMultiplyByLevel(level);
             case "Shovel": return ShovelGetMiningMultiplyByLevel(level);
+            case "Knife": return KnifeGetMiningMultiplyByLevel(level);
             default: break;
         }
         return -1.0f;
@@ -878,6 +879,8 @@ public static class Configuration
     private static float knifeIncrementDamagePerLevel = 0.1f;
     private static float knifeBaseHarvestMultiply = 0.5f;
     private static float knifeIncrementHarvestMultiplyPerLevel = 0.2f;
+    private static float knifeBaseMiningSpeed = 1.0f;
+    private static float knifeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
     private static float knifeBaseDurabilityRestoreChance = 0.0f;
     private static float knifeDurabilityRestoreChancePerLevel = 2.0f;
     private static int knifeDurabilityRestoreEveryLevelReduceChance = 10;
@@ -949,6 +952,20 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel is not double is {value.GetType()}");
                 else knifeIncrementHarvestMultiplyPerLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel not set");
+        }
+        { //knifeBaseMiningSpeed
+            if (knifeLevelStats.TryGetValue("knifeBaseMiningSpeed", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeBaseMiningSpeed is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeBaseMiningSpeed is not double is {value.GetType()}");
+                else knifeBaseMiningSpeed = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeBaseMiningSpeed not set");
+        }
+        { //knifeIncrementMiningSpeedMultiplyPerLevel
+            if (knifeLevelStats.TryGetValue("knifeIncrementMiningSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeIncrementMiningSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeIncrementMiningSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else knifeIncrementMiningSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeIncrementMiningSpeedMultiplyPerLevel not set");
         }
         { //knifeBaseDurabilityRestoreChance
             if (knifeLevelStats.TryGetValue("knifeBaseDurabilityRestoreChance", out object value))
@@ -1041,6 +1058,22 @@ public static class Configuration
         }
         baseMultiply += baseMultiply * multiply;
         return baseMultiply;
+    }
+
+    public static float KnifeGetMiningMultiplyByLevel(int level)
+    {
+        float baseSpeed = knifeBaseMiningSpeed;
+
+        float incrementSpeed = knifeIncrementMiningSpeedMultiplyPerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            level -= 1;
+            multiply += incrementSpeed;
+        }
+
+        baseSpeed += baseSpeed * incrementSpeed;
+        return baseSpeed;
     }
 
     public static bool KnifeRollChanceToNotReduceDurabilityByLevel(int level)
