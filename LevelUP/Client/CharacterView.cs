@@ -150,6 +150,15 @@ class CharacterView
         }
         #endregion
 
+        #region hunter
+        if (instance.enabledLevels["Hunter"])
+        {
+            levelsAdded++;
+            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:hunter.png")));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:hunter")}: {GetLevelByLevelName("Hunter")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        }
+        #endregion
+
         #region farming
         if (instance.enabledLevels["Farming"])
         {
@@ -209,8 +218,8 @@ class CharacterView
 
         // Adding the size of scroll button
         GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
-        double listHeight = containerBounds.fixedHeight;
-        for (int i = 0; i < levelsAdded; i++) listHeight += 64;
+        double listHeight = 0;
+        for (int i = 0; i < levelsAdded; i++) listHeight += 70;
         scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)listHeight);
     }
 

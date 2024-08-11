@@ -873,7 +873,7 @@ public static class Configuration
     public static readonly Dictionary<string, int> entityExpKnife = [];
     private static int knifeEXPPerHit = 1;
     private static int knifeEXPPerHarvest = 5;
-
+    private static int knifeEXPPerBreaking = 1;
     private static int knifeEXPPerLevelBase = 10;
     private static double knifeEXPMultiplyPerLevel = 1.3;
     private static float knifeBaseDamage = 1.0f;
@@ -889,6 +889,7 @@ public static class Configuration
 
     public static int ExpPerHitKnife => knifeEXPPerHit;
     public static int ExpPerHarvestKnife => knifeEXPPerHarvest;
+    public static int ExpPerBreakingKnife => knifeEXPPerBreaking;
 
     public static void PopulateKnifeConfiguration(ICoreAPI api)
     {
@@ -939,6 +940,13 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerHarvest is not int is {value.GetType()}");
                 else knifeEXPPerHarvest = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: knifeEXPPerHarvest not set");
+        }
+        { //knifeEXPPerBreaking
+            if (knifeLevelStats.TryGetValue("knifeEXPPerBreaking", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerBreaking is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerBreaking is not int is {value.GetType()}");
+                else knifeEXPPerBreaking = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeEXPPerBreaking not set");
         }
         { //knifeBaseHarvestMultiply
             if (knifeLevelStats.TryGetValue("knifeBaseHarvestMultiply", out object value))
@@ -3346,7 +3354,7 @@ public static class Configuration
         float baseMultiply = vitalityEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
 
-        float multiply = (float)vitalityEXPMultiplyByDamage;
+        float multiply = vitalityEXPMultiplyByDamage;
         while (calcDamage > 1)
         {
             // Increase experience

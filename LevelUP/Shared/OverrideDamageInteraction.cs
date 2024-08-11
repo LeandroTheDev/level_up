@@ -275,7 +275,8 @@ class OverwriteDamageInteraction
                     float playerMaxHealth = playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
                     // If is set the damage experience limit to the player max health
                     if (playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < damage) damageCalculation = playerMaxHealth;
-
+                    if (Configuration.enableExtendedLog)
+                        Debug.Log($"Vitality damage received: {damage} on: {player.PlayerName}, final damage calculation: {damageCalculation}");
                     // Dedicated server
                     if (player is IServerPlayer && instance.serverAPI != null)
                         instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_Vitality_Hit&forceexp={Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation)}");
