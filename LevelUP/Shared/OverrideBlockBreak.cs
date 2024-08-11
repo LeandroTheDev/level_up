@@ -39,15 +39,33 @@ class OverwriteBlockBreak
     {
         float miningSpeedCompatibility = byPlayer.Entity.Attributes.GetFloat("LevelUP_BlockBreak_ExtendMiningSpeed_GetMiningSpeedModifier");
         byPlayer.Entity.Attributes.RemoveAttribute("LevelUP_BlockBreak_ExtendMiningSpeed_GetMiningSpeedModifier");
+        Block blockBreaking = world.GetBlockAccessor(false, false, false).GetBlock(pos);
         switch (byPlayer.InventoryManager.ActiveTool)
         {
             case EnumTool.Axe:
-                return Configuration.enableLevelAxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                if (blockBreaking.BlockMaterial == EnumBlockMaterial.Wood)
+                    return Configuration.enableLevelAxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                else return 1.0f;
             case EnumTool.Pickaxe:
-                return Configuration.enableLevelPickaxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                if (blockBreaking.BlockMaterial == EnumBlockMaterial.Brick ||
+                    blockBreaking.BlockMaterial == EnumBlockMaterial.Ceramic ||
+                    blockBreaking.BlockMaterial == EnumBlockMaterial.Metal ||
+                    blockBreaking.BlockMaterial == EnumBlockMaterial.Ore ||
+                    blockBreaking.BlockMaterial == EnumBlockMaterial.Stone)
+                    return Configuration.enableLevelPickaxe ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                else return 1.0f;
             case EnumTool.Shovel:
-                return Configuration.enableLevelShovel ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
-            case null: break;
+                if (blockBreaking.BlockMaterial == EnumBlockMaterial.Soil ||
+                    blockBreaking.BlockMaterial == EnumBlockMaterial.Gravel ||
+                    blockBreaking.BlockMaterial == EnumBlockMaterial.Sand ||
+                    blockBreaking.BlockMaterial == EnumBlockMaterial.Snow)
+                    return Configuration.enableLevelShovel ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                else return 1.0f;
+            case EnumTool.Knife:
+                if (blockBreaking.BlockMaterial == EnumBlockMaterial.Plant ||
+                    blockBreaking.BlockMaterial == EnumBlockMaterial.Leaves)
+                    return Configuration.enableLevelKnife ? __result * byPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Knife_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                else return 1.0f;
         }
         return __result;
     }

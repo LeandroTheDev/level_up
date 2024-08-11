@@ -90,9 +90,9 @@ class LevelShovel
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
     {
-        EntityPlayer playerEntity = player.Entity;
         // If not a shovel ignore
         if (player.InventoryManager.ActiveTool != EnumTool.Shovel) return;
+        // If not a valid block for shovel
         switch (breakedBlock.Block.BlockMaterial)
         {
             case EnumBlockMaterial.Gravel: break;
