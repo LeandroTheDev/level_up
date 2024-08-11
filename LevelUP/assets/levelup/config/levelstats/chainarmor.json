@@ -10,5 +10,5 @@
     "chainArmorDurabilityRestoreChancePerLevel": 2.0,
     "chainArmorDurabilityRestoreEveryLevelReduceChance": 10,
     "chainArmorDurabilityRestoreReduceChanceForEveryLevel": 0.5,
-    "chainArmorDamageLimit": 1000
+    "chainArmorDamageLimit": 100
 }
