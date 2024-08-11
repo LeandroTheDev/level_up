@@ -2830,6 +2830,8 @@ public static class Configuration
     private static int cookingBaseExpPerCooking = 3;
     private static int cookingEXPPerLevelBase = 10;
     private static double cookingEXPMultiplyPerLevel = 1.3;
+    private static float cookingBaseSaturationHoursMultiply = 1.0f;
+    private static float cookingSaturationHoursMultiplyPerLevel = 0.1f;
     private static float cookingBaseFreshHoursMultiply = 1.0f;
     private static float cookingFreshHoursMultiplyPerLevel = 0.1f;
     private static float cookingBaseChanceToIncreaseServings = 1.0f;
@@ -2869,6 +2871,20 @@ public static class Configuration
                 else cookingEXPMultiplyPerLevel = (double)value;
             else Debug.Log("CONFIGURATION ERROR: cookingEXPMultiplyPerLevel not set");
         }
+        { //cookingBaseSaturationHoursMultiply
+            if (cookingLevelStats.TryGetValue("cookingBaseSaturationHoursMultiply", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseSaturationHoursMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingBaseSaturationHoursMultiply is not double is {value.GetType()}");
+                else cookingBaseSaturationHoursMultiply = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingBaseSaturationHoursMultiply not set");
+        }
+        { //cookingSaturationHoursMultiplyPerLevel
+            if (cookingLevelStats.TryGetValue("cookingSaturationHoursMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingSaturationHoursMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingSaturationHoursMultiplyPerLevel is not double is {value.GetType()}");
+                else cookingSaturationHoursMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingSaturationHoursMultiplyPerLevel not set");
+        }       
         { //cookingBaseFreshHoursMultiply
             if (cookingLevelStats.TryGetValue("cookingBaseFreshHoursMultiply", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseFreshHoursMultiply is null");
@@ -2979,9 +2995,9 @@ public static class Configuration
 
     public static float CookingGetSaturationMultiplyByLevel(int level)
     {
-        float baseMultiply = 1.0f;
+        float baseMultiply = cookingBaseSaturationHoursMultiply;
 
-        float incrementMultiply = 0.1f;
+        float incrementMultiply = cookingSaturationHoursMultiplyPerLevel;
         float multiply = 0.0f;
         while (level > 1)
         {
