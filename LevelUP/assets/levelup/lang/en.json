@@ -15,8 +15,8 @@
     "shield": "Shield",
     "hand": "Hand",
 
-    "leather_armor": "Leather Armor",
-    "chain_armor": "Chain Armor",
+    "leatherarmor": "Leather Armor",
+    "chainarmor": "Chain Armor",
 
     "hunter": "Hunter",
     "farming": "Farming",

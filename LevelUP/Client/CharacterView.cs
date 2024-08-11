@@ -199,8 +199,8 @@ class CharacterView
         if (instance.enabledLevels["LeatherArmor"])
         {
             levelsAdded++;
-            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:leather_armor.png")));
-            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:leather_armor")}: {GetLevelByLevelName("LeatherArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:leatherarmor.png")));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:leatherarmor")}: {GetLevelByLevelName("LeatherArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
         }
         #endregion
 
@@ -208,8 +208,8 @@ class CharacterView
         if (instance.enabledLevels["ChainArmor"])
         {
             levelsAdded++;
-            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:chain_armor.png")));
-            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:chain_armor")}: {GetLevelByLevelName("ChainArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:chainarmor.png")));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:chainarmor")}: {GetLevelByLevelName("ChainArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
         }
         #endregion
 

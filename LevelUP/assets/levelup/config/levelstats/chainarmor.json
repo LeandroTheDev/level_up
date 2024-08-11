@@ -1,7 +1,7 @@
 {
     "chainArmorEXPPerReceiveHit": 1,
-    "chainArmorEXPMultiplyByDamage": 0.5,
-    "chainArmorEXPIncreaseByAmountDamage": 1,
+    "chainArmorEXPMultiplyByDamage": 0.3,
+    "chainArmorEXPIncreaseByAmountDamage": 2,
     "chainArmorEXPPerLevelBase": 10,
     "chainArmorEXPMultiplyPerLevel": 2.0,
     "chainArmorBaseDamageReduction": 0.0,

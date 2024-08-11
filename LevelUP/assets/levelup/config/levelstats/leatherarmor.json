@@ -1,7 +1,7 @@
 {
     "leatherArmorEXPPerReceiveHit": 1,
-    "leatherArmorEXPMultiplyByDamage": 0.5,
-    "leatherArmorEXPIncreaseByAmountDamage": 1,
+    "leatherArmorEXPMultiplyByDamage": 0.3,
+    "leatherArmorEXPIncreaseByAmountDamage": 2,
     "leatherArmorEXPPerLevelBase": 10,
     "leatherArmorEXPMultiplyPerLevel": 2.0,
     "leatherArmorBaseDamageReduction": 0.0,

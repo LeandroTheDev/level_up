@@ -15,8 +15,8 @@
     "shield": "Schild",
     "hand": "Fäuste",
 
-    "leather_armor": "Lederrüstung",
-    "chain_armor": "Kettenrüstung",
+    "leatherarmor": "Lederrüstung",
+    "chainarmor": "Kettenrüstung",
 
     "hunter": "Jäger",
     "farming": "Landwirtschaft",

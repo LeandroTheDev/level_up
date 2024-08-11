@@ -5,7 +5,7 @@
     "cookingBaseSaturationHoursMultiply": 1.0,
     "cookingSaturationHoursMultiplyPerLevel": 0.1,
     "cookingBaseFreshHoursMultiply": 1.0,
-    "cookingFreshHoursMultiplyPerLevel": 0.1,
+    "cookingFreshHoursMultiplyPerLevel": 0.04,
     "cookingBaseChanceToIncreaseServings": 1.0,
     "cookingIncrementChanceToIncreaseServings": 2.0,
     "cookingEveryChanceToIncreaseServingsReduceChance": 20.0,

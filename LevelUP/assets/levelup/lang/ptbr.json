@@ -15,8 +15,8 @@
     "shield": "Escudo",
     "hand": "Punhos",
 
-    "leather_armor": "Armudura de Couro",
-    "chain_armor": "Armadura de Malha",
+    "leatherarmor": "Armudura de Couro",
+    "chainarmor": "Armadura de Malha",
 
     "hunter": "Caçador",
     "farming": "Fazendeiro",
