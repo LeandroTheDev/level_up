@@ -7,7 +7,7 @@
     "knifeBaseDamage": 1.0,
     "knifeIncrementDamagePerLevel": 0.1,
     "knifeBaseHarvestMultiply": 0.5,
-    "knifeIncrementHarvestMultiplyPerLevel": 0.2,
+    "knifeIncrementHarvestMultiplyPerLevel": 0.05,
     "knifeBaseMiningSpeed": 1.0,
     "knifeIncrementMiningSpeedMultiplyPerLevel": 0.1,
     "knifeBaseDurabilityRestoreChance": 0.0,
