@@ -69,8 +69,8 @@ class Instance
             compatibilityChannel.SetMessageHandler<string>(OnExperienceEarned);
             Debug.Log("Server Compatibility Network registered, this is unsafe");
         }
-        communicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(string));
-        communicationChannel.SetMessageHandler<string>(OnChannelMessage);
+        communicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
+        communicationChannel.SetMessageHandler<ServerMessage>(OnChannelMessage);
         Debug.Log("Server Communication Network registered");
 
         // Enable hardcore death event
@@ -189,11 +189,12 @@ class Instance
 
     }
 
-    public void OnChannelMessage(IServerPlayer player, string bruteMessage)
+    public void OnChannelMessage(IServerPlayer player, ServerMessage bruteMessage)
     {
-        switch (bruteMessage)
+        switch (bruteMessage.message)
         {
             case "UpdateLevels": UpdatePlayerLevels(player); return;
+            case "GetEnabledLevels": GetEnabledLevels(player); return;
         }
     }
 
@@ -748,6 +749,31 @@ class Instance
         Shared.Instance.UpdateLevelAndNotify(api, player, "ChainArmor", GetSavedLevels("ChainArmor").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
     }
 
+    private static void GetEnabledLevels(IServerPlayer player)
+    {
+        Dictionary<string, bool> enabledLevels = [];
+        enabledLevels.Add("Hunter", Configuration.enableLevelHunter);
+        enabledLevels.Add("Bow", Configuration.enableLevelBow);
+        enabledLevels.Add("Knife", Configuration.enableLevelKnife);
+        enabledLevels.Add("Spear", Configuration.enableLevelSpear);
+        enabledLevels.Add("Hammer", Configuration.enableLevelHammer);
+        enabledLevels.Add("Axe", Configuration.enableLevelAxe);
+        enabledLevels.Add("Pickaxe", Configuration.enableLevelPickaxe);
+        enabledLevels.Add("Shovel", Configuration.enableLevelShovel);
+        enabledLevels.Add("Sword", Configuration.enableLevelSword);
+        enabledLevels.Add("Shield", Configuration.enableLevelShield);
+        enabledLevels.Add("Hand", Configuration.enableLevelHand);
+        enabledLevels.Add("Farming", Configuration.enableLevelFarming);
+        enabledLevels.Add("Cooking", Configuration.enableLevelCooking);
+        enabledLevels.Add("Panning", Configuration.enableLevelPanning);
+        enabledLevels.Add("Vitality", Configuration.enableLevelVitality);
+        enabledLevels.Add("LeatherArmor", Configuration.enableLevelLeatherArmor);
+        enabledLevels.Add("ChainArmor", Configuration.enableLevelChainArmor);
+
+        // Sending the configurations to the player
+        communicationChannel.SendPacket(new ServerMessage() { message = $"enabledlevels&{JsonSerializer.Serialize(enabledLevels)}" }, player);
+    }
+
     private readonly Dictionary<string, long> playersHardcoreDelay = [];
     private void ResetPlayerLevels(IServerPlayer player, DamageSource damageSource)
     {
@@ -935,4 +961,5 @@ class Instance
         if (Configuration.hardcoreMessageWhenDying)
             communicationChannel.SendPacket($"playerhardcoredied&{(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}", player);
     }
+
 }
