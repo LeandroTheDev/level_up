@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using ProtoBuf;
 using Vintagestory.API.Common;
 
 namespace LevelUP;
@@ -3832,4 +3833,11 @@ public static class Configuration
         }
     }
     #endregion
+}
+
+[ProtoContract]
+public class ServerMessage
+{
+    [ProtoMember(1)]
+    public string message;
 }

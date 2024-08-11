@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ProtoBuf;
 using Vintagestory.API.Client;
@@ -11,6 +13,9 @@ class Instance
     public ICoreClientAPI api;
     public IClientNetworkChannel compatibilityChannel;
     public IClientNetworkChannel communicationChannel;
+    public Dictionary<string, bool> enabledLevels = [];
+
+    long temporaryTickListener;
 
     // Store the view for character menu
     private readonly CharacterView characterView = new();
@@ -29,10 +34,19 @@ class Instance
         compatibilityChannel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
         communicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
         communicationChannel.SetMessageHandler<ServerMessage>(OnServerMessage);
-
-        Task.Delay(1000).ContinueWith((_) => { if (communicationChannel.Connected) communicationChannel.SendPacket("UpdateLevels"); });
-
+        temporaryTickListener = api.Event.RegisterGameTickListener(OnTick, 1000, 1000);
         Debug.Log("Client side fully initialized");
+    }
+
+    private void OnTick(float obj)
+    {
+        if (communicationChannel.Connected)
+        {
+            communicationChannel.SendPacket(new ServerMessage() { message = "UpdateLevels" });
+            communicationChannel.SendPacket(new ServerMessage() { message = "GetEnabledLevels" });
+            api.Event.UnregisterGameTickListener(temporaryTickListener);
+            Debug.Log("Channel connected and instances refreshed");
+        }
     }
 
     private void OnServerMessage(ServerMessage bruteMessage)
@@ -41,6 +55,7 @@ class Instance
         switch (messages[0])
         {
             case "playerlevelup": LevelUPMessage(int.Parse(messages[1]), messages[2]); return;
+            case "enabledlevels": enabledLevels = JsonSerializer.Deserialize<Dictionary<string, bool>>(messages[1]); return;
         }
     }
 
@@ -48,9 +63,3 @@ class Instance
     => api.ShowChatMessage($"{Lang.Get("levelup:player_levelup_1")}{level}{Lang.Get("levelup:player_levelup_2")}{Lang.Get($"levelup:{levelType.ToLower()}")}");
 }
 
-[ProtoContract]
-public class ServerMessage
-{
-    [ProtoMember(1)]
-    public string message;
-}
