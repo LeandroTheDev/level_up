@@ -113,6 +113,9 @@ class OverwriteBlockBreak
     [HarmonyPatch(typeof(BlockCrop), "GetDrops")]
     public static ItemStack[] GetDrops(ItemStack[] __result, BlockCrop __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
+        // Natural breaking without player treatment
+        if (byPlayer == null) return __result;
+
         int cropDropCompatibility = byPlayer.Entity.Attributes.GetInt("LevelUP_BlockBreak_ExtendCropDrops_GetDrops");
         byPlayer.Entity.Attributes.RemoveAttribute("LevelUP_BlockBreak_ExtendCropDrops_GetDrops");
         // Check if is from the server

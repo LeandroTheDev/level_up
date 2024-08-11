@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
@@ -17,6 +18,8 @@ class LevelKnife
         instance = _instance;
         // Instanciate death event
         instance.api.Event.OnEntityDeath += OnEntityDeath;
+        // Instanciate break block event
+        instance.api.Event.BreakBlock += OnBreakBlock;
 
         Debug.Log("Level Knife initialized");
     }
@@ -75,6 +78,43 @@ class LevelKnife
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, knife exp earned: {exp}, actual: {playerExp}");
+
+        // Incrementing
+        knifeLevels[player.PlayerUID] = playerExp + (ulong)exp;
+
+        // Saving
+        SaveLevels(knifeLevels);
+        // Updating
+        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", knifeLevels[player.PlayerUID]);
+    }
+
+    public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
+    {
+        // If not a knife ignore
+        if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;
+        // If not a valid block for knife
+        switch (breakedBlock.Block.BlockMaterial)
+        {
+            case EnumBlockMaterial.Plant: break;
+            case EnumBlockMaterial.Leaves: break;
+            default: return;
+        }
+
+        // Get all players levels
+        Dictionary<string, ulong> knifeLevels = GetSavedLevels();
+
+        // Get the exp received
+        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
+        int exp = (int)(Configuration.ExpPerBreakingKnife + (Configuration.ExpPerBreakingKnife * experienceMultiplierCompatibility));
+        // Increasing by player class
+        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Knife"));
+        // Minium exp earned is 1
+        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+
+        // Get the actual player total exp
+        ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+
+        Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, knife exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         knifeLevels[player.PlayerUID] = playerExp + (ulong)exp;

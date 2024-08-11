@@ -959,7 +959,7 @@ class Instance
         if (Configuration.enableExtendedLog)
             Debug.Log($"{player.PlayerName} died and lost {(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}% of all experience");
         if (Configuration.hardcoreMessageWhenDying)
-            communicationChannel.SendPacket($"playerhardcoredied&{(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}", player);
+            communicationChannel.SendPacket(new ServerMessage() { message = $"playerhardcoredied&{(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}" }, player);
     }
 
 }
