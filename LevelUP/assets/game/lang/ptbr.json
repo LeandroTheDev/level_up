@@ -9,5 +9,17 @@
 
     "levelupdocs-bow": "Sobre o Arco",
     "levelupdocs-bow-title": "Níveis: Arco",
-    "levelupdocs-bow-text": "<strong>Arco</strong><br><i>Arco: Flecheiros</i><br><br>Matar entidades com seu arco vai garantir experiência com arcos.<br><br><strong>Melhorias</strong><br>Os níveis de arcos vão lhe garantir mais dano em todos as fontes de dano usando arcos, irá reduzir a chance de perder a flecha ao utilizar e vai garantir maior precisão."
+    "levelupdocs-bow-text": "<strong>Arco</strong><br><i>Arco: Flecheiros</i><br><br>Matar entidades com seu arco vai garantir experiência com arcos.<br><br><strong>Melhorias</strong><br>Os níveis de arcos vão lhe garantir mais dano em todos as fontes de dano usando arcos, irá reduzir a chance de perder a flecha ao utilizar e vai garantir maior precisão.",
+
+    "levelupdocs-pickaxe": "Sobre a Picareta",
+    "levelupdocs-pickaxe-title": "Níveis: Picareta",
+    "levelupdocs-pickaxe-text": "<strong>Picareta</strong><br><i>Picareta: Amantes da Pedra</i><br><br>Minerar com sua picareta vai lhe garantir experiência, minerar minerios irá dar ainda mais experiência, usar como arma também vai lhe garantir um pouco de experiência.<br><br><strong>Melhorias</strong><br>Níveis de picareta vão aumentar a velocidade de quebra dos blocos, aumenta a chance de cair mais minérios e por fim um aumento de dano ao utilizar picaretas.",
+
+    "levelupdocs-shovel": "Sobre a Pá",
+    "levelupdocs-shovel-title": "Níveis: Pá",
+    "levelupdocs-shovel-text": "<strong>Pá</strong><br><i>Pá: Amantes do Solo</i><br><br>Escavar com sua pá vai lhe garantir experiência, usar como arma também vai lhe garantir um pouco de experiência.<br><br><strong>Melhorias</strong><br>Níveis de pá vão aumentar a velocidade de quebra dos blocos e um aumento de dano ao utilizar pás.",
+
+    "levelupdocs-knife": "Sobre a Faca",
+    "levelupdocs-knife-title": "Níveis: Faca",
+    "levelupdocs-knife-text": "<strong>Faca</strong><br><i>Faca: Esfoladores Profissionais</i><br><br>Esfolar um animal ou usar como arma irá garatir experiência com facas, você pode receber experiência também cortando gramas e folhas com facas.<br><br><strong>Melhorias</strong><br>Níveis de facas vão aumentar a velocidade de quebra das folhas e gramas e um aumento de dano ao utilizar facas, ao esfolar qualquer animal o aumento de saque também será aumentado."
 }

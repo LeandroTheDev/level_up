@@ -9,5 +9,13 @@
 
     "levelupdocs-bow": "About the Bow",
     "levelupdocs-bow-title": "Level: Bow",
-    "levelupdocs-bow-text": "<strong>Bow</strong><br><i>Bow: Arrow Man</i><br><br>Killing entities with your bow will grant experience with bows.<br><br><strong>Upgrades</strong><br>Bow levels will grant you more damage when using bows, reduce the chance of losing the arrow after hitting, and ensure greater accuracy."
+    "levelupdocs-bow-text": "<strong>Bow</strong><br><i>Bow: Arrow Man</i><br><br>Killing entities with your bow will grant experience with bows.<br><br><strong>Upgrades</strong><br>Bow levels will grant you more damage when using bows, reduce the chance of losing the arrow after hitting, and ensure greater accuracy.",
+
+    "levelupdocs-pickaxe": "About the Pickaxe",
+    "levelupdocs-pickaxe-title": "Level: Pickaxe",
+    "levelupdocs-pickaxe-text": "<strong>Pickaxe</strong><br><i>Pickaxe: Stone Lovers</i><br><br>Mining with your pickaxe will grant you experience, mining ores will give you even more experience, using it as a weapon will also grant you a bit of experience.<br><br><strong>Upgrades</strong><br> Pickaxe levels will increase the speed at which blocks break, increase the chance of dropping more ores, and ultimately increase damage when using pickaxes.",
+
+    "levelupdocs-shovel": "About the Shovel",
+    "levelupdocs-shovel-title": "Level: Shovel",
+    "levelupdocs-shovel-text": "<strong>Shovel</strong><br><i>Shovel: Soil Lovers</i><br><br>Digging with your shovel will grant you experience, using it as a weapon will also grant you a bit of experience.<br><br><strong>Upgrades</strong><br>Shovel levels will increase the breaking speed of blocks and an increase in damage when using shovels."
 }
