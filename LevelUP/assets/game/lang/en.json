@@ -17,5 +17,9 @@
 
     "levelupdocs-shovel": "About the Shovel",
     "levelupdocs-shovel-title": "Level: Shovel",
-    "levelupdocs-shovel-text": "<strong>Shovel</strong><br><i>Shovel: Soil Lovers</i><br><br>Digging with your shovel will grant you experience, using it as a weapon will also grant you a bit of experience.<br><br><strong>Upgrades</strong><br>Shovel levels will increase the breaking speed of blocks and an increase in damage when using shovels."
+    "levelupdocs-shovel-text": "<strong>Shovel</strong><br><i>Shovel: Soil Lovers</i><br><br>Digging with your shovel will grant you experience, using it as a weapon will also grant you a bit of experience.<br><br><strong>Upgrades</strong><br>Shovel levels will increase the breaking speed of blocks and an increase in damage when using shovels.",
+
+    "levelupdocs-knife": "About the Knife",
+    "levelupdocs-knife-title": "Level: Knife",
+    "levelupdocs-knife-text": "<strong>Knife</strong><br><i>Knife: Professional skinners</i><br><br>Skinning an animal or using it as a weapon will grant you experience with knives, you can also receive experience cutting grasses and leaves with knives.<br><br><strong>Upgrades</strong><br>Knife levels will increase the speed at which leaves and grasses break and an increase in damage when using knives, when skinning any animal the loot will also be increased."
 }
