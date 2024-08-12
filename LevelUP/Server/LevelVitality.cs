@@ -98,9 +98,14 @@ class LevelVitality
         playerStats._playerHealthRegenSpeed = playerRegen;
 
         // Reload player health
-        if (playerState.TryGetValue(player.PlayerName, out double value)) playerStats.Health = (float)value;
+        if (playerState.TryGetValue(player.PlayerUID, out double value)) playerStats.Health = (float)value;
         // If cannot find player will receive the base max health instead
-        else playerStats.Health = playerMaxHealth;
+        else
+        {
+            playerStats.Health = playerMaxHealth;
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"Cannot find the player: {player.PlayerName} previous health, probably is the first login");
+        };
 
         // Refresh for the player
         playerStats.UpdateMaxHealth();
