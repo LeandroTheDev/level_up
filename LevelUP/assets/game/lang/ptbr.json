@@ -21,5 +21,49 @@
 
     "levelupdocs-knife": "Sobre a Faca",
     "levelupdocs-knife-title": "Níveis: Faca",
-    "levelupdocs-knife-text": "<strong>Faca</strong><br><i>Faca: Esfoladores Profissionais</i><br><br>Esfolar um animal ou usar como arma irá garatir experiência com facas, você pode receber experiência também cortando gramas e folhas com facas.<br><br><strong>Melhorias</strong><br>Níveis de facas vão aumentar a velocidade de quebra das folhas e gramas e um aumento de dano ao utilizar facas, ao esfolar qualquer animal o saque também será aumentado."
+    "levelupdocs-knife-text": "<strong>Faca</strong><br><i>Faca: Esfoladores Profissionais</i><br><br>Esfolar um animal ou usar como arma irá garatir experiência com facas, você pode receber experiência também cortando gramas e folhas com facas.<br><br><strong>Melhorias</strong><br>Níveis de facas vão aumentar a velocidade de quebra das folhas e gramas e um aumento de dano ao utilizar facas, ao esfolar qualquer animal o saque também será aumentado.",
+
+    "levelupdocs-spear": "Sobre a Lança",
+    "levelupdocs-spear-title": "Níveis: Lança",
+    "levelupdocs-spear-text": "<strong>Lança</strong><br><i>Lança: Afiados</i><br><br>Arremeçar ou atingir criaturas com lanças irá garantir experiência.<br><br><strong>Melhorias</strong><br>Níveis de lanças vão aumentar todo o dano causado por lanças, também irá garantir uma maior precisão ao lançar uma lança.",
+
+    "levelupdocs-hammer": "Sobre o Martelo",
+    "levelupdocs-hammer-title": "Níveis: Martelo",
+    "levelupdocs-hammer-text": "<strong>Martelo</strong><br><i>Martelo: Ferreiros</i><br><br>Utilizar seu martelo como arma irá garantir experiência, mas também usa-lo para forjar equipamento lhe concederá experiência.<br><br><strong>Melhorias</strong><br>Níveis de martelo irá garantir maior retorno ao forjar itens, também concederá mais dano aos martelos.",
+
+    "levelupdocs-sword": "Sobre a Espada",
+    "levelupdocs-sword-title": "Níveis: Espada",
+    "levelupdocs-sword-text": "<strong>Espada</strong><br><i>Espada: Guerreiros</i><br><br>Utilizando espadas em combates vão lhe garantir experiência.<br><br><strong>Melhorias</strong><br>Níveis de espadas vão lhe garantir maior dano a suas espadas.",
+
+    "levelupdocs-shield": "Sobre o Escudo",
+    "levelupdocs-shield-title": "Níveis: Escudo",
+    "levelupdocs-shield-text": "<strong>Escudo</strong><br><i>Escudo: Guardas</i><br><br>Utilizar seu escudo irá garantir experiência com escudos.<br><br><strong>Melhorias</strong><br>Níveis de escudos vão garantir maior defesa ao utilizar escudo.",
+
+    "levelupdocs-hand": "Sobre a Mão",
+    "levelupdocs-hand-title": "Níveis: Mão",
+    "levelupdocs-hand-text": "<strong>Mão</strong><br><i>Mão: Monjes</i><br><br>Usar suas proprias mãos para eliminar criaturas vai lhe garantir experiência.<br><br><strong>Melhorias</strong><br>Níveis de mão vão aumentar o dano causado com seus punhos.",
+
+    "levelupdocs-farming": "Sobre o Fazendeiro",
+    "levelupdocs-farming-title": "Níveis: Fazendeiro",
+    "levelupdocs-farming-text": "<strong>Fazendeiro</strong><br><i>Fazendeiro: Pacientes</i><br><br>Colher plantações nos seus ultimos estágios vão lhe garantir experiência, como também arar o solo<br><br><strong>Melhorias</strong><br>Níveis de fazendeiro vão lhe providenciar mais colheitas.",
+
+    "levelupdocs-cooking": "Sobre o Cozinheiro",
+    "levelupdocs-cooking-title": "Níveis: Cozinheiro",
+    "levelupdocs-cooking-text": "<strong>Cozinheiro</strong><br><i>Cozinheiro: Chefes</i><br><br>Cozinhar em uma fogueira vai lhe garantir experiência.<br><br><strong>Melhorias</strong><br>Níveis de cozinheiro vão aumentar a quantidade de porções e aumentará o quanto a comida irá ficar fresca.",
+
+    "levelupdocs-panning": "Sobre o Peneirar",
+    "levelupdocs-panning-title": "Níveis: Peneirar",
+    "levelupdocs-panning-text": "<strong>Peneirar</strong><br><i>Peneirar: Chocalho</i><br><br>Peneirar irá garantir experiência.<br><br><strong>Melhorias</strong><br>Níveis de peneirar vão lhe garantir mais saques ao peneirar e maior chance de um item aparecer.",
+
+    "levelupdocs-vitality": "Sobre o Vitalidade",
+    "levelupdocs-vitality-title": "Níveis: Vitalidade",
+    "levelupdocs-vitality-text": "<strong>Vitalidade</strong><br><i>Vitalidade: Saco de Pancadas</i><br><br>Levar dano ira lhe conceder experiência.<br><br><strong>Melhorias</strong><br>Níveis de vitalidade vão lhe garantir mais vida e regeneração.",
+
+    "levelupdocs-leatherarmor": "Sobre a Armadura de Couro",
+    "levelupdocs-leatherarmor-title": "Níveis: Armadura de Couro",
+    "levelupdocs-leatherarmor-text": "<strong>Armadura de Couro</strong><br><i>Armadura de Couro: Coureiro</i><br><br>Ao receber dano utilizando armaduras de couro você irá obter experiência com armaduras de couro, quanto mais armaduras de couro você tiver mais experiência você irá obter.<br><br><strong>Melhorias</strong><br>Níveis de armadura de couro vão lhe conceder mais resistencia a danos.",
+
+    "levelupdocs-chainarmor": "Sobre a Armadura de Malha",
+    "levelupdocs-chainarmor-title": "Níveis: Armadura de Malha",
+    "levelupdocs-chainarmor-text": "<strong>Armadura de Malha</strong><br><i>Armadura de Malha: Coureiro</i><br><br>Ao receber dano utilizando armaduras de couro você irá obter experiência com armaduras de couro, quanto mais armaduras de couro você tiver mais experiência você irá obter.<br><br><strong>Melhorias</strong><br>Níveis de armadura de malha vão lhe conceder mais resistencia a danos."
 }
