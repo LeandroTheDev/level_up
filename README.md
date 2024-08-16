@@ -9,12 +9,14 @@ This mod drastically changes the player status and its not recoverable in normal
 Features:
 - Fully configurable
 - GUI Level in character view
-- Each tools has a chance to not use durability by the level you have for the specific tool
 - Hardcore mode
 - Commands for administration manipulation
 - Classes and custom classes for manipulating the experience gain for each level type
+- Survival Guide, for undestanding what each level will do
+- Multi Language support
 
 LEVELS:
+- Each tools has a chance to not use durability by the level you have for the specific tool
 - Hunter: Increases all damages sources to others creatures and players, earn xp by killing things
 - Bow: Increases bow damage, precision and reduce chance to lose arrows, earn xp by hitting and killing things with bows
 - Knife: Increases knifes damages and harvest entity drops, earn xp by harvesting entities, hitting and killing things with knifes
@@ -32,10 +34,6 @@ LEVELS:
 - Panning: Increase panning chance to drop item and chances to double/triple/quadruple the panning results, earn xp by panning
 - Leather Armor: Reduce damage received using leather armors, earn xp by getting hitted using leather armors
 - Chain Armor: Reduce damage received using chain armors, earn xp by getting hitted using chain armors
-
-Future features:
-- Hammer increase animation speed based on level
-- Cute level up sound.
 
 Not all item codes is added to the json configurations files, some armors/items/meats/entities/blocks can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
 
