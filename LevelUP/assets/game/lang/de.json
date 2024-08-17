@@ -1,0 +1,69 @@
+{
+    "levelupdocs-hunter": "About the Hunter",
+    "levelupdocs-hunter-title": "Level: Hunter",
+    "levelupdocs-hunter-text": "<strong>Hunter</strong><br><i>Hunter: The art of hunting</i><br><br>As a hunter you can get experience by killing any type of entity.<br><br><strong>Upgrades</strong><br>Hunter levels will grant you more damage from all sources of damage you deal to any entities.",
+
+    "levelupdocs-axe": "About the Axe",
+    "levelupdocs-axe-title": "Level: Axe",
+    "levelupdocs-axe-text": "<strong>Axe</strong><br><i>Axe: Cunning lumberjacks</i><br><br>Using your axe to chop down trees and break wood will grant you experience with axes.<br><br><strong>Upgrades</strong><br>Axe levels will grant you more damage to your axe, and will increase your breaking speed when using axes.",
+
+    "levelupdocs-bow": "About the Bow",
+    "levelupdocs-bow-title": "Level: Bow",
+    "levelupdocs-bow-text": "<strong>Bow</strong><br><i>Bow: Arrow Man</i><br><br>Killing entities with your bow will grant experience with bows.<br><br><strong>Upgrades</strong><br>Bow levels will grant you more damage when using bows, reduce the chance of losing the arrow after hitting, and ensure greater accuracy.",
+
+    "levelupdocs-pickaxe": "About the Pickaxe",
+    "levelupdocs-pickaxe-title": "Level: Pickaxe",
+    "levelupdocs-pickaxe-text": "<strong>Pickaxe</strong><br><i>Pickaxe: Stone Lovers</i><br><br>Mining with your pickaxe will grant you experience, mining ores will give you even more experience, using it as a weapon will also grant you a bit of experience.<br><br><strong>Upgrades</strong><br> Pickaxe levels will increase the speed at which blocks break, increase the chance of dropping more ores, and ultimately increase damage when using pickaxes.",
+
+    "levelupdocs-shovel": "About the Shovel",
+    "levelupdocs-shovel-title": "Level: Shovel",
+    "levelupdocs-shovel-text": "<strong>Shovel</strong><br><i>Shovel: Soil Lovers</i><br><br>Digging with your shovel will grant you experience, using it as a weapon will also grant you a bit of experience.<br><br><strong>Upgrades</strong><br>Shovel levels will increase the breaking speed of blocks and an increase in damage when using shovels.",
+
+    "levelupdocs-knife": "About the Knife",
+    "levelupdocs-knife-title": "Level: Knife",
+    "levelupdocs-knife-text": "<strong>Knife</strong><br><i>Knife: Professional skinners</i><br><br>Skinning an animal or using it as a weapon will grant you experience with knives, you can also receive experience cutting grasses and leaves with knives.<br><br><strong>Upgrades</strong><br>Knife levels will increase the speed at which leaves and grasses break and an increase in damage when using knives, when skinning any animal the loot will also be increased.",
+
+    "levelupdocs-spear": "About the Spear",
+    "levelupdocs-spear-title": "Level: Spear",
+    "levelupdocs-spear-text": "<strong>Spear</strong><br><i>Spear: Sharp</i><br><br>Throwing or hitting creatures with spears will grant experience.<br><br><strong>Upgrades</strong><br>Spear levels will increase all damage dealt by spears, it will also ensure greater accuracy when throwing a spear.",
+
+    "levelupdocs-hammer": "About the Hammer",
+    "levelupdocs-hammer-title": "Level: Hammer",
+    "levelupdocs-hammer-text": "<strong>Hammer</strong><br><i>Hammer: Blacksmiths</i><br><br>Using your hammer as a weapon will grant you experience, but also using it to forge equipment will grant you experience.<br><br><strong>Upgrades</strong><br>Hammer levels will grant higher return when crafting items, and will also grant more damage to hammers.",
+
+    "levelupdocs-sword": "About the Sword",
+    "levelupdocs-sword-title": "Level: Sword",
+    "levelupdocs-sword-text": "<strong>Sword</strong><br><i>Sword: Warriors</i><br><br>Using swords in combat will grant you experience.<br><br><strong>Upgrades</strong><br>Sword levels will grant you more damage to your swords.",
+
+    "levelupdocs-shield": "About the Shield",
+    "levelupdocs-shield-title": "Level: Shield",
+    "levelupdocs-shield-text": "<strong>Shield</strong><br><i>Shield: Guards</i><br><br>Using your shield will grant experience with shields.<br><br><strong>Upgrades</strong><br>Shield levels will grant greater defense when using shield.",
+
+    "levelupdocs-hand": "About the Hand",
+    "levelupdocs-hand-title": "Level: Hand",
+    "levelupdocs-hand-text": "<strong>Hand</strong><br><i>Hand: Monks</i><br><br>Using your bare hands to eliminate creatures will grant you experience.<br><br><strong>Upgrades</strong><br>Hand levels will increase the damage dealt with your fists.",
+
+    "levelupdocs-farming": "About the Farming",
+    "levelupdocs-farming-title": "Level: Farming",
+    "levelupdocs-farming-text": "<strong>Farming</strong><br><i>Farming: Patients</i><br><br>Harvesting crops in their later stages will give you experience, as will plowing the soil<br><br><strong>Upgrades</strong><br>Farmer levels will provide you with more crops.",
+
+    "levelupdocs-cooking": "About the Cooking",
+    "levelupdocs-cooking-title": "Level: Cooking",
+    "levelupdocs-cooking-text": "<strong>Cooking</strong><br><i>Cooking: Chef</i><br><br>Cooking over a campfire will guarantee you experience.<br><br><strong>Upgrades</strong><br>Cook levels will increase the amount of servings and increase how fresh the food will get.",
+
+    "levelupdocs-panning": "About the Panning",
+    "levelupdocs-panning-title": "Level: Panning",
+    "levelupdocs-panning-text": "<strong>Panning</strong><br><i>Panning: Rattle</i><br><br>Panning will grant experience.<br><br><strong>Upgrades</strong><br>Panning levels will guarantee you more loot when panning and a greater chance of an item appearing.",
+
+    "levelupdocs-vitality": "About the Vitality",
+    "levelupdocs-vitality-title": "Level: Vitality",
+    "levelupdocs-vitality-text": "<strong>Vitality</strong><br><i>Vitality: Punching Bag</i><br><br>Taking damage will grant you experience.<br><br><strong>Upgrades</strong><br>Vitality levels will grant you more life and regeneration.",
+
+    "levelupdocs-leatherarmor": "About the Leather Armor",
+    "levelupdocs-leatherarmor-title": "Level: Leather Armor",
+    "levelupdocs-leatherarmor-text": "<strong>Leather Armor</strong><br><i>Leather Armor: Leatherworker</i><br><br>When you receive damage using leather armor you will gain experience with leather armor, the more leather armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Leather armor levels will grant you more resistance to damage.",
+
+    "levelupdocs-chainarmor": "About the Chain Armor",
+    "levelupdocs-chainarmor-title": "Level: Chain Armor",
+    "levelupdocs-chainarmor-text": "<strong>Chain Armor</strong><br><i>Chain Armor: Leatherworker</i><br><br>When you receive damage using chain armor you will gain experience with chain armor, the more chain armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Chain armor levels will grant you more resistance to damage."
+}

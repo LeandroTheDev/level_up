@@ -546,26 +546,31 @@ class OverwriteDamageInteraction
     }
     // Overwrite Bow shot start
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStop")]
-    public static void OnHeldInteractStopBowStart(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
+    [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStart")]
+    public static void OnHeldInteractBowStart(ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handling)
     {
         if (Configuration.enableLevelBow && byEntity is EntityPlayer)
+        {
             // Setting new aim accuracy
             byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0)));
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"Bow: ${Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0))}, Server: {instance.serverAPI != null}");
+        }
     }
-    // Overwrite Bow shot finish
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStop")]
     #endregion
     #region spear
     // Overwrite Spear shot start
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ItemSpear), "OnHeldInteractStop")]
-    public static void OnHeldInteractStopSpearStart(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
+    [HarmonyPatch(typeof(ItemSpear), "OnHeldInteractStart")]
+    public static void OnHeldInteractSpearStart(ItemSlot itemslot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handling)
     {
         if (Configuration.enableLevelSpear && byEntity is EntityPlayer)
+        {
             // Setting new aim accuracy
             byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0)));
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"Bow: ${Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0))}, Server: {instance.serverAPI != null}");
+        }
     }
     #endregion
     #region shield
