@@ -101,6 +101,9 @@ public static class Configuration
     public static bool enableLevelVitality = true;
     public static bool enableLevelLeatherArmor = true;
     public static bool enableLevelChainArmor = true;
+    public static bool enableLevelBrigandineArmor = true;
+    public static bool enableLevelPlateArmor = true;
+    public static bool enableLevelScaleArmor = true;
     public static int cookingFirePitOverflow = 10;
     public static int minimumEXPEarned = 1;
     public static bool disableServerChannel = false;
@@ -276,6 +279,27 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelChainArmor is not boolean is {value.GetType()}");
                 else enableLevelChainArmor = (bool)value;
             else Debug.Log("CONFIGURATION ERROR: enableLevelChainArmor not set");
+        }
+        { //enableLevelBrigandineArmor
+            if (baseConfigs.TryGetValue("enableLevelBrigandineArmor", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelBrigandineArmor is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelBrigandineArmor is not boolean is {value.GetType()}");
+                else enableLevelBrigandineArmor = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelBrigandineArmor not set");
+        }
+        { //enableLevelPlateArmor
+            if (baseConfigs.TryGetValue("enableLevelPlateArmor", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelPlateArmor is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelPlateArmor is not boolean is {value.GetType()}");
+                else enableLevelPlateArmor = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelPlateArmor not set");
+        }
+        { //enableLevelScaleArmor
+            if (baseConfigs.TryGetValue("enableLevelScaleArmor", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelScaleArmor is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelScaleArmor is not boolean is {value.GetType()}");
+                else enableLevelScaleArmor = (bool)value;
+            else Debug.Log("CONFIGURATION ERROR: enableLevelScaleArmor not set");
         }
         { //cookingFirePitOverflow
             if (baseConfigs.TryGetValue("cookingFirePitOverflow", out object value))
@@ -2676,7 +2700,6 @@ public static class Configuration
     }
     #endregion
 
-
     #region farming
     public static readonly Dictionary<string, int> expPerHarvestFarming = [];
     private static int farmingEXPPerTill = 1;
@@ -3209,7 +3232,6 @@ public static class Configuration
     }
     #endregion
 
-
     #region vitality
     private static int vitalityEXPPerReceiveHit = 1;
     private static float vitalityEXPMultiplyByDamage = 0.5f;
@@ -3729,6 +3751,561 @@ public static class Configuration
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Chain Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
+        else return false;
+    }
+
+    #endregion
+
+    #region brigandinearmor
+    public static readonly Dictionary<string, double> expMultiplyHitBrigandineArmor = [];
+    private static int brigandineArmorEXPPerReceiveHit = 1;
+    private static float brigandineArmorEXPMultiplyByDamage = 0.5f;
+    private static int brigandineArmorEXPIncreaseByAmountDamage = 1;
+    private static int brigandineArmorEXPPerLevelBase = 10;
+    private static double brigandineArmorEXPMultiplyPerLevel = 2.0;
+    private static float brigandineArmorBaseDamageReduction = 0.0f;
+    private static float brigandineArmorDamageReductionPerLevel = 0.05f;
+    private static float brigandineArmorBaseDurabilityRestoreChance = 0.0f;
+    private static float brigandineArmorDurabilityRestoreChancePerLevel = 2.0f;
+    private static int brigandineArmorDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float brigandineArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int brigandineArmorDamageLimit = 1000;
+
+    public static int DamageLimitBrigandineArmor => brigandineArmorDamageLimit;
+
+    public static void PopulateBrigandineArmorConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> brigandineArmorLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "brigandinearmor",
+            "levelup:config/levelstats/brigandinearmor.json");
+        { //brigandineArmorEXPPerReceiveHit
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPPerReceiveHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit is not int is {value.GetType()}");
+                else brigandineArmorEXPPerReceiveHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit not set");
+        }
+        { //brigandineArmorEXPMultiplyByDamage
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPMultiplyByDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPMultiplyByDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPMultiplyByDamage is not double is {value.GetType()}");
+                else brigandineArmorEXPMultiplyByDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPMultiplyByDamage not set");
+        }
+        { //brigandineArmorEXPIncreaseByAmountDamage
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPIncreaseByAmountDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPIncreaseByAmountDamage is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
+                else brigandineArmorEXPIncreaseByAmountDamage = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPIncreaseByAmountDamage not set");
+        }
+        { //brigandineArmorEXPPerLevelBase
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase is not int is {value.GetType()}");
+                else brigandineArmorEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase not set");
+        }
+        { //brigandineArmorEXPMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel not set");
+        }
+        { //brigandineArmorBaseDamageReduction
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorBaseDamageReduction", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorBaseDamageReduction is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorBaseDamageReduction is not double is {value.GetType()}");
+                else brigandineArmorBaseDamageReduction = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorBaseDamageReduction not set");
+        }
+        { //brigandineArmorDamageReductionPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDamageReductionPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel is not double is {value.GetType()}");
+                else brigandineArmorDamageReductionPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel not set");
+        }
+        { //brigandineArmorBaseDurabilityRestoreChance
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else brigandineArmorBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorBaseDurabilityRestoreChance not set");
+        }
+        { //brigandineArmorDurabilityRestoreChancePerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else brigandineArmorDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreChancePerLevel not set");
+        }
+        { //brigandineArmorDurabilityRestoreEveryLevelReduceChance
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else brigandineArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreEveryLevelReduceChance not set");
+        }
+        { //brigandineArmorDurabilityRestoreReduceChanceForEveryLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else brigandineArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+        { //brigandineArmorDamageLimit
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDamageLimit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageLimit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDamageLimit is not int is {value.GetType()}");
+                else brigandineArmorDamageLimit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageLimit not set");
+        }
+
+        // Get leather armor multiply exp
+        expMultiplyHitBrigandineArmor.Clear();
+        Dictionary<string, object> tmpexpMultiplyHitBrigandineArmor = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "brigandinearmoritems",
+            "levelup:config/levelstats/brigandinearmoritems.json");
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitBrigandineArmor)
+        {
+            if (pair.Value is double value) expMultiplyHitBrigandineArmor.Add(pair.Key, (double)value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplyHitBrigandineArmor {pair.Key} is not double");
+        }
+        Debug.Log("Brigandine Armor configuration set");
+    }
+
+    public static int BrigandineArmorGetLevelByEXP(ulong exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = brigandineArmorEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= brigandineArmorEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+    public static int BrigandineArmorBaseEXPEarnedByDAMAGE(float damage)
+    {
+        float baseMultiply = brigandineArmorEXPPerReceiveHit;
+        int calcDamage = (int)Math.Round(damage);
+
+        float multiply = (float)brigandineArmorEXPMultiplyByDamage;
+        while (calcDamage > 1)
+        {
+            // Increase experience
+            if (calcDamage % brigandineArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
+            calcDamage -= 1;
+        }
+        return (int)Math.Round(baseMultiply);
+    }
+    public static float BrigandineArmorDamageReductionByLevel(int level)
+    {
+        float baseMultiply = brigandineArmorBaseDamageReduction;
+        while (level > 1)
+        {
+            baseMultiply += brigandineArmorDamageReductionPerLevel;
+            level -= 1;
+        }
+        return baseMultiply;
+    }
+    public static bool BrigandineArmorRollChanceToNotReduceDurabilityByLevel(int level)
+    {
+        float baseChanceToNotReduce = brigandineArmorBaseDurabilityRestoreChance;
+        float chanceToNotReduce = brigandineArmorDurabilityRestoreChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % brigandineArmorDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= brigandineArmorDurabilityRestoreReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        int chance = new Random().Next(0, 100);
+        if (enableExtendedLog) Debug.Log($"Brigandine Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
+        else return false;
+    }
+
+    #endregion
+
+    #region platearmor
+    public static readonly Dictionary<string, double> expMultiplyHitPlateArmor = [];
+    private static int plateArmorEXPPerReceiveHit = 1;
+    private static float plateArmorEXPMultiplyByDamage = 0.5f;
+    private static int plateArmorEXPIncreaseByAmountDamage = 1;
+    private static int plateArmorEXPPerLevelBase = 10;
+    private static double plateArmorEXPMultiplyPerLevel = 2.0;
+    private static float plateArmorBaseDamageReduction = 0.0f;
+    private static float plateArmorDamageReductionPerLevel = 0.05f;
+    private static float plateArmorBaseDurabilityRestoreChance = 0.0f;
+    private static float plateArmorDurabilityRestoreChancePerLevel = 2.0f;
+    private static int plateArmorDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float plateArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int plateArmorDamageLimit = 1000;
+
+    public static int DamageLimitPlateArmor => plateArmorDamageLimit;
+
+    public static void PopulatePlateArmorConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> plateArmorLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "platearmor",
+            "levelup:config/levelstats/platearmor.json");
+        { //plateArmorEXPPerReceiveHit
+            if (plateArmorLevelStats.TryGetValue("plateArmorEXPPerReceiveHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPPerReceiveHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPPerReceiveHit is not int is {value.GetType()}");
+                else plateArmorEXPPerReceiveHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPPerReceiveHit not set");
+        }
+        { //plateArmorEXPMultiplyByDamage
+            if (plateArmorLevelStats.TryGetValue("plateArmorEXPMultiplyByDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPMultiplyByDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPMultiplyByDamage is not double is {value.GetType()}");
+                else plateArmorEXPMultiplyByDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPMultiplyByDamage not set");
+        }
+        { //plateArmorEXPIncreaseByAmountDamage
+            if (plateArmorLevelStats.TryGetValue("plateArmorEXPIncreaseByAmountDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPIncreaseByAmountDamage is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
+                else plateArmorEXPIncreaseByAmountDamage = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPIncreaseByAmountDamage not set");
+        }
+        { //plateArmorEXPPerLevelBase
+            if (plateArmorLevelStats.TryGetValue("plateArmorEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPPerLevelBase is not int is {value.GetType()}");
+                else plateArmorEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPPerLevelBase not set");
+        }
+        { //plateArmorEXPMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel not set");
+        }
+        { //plateArmorBaseDamageReduction
+            if (plateArmorLevelStats.TryGetValue("plateArmorBaseDamageReduction", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorBaseDamageReduction is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorBaseDamageReduction is not double is {value.GetType()}");
+                else plateArmorBaseDamageReduction = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorBaseDamageReduction not set");
+        }
+        { //plateArmorDamageReductionPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorDamageReductionPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDamageReductionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorDamageReductionPerLevel is not double is {value.GetType()}");
+                else plateArmorDamageReductionPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorDamageReductionPerLevel not set");
+        }
+        { //plateArmorBaseDurabilityRestoreChance
+            if (plateArmorLevelStats.TryGetValue("plateArmorBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else plateArmorBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorBaseDurabilityRestoreChance not set");
+        }
+        { //plateArmorDurabilityRestoreChancePerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else plateArmorDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreChancePerLevel not set");
+        }
+        { //plateArmorDurabilityRestoreEveryLevelReduceChance
+            if (plateArmorLevelStats.TryGetValue("plateArmorDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else plateArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreEveryLevelReduceChance not set");
+        }
+        { //plateArmorDurabilityRestoreReduceChanceForEveryLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else plateArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+        { //plateArmorDamageLimit
+            if (plateArmorLevelStats.TryGetValue("plateArmorDamageLimit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDamageLimit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorDamageLimit is not int is {value.GetType()}");
+                else plateArmorDamageLimit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorDamageLimit not set");
+        }
+
+        // Get leather armor multiply exp
+        expMultiplyHitPlateArmor.Clear();
+        Dictionary<string, object> tmpexpMultiplyHitPlateArmor = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "platearmoritems",
+            "levelup:config/levelstats/platearmoritems.json");
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitPlateArmor)
+        {
+            if (pair.Value is double value) expMultiplyHitPlateArmor.Add(pair.Key, (double)value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplyHitPlateArmor {pair.Key} is not double");
+        }
+        Debug.Log("Plate Armor configuration set");
+    }
+
+    public static int PlateArmorGetLevelByEXP(ulong exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = plateArmorEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= plateArmorEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+    public static int PlateArmorBaseEXPEarnedByDAMAGE(float damage)
+    {
+        float baseMultiply = plateArmorEXPPerReceiveHit;
+        int calcDamage = (int)Math.Round(damage);
+
+        float multiply = (float)plateArmorEXPMultiplyByDamage;
+        while (calcDamage > 1)
+        {
+            // Increase experience
+            if (calcDamage % plateArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
+            calcDamage -= 1;
+        }
+        return (int)Math.Round(baseMultiply);
+    }
+    public static float PlateArmorDamageReductionByLevel(int level)
+    {
+        float baseMultiply = plateArmorBaseDamageReduction;
+        while (level > 1)
+        {
+            baseMultiply += plateArmorDamageReductionPerLevel;
+            level -= 1;
+        }
+        return baseMultiply;
+    }
+    public static bool PlateArmorRollChanceToNotReduceDurabilityByLevel(int level)
+    {
+        float baseChanceToNotReduce = plateArmorBaseDurabilityRestoreChance;
+        float chanceToNotReduce = plateArmorDurabilityRestoreChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % plateArmorDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= plateArmorDurabilityRestoreReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        int chance = new Random().Next(0, 100);
+        if (enableExtendedLog) Debug.Log($"Plate Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
+        else return false;
+    }
+
+    #endregion
+
+    #region scalearmor
+    public static readonly Dictionary<string, double> expMultiplyHitScaleArmor = [];
+    private static int scaleArmorEXPPerReceiveHit = 1;
+    private static float scaleArmorEXPMultiplyByDamage = 0.5f;
+    private static int scaleArmorEXPIncreaseByAmountDamage = 1;
+    private static int scaleArmorEXPPerLevelBase = 10;
+    private static double scaleArmorEXPMultiplyPerLevel = 2.0;
+    private static float scaleArmorBaseDamageReduction = 0.0f;
+    private static float scaleArmorDamageReductionPerLevel = 0.05f;
+    private static float scaleArmorBaseDurabilityRestoreChance = 0.0f;
+    private static float scaleArmorDurabilityRestoreChancePerLevel = 2.0f;
+    private static int scaleArmorDurabilityRestoreEveryLevelReduceChance = 10;
+    private static float scaleArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int scaleArmorDamageLimit = 1000;
+
+    public static int DamageLimitScaleArmor => scaleArmorDamageLimit;
+
+    public static void PopulateScaleArmorConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> scaleArmorLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "scalearmor",
+            "levelup:config/levelstats/scalearmor.json");
+        { //scaleArmorEXPPerReceiveHit
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPPerReceiveHit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit is not int is {value.GetType()}");
+                else scaleArmorEXPPerReceiveHit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit not set");
+        }
+        { //scaleArmorEXPMultiplyByDamage
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPMultiplyByDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPMultiplyByDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPMultiplyByDamage is not double is {value.GetType()}");
+                else scaleArmorEXPMultiplyByDamage = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPMultiplyByDamage not set");
+        }
+        { //scaleArmorEXPIncreaseByAmountDamage
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPIncreaseByAmountDamage", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPIncreaseByAmountDamage is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
+                else scaleArmorEXPIncreaseByAmountDamage = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPIncreaseByAmountDamage not set");
+        }
+        { //scaleArmorEXPPerLevelBase
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPPerLevelBase", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPPerLevelBase is not int is {value.GetType()}");
+                else scaleArmorEXPPerLevelBase = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPPerLevelBase not set");
+        }
+        { //scaleArmorEXPMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel not set");
+        }
+        { //scaleArmorBaseDamageReduction
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorBaseDamageReduction", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorBaseDamageReduction is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorBaseDamageReduction is not double is {value.GetType()}");
+                else scaleArmorBaseDamageReduction = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorBaseDamageReduction not set");
+        }
+        { //scaleArmorDamageReductionPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorDamageReductionPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel is not double is {value.GetType()}");
+                else scaleArmorDamageReductionPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel not set");
+        }
+        { //scaleArmorBaseDurabilityRestoreChance
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorBaseDurabilityRestoreChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorBaseDurabilityRestoreChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
+                else scaleArmorBaseDurabilityRestoreChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorBaseDurabilityRestoreChance not set");
+        }
+        { //scaleArmorDurabilityRestoreChancePerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorDurabilityRestoreChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
+                else scaleArmorDurabilityRestoreChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreChancePerLevel not set");
+        }
+        { //scaleArmorDurabilityRestoreEveryLevelReduceChance
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorDurabilityRestoreEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
+                else scaleArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreEveryLevelReduceChance not set");
+        }
+        { //scaleArmorDurabilityRestoreReduceChanceForEveryLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else scaleArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+        { //scaleArmorDamageLimit
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorDamageLimit", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDamageLimit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorDamageLimit is not int is {value.GetType()}");
+                else scaleArmorDamageLimit = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorDamageLimit not set");
+        }
+
+        // Get leather armor multiply exp
+        expMultiplyHitScaleArmor.Clear();
+        Dictionary<string, object> tmpexpMultiplyHitScaleArmor = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "scalearmoritems",
+            "levelup:config/levelstats/scalearmoritems.json");
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitScaleArmor)
+        {
+            if (pair.Value is double value) expMultiplyHitScaleArmor.Add(pair.Key, (double)value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplyHitScaleArmor {pair.Key} is not double");
+        }
+        Debug.Log("Scale Armor configuration set");
+    }
+
+    public static int ScaleArmorGetLevelByEXP(ulong exp)
+    {
+        int level = 0;
+        // Exp base for level
+        double expPerLevelBase = scaleArmorEXPPerLevelBase;
+        double calcExp = double.Parse(exp.ToString());
+        while (calcExp > 0)
+        {
+            level += 1;
+            calcExp -= expPerLevelBase;
+            // 10 percentage increasing per level
+            expPerLevelBase *= scaleArmorEXPMultiplyPerLevel;
+        }
+        return level;
+    }
+    public static int ScaleArmorBaseEXPEarnedByDAMAGE(float damage)
+    {
+        float baseMultiply = scaleArmorEXPPerReceiveHit;
+        int calcDamage = (int)Math.Round(damage);
+
+        float multiply = (float)scaleArmorEXPMultiplyByDamage;
+        while (calcDamage > 1)
+        {
+            // Increase experience
+            if (calcDamage % scaleArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
+            calcDamage -= 1;
+        }
+        return (int)Math.Round(baseMultiply);
+    }
+    public static float ScaleArmorDamageReductionByLevel(int level)
+    {
+        float baseMultiply = scaleArmorBaseDamageReduction;
+        while (level > 1)
+        {
+            baseMultiply += scaleArmorDamageReductionPerLevel;
+            level -= 1;
+        }
+        return baseMultiply;
+    }
+    public static bool ScaleArmorRollChanceToNotReduceDurabilityByLevel(int level)
+    {
+        float baseChanceToNotReduce = scaleArmorBaseDurabilityRestoreChance;
+        float chanceToNotReduce = scaleArmorDurabilityRestoreChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % scaleArmorDurabilityRestoreEveryLevelReduceChance == 0)
+                chanceToNotReduce -= scaleArmorDurabilityRestoreReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        int chance = new Random().Next(0, 100);
+        if (enableExtendedLog) Debug.Log($"Scale Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
         if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }

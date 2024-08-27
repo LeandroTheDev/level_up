@@ -407,6 +407,177 @@ class OverwriteDamageInteraction
                         }
                     }
                     #endregion
+                    #region brigandinearmor
+                    if (Configuration.enableLevelBrigandineArmor && damage < Configuration.DamageLimitBrigandineArmor)
+                    {
+                        // Check if damage is bigger than player max health
+                        float damageCalculation = damage;
+                        float playerMaxHealth = playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
+                        // If is set the damage experience limit to the player max health
+                        if (playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < damage) damageCalculation = playerMaxHealth;
+
+                        // Swipe all inventorys to receive armor multiply
+                        double multiply = 1.0;
+                        foreach (IInventory playerInventory in player.InventoryManager.Inventories.Values)
+                        {
+                            // Get inventory type
+                            string inventoryType = playerInventory.GetType().ToString();
+                            // Check if is armor inventory
+                            if (inventoryType.Contains("InventoryCharacter"))
+                            {
+                                int index = 0;
+                                // Swipe all items in this inventory
+                                foreach (ItemSlot item in playerInventory)
+                                {
+                                    // Check if slot contains item
+                                    if (item.Itemstack == null || item.Itemstack.Item == null)
+                                    {
+                                        index++;
+                                        continue;
+                                    }
+
+                                    // Check if the armor contains experience
+                                    double value = Configuration.expMultiplyHitBrigandineArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
+                                    multiply += value;
+                                    index++;
+
+                                    if (Configuration.enableExtendedLog && value != 0.0)
+                                        Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
+                                }
+                                break;
+                            }
+                        }
+
+                        // Check if player is wearing some brigandine armor
+                        if (multiply > 1.0)
+                        {
+                            // Dedicated Servers
+                            if (player is IServerPlayer && instance.serverAPI != null)
+                                instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_BrigandineArmor_Hit&forceexp={(int)Math.Round(Configuration.BrigandineArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
+                            // Single player treatment
+                            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_BrigandineArmor_Hit&forceexp={(int)Math.Round(Configuration.BrigandineArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+
+                            float damageReduction = Configuration.BrigandineArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_BrigandineArmor")) * (float)multiply;
+                            damage -= damageReduction;
+                            if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by brigandine armor level");
+                        }
+                    }
+                    #endregion
+                    #region platearmor
+                    if (Configuration.enableLevelPlateArmor && damage < Configuration.DamageLimitPlateArmor)
+                    {
+                        // Check if damage is bigger than player max health
+                        float damageCalculation = damage;
+                        float playerMaxHealth = playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
+                        // If is set the damage experience limit to the player max health
+                        if (playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < damage) damageCalculation = playerMaxHealth;
+
+                        // Swipe all inventorys to receive armor multiply
+                        double multiply = 1.0;
+                        foreach (IInventory playerInventory in player.InventoryManager.Inventories.Values)
+                        {
+                            // Get inventory type
+                            string inventoryType = playerInventory.GetType().ToString();
+                            // Check if is armor inventory
+                            if (inventoryType.Contains("InventoryCharacter"))
+                            {
+                                int index = 0;
+                                // Swipe all items in this inventory
+                                foreach (ItemSlot item in playerInventory)
+                                {
+                                    // Check if slot contains item
+                                    if (item.Itemstack == null || item.Itemstack.Item == null)
+                                    {
+                                        index++;
+                                        continue;
+                                    }
+
+                                    // Check if the armor contains experience
+                                    double value = Configuration.expMultiplyHitPlateArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
+                                    multiply += value;
+                                    index++;
+
+                                    if (Configuration.enableExtendedLog && value != 0.0)
+                                        Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
+                                }
+                                break;
+                            }
+                        }
+
+                        // Check if player is wearing some plate armor
+                        if (multiply > 1.0)
+                        {
+                            // Dedicated Servers
+                            if (player is IServerPlayer && instance.serverAPI != null)
+                                instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_PlateArmor_Hit&forceexp={(int)Math.Round(Configuration.PlateArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
+                            // Single player treatment
+                            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_PlateArmor_Hit&forceexp={(int)Math.Round(Configuration.PlateArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+
+                            float damageReduction = Configuration.PlateArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_PlateArmor")) * (float)multiply;
+                            damage -= damageReduction;
+                            if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by plate armor level");
+                        }
+                    }
+                    #endregion
+                    #region scalearmor
+                    if (Configuration.enableLevelScaleArmor && damage < Configuration.DamageLimitScaleArmor)
+                    {
+                        // Check if damage is bigger than player max health
+                        float damageCalculation = damage;
+                        float playerMaxHealth = playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
+                        // If is set the damage experience limit to the player max health
+                        if (playerEntity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < damage) damageCalculation = playerMaxHealth;
+
+                        // Swipe all inventorys to receive armor multiply
+                        double multiply = 1.0;
+                        foreach (IInventory playerInventory in player.InventoryManager.Inventories.Values)
+                        {
+                            // Get inventory type
+                            string inventoryType = playerInventory.GetType().ToString();
+                            // Check if is armor inventory
+                            if (inventoryType.Contains("InventoryCharacter"))
+                            {
+                                int index = 0;
+                                // Swipe all items in this inventory
+                                foreach (ItemSlot item in playerInventory)
+                                {
+                                    // Check if slot contains item
+                                    if (item.Itemstack == null || item.Itemstack.Item == null)
+                                    {
+                                        index++;
+                                        continue;
+                                    }
+
+                                    // Check if the armor contains experience
+                                    double value = Configuration.expMultiplyHitScaleArmor.GetValueOrDefault(item.Itemstack.Item.Code.ToString(), 0.0);
+                                    multiply += value;
+                                    index++;
+
+                                    if (Configuration.enableExtendedLog && value != 0.0)
+                                        Debug.Log($"{player.PlayerName} received damage using: {item.Itemstack.Item.Code} as armor");
+                                }
+                                break;
+                            }
+                        }
+
+                        // Check if player is wearing some scale armor
+                        if (multiply > 1.0)
+                        {
+                            // Dedicated Servers
+                            if (player is IServerPlayer && instance.serverAPI != null)
+                                instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_ScaleArmor_Hit&forceexp={(int)Math.Round(Configuration.ScaleArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
+                            // Single player treatment
+                            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
+                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_ScaleArmor_Hit&forceexp={(int)Math.Round(Configuration.ScaleArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+
+                            float damageReduction = Configuration.ScaleArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_ScaleArmor")) * (float)multiply;
+                            damage -= damageReduction;
+                            if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced {damageReduction} damage by scale armor level");
+                        }
+                    }
+                    #endregion
                 }
             };
 
