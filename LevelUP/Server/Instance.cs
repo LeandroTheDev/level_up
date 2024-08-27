@@ -32,6 +32,9 @@ class Instance
     public LevelPanning levelPanning = new();
     public LevelLeatherArmor levelLeatherArmor = new();
     public LevelChainArmor levelChainArmor = new();
+    public LevelBrigandineArmor levelBrigandineArmor = new();
+    public LevelPlateArmor levelPlateArmor = new();
+    public LevelScaleArmor levelScaleArmor = new();
 
     public void Init(ICoreServerAPI serverAPI)
     {
@@ -57,6 +60,9 @@ class Instance
         if (Configuration.enableLevelPanning) levelPanning.Init(this);
         if (Configuration.enableLevelLeatherArmor) levelLeatherArmor.Init(this);
         if (Configuration.enableLevelChainArmor) levelChainArmor.Init(this);
+        if (Configuration.enableLevelBrigandineArmor) levelBrigandineArmor.Init(this);
+        if (Configuration.enableLevelPlateArmor) levelPlateArmor.Init(this);
+        if (Configuration.enableLevelScaleArmor) levelScaleArmor.Init(this);
         Debug.Log("Server Levels instanciated");
 
         // Register commands
@@ -170,6 +176,9 @@ class Instance
             case "Increase_Vitality_Hit": IncreaseExp(player, "Vitality", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_LeatherArmor_Hit": IncreaseExp(player, "LeatherArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             case "Increase_ChainArmor_Hit": IncreaseExp(player, "ChainArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
+            case "Increase_BrigandineArmor_Hit": IncreaseExp(player, "BrigandineArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
+            case "Increase_PlateArmor_Hit": IncreaseExp(player, "PlateArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
+            case "Increase_ScaleArmor_Hit": IncreaseExp(player, "ScaleArmor", "Hit", arguments["forceexp"].ToString().ToInt()); return;
             #endregion
             #region breaking
             case "Block_Breaked_Axe": IncreaseExp(player, "Axe", "Breaking"); return;
@@ -688,6 +697,72 @@ class Instance
                 Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
         #endregion
+        #region brigandinearmor
+        // Get hit
+        if (levelType == "BrigandineArmor" && reason == "Hit" && forceexp > 0)
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "ChainArmor"));
+            // Minium exp earned is 1
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            // Increment
+            levels[player.PlayerUID] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
+        #region platearmor
+        // Get hit
+        if (levelType == "PlateArmor" && reason == "Hit" && forceexp > 0)
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "ChainArmor"));
+            // Minium exp earned is 1
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            // Increment
+            levels[player.PlayerUID] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
+        #region scalearmor
+        // Get hit
+        if (levelType == "ScaleArmor" && reason == "Hit" && forceexp > 0)
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "ChainArmor"));
+            // Minium exp earned is 1
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            // Increment
+            levels[player.PlayerUID] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        #endregion
     }
 
     private void UpdatePlayerLevels(IServerPlayer player)
@@ -747,6 +822,15 @@ class Instance
 
         // Chain Armor Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "ChainArmor", GetSavedLevels("ChainArmor").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
+
+        // Brigandine Armor Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "BrigandineArmor", GetSavedLevels("BrigandineArmor").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
+
+        // Plate Armor Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "PlateArmor", GetSavedLevels("PlateArmor").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
+
+        // Scale Armor Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "ScaleArmor", GetSavedLevels("ScaleArmor").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
     }
 
     private static void GetEnabledLevels(IServerPlayer player)
@@ -769,6 +853,9 @@ class Instance
         enabledLevels.Add("Vitality", Configuration.enableLevelVitality);
         enabledLevels.Add("LeatherArmor", Configuration.enableLevelLeatherArmor);
         enabledLevels.Add("ChainArmor", Configuration.enableLevelChainArmor);
+        enabledLevels.Add("BrigandineArmor", Configuration.enableLevelBrigandineArmor);
+        enabledLevels.Add("PlateArmor", Configuration.enableLevelPlateArmor);
+        enabledLevels.Add("ScaleArmor", Configuration.enableLevelScaleArmor);
 
         // Sending the configurations to the player
         communicationChannel.SendPacket(new ServerMessage() { message = $"enabledlevels&{JsonSerializer.Serialize(enabledLevels)}" }, player);
@@ -955,6 +1042,33 @@ class Instance
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_ChainArmor", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("BrigandineArmor");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerUID] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_BrigandineArmor", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("PlateArmor");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerUID] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_PlateArmor", JsonSerializer.Serialize(level));
+        }
+        {
+            Dictionary<string, ulong> level = GetSavedLevels("ScaleArmor");
+            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            {
+                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                level[player.PlayerUID] = (ulong)Math.Round(newValue);
+            }
+            api.WorldManager.SaveGame.StoreData("LevelUPData_ScaleArmor", JsonSerializer.Serialize(level));
         }
         if (Configuration.enableExtendedLog)
             Debug.Log($"{player.PlayerName} died and lost {(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}% of all experience");
