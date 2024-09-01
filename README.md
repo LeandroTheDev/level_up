@@ -34,6 +34,9 @@ LEVELS:
 - Panning: Increase panning chance to drop item and chances to double/triple/quadruple the panning results, earn xp by panning
 - Leather Armor: Reduce damage received using leather armors, earn xp by getting hitted using leather armors
 - Chain Armor: Reduce damage received using chain armors, earn xp by getting hitted using chain armors
+- Brigandine Armor: Reduce damage received using brigandine armors, earn xp by getting hitted using brigandine armors
+- Plate Armor: Reduce damage received using plate armors, earn xp by getting hitted using plate armors
+- Scale Armor: Reduce damage received using scale armors, earn xp by getting hitted using scale armors
 
 Not all item codes is added to the json configurations files, some armors/items/meats/entities/blocks can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
 

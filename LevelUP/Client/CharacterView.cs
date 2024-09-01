@@ -212,6 +212,33 @@ class CharacterView
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:chainarmor")}: {GetLevelByLevelName("ChainArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
         }
         #endregion
+        
+        #region brigandinearmor
+        if (instance.enabledLevels["BrigandineArmor"])
+        {
+            levelsAdded++;
+            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:brigandinearmor.png")));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:brigandinearmor")}: {GetLevelByLevelName("BrigandineArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        }
+        #endregion
+        
+        #region platearmor
+        if (instance.enabledLevels["PlateArmor"])
+        {
+            levelsAdded++;
+            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:platearmor.png")));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:platearmor")}: {GetLevelByLevelName("PlateArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        }
+        #endregion
+        
+        #region scale
+        if (instance.enabledLevels["ScaleArmor"])
+        {
+            levelsAdded++;
+            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:scalearmor.png")));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:scalearmor")}: {GetLevelByLevelName("ScaleArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        }
+        #endregion
 
         // Finishing Clip for scrollbar
         composer.EndClip();
@@ -219,7 +246,7 @@ class CharacterView
         // Adding the size of scroll button
         GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
         double listHeight = 0;
-        for (int i = 0; i < levelsAdded; i++) listHeight += 70;
+        for (int i = 0; i < levelsAdded; i++) listHeight += 72  ;
         scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)listHeight);
     }
 
