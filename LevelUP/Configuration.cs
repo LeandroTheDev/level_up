@@ -546,6 +546,9 @@ public static class Configuration
             case "Vitality": return VitalityGetLevelByEXP(exp);
             case "LeatherArmor": return LeatherArmorGetLevelByEXP(exp);
             case "ChainArmor": return ChainArmorGetLevelByEXP(exp);
+            case "BrigandineArmor": return BrigandineArmorGetLevelByEXP(exp);
+            case "PlateArmor": return PlateArmorGetLevelByEXP(exp);
+            case "ScaleArmor": return ScaleArmorGetLevelByEXP(exp);
             default: break;
         }
         Debug.Log($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the Configuration.cs");

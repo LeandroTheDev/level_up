@@ -1,3 +1,23 @@
 {
-    "to-do": 0.3    
+    "game:armor-head-brigandine-copper": 0.3,
+    "game:armor-body-brigandine-copper": 0.5,
+    "game:armor-legs-brigandine-copper": 0.2,
+    "game:armor-head-brigandine-tinbronze": 0.3,
+    "game:armor-body-brigandine-tinbronze": 0.5,
+    "game:armor-legs-brigandine-tinbronze": 0.2,
+    "game:armor-head-brigandine-bismuthbronze": 0.3,
+    "game:armor-body-brigandine-bismuthbronze": 0.5,
+    "game:armor-legs-brigandine-bismuthbronze": 0.2,
+    "game:armor-head-brigandine-blackbronze": 0.3,
+    "game:armor-body-brigandine-blackbronze": 0.5,
+    "game:armor-legs-brigandine-blackbronze": 0.2,
+    "game:armor-head-brigandine-iron": 0.3,
+    "game:armor-body-brigandine-iron": 0.5,
+    "game:armor-legs-brigandine-iron": 0.2,
+    "game:armor-head-brigandine-meteoriciron": 0.3,
+    "game:armor-body-brigandine-meteoriciron": 0.5,
+    "game:armor-legs-brigandine-meteoriciron": 0.2,
+    "game:armor-head-brigandine-steel": 0.3,
+    "game:armor-body-brigandine-steel": 0.5,
+    "game:armor-legs-brigandine-steel": 0.2
 }

@@ -17,6 +17,9 @@
 
     "leatherarmor": "Leather Armor",
     "chainarmor": "Chain Armor",
+    "brigandinearmor": "Brigandine Armor",
+    "platearmor": "Plate Armor",
+    "scalearmor": "Scale Armor",
 
     "hunter": "Hunter",
     "farming": "Farming",
