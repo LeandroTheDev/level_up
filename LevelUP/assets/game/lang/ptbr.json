@@ -45,7 +45,7 @@
 
     "levelupdocs-farming": "Sobre o Fazendeiro",
     "levelupdocs-farming-title": "Níveis: Fazendeiro",
-    "levelupdocs-farming-text": "<strong>Fazendeiro</strong><br><i>Fazendeiro: Pacientes</i><br><br>Colher plantações nos seus ultimos estágios vão lhe garantir experiência, como também arar o solo<br><br><strong>Melhorias</strong><br>Níveis de fazendeiro vão lhe providenciar mais colheitas.",
+    "levelupdocs-farming-text": "<strong>Fazendeiro</strong><br><i>Fazendeiro: Pacientes</i><br><br>Colher plantações nos seus ultimos estágios vão lhe garantir experiência, como também arar o solo<br><br><strong>Melhorias</strong><br>Níveis de fazendeiro vão lhe providenciar mais colheitas nas plantações e aumento na coleta silvestre.",
 
     "levelupdocs-cooking": "Sobre o Cozinheiro",
     "levelupdocs-cooking-title": "Níveis: Cozinheiro",
@@ -65,5 +65,17 @@
 
     "levelupdocs-chainarmor": "Sobre a Armadura de Malha",
     "levelupdocs-chainarmor-title": "Níveis: Armadura de Malha",
-    "levelupdocs-chainarmor-text": "<strong>Armadura de Malha</strong><br><i>Armadura de Malha: Coureiro</i><br><br>Ao receber dano utilizando armaduras de couro você irá obter experiência com armaduras de couro, quanto mais armaduras de couro você tiver mais experiência você irá obter.<br><br><strong>Melhorias</strong><br>Níveis de armadura de malha vão lhe conceder mais resistencia a danos."
+    "levelupdocs-chainarmor-text": "<strong>Armadura de Malha</strong><br><i>Armadura de Malha: Soldado</i><br><br>Ao receber dano utilizando armaduras de malhas você irá obter experiência com armaduras de malhas, quanto mais armaduras de malhas você tiver mais experiência você irá obter.<br><br><strong>Melhorias</strong><br>Níveis de armadura de malha vão lhe conceder mais resistencia a danos.",
+
+    "levelupdocs-brigandinearmor": "Sobre a Armadura Brigandine",
+    "levelupdocs-brigandinearmor-title": "Níveis: Armadura Brigandine",
+    "levelupdocs-brigandinearmor-text": "<strong>Armadura Brigandine</strong><br><i>Armadura Brigandine: Rei</i><br><br>Ao receber dano utilizando armaduras brigandine você irá obter experiência com armaduras brigandine, quanto mais armaduras brigandine você tiver mais experiência você irá obter.<br><br><strong>Melhorias</strong><br>Níveis de armadura brigandine vão lhe conceder mais resistencia a danos.",
+
+    "levelupdocs-platearmor": "Sobre a Armadura de Placas",
+    "levelupdocs-platearmor-title": "Níveis: Armadura de Placas",
+    "levelupdocs-platearmor-text": "<strong>Armadura de Placas</strong><br><i>Armadura de Placas: Cavaleiro</i><br><br>Ao receber dano utilizando armaduras de placas você irá obter experiência com armaduras de placas, quanto mais armaduras de placas você tiver mais experiência você irá obter.<br><br><strong>Melhorias</strong><br>Níveis de armadura de placas vão lhe conceder mais resistencia a danos.",
+
+    "levelupdocs-scalearmor": "Sobre a Armadura de Escamas",
+    "levelupdocs-scalearmor-title": "Níveis: Armadura de Escamas",
+    "levelupdocs-scalearmor-text": "<strong>Armadura de Escamas</strong><br><i>Armadura de Escamas: Infantaria</i><br><br>Ao receber dano utilizando armaduras de Escamas você irá obter experiência com armaduras de escamas, quanto mais armaduras de escamas você tiver mais experiência você irá obter.<br><br><strong>Melhorias</strong><br>Níveis de armadura de escamas vão lhe conceder mais resistencia a danos."
 }

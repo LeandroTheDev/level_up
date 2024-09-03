@@ -121,13 +121,16 @@ class OverwriteBlockBreak
         // Check if is from the server
         if (Configuration.enableLevelFarming && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
         {
-            // Swipe all items tack drops
+            // Crop experience if exist
+            int? exp = null;
+            // Swipe all items stack drops
             int index = 0;
             foreach (ItemStack itemStack in __result)
             {
                 // Check if exist the drop crop in configuration
-                if (Configuration.expPerHarvestFarming.TryGetValue(itemStack.ToString(), out _))
+                if (Configuration.expPerHarvestFarming.TryGetValue(itemStack.ToString(), out int _exp))
                 {
+                    exp = _exp;
                     IServerPlayer player = byPlayer as IServerPlayer;
                     // Multiply crop drop
                     itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))) + cropDropCompatibility;
@@ -136,6 +139,18 @@ class OverwriteBlockBreak
                 }
                 index++;
             }
+            
+            // Add harvest experience
+            if (exp != null)
+            {
+                // Dedicated Servers
+                if (instance.serverAPI != null)
+                    instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, $"Farming_Harvest&forceexp={exp}");
+                // Single player treatment and lan treatment
+                else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
+                    instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
+            }
+
             if (Configuration.enableExtendedLog)
                 Debug.Log($"{byPlayer.PlayerName} breaked a crop, multiply drop: {Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))}");
         }

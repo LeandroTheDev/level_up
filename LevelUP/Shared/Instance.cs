@@ -37,7 +37,6 @@ class Instance
 
     public static void UpdateLevelAndNotify(ICoreServerAPI api, IPlayer player, string levelType, ulong exp, bool disableLevelUpNotify = false)
     {
-
         // Previous exp level, before getting the new experience
         int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}", 0));
         // Actual player level

@@ -4,6 +4,8 @@
     "farmingEXPMultiplyPerLevel": 2.5,
     "farmingBaseHarvestMultiply": 0.5,
     "farmingIncrementHarvestMultiplyPerLevel": 0.2,
+    "farmingBaseForageMultiply": 1.0,
+    "farmingIncrementForageMultiplyPerLevel": 0.2,
     "farmingBaseDurabilityRestoreChance": 0.0,
     "farmingDurabilityRestoreChancePerLevel": 2.0,
     "farmingDurabilityRestoreEveryLevelReduceChance": 10,

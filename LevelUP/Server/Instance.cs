@@ -192,6 +192,7 @@ class Instance
             case "Tree_Breaked_Axe": IncreaseExp(player, "Axe", "Chop_Tree"); return;
             case "Knife_Harvest_Entity": IncreaseExp(player, "Knife", "Harvest"); return;
             case "Soil_Till": IncreaseExp(player, "Farming", "Till"); return;
+            case "Farming_Harvest": IncreaseExp(player, "Farming", "Harvest", arguments["forceexp"].ToString().ToInt()); return;
             #endregion
             #region crafting
             case "Cooking_Finished": IncreaseExp(player, "Cooking", "Cooking_Finished", arguments["forceexp"].ToString().ToInt()); return;
@@ -575,6 +576,26 @@ class Instance
             // Get levels
             var levels = GetSavedLevels();
             ulong earnedExp = (ulong)(Configuration.ExpPerTillFarming + (Configuration.ExpPerTillFarming * experienceMultiplierCompatibility));
+            // Increasing by player class
+            earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Farming"));
+            // Minium exp earned is 1
+            if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
+            ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            // Increment
+            levels[player.PlayerUID] = exp;
+            // Save it
+            SaveLevels(levels);
+            // Update it
+            Shared.Instance.UpdateLevelAndNotify(api, player, levelType, exp);
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
+        }
+        // Till Soil
+        if (levelType == "Farming" && reason == "Harvest" && forceexp > 0)
+        {
+            // Get levels
+            var levels = GetSavedLevels();
+            ulong earnedExp = (ulong)(forceexp + (forceexp * experienceMultiplierCompatibility));
             // Increasing by player class
             earnedExp = (ulong)Math.Round(earnedExp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Farming"));
             // Minium exp earned is 1
