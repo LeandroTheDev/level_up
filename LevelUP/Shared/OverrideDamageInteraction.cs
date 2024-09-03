@@ -717,8 +717,8 @@ class OverwriteDamageInteraction
     }
     // Overwrite Bow shot start
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStart")]
-    public static void OnHeldInteractBowStart(ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handling)
+    [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStop")]
+    public static void OnHeldInteractBowStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
     {
         if (Configuration.enableLevelBow && byEntity is EntityPlayer)
         {
@@ -732,8 +732,8 @@ class OverwriteDamageInteraction
     #region spear
     // Overwrite Spear shot start
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(ItemSpear), "OnHeldInteractStart")]
-    public static void OnHeldInteractSpearStart(ItemSlot itemslot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handling)
+    [HarmonyPatch(typeof(ItemSpear), "OnHeldInteractStop")]
+    public static void OnHeldInteractSpearStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
     {
         if (Configuration.enableLevelSpear && byEntity is EntityPlayer)
         {
