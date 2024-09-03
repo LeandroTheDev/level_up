@@ -112,6 +112,9 @@ class Instance
         levelPanning.PopulateConfiguration(coreAPI);
         levelLeatherArmor.PopulateConfiguration(coreAPI);
         levelChainArmor.PopulateConfiguration(coreAPI);
+        levelBrigandineArmor.PopulateConfiguration(coreAPI);
+        levelPlateArmor.PopulateConfiguration(coreAPI);
+        levelScaleArmor.PopulateConfiguration(coreAPI);
 
         // Class Configs
         Configuration.PopulateClassConfigurations(coreAPI);

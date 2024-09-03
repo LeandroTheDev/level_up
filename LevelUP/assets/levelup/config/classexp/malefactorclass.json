@@ -15,5 +15,8 @@
     "classPanningLevelMultiply": 1.8,
     "classVitalityLevelMultiply": 0.5,
     "classLeatherArmorLevelMultiply": 1.5,
-    "classChainArmorLevelMultiply": 1.5
+    "classChainArmorLevelMultiply": 1.5,
+    "classBrigandineArmorLevelMultiply": 1.0,
+    "classPlateArmorLevelMultiply": 1.0,
+    "classScaleArmorLevelMultiply": 1.0
 }
