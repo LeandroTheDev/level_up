@@ -2710,6 +2710,8 @@ public static class Configuration
     private static double farmingEXPMultiplyPerLevel = 2.5;
     private static float farmingBaseHarvestMultiply = 0.5f;
     private static float farmingIncrementHarvestMultiplyPerLevel = 0.2f;
+    private static float farmingBaseForageMultiply = 1.0f;
+    private static float farmingIncrementForageMultiplyPerLevel = 0.2f;
     private static float farmingBaseDurabilityRestoreChance = 0.0f;
     private static float farmingDurabilityRestoreChancePerLevel = 2.0f;
     private static int farmingDurabilityRestoreEveryLevelReduceChance = 10;
@@ -2758,6 +2760,20 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingIncrementHarvestMultiplyPerLevel is not double is {value.GetType()}");
                 else farmingIncrementHarvestMultiplyPerLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: farmingIncrementHarvestMultiplyPerLevel not set");
+        }
+        { //farmingBaseForageMultiply
+            if (farmingLevelStats.TryGetValue("farmingBaseForageMultiply", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingBaseForageMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingBaseForageMultiply is not double is {value.GetType()}");
+                else farmingBaseForageMultiply = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: farmingBaseForageMultiply not set");
+        }
+        { //farmingIncrementForageMultiplyPerLevel
+            if (farmingLevelStats.TryGetValue("farmingIncrementForageMultiplyPerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingIncrementForageMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingIncrementForageMultiplyPerLevel is not double is {value.GetType()}");
+                else farmingIncrementForageMultiplyPerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: farmingIncrementForageMultiplyPerLevel not set");
         }
         { //farmingBaseDurabilityRestoreChance
             if (farmingLevelStats.TryGetValue("farmingBaseDurabilityRestoreChance", out object value))
@@ -2826,6 +2842,22 @@ public static class Configuration
         float baseMultiply = farmingBaseHarvestMultiply;
 
         float incrementMultiply = farmingIncrementHarvestMultiplyPerLevel;
+        float multiply = 0.0f;
+        while (level > 1)
+        {
+            multiply += incrementMultiply;
+            level -= 1;
+        }
+
+        baseMultiply += baseMultiply * multiply;
+        return baseMultiply;
+    }
+
+    public static float FarmingGetForageMultiplyByLevel(int level)
+    {
+        float baseMultiply = farmingBaseForageMultiply;
+
+        float incrementMultiply = farmingIncrementForageMultiplyPerLevel;
         float multiply = 0.0f;
         while (level > 1)
         {
