@@ -2,5 +2,6 @@
     "game:redmeat-cooked": 0.5,
     "game:poultry-cooked": 0.4,
     "game:fish-cooked": 0.4,
-    "game:bushmeat-cooked": 0.3
+    "game:bushmeat-cooked": 0.3,
+    "game:vegetable-cookedcattailroot": 0.1
 }
