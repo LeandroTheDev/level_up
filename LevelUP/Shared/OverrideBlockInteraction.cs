@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
@@ -107,74 +108,85 @@ class OverwriteBlockInteraction
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && secondsUsed >= 1.0f) instance.clientAPI.compatibilityChannel.SendPacket($"Soil_Till&lanplayername={byEntity.GetName()}");
     }
 
-    // Overwrite Berry Forage
-    [HarmonyPostfix]
+    // Overwrite Berry Forage while breaking
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(BlockBerryBush), "GetDrops")]
-    public static ItemStack[] GetDropsBerryBushFinish(ItemStack[] __result, BlockBerryBush __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+    public static void GetDropsBerryBushFinish(BlockBerryBush __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
-        // Check if is from the server
         if (Configuration.enableLevelFarming && byPlayer != null)
         {
-            int? exp = null;
-            // Swipe all items stack drops      
-            int index = 0;
-            foreach (ItemStack itemStack in __result)
+            // In creasing forage drop rate based on level
+            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
+
+            if (Configuration.enableExtendedLog) Debug.Log($"Bush harvest: {__instance.Code}");
+
+            // Check the berry existence
+            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int exp))
             {
-                // Check if exist the drop berry in configuration
-                if (Configuration.expPerHarvestFarming.TryGetValue(itemStack.ToString(), out int _exp))
+                // Dedicated Servers
+                if (instance.serverAPI != null)
+                    instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, $"Farming_Harvest&forceexp={exp}");
+                // Single player treatment and lan treatment
+                else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
                 {
-                    exp = _exp;
-                    IServerPlayer player = byPlayer as IServerPlayer;
-                    // Multiply crop drop
-                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
-                    // Update item stack result
-                    __result[index] = itemStack;
+                    instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
                 }
-                index++;
             }
-            // Dedicated Servers
-            if (instance.serverAPI != null)
-                instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, $"Farming_Harvest&forceexp={exp}");
-            // Single player treatment and lan treatment
-            else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
         }
-        return __result;
+    }
+
+    // Overwrite Berry Forage while interacting
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(BlockBehaviorHarvestable), "OnBlockInteractStop")]
+    public static void OnBlockInteractStopFinish(BlockBehaviorHarvestable __instance, float secondsUsed, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handled)
+    {
+        if (Configuration.enableLevelFarming && byPlayer != null)
+        {
+            // In creasing forage drop rate based on level
+            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
+
+            if (Configuration.enableExtendedLog) Debug.Log($"Bush harvest: {__instance.block.Code}");
+
+            // Check the berry existence
+            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.block.Code.ToString(), out int exp))
+            {
+                // Dedicated Servers
+                if (instance.serverAPI != null)
+                    instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, $"Farming_Harvest&forceexp={exp}");
+                // Single player treatment and lan treatment
+                else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
+                {
+                    instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
+                }
+            }
+        }
     }
 
     // Overwrite Mushroom Forage
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(BlockBerryBush), "GetDrops")]
-    public static ItemStack[] GetDropsMushroomFinish(ItemStack[] __result, BlockBerryBush __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+    [HarmonyPatch(typeof(BlockMushroom), "GetDrops")]
+    public static void GetDropsMushroomFinish(BlockMushroom __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
     {
-        // Check if is from the server
         if (Configuration.enableLevelFarming && byPlayer != null)
         {
-            int? exp = null;
-            // Swipe all items stack drops      
-            int index = 0;
-            foreach (ItemStack itemStack in __result)
+            // In creasing forage drop rate based on level
+            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
+
+            if (Configuration.enableExtendedLog) Debug.Log($"Bush harvest: {__instance.Code}");
+
+            // Check the berry existence
+            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int exp))
             {
-                // Check if exist the drop berry in configuration
-                if (Configuration.expPerHarvestFarming.TryGetValue(itemStack.ToString(), out int _exp))
+                // Dedicated Servers
+                if (instance.serverAPI != null)
+                    instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, $"Farming_Harvest&forceexp={exp}");
+                // Single player treatment and lan treatment
+                else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
                 {
-                    exp = _exp;
-                    IServerPlayer player = byPlayer as IServerPlayer;
-                    // Multiply crop drop
-                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
-                    // Update item stack result
-                    __result[index] = itemStack;
+                    instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
                 }
-                index++;
             }
-            // Dedicated Servers
-            if (instance.serverAPI != null)
-                instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, $"Farming_Harvest&forceexp={exp}");
-            // Single player treatment and lan treatment
-            else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
         }
-        return __result;
     }
 
     #endregion
