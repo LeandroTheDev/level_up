@@ -1,4 +1,5 @@
 {
+    // Crops
     "game:crop-turnip-5": 4,
     "game:crop-turnip-4": 1,
     "game:crop-carrot-6": 2,
@@ -30,5 +31,51 @@
     "game:crop-pumpkin-8": 12,
     "game:crop-pumpkin-7": 5,
     "game:crop-cabbage-12": 14,
-    "game:crop-cabbage-11": 6
+    "game:crop-cabbage-11": 6,
+
+    // Mushrooms
+    "game:mushroom-fieldmushroom-normal": 1,
+    "game:mushroom-almondmushroom-normal": 1,
+    "game:mushroom-flyagaric-normal": 1,
+    "game:mushroom-bitterbolete-normal": 1,
+    "game:mushroom-blacktrumpet-normal": 1,
+    "game:mushroom-chanterelle-normal": 1,
+    "game:mushroom-commonmorel-normal": 1,
+    "game:mushroom-deathcap-normal": 1,
+    "game:mushroom-devilstooth-normal": 1,
+    "game:mushroom-devilbolete-normal": 1,
+    "game:mushroom-earthball-normal": 1,
+    "game:mushroom-elfinsaddle-normal": 1,
+    "game:mushroom-golddropmilkcap-normal-north": 1,
+    "game:mushroom-greencrackedrussula-normal": 1,
+    "game:mushroom-indigomilkcap-normal": 1,
+    "game:mushroom-jackolantern-normal": 1,
+    "game:mushroom-kingbolete-normal": 1,
+    "game:mushroom-lobster-normal": 1,
+    "game:mushroom-orangeoakbolete-normal": 1,
+    "game:mushroom-paddystraw-normal": 1,
+    "game:mushroom-puffball-normal": 1,
+    "game:mushroom-redwinecap-normal": 1,
+    "game:mushroom-saffronmilkcap-normal": 1,
+    "game:mushroom-violetwebcap-normal": 1,
+    "game:mushroom-witchhat-normal": 1,
+    "game:mushroom-beardedtooth-normal": 1,
+    "game:mushroom-chickenofthewoods-normal-north": 1,
+    "game:mushroom-dryadsaddle-normal": 1,
+    "game:mushroom-pinkoyster-normal-north": 1,
+    "game:mushroom-tinderhoof-normal-north": 1,
+    "game:mushroom-whiteoyster-normal-north": 1,
+    "game:mushroom-reishi-normal-north": 1,
+    "game:mushroom-funeralbell-normal-north": 1,
+    "game:mushroom-deerear-normal-north": 1,
+    "game:mushroom-livermushroom-normal-north": 1,
+    "game:mushroom-pinkbonnet-normal-north": 1,
+    "game:mushroom-shiitake-normal-north": 1,
+
+    // Bush Berries
+    "game:bigberrybush-blackcurrant-ripe": 1,
+    "game:bigberrybush-redcurrant-ripe": 1,
+    "game:bigberrybush-whitecurrant-ripe": 1,
+    "game:smallberrybush-blueberry-ripe": 1,
+    "game:smallberrybush-cranberry-ripe": 1 
 }
