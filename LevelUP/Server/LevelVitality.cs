@@ -95,7 +95,7 @@ class LevelVitality
 
         playerStats.BaseMaxHealth = playerMaxHealth;
         playerStats.MaxHealth = playerMaxHealth;
-        playerStats._playerHealthRegenSpeed = playerRegen;
+        player.Entity.WatchedAttributes.SetFloat("regenSpeed", playerRegen);
 
         // Reload player health
         if (playerState.TryGetValue(player.PlayerUID, out double value)) playerStats.Health = (float)value;

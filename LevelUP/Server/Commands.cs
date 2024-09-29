@@ -156,6 +156,8 @@ class Commands
                 case "oreDropRate": player.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f); break;
                 case "animalLootDropRate": player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f); break;
                 case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f); break;
+                case "forageDropRate": player.Entity.Stats.Set("forageDropRate", "forageDropRate", 1.0f); break;
+                case "regenSpeed": player.Entity.WatchedAttributes.SetFloat("regenSpeed", 1.0f); break;
                 default: return TextCommandResult.Success($"Invalid status", "16");
             }
             return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to vanilla default", "17");
@@ -168,6 +170,8 @@ class Commands
                 case "oreDropRate": player.Entity.Stats.Set("oreDropRate", "oreDropRate", float.Parse(args[3])); break;
                 case "animalLootDropRate": player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", float.Parse(args[3])); break;
                 case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", float.Parse(args[3])); break;
+                case "forageDropRate": player.Entity.Stats.Set("forageDropRate", "forageDropRate", float.Parse(args[3])); break;
+                case "regenSpeed": player.Entity.WatchedAttributes.SetFloat("regenSpeed", float.Parse(args[3])); break;
                 default: return TextCommandResult.Success($"Invalid status", "16");
             }
             return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to {args[3]}", "18");
@@ -177,6 +181,8 @@ class Commands
         player.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f);
         player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f);
         player.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f);
+        player.Entity.Stats.Set("forageDropRate", "forageDropRate", 1.0f);
+        player.Entity.WatchedAttributes.SetFloat("regenSpeed", 1.0f);
         return TextCommandResult.Success($"{args[1]} status has been reseted to vanilla default", "13");
     }
 
