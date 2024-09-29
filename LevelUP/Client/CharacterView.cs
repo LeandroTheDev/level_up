@@ -212,7 +212,7 @@ class CharacterView
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:chainarmor")}: {GetLevelByLevelName("ChainArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
         }
         #endregion
-        
+
         #region brigandinearmor
         if (instance.enabledLevels["BrigandineArmor"])
         {
@@ -221,7 +221,7 @@ class CharacterView
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:brigandinearmor")}: {GetLevelByLevelName("BrigandineArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
         }
         #endregion
-        
+
         #region platearmor
         if (instance.enabledLevels["PlateArmor"])
         {
@@ -230,7 +230,7 @@ class CharacterView
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:platearmor")}: {GetLevelByLevelName("PlateArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
         }
         #endregion
-        
+
         #region scale
         if (instance.enabledLevels["ScaleArmor"])
         {
@@ -243,10 +243,22 @@ class CharacterView
         // Finishing Clip for scrollbar
         composer.EndClip();
 
+        int increaser = 0;
+        if (levelsAdded > 18) increaser = 72;
+        else if (levelsAdded > 16) increaser = 70;
+        else if (levelsAdded > 14) increaser = 68;
+        else if (levelsAdded > 12) increaser = 66;
+        else if (levelsAdded > 10) increaser = 66;
+        else if (levelsAdded > 8) increaser = 64;
+        else if (levelsAdded > 6) increaser = 64;
+        else if (levelsAdded > 4) increaser = 58;
+        else if (levelsAdded > 2) increaser = 58;
+        else increaser = 54;
+
         // Adding the size of scroll button
         GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
         double listHeight = 0;
-        for (int i = 0; i < levelsAdded; i++) listHeight += 72  ;
+        for (int i = 0; i < levelsAdded; i++) listHeight += increaser;
         scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)listHeight);
     }
 
