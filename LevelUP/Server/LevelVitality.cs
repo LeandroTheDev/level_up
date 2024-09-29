@@ -116,6 +116,9 @@ class LevelVitality
 
     private void PlayerDisconnect(IServerPlayer player)
     {
+        // Disconnected during the loading
+        if (player == null) return;
+        
         // Get stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
         if (playerStats == null) { Debug.Log($"ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
