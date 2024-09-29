@@ -1,0 +1,19 @@
+{
+    "copper": "game:nugget-nativecopper",
+    "limonite": "game:nugget-limonite",
+    "gold": "game:nugget-nativegold",
+    "galena": "game:nugget-galena",
+    "cassiterite": "game:nugget-cassiterite",
+    "chromite": "game:nugget-chromite",
+    "ilmenite": "game:nugget-ilmenite",
+    "sphalerite": "game:nugget-sphalerite",
+    "silver": "game:nugget-nativesilver",
+    "bismuthinite": "game:nugget-bismuthinite",
+    "magnetite": "game:nugget-magnetite",
+    "hematite": "game:nugget-hematite",
+    "malachite": "game:nugget-malachite",
+    "pentlandite": "game:nugget-pentlandite",
+    "uranium": "game:nugget-uranium",
+    "wolframite": "game:nugget-wolframite",
+    "rhodochrosite": "game:nugget-rhodochrosite"
+}
