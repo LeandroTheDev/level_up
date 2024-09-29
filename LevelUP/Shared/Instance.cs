@@ -63,7 +63,7 @@ class Instance
 
                 // Getting health stats
                 playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByLevel(nextLevel);
-                playerStats._playerHealthRegenSpeed = Configuration.VitalityGetHealthRegenMultiplyByLevel(nextLevel);
+                player.Entity.WatchedAttributes.SetFloat("regenSpeed", Configuration.VitalityGetHealthRegenMultiplyByLevel(nextLevel)); 
 
                 // Refresh for the player
                 playerStats.UpdateMaxHealth();

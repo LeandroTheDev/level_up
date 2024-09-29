@@ -60,7 +60,7 @@ class OverwriteBlockInteraction
             // Increasing entity drop rate
             player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate);
             if (Configuration.enableExtendedLog)
-                Debug.Log($"{player.PlayerName} harvested any entity with knife, multiply drop: {dropRate}");
+                Debug.Log($"{player.PlayerName} harvested any entity with knife, multiply drop: {dropRate}, values: {Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))} + {compatibilityDroprate}");
         }
         // Single player treatment and lan treatment
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer)
@@ -73,7 +73,7 @@ class OverwriteBlockInteraction
             // Increasing entity drop rate
             byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate);
             if (Configuration.enableExtendedLog)
-                Debug.Log($"{byPlayer.PlayerName} harvested any entity with knife, multiply drop: {dropRate}");
+                Debug.Log($"{byPlayer.PlayerName} harvested any entity with knife, multiply drop: {dropRate}, values: {Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))} + {compatibilityDroprate}");
         }
     }
     // Overwrite Knife Harvesting
