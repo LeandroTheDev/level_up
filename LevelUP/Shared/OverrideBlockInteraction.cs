@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Vintagestory.API.Common;
-using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
@@ -368,58 +367,6 @@ class OverwriteBlockInteraction
     #endregion
 
     #region hammer
-    // // Overwrite the hammer animations
-    // [HarmonyPrefix]
-    // [HarmonyPatch(typeof(ItemHammer), "startHitAction")]
-    // public static bool StartHitAction(ItemHammer __instance, ItemSlot slot, EntityAgent byEntity, bool merge)
-    // {
-    //     #region native
-    //     void strikeAnvilSound()
-    //     {
-    //         IPlayer player = (byEntity as EntityPlayer).Player;
-    //         if (player != null && player.CurrentBlockSelection != null)
-    //         {
-    //             player.Entity.World.PlaySoundAt(merge ? new AssetLocation("sounds/effect/anvilmergehit") : new AssetLocation("sounds/effect/anvilhit"), player.Entity, player, 0.9f + (float)byEntity.World.Rand.NextDouble() * 0.2f, 16f, 0.35f);
-    //         }
-    //     }
-    //     if (!slot.Itemstack.TempAttributes.GetBool("isAnvilAction"))
-    //     {
-    //         string heldTpHitAnimation = __instance.GetHeldTpHitAnimation(slot, byEntity);
-    //         float soundAtFrame = CollectibleBehaviorAnimationAuthoritative.getSoundAtFrame(byEntity, heldTpHitAnimation);
-    //         float hitDamageAtFrame = CollectibleBehaviorAnimationAuthoritative.getHitDamageAtFrame(byEntity, heldTpHitAnimation);
-    //         #endregion
-
-    //         // Receive player experience
-    //         ulong playerExp = (ulong)byEntity.WatchedAttributes.GetLong("LevelUP_Hammer");
-    //         // Reduce frame counts
-    //         soundAtFrame /= Configuration.HammerGetAnimationSpeedByEXP(playerExp);
-    //         hitDamageAtFrame /= Configuration.HammerGetAnimationSpeedByEXP(playerExp);
-
-    //         #region native
-    //         slot.Itemstack.TempAttributes.SetBool("isAnvilAction", value: true);
-    //         byEntity.AnimManager.RegisterFrameCallback(new AnimFrameCallback
-    //         {
-    //             Animation = heldTpHitAnimation,
-    //             Frame = soundAtFrame,
-    //             Callback = delegate
-    //             {
-    //                 strikeAnvilSound();
-    //             }
-    //         });
-    //         byEntity.AnimManager.RegisterFrameCallback(new AnimFrameCallback
-    //         {
-    //             Animation = heldTpHitAnimation,
-    //             Frame = hitDamageAtFrame,
-    //             Callback = delegate
-    //             {
-    //                 strikeAnvilSound();
-    //             }
-    //         });
-    //     }
-    //     #endregion
-    //     return false;
-    // }
-
     // Overwrite the hammer smithing
     [HarmonyPrefix]
     [HarmonyPatch(typeof(BlockEntityAnvil), "CheckIfFinished")]
@@ -469,12 +416,39 @@ class OverwriteBlockInteraction
 
             // Check if player is using the hammer
             if (byPlayer?.InventoryManager?.ActiveTool == EnumTool.Hammer)
+            {
                 // Dedicated Servers
                 if (instance.serverAPI != null)
                     instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, "Increase_Hammer_Hit");
                 // Single player treatment
                 else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
                     instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Hammer_Hit&lanplayername={byPlayer.PlayerName}");
+            }
+        }
+    }
+
+    // Overwrite the hammer split
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(BlockEntityAnvil), "OnUseOver")]
+    [HarmonyPatch("OnUseOver", [typeof(IPlayer), typeof(Vec3i), typeof(BlockSelection)])] // This is necessary because there is 2 functions with the same name
+    public static void OnUseOver(BlockEntityAnvil __instance, IPlayer byPlayer, Vec3i voxelPos, BlockSelection blockSel)
+    {
+        // Check if the weapon is on split mode
+        if (byPlayer.InventoryManager.ActiveHotbarSlot?.Itemstack.Collectible.GetToolMode(byPlayer.InventoryManager.ActiveHotbarSlot, byPlayer, blockSel) == 5)
+        {
+            foreach (KeyValuePair<string, string> keyValue in Configuration.smithChanceHammer)
+            {
+                // Check if currently recipe matchs the smith chance
+                if (__instance.SelectedRecipe.Output.Code.ToString().Contains(keyValue.Key))
+                {
+                    // Alright its match lets get the chance
+                    if (Configuration.HammerShouldRetrieveSmithByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer")))
+                    {
+                        // The chance returned true so we need to retrieve the player the item
+                        byPlayer.Entity.TryGiveItemStack(new ItemStack(__instance.Api.World.GetItem(new AssetLocation(keyValue.Value))));
+                    }
+                }
+            }
         }
     }
     #endregion

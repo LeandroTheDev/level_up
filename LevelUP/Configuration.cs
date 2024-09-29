@@ -1975,6 +1975,7 @@ public static class Configuration
 
     #region hammer
     public static readonly Dictionary<string, int> entityExpHammer = [];
+    public static readonly Dictionary<string, string> smithChanceHammer = [];
     private static int hammerEXPPerHit = 1;
     private static int hammerEXPPerLevelBase = 10;
     private static double hammerEXPMultiplyPerLevel = 1.5;
@@ -1984,6 +1985,10 @@ public static class Configuration
     private static float hammerDurabilityRestoreChancePerLevel = 2.0f;
     private static int hammerDurabilityRestoreEveryLevelReduceChance = 10;
     private static float hammerDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static float hammerBaseSmithRetrieveChance = 0.0f;
+    private static float hammerSmithRetrieveChancePerLevel = 2.0f;
+    private static int hammerSmithRetrieveEveryLevelReduceChance = 10;
+    private static float hammerSmithRetrieveReduceChanceForEveryLevel = 0.5f;
     private static float hammerBaseSmithAnimationSpeed = 1.0f;
     private static float hammerIncreaseSmithAnimationSpeedPerLevel = 0.1f;
     private static float hammerBaseChanceToDouble = 0.0f;
@@ -2070,6 +2075,34 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
                 else hammerDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreReduceChanceForEveryLevel not set");
+        }
+        { //hammerBaseSmithRetrieveChance
+            if (hammerLevelStats.TryGetValue("hammerBaseSmithRetrieveChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseSmithRetrieveChance is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseSmithRetrieveChance is not double is {value.GetType()}");
+                else hammerBaseSmithRetrieveChance = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerBaseSmithRetrieveChance not set");
+        }
+        { //hammerSmithRetrieveChancePerLevel
+            if (hammerLevelStats.TryGetValue("hammerSmithRetrieveChancePerLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveChancePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerSmithRetrieveChancePerLevel is not double is {value.GetType()}");
+                else hammerSmithRetrieveChancePerLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveChancePerLevel not set");
+        }
+        { //hammerSmithRetrieveEveryLevelReduceChance
+            if (hammerLevelStats.TryGetValue("hammerSmithRetrieveEveryLevelReduceChance", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveEveryLevelReduceChance is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerSmithRetrieveEveryLevelReduceChance is not int is {value.GetType()}");
+                else hammerSmithRetrieveEveryLevelReduceChance = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveEveryLevelReduceChance not set");
+        }
+        { //hammerSmithRetrieveReduceChanceForEveryLevel
+            if (hammerLevelStats.TryGetValue("hammerSmithRetrieveReduceChanceForEveryLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveReduceChanceForEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerSmithRetrieveReduceChanceForEveryLevel is not double is {value.GetType()}");
+                else hammerSmithRetrieveReduceChanceForEveryLevel = (float)(double)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveReduceChanceForEveryLevel not set");
         }
         { //hammerBaseSmithAnimationSpeed
             if (hammerLevelStats.TryGetValue("hammerBaseSmithAnimationSpeed", out object value))
@@ -2182,6 +2215,19 @@ public static class Configuration
             if (pair.Value is long value) entityExpHammer.Add(pair.Key, (int)value);
             else Debug.Log($"CONFIGURATION ERROR: entityExpHammer {pair.Key} is not int");
         }
+
+        // Get smith chance
+        smithChanceHammer.Clear();
+        Dictionary<string, object> tmpsmithChanceHammer = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "hammersmiths",
+            "levelup:config/levelstats/hammersmiths.json");
+        foreach (KeyValuePair<string, object> pair in tmpsmithChanceHammer)
+        {
+            if (pair.Value is string value) smithChanceHammer.Add(pair.Key, value);
+            else Debug.Log($"CONFIGURATION ERROR: smithChanceHammer {pair.Key} is not string");
+        }
         Debug.Log("Hammer configuration set");
     }
 
@@ -2233,6 +2279,26 @@ public static class Configuration
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Hammer durability mechanic check: {baseChanceToNotReduce} : {chance}");
+        if (baseChanceToNotReduce >= chance) return true;
+        else return false;
+    }
+
+    public static bool HammerShouldRetrieveSmithByLevel(int level)
+    {
+        float baseChanceToNotReduce = hammerBaseSmithRetrieveChance;
+        float chanceToNotReduce = hammerSmithRetrieveChancePerLevel;
+        while (level > 1)
+        {
+            level -= 1;
+            // Every {} levels reduce the durability chance multiplicator
+            if (level % hammerSmithRetrieveEveryLevelReduceChance == 0)
+                chanceToNotReduce -= hammerSmithRetrieveReduceChanceForEveryLevel;
+            // Increasing chance
+            baseChanceToNotReduce += chanceToNotReduce;
+        }
+        // Check the chance 
+        int chance = new Random().Next(0, 100);
+        if (enableExtendedLog) Debug.Log($"Hammer should retrieve smith mechanic check: {baseChanceToNotReduce} : {chance}");
         if (baseChanceToNotReduce >= chance) return true;
         else return false;
     }
@@ -2950,7 +3016,7 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingSaturationHoursMultiplyPerLevel is not double is {value.GetType()}");
                 else cookingSaturationHoursMultiplyPerLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: cookingSaturationHoursMultiplyPerLevel not set");
-        }       
+        }
         { //cookingBaseFreshHoursMultiply
             if (cookingLevelStats.TryGetValue("cookingBaseFreshHoursMultiply", out object value))
                 if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseFreshHoursMultiply is null");
