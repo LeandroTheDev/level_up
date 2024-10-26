@@ -82,7 +82,7 @@ class Instance
         // Enable hardcore death event
         if (Configuration.enableHardcore)
         {
-            api.Event.PlayerDeath += ResetPlayerLevels;
+            api.Event.PlayerDeath += (player, damageSource) => ResetPlayerLevels(player, api);
             Debug.Log("Hardcore death event instanciated");
         }
 
@@ -885,11 +885,11 @@ class Instance
         communicationChannel.SendPacket(new ServerMessage() { message = $"enabledlevels&{JsonSerializer.Serialize(enabledLevels)}" }, player);
     }
 
-    private readonly Dictionary<string, long> playersHardcoreDelay = [];
-    private void ResetPlayerLevels(IServerPlayer player, DamageSource damageSource)
+    public static readonly Dictionary<string, long> playersHardcoreDelay = [];
+    static public void ResetPlayerLevels(IServerPlayer player, ICoreServerAPI api, double overwriteLose = -1)   
     {
         // Check if delay config is enabled
-        if (Configuration.hardcorePenaltyDelayInWorldSeconds > 0)
+        if (Configuration.hardcorePenaltyDelayInWorldSeconds > 0 && overwriteLose == -1)
         {
             // Check if player exist in the delay
             if (playersHardcoreDelay.TryGetValue(player.PlayerUID, out long delay))
@@ -914,11 +914,17 @@ class Instance
             string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
             return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
         }
+
+        // Get the lose porcentage
+        double losePercentage;
+        if (overwriteLose == -1) losePercentage = Configuration.hardcoreLosePercentage;
+        else losePercentage = overwriteLose;
+
         {
             Dictionary<string, ulong> level = GetSavedLevels("Hunter");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Hunter", JsonSerializer.Serialize(level));
@@ -927,7 +933,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Bow");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Bow", JsonSerializer.Serialize(level));
@@ -936,7 +942,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Knife");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Knife", JsonSerializer.Serialize(level));
@@ -945,7 +951,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Axe");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Axe", JsonSerializer.Serialize(level));
@@ -954,7 +960,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Pickaxe");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Pickaxe", JsonSerializer.Serialize(level));
@@ -963,7 +969,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Shovel");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Shovel", JsonSerializer.Serialize(level));
@@ -972,7 +978,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Spear");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Spear", JsonSerializer.Serialize(level));
@@ -981,7 +987,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Hammer");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Hammer", JsonSerializer.Serialize(level));
@@ -990,7 +996,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Sword");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Sword", JsonSerializer.Serialize(level));
@@ -999,7 +1005,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Shield");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Shield", JsonSerializer.Serialize(level));
@@ -1008,7 +1014,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Hand");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Hand", JsonSerializer.Serialize(level));
@@ -1017,7 +1023,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Farming");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Farming", JsonSerializer.Serialize(level));
@@ -1026,7 +1032,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Cooking");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Cooking", JsonSerializer.Serialize(level));
@@ -1035,7 +1041,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Panning");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Panning", JsonSerializer.Serialize(level));
@@ -1044,7 +1050,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("Vitality");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality", JsonSerializer.Serialize(level));
@@ -1053,7 +1059,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("LeatherArmor");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_LeatherArmor", JsonSerializer.Serialize(level));
@@ -1062,7 +1068,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("ChainArmor");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_ChainArmor", JsonSerializer.Serialize(level));
@@ -1071,7 +1077,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("BrigandineArmor");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_BrigandineArmor", JsonSerializer.Serialize(level));
@@ -1080,7 +1086,7 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("PlateArmor");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_PlateArmor", JsonSerializer.Serialize(level));
@@ -1089,15 +1095,18 @@ class Instance
             Dictionary<string, ulong> level = GetSavedLevels("ScaleArmor");
             if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
             {
-                double newValue = value * (ulong)Configuration.hardcoreLosePercentage;
+                double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
             }
             api.WorldManager.SaveGame.StoreData("LevelUPData_ScaleArmor", JsonSerializer.Serialize(level));
         }
-        if (Configuration.enableExtendedLog)
-            Debug.Log($"{player.PlayerName} died and lost {(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}% of all experience");
-        if (Configuration.hardcoreMessageWhenDying)
-            communicationChannel.SendPacket(new ServerMessage() { message = $"playerhardcoredied&{(int)((1.0 - Configuration.hardcoreLosePercentage) * 100)}" }, player);
+        if (overwriteLose == -1)
+        {
+            if (Configuration.enableExtendedLog)
+                Debug.Log($"{player.PlayerName} died and lost {(int)((1.0 - losePercentage) * 100)}% of all experience");
+            if (Configuration.hardcoreMessageWhenDying)
+                communicationChannel.SendPacket(new ServerMessage() { message = $"playerhardcoredied&{(int)((1.0 - losePercentage) * 100)}" }, player);
+        }
     }
 
 }
