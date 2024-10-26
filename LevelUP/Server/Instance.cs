@@ -40,7 +40,7 @@ class Instance
     {
         api = serverAPI;
         // Update player levels when player enters in the world
-        api.Event.PlayerNowPlaying += UpdatePlayerLevels;
+        api.Event.PlayerNowPlaying += (IServerPlayer player) => UpdatePlayerLevels(player, api);
 
         // Enable levels
         if (Configuration.enableLevelHunter) levelHunter.Init(this);
@@ -206,7 +206,7 @@ class Instance
     {
         switch (bruteMessage.message)
         {
-            case "UpdateLevels": UpdatePlayerLevels(player); return;
+            case "UpdateLevels": UpdatePlayerLevels(player, api); return;
             case "GetEnabledLevels": GetEnabledLevels(player); return;
         }
     }
@@ -789,7 +789,7 @@ class Instance
         #endregion
     }
 
-    private void UpdatePlayerLevels(IServerPlayer player)
+    public static void UpdatePlayerLevels(IServerPlayer player, ICoreServerAPI api)
     {
         // Get all players saved level
         Dictionary<string, ulong> GetSavedLevels(string levelType)
@@ -886,7 +886,7 @@ class Instance
     }
 
     public static readonly Dictionary<string, long> playersHardcoreDelay = [];
-    static public void ResetPlayerLevels(IServerPlayer player, ICoreServerAPI api, double overwriteLose = -1)   
+    static public void ResetPlayerLevels(IServerPlayer player, ICoreServerAPI api, double overwriteLose = -1)
     {
         // Check if delay config is enabled
         if (Configuration.hardcorePenaltyDelayInWorldSeconds > 0 && overwriteLose == -1)
@@ -922,7 +922,7 @@ class Instance
 
         {
             Dictionary<string, ulong> level = GetSavedLevels("Hunter");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -931,7 +931,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Bow");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -940,7 +940,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Knife");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -949,7 +949,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Axe");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -958,7 +958,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Pickaxe");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -967,7 +967,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Shovel");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -976,7 +976,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Spear");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -984,8 +984,10 @@ class Instance
             api.WorldManager.SaveGame.StoreData("LevelUPData_Spear", JsonSerializer.Serialize(level));
         }
         {
+            Debug.Log("ALRIGHTT CALLED");
             Dictionary<string, ulong> level = GetSavedLevels("Hammer");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            Debug.Log($"{level.TryGetValue(player.PlayerUID, out ulong flinstons)} : {flinstons}");
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -994,7 +996,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Sword");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1003,7 +1005,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Shield");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1012,7 +1014,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Hand");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1021,7 +1023,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Farming");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1030,7 +1032,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Cooking");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1039,7 +1041,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Panning");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1048,7 +1050,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("Vitality");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1057,7 +1059,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("LeatherArmor");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1066,7 +1068,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("ChainArmor");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1075,7 +1077,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("BrigandineArmor");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1084,7 +1086,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("PlateArmor");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1093,7 +1095,7 @@ class Instance
         }
         {
             Dictionary<string, ulong> level = GetSavedLevels("ScaleArmor");
-            if (level.TryGetValue(player.PlayerName, out ulong value) && value > 0)
+            if (level.TryGetValue(player.PlayerUID, out ulong value) && value > 0)
             {
                 double newValue = value * (ulong)losePercentage;
                 level[player.PlayerUID] = (ulong)Math.Round(newValue);
@@ -1103,7 +1105,7 @@ class Instance
         if (overwriteLose == -1)
         {
             if (Configuration.enableExtendedLog)
-                Debug.Log($"{player.PlayerName} died and lost {(int)((1.0 - losePercentage) * 100)}% of all experience");
+                Debug.Log($"{player.PlayerUID} died and lost {(int)((1.0 - losePercentage) * 100)}% of all experience");
             if (Configuration.hardcoreMessageWhenDying)
                 communicationChannel.SendPacket(new ServerMessage() { message = $"playerhardcoredied&{(int)((1.0 - losePercentage) * 100)}" }, player);
         }

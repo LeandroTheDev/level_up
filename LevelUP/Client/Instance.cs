@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Threading.Tasks;
-using ProtoBuf;
 using Vintagestory.API.Client;
 using Vintagestory.API.Config;
 
