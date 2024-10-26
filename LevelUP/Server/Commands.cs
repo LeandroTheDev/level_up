@@ -38,6 +38,7 @@ class Commands
             "addexperience" => AddExperience(arguments),
             "reduceexperience" => ReduceExperience(arguments),
             "resetplayerstatus" => ResetPlayerStatus(arguments),
+            "resetplayerlevels" => ResetPlayerLevels(arguments),
             _ => TextCommandResult.Success($"Invalid command {handler}", "1"),
         };
     }
@@ -185,6 +186,23 @@ class Commands
         player.Entity.WatchedAttributes.SetFloat("regenSpeed", 1.0f);
         return TextCommandResult.Success($"{args[1]} status has been reseted to vanilla default", "13");
     }
+
+    private TextCommandResult ResetPlayerLevels(string[] args)
+    {
+        //args:
+        //1 => playerName to reset
+
+        // To much arguments
+        if (args.Length <= 1 || args.Length > 2) return TextCommandResult.Success($"Invalid arguments", "2");
+
+        IServerPlayer player = GetPlayerByUsernameOrUID(args[1]);
+        if (player == null) return TextCommandResult.Success($"Player {args[1]} not found or not online", "14");
+
+        Instance.ResetPlayerLevels(player, instance.api, 0);
+
+        return TextCommandResult.Success($"{args[1]} levels has been reseted to 0", "13");
+    }
+
 
     private IServerPlayer GetPlayerByUsernameOrUID(string usernameOrUID)
     {

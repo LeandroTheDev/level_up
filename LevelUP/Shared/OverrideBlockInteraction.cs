@@ -407,11 +407,15 @@ class OverwriteBlockInteraction
             {
                 // Get player hammer level
                 int multiply = Configuration.HammerGetResultMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
-                // Multiply by the change
-                __instance.SelectedRecipe.Output.ResolvedItemstack.StackSize = __instance.SelectedRecipe.Output.Quantity * multiply;
 
-                if (Configuration.enableExtendedLog)
-                    Debug.Log($"{byPlayer.PlayerName} finished smithing {__instance.SelectedRecipe.Output.ResolvedItemstack.Collectible?.Code} drop quantity: {__instance.SelectedRecipe.Output.Quantity} with a final result size of: {__instance.SelectedRecipe.Output.ResolvedItemstack.StackSize} multiplied by: {multiply}");
+                if (__instance.SelectedRecipe.Output != null && __instance.SelectedRecipe.Output.ResolvedItemstack != null)
+                {
+                    // Multiply by the chance
+                    __instance.SelectedRecipe.Output.ResolvedItemstack.StackSize = __instance.SelectedRecipe.Output.Quantity * multiply;
+
+                    if (Configuration.enableExtendedLog)
+                        Debug.Log($"{byPlayer.PlayerName} finished smithing {__instance.SelectedRecipe.Output?.ResolvedItemstack?.Collectible?.Code} drop quantity: {__instance.SelectedRecipe.Output?.Quantity} with a final result size of: {__instance.SelectedRecipe.Output?.ResolvedItemstack?.StackSize} multiplied by: {multiply}");
+                }
             }
 
             // Check if player is using the hammer
