@@ -69,6 +69,9 @@ class Commands
         // Save it
         instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
 
+        // Refresh player levels
+        Instance.UpdatePlayerLevels(player, instance.api);
+
         return TextCommandResult.Success($"Changed experience from {player.PlayerName} to {args[3]} on level {args[1]}", "10");
     }
 
@@ -97,6 +100,9 @@ class Commands
 
         // Save it
         instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
+
+        // Refresh player levels
+        Instance.UpdatePlayerLevels(player, instance.api);
 
         return TextCommandResult.Success($"Added {player.PlayerName} experience to {args[3]} on level {args[1]}", "11");
     }
@@ -129,6 +135,9 @@ class Commands
 
         // Save it
         instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
+
+        // Refresh player levels
+        Instance.UpdatePlayerLevels(player, instance.api);
 
         return TextCommandResult.Success($"Reduced {player.PlayerName} experience to {args[3]} on level {args[1]}", "12");
     }
@@ -184,6 +193,10 @@ class Commands
         player.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f);
         player.Entity.Stats.Set("forageDropRate", "forageDropRate", 1.0f);
         player.Entity.WatchedAttributes.SetFloat("regenSpeed", 1.0f);
+
+        // Refresh player levels
+        Instance.UpdatePlayerLevels(player, instance.api);
+
         return TextCommandResult.Success($"{args[1]} status has been reseted to vanilla default", "13");
     }
 
@@ -198,7 +211,11 @@ class Commands
         IServerPlayer player = GetPlayerByUsernameOrUID(args[1]);
         if (player == null) return TextCommandResult.Success($"Player {args[1]} not found or not online", "14");
 
+        // Removing experience from all levels to this player
         Instance.ResetPlayerLevels(player, instance.api, 0);
+
+        // Refresh player levels
+        Instance.UpdatePlayerLevels(player, instance.api);
 
         return TextCommandResult.Success($"{args[1]} levels has been reseted to 0", "13");
     }
