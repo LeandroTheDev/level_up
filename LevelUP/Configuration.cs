@@ -646,18 +646,14 @@ public static class Configuration
 
     public static float HunterGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = hunterBaseDamage;
-
         float incrementDamage = hunterIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = hunterBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
     #endregion
 
@@ -830,18 +826,14 @@ public static class Configuration
 
     public static float BowGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = bowBaseDamage;
-
         float incrementDamage = bowIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = bowBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
 
     public static bool BowRollChanceToNotReduceDurabilityByLevel(int level)
@@ -1067,18 +1059,14 @@ public static class Configuration
 
     public static float KnifeGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = knifeBaseDamage;
-
         float incrementDamage = knifeIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = knifeBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
 
     public static float KnifeGetHarvestMultiplyByLevel(int level)
@@ -1290,18 +1278,14 @@ public static class Configuration
 
     public static float AxeGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = axeBaseDamage;
-
         float incrementDamage = axeIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = axeBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
 
     public static float AxeGetMiningMultiplyByLevel(int level)
@@ -1534,18 +1518,14 @@ public static class Configuration
 
     public static float PickaxeGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = pickaxeBaseDamage;
-
         float incrementDamage = pickaxeIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = pickaxeBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
 
     public static float PickaxeGetMiningMultiplyByLevel(int level)
@@ -1730,18 +1710,14 @@ public static class Configuration
 
     public static float ShovelGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = shovelBaseDamage;
-
         float incrementDamage = shovelIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = shovelBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
 
     public static float ShovelGetMiningMultiplyByLevel(int level)
@@ -1926,18 +1902,14 @@ public static class Configuration
 
     public static float SpearGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = spearBaseDamage;
-
         float incrementDamage = spearIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = spearBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
 
     public static bool SpearRollChanceToNotReduceDurabilityByLevel(int level)
@@ -2249,18 +2221,14 @@ public static class Configuration
 
     public static float HammerGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = hammerBaseDamage;
-
         float incrementDamage = hammerIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = hammerBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
 
     public static bool HammerRollChanceToNotReduceDurabilityByLevel(int level)
@@ -2489,18 +2457,15 @@ public static class Configuration
 
     public static float SwordGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = swordBaseDamage;
-
         float incrementDamage = swordIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = swordBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
 
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
 
     public static bool SwordRollChanceToNotReduceDurabilityByLevel(int level)
@@ -2754,18 +2719,14 @@ public static class Configuration
 
     public static float HandGetDamageMultiplyByLevel(int level)
     {
-        float baseDamage = handBaseDamage;
-
         float incrementDamage = handIncrementDamagePerLevel;
-        float multiply = 0.0f;
+        float multiply = handBaseDamage;
         while (level > 1)
         {
             multiply += incrementDamage;
             level -= 1;
         }
-
-        baseDamage += baseDamage * incrementDamage;
-        return baseDamage;
+        return multiply;
     }
     #endregion
 

@@ -39,7 +39,7 @@ class OverwriteBlockInteraction
     // Overwrite Knife Harvesting
     [HarmonyPrefix]
     [HarmonyPatch(typeof(EntityBehaviorHarvestable), "SetHarvested")]
-    public static void SetHarvestedKnifeStart(EntityBehaviorHarvestable __instance, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+    public static void SetHarvestedKnifeStart(EntityBehaviorHarvestable __instance, IPlayer byPlayer, ref float dropQuantityMultiplier)
     {
         if (!Configuration.enableLevelKnife) return;
 
@@ -57,7 +57,7 @@ class OverwriteBlockInteraction
             float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) + compatibilityDroprate;
 
             // Increasing entity drop rate
-            player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate);
+            dropQuantityMultiplier += dropRate;
             if (Configuration.enableExtendedLog)
                 Debug.Log($"{player.PlayerName} harvested any entity with knife, multiply drop: {dropRate}, values: {Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))} + {compatibilityDroprate}");
         }
@@ -70,7 +70,7 @@ class OverwriteBlockInteraction
             float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) + compatibilityDroprate;
 
             // Increasing entity drop rate
-            byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate);
+            dropQuantityMultiplier += dropRate;
             if (Configuration.enableExtendedLog)
                 Debug.Log($"{byPlayer.PlayerName} harvested any entity with knife, multiply drop: {dropRate}, values: {Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))} + {compatibilityDroprate}");
         }
