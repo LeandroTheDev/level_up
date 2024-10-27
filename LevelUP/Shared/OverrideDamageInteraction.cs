@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -44,7 +45,7 @@ class OverwriteDamageInteraction
     static bool singlePlayerDoubleCheck = true; // for some reason in single player the client instance is called 2 times in a row
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
-    public static bool ReceiveDamageStart(Entity __instance, DamageSource damageSource, float damage)
+    public static void ReceiveDamageStart(Entity __instance, DamageSource damageSource, ref float damage)
     {
         #region compatibility
         // Compatibility Layer Start Calculation
@@ -62,6 +63,7 @@ class OverwriteDamageInteraction
         // Damage bug treatment
         if (damage > 0 && __instance.ShouldReceiveDamage(damageSource, damage))
         {
+            Debug.Log($"DAMAGE STARTING: {damage}");
             // Player Does Damage
             // Checking if damage sources is from a player and from a server and if entity is alive
             if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
@@ -74,7 +76,7 @@ class OverwriteDamageInteraction
                     // Get player instance
                     IPlayer player = __instance.Api.World.PlayerByUid(playerEntity.PlayerUID);
 
-                    #region hunter            
+                    #region hunter
                     // Increase the damage
                     damage *= Configuration.HunterGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Hunter"));
                     #endregion
@@ -587,49 +589,8 @@ class OverwriteDamageInteraction
 
             // If the armor reduces less than 0, just change to 0
             if (damage < 0) damage = 0;
+            Debug.Log($"DAMAGE ENDING: {damage}");
         }
-
-        #region native
-        if ((!__instance.Alive || __instance.IsActivityRunning("invulnerable")) && damageSource.Type != EnumDamageType.Heal)
-        {
-            return false;
-        }
-        if (__instance.ShouldReceiveDamage(damageSource, damage))
-        {
-            foreach (EntityBehavior behavior in __instance.SidedProperties.Behaviors)
-            {
-                behavior.OnEntityReceiveDamage(damageSource, ref damage);
-            }
-            if (damageSource.Type != EnumDamageType.Heal && damage > 0f)
-            {
-                __instance.WatchedAttributes.SetInt("onHurtCounter", __instance.WatchedAttributes.GetInt("onHurtCounter") + 1);
-                __instance.WatchedAttributes.SetFloat("onHurt", damage);
-                if (damage > 0.05f)
-                {
-                    __instance.AnimManager.StartAnimation("hurt");
-                }
-            }
-            if (damageSource.GetSourcePosition() != null)
-            {
-                Vec3d dir = (__instance.SidedPos.XYZ - damageSource.GetSourcePosition()).Normalize();
-                dir.Y = 0.699999988079071;
-                float factor = damageSource.KnockbackStrength * GameMath.Clamp((1f - __instance.Properties.KnockbackResistance) / 10f, 0f, 1f);
-                __instance.WatchedAttributes.SetFloat("onHurtDir", (float)Math.Atan2(dir.X, dir.Z));
-                __instance.WatchedAttributes.SetDouble("kbdirX", dir.X * (double)factor);
-                __instance.WatchedAttributes.SetDouble("kbdirY", dir.Y * (double)factor);
-                __instance.WatchedAttributes.SetDouble("kbdirZ", dir.Z * (double)factor);
-            }
-            else
-            {
-                __instance.WatchedAttributes.SetDouble("kbdirX", 0.0);
-                __instance.WatchedAttributes.SetDouble("kbdirY", 0.0);
-                __instance.WatchedAttributes.SetDouble("kbdirZ", 0.0);
-                __instance.WatchedAttributes.SetFloat("onHurtDir", -999f);
-            }
-            return damage > 0f;
-        }
-        return false;
-        #endregion end
     }
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
@@ -746,105 +707,24 @@ class OverwriteDamageInteraction
     #endregion
     #region shield
     // Overwrite the Shield function end
-    [HarmonyPostfix]
+    [HarmonyPrefix]
     [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
-    public static float ApplyShieldProtectionFinish(float __result, ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
+    public static void ApplyShieldProtectionStart(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
     {
-        if (!Configuration.enableLevelShield) return __result;
+        if (!Configuration.enableLevelShield) return;
 
-        // Pickup the native api
-        ICoreAPI api = player.Entity.Api;
+        // Reduces the damage received more than normal based on shield level
+        double damageReduced = damage * Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
+        damage -= (float)damageReduced;
+        if (damage < 0) damage = 0;
+        if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduced} in shield damage");
 
-        #region native
-        double horizontalAngleProtectionRange = 1.0471975803375244;
-        ItemSlot[] shieldSlots =
-        [
-            player.Entity.LeftHandItemSlot,
-            player.Entity.RightHandItemSlot
-        ];
-        for (int i = 0; i < shieldSlots.Length; i++)
-        {
-            ItemSlot shieldSlot = shieldSlots[i];
-            JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
-            if (attr == null || !attr.Exists)
-            {
-                continue;
-            }
-            string usetype = player.Entity.Controls.Sneak ? "active" : "passive";
-            float dmgabsorb = attr["damageAbsorption"][usetype].AsFloat();
-            float chance = attr["protectionChance"][usetype].AsFloat();
-            (player as IServerPlayer)?.SendMessage(GlobalConstants.DamageLogChatGroup, Lang.Get("{0:0.#} of {1:0.#} damage blocked by shield", Math.Min(dmgabsorb, damage), damage), EnumChatType.Notification);
-            double dx;
-            double dy;
-            double dz;
-            if (dmgSource.HitPosition != null)
-            {
-                dx = dmgSource.HitPosition.X;
-                dy = dmgSource.HitPosition.Y;
-                dz = dmgSource.HitPosition.Z;
-            }
-            else if (dmgSource.SourceEntity != null)
-            {
-                dx = dmgSource.SourceEntity.Pos.X - player.Entity.Pos.X;
-                dy = dmgSource.SourceEntity.Pos.Y - player.Entity.Pos.Y;
-                dz = dmgSource.SourceEntity.Pos.Z - player.Entity.Pos.Z;
-            }
-            else
-            {
-                if (!(dmgSource.SourcePos != null))
-                {
-                    break;
-                }
-                dx = dmgSource.SourcePos.X - player.Entity.Pos.X;
-                dy = dmgSource.SourcePos.Y - player.Entity.Pos.Y;
-                dz = dmgSource.SourcePos.Z - player.Entity.Pos.Z;
-            }
-            double playerYaw = player.Entity.Pos.Yaw + (float)Math.PI / 2f;
-            double playerPitch = player.Entity.Pos.Pitch;
-            double attackYaw = Math.Atan2(dx, dz);
-            double a = dy;
-            float b = (float)Math.Sqrt(dx * dx + dz * dz);
-            float attackPitch = (float)Math.Atan2(a, b);
-            bool inProtectionRange = (!(Math.Abs(attackPitch) > (float)Math.PI * 13f / 36f)) ? ((double)Math.Abs(GameMath.AngleRadDistance((float)playerYaw, (float)attackYaw)) < horizontalAngleProtectionRange) : (Math.Abs(GameMath.AngleRadDistance((float)playerPitch, attackPitch)) < (float)Math.PI / 6f);
-            if (inProtectionRange && api.World.Rand.NextDouble() < (double)chance)
-            {
-                #endregion
-                // Reduces the damage received more than normal based on shield level
-                float damageReduction = dmgabsorb * Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
-                damage = Math.Max(0f, damage - damageReduction);
-                if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduction} in shield damage");
-                #region native
-
-                string loc = shieldSlot.Itemstack.ItemAttributes["blockSound"].AsString("held/shieldblock");
-                api.World.PlaySoundAt(AssetLocation.Create(loc, shieldSlot.Itemstack.Collectible.Code.Domain).WithPathPrefixOnce("sounds/").WithPathAppendixOnce(".ogg"), player);
-                (api as ICoreServerAPI).Network.BroadcastEntityPacket(player.Entity.EntityId, 200, SerializerUtil.Serialize("shieldBlock" + ((i == 0) ? "L" : "R")));
-                if (api.Side == EnumAppSide.Server)
-                {
-                    #endregion
-                    // Roll chance for not losing the durability
-                    if (!Configuration.ShieldRollChanceToNotReduceDurabilityByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
-                    {
-                        #region native
-                        shieldSlot.Itemstack.Collectible.DamageItem(api.World, dmgSource.SourceEntity, shieldSlot);
-                        shieldSlot.MarkDirty();
-                        #endregion
-                    }
-                }
-            }
-            // Experience increase
-            if (inProtectionRange)
-            {
-                // Servers
-                if (instance.serverAPI != null)
-                    instance.serverAPI.OnExperienceEarned(player as IServerPlayer, "Increase_Shield_Hit");
-                // Single player treatment
-                else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Shield_Hit&lanplayername={player.PlayerName}");
-            }
-        }
-        #region native
-        return damage;
-        #endregion
+        // Servers
+        if (instance.serverAPI != null)
+            instance.serverAPI.OnExperienceEarned(player as IServerPlayer, "Increase_Shield_Hit");
+        // Single player treatment
+        else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
+            instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Shield_Hit&lanplayername={player.PlayerName}");
     }
     #endregion
 }
