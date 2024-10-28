@@ -63,7 +63,6 @@ class OverwriteDamageInteraction
         // Damage bug treatment
         if (damage > 0 && __instance.ShouldReceiveDamage(damageSource, damage))
         {
-            Debug.Log($"DAMAGE STARTING: {damage}");
             // Player Does Damage
             // Checking if damage sources is from a player and from a server and if entity is alive
             if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
@@ -588,8 +587,7 @@ class OverwriteDamageInteraction
                 singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
 
             // If the armor reduces less than 0, just change to 0
-            if (damage < 0) damage = 0;
-            Debug.Log($"DAMAGE ENDING: {damage}");
+            if (damage < 0) damage = 0;            
         }
     }
     [HarmonyPostfix]
