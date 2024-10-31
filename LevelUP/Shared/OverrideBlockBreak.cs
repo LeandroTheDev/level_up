@@ -94,14 +94,14 @@ class OverwriteBlockBreak
     // Overwrite Ores Drop
     [HarmonyPrefix]
     [HarmonyPatch(typeof(BlockOre), "OnBlockBroken")]
-    public static void OnBlockBroken(BlockOre __instance, IWorldAccessor world, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+    public static void OnBlockBroken(BlockOre __instance, IWorldAccessor world, IPlayer byPlayer, ref float dropQuantityMultiplier)
     {
         // Check if is from the server
         if (Configuration.enableLevelPickaxe && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
         {
             IServerPlayer player = byPlayer as IServerPlayer;
             // Increasing ore drop rate
-            player.Entity.Stats.Set("oreDropRate", "oreDropRate", Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe")));
+            dropQuantityMultiplier += Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
 
             if (Configuration.enableExtendedLog)
                 Debug.Log($"{player.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))}");

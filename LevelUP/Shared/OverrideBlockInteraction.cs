@@ -164,7 +164,7 @@ class OverwriteBlockInteraction
     // Overwrite Mushroom Forage
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BlockMushroom), "GetDrops")]
-    public static void GetDropsMushroomFinish(BlockMushroom __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+    public static void GetDropsMushroomFinish(BlockMushroom __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref float dropQuantityMultiplier)
     {
         if (Configuration.enableLevelFarming && byPlayer != null)
         {

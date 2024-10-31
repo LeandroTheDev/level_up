@@ -85,9 +85,6 @@ class Instance
             api.Event.PlayerDeath += (player, damageSource) => ResetPlayerLevels(player, api);
             Debug.Log("Hardcore death event instanciated");
         }
-
-        // Show configurations if enabled
-        if (Configuration.enableExtendedLog) Configuration.LogConfigurations();
     }
     public void PopulateConfigurations(ICoreAPI coreAPI)
     {
