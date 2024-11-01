@@ -115,7 +115,7 @@ class OverwriteBlockInteraction
         if (Configuration.enableLevelFarming && byPlayer != null)
         {
             // In creasing forage drop rate based on level
-            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
+            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
 
             if (Configuration.enableExtendedLog) Debug.Log($"Bush harvest: {__instance.Code}");
 
@@ -142,7 +142,7 @@ class OverwriteBlockInteraction
         if (Configuration.enableLevelFarming && byPlayer != null)
         {
             // In creasing forage drop rate based on level
-            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
+            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
 
             if (Configuration.enableExtendedLog) Debug.Log($"Bush harvest: {__instance.block.Code}");
 
@@ -169,7 +169,7 @@ class OverwriteBlockInteraction
         if (Configuration.enableLevelFarming && byPlayer != null)
         {
             // In creasing forage drop rate based on level
-            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
+            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
 
             if (Configuration.enableExtendedLog) Debug.Log($"Bush harvest: {__instance.Code}");
 
