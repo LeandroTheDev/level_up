@@ -10,6 +10,11 @@ namespace LevelUP;
 #pragma warning disable CA2211
 public static class Configuration
 {
+    /// <summary>
+    ///  Stores all levels simple calculations in the memory, to reduce CPU usage in calculations
+    /// </summary>
+    private static readonly Dictionary<string, Dictionary<int, float>> cacheCalculations = [];
+
     private static Dictionary<string, object> LoadConfigurationByDirectoryAndName(ICoreAPI api, string directory, string name, string defaultDirectory)
     {
         string directoryPath = Path.Combine(api.DataBasePath, directory);
@@ -467,6 +472,15 @@ public static class Configuration
 
     public static float HunterGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("HunterDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("HunterDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = hunterIncrementDamagePerLevel;
         float multiply = hunterBaseDamage;
         while (level > 1)
@@ -474,6 +488,12 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("HunterDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
     #endregion
@@ -647,6 +667,15 @@ public static class Configuration
 
     public static float BowGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("BowDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("BowDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = bowIncrementDamagePerLevel;
         float multiply = bowBaseDamage;
         while (level > 1)
@@ -654,22 +683,49 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("BowDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
 
     public static bool BowRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = bowBaseDurabilityRestoreChance;
-        float chanceToNotReduce = bowDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("BowDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("BowDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % bowDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= bowDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = bowBaseDurabilityRestoreChance;
+            float chanceToNotReduce = bowDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % bowDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= bowDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("BowDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Bow durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -679,17 +735,38 @@ public static class Configuration
 
     public static float BowGetChanceToNotLoseArrowByLevel(int level)
     {
-        float baseChanceToNotLose = bowBaseChanceToNotLoseArrow;
-        float chanceToNotLose = bowChanceToNotLoseArrowBaseIncreasePerLevel;
-        while (level > 1)
+        float baseChanceToNotLose = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("BowArrowNotLoseChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotLose = value;
+            else { }
+        else cacheCalculations.Add("BowArrowNotLoseChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotLose == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the lose arrow chance multiplicator
-            if (level % bowChanceToNotLoseArrowReduceIncreaseEveryLevel == 0)
-                chanceToNotLose -= bowChanceToNotLoseArrowReduceQuantityEveryLevel;
-            // Increasing chance
-            baseChanceToNotLose += chanceToNotLose;
+            baseChanceToNotLose = bowBaseChanceToNotLoseArrow;
+            float chanceToNotLose = bowChanceToNotLoseArrowBaseIncreasePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the lose arrow chance multiplicator
+                if (level % bowChanceToNotLoseArrowReduceIncreaseEveryLevel == 0)
+                    chanceToNotLose -= bowChanceToNotLoseArrowReduceQuantityEveryLevel;
+                // Increasing chance
+                baseChanceToNotLose += chanceToNotLose;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("BowArrowNotLoseChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotLose);
+            #endregion
         }
+        #endregion
+
         // Returns the chance
         if (baseChanceToNotLose >= new Random().Next(0, 100)) return 1.0f;
         else return 0.0f;
@@ -697,6 +774,15 @@ public static class Configuration
 
     public static float BowGetAimAccuracyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("BowAccuracy", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("BowAccuracy", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         // Exp base for level
         float accuracyPerLevelBase = bowBaseAimAccuracy;
         while (level > 1)
@@ -704,6 +790,12 @@ public static class Configuration
             accuracyPerLevelBase += bowIncreaseAimAccuracyPerLevel;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("BowAccuracy", out var newLevels))
+            newLevels.Add(playerLevel, accuracyPerLevelBase);
+        #endregion
         return accuracyPerLevelBase;
     }
 
@@ -880,6 +972,15 @@ public static class Configuration
 
     public static float KnifeGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("KnifeDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("KnifeDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = knifeIncrementDamagePerLevel;
         float multiply = knifeBaseDamage;
         while (level > 1)
@@ -887,11 +988,26 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("KnifeDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
 
     public static float KnifeGetHarvestMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("KnifeHarvest", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("KnifeHarvest", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = knifeBaseHarvestMultiply;
 
         float incrementMultiply = knifeIncrementHarvestMultiplyPerLevel;
@@ -902,11 +1018,26 @@ public static class Configuration
             level -= 1;
         }
         baseMultiply += baseMultiply * multiply;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("KnifeHarvest", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
     public static float KnifeGetMiningMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("KnifeMining", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("KnifeMining", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseSpeed = knifeBaseMiningSpeed;
 
         float incrementSpeed = knifeIncrementMiningSpeedMultiplyPerLevel;
@@ -918,22 +1049,49 @@ public static class Configuration
         }
 
         baseSpeed += baseSpeed * incrementSpeed;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("KnifeMining", out var newLevels))
+            newLevels.Add(playerLevel, baseSpeed);
+        #endregion
         return baseSpeed;
     }
 
     public static bool KnifeRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = knifeBaseDurabilityRestoreChance;
-        float chanceToNotReduce = knifeDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("KnifeDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("KnifeDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % knifeDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= knifeDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = knifeBaseDurabilityRestoreChance;
+            float chanceToNotReduce = knifeDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % knifeDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= knifeDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("KnifeDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Knife durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -1082,7 +1240,6 @@ public static class Configuration
 
     public static int AxeGetLevelByEXP(ulong exp)
     {
-
         int level = 0;
         // Exp base for level
         double expPerLevelBase = axeEXPPerLevelBase;
@@ -1099,6 +1256,15 @@ public static class Configuration
 
     public static float AxeGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("AxeDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("AxeDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = axeIncrementDamagePerLevel;
         float multiply = axeBaseDamage;
         while (level > 1)
@@ -1106,11 +1272,26 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("AxeDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
 
     public static float AxeGetMiningMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("AxeMining", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("AxeMining", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseSpeed = axeBaseMiningSpeed;
 
         float incrementSpeed = axeIncrementMiningSpeedMultiplyPerLevel;
@@ -1122,22 +1303,49 @@ public static class Configuration
         }
 
         baseSpeed += baseSpeed * incrementSpeed;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("AxeMining", out var newLevels))
+            newLevels.Add(playerLevel, baseSpeed);
+        #endregion
         return baseSpeed;
     }
 
     public static bool AxeRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = axeBaseDurabilityRestoreChance;
-        float chanceToNotReduce = axeDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("AxeDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("AxeDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % axeDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= axeDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = axeBaseDurabilityRestoreChance;
+            float chanceToNotReduce = axeDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % axeDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= axeDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("AxeDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Axe durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -1323,6 +1531,15 @@ public static class Configuration
 
     public static float PickaxeGetOreMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("PickaxeMultiply", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("PickaxeMultiply", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = pickaxeBaseOreMultiply;
 
         float incrementMultiply = pickaxeIncrementOreMultiplyPerLevel;
@@ -1334,11 +1551,26 @@ public static class Configuration
         }
 
         baseMultiply += baseMultiply * multiply;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("PickaxeMultiply", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
     public static float PickaxeGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("PickaxeDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("PickaxeDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = pickaxeIncrementDamagePerLevel;
         float multiply = pickaxeBaseDamage;
         while (level > 1)
@@ -1346,11 +1578,26 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("PickaxeDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
 
     public static float PickaxeGetMiningMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("PickaxeMining", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("PickaxeMining", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseSpeed = pickaxeBaseMiningSpeed;
 
         float incrementSpeed = pickaxeIncrementMiningSpeedMultiplyPerLevel;
@@ -1362,22 +1609,49 @@ public static class Configuration
         }
 
         baseSpeed += baseSpeed * incrementSpeed;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("PickaxeMining", out var newLevels))
+            newLevels.Add(playerLevel, baseSpeed);
+        #endregion
         return baseSpeed;
     }
 
     public static bool PickaxeRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = pickaxeBaseDurabilityRestoreChance;
-        float chanceToNotReduce = pickaxeDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("PickaxeDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("PickaxeDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % pickaxeDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= pickaxeDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = pickaxeBaseDurabilityRestoreChance;
+            float chanceToNotReduce = pickaxeDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % pickaxeDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= pickaxeDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("PickaxeDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Pickaxe durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -1531,6 +1805,15 @@ public static class Configuration
 
     public static float ShovelGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("ShovelDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("ShovelDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = shovelIncrementDamagePerLevel;
         float multiply = shovelBaseDamage;
         while (level > 1)
@@ -1538,11 +1821,26 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("ShovelDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
 
     public static float ShovelGetMiningMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("ShovelMining", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("ShovelMining", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseSpeed = shovelBaseMiningSpeed;
 
         float incrementSpeed = shovelIncrementMiningSpeedMultiplyPerLevel;
@@ -1554,22 +1852,49 @@ public static class Configuration
         }
 
         baseSpeed += baseSpeed * incrementSpeed;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("ShovelMining", out var newLevels))
+            newLevels.Add(playerLevel, baseSpeed);
+        #endregion
         return baseSpeed;
     }
 
     public static bool ShovelRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = shovelBaseDurabilityRestoreChance;
-        float chanceToNotReduce = shovelDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("ShovelDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("ShovelDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % shovelDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= shovelDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = shovelBaseDurabilityRestoreChance;
+            float chanceToNotReduce = shovelDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % shovelDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= shovelDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("ShovelDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Shovel durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -1723,6 +2048,15 @@ public static class Configuration
 
     public static float SpearGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("SpearDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("SpearDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = spearIncrementDamagePerLevel;
         float multiply = spearBaseDamage;
         while (level > 1)
@@ -1730,22 +2064,49 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("SpearDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
 
     public static bool SpearRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = spearBaseDurabilityRestoreChance;
-        float chanceToNotReduce = spearDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("SpearDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("SpearDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % spearDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= spearDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = spearBaseDurabilityRestoreChance;
+            float chanceToNotReduce = spearDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % spearDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= spearDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("SpearDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Spear durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -1755,6 +2116,15 @@ public static class Configuration
 
     public static float SpearGetAimAccuracyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("SpearAccuracy", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("SpearAccuracy", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         // Exp base for level
         float accuracyPerLevelBase = spearBaseAimAccuracy;
         while (level > 1)
@@ -1762,6 +2132,12 @@ public static class Configuration
             accuracyPerLevelBase += spearIncreaseAimAccuracyPerLevel;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("SpearAccuracy", out var newLevels))
+            newLevels.Add(playerLevel, accuracyPerLevelBase);
+        #endregion
         return accuracyPerLevelBase;
     }
     #endregion
@@ -2042,6 +2418,15 @@ public static class Configuration
 
     public static float HammerGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("HammerDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("HammerDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = hammerIncrementDamagePerLevel;
         float multiply = hammerBaseDamage;
         while (level > 1)
@@ -2049,22 +2434,49 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("HammerDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
 
     public static bool HammerRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = hammerBaseDurabilityRestoreChance;
-        float chanceToNotReduce = hammerDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("HammerDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("HammerDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % hammerDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= hammerDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = hammerBaseDurabilityRestoreChance;
+            float chanceToNotReduce = hammerDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % hammerDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= hammerDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("HammerDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Hammer durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -2074,21 +2486,39 @@ public static class Configuration
 
     public static bool HammerShouldRetrieveSmithByLevel(int level)
     {
-        float baseChanceToNotReduce = hammerBaseSmithRetrieveChance;
-        float chanceToNotReduce = hammerSmithRetrieveChancePerLevel;
-        while (level > 1)
+        float baseChanceToRetrieve = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("HammerRetrieve", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToRetrieve = value;
+            else { }
+        else cacheCalculations.Add("HammerRetrieve", []);
+        int playerLevel = level;
+        #endregion
+
+        if (baseChanceToRetrieve == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % hammerSmithRetrieveEveryLevelReduceChance == 0)
-                chanceToNotReduce -= hammerSmithRetrieveReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToRetrieve = hammerBaseSmithRetrieveChance;
+            float chanceToNotReduce = hammerSmithRetrieveChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % hammerSmithRetrieveEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= hammerSmithRetrieveReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToRetrieve += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("HammerRetrieve", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToRetrieve);
+            #endregion
         }
         // Check the chance 
         int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Hammer should retrieve smith mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
+        if (enableExtendedLog) Debug.Log($"Hammer should retrieve smith mechanic check: {baseChanceToRetrieve} : {chance}");
+        if (baseChanceToRetrieve >= chance) return true;
         else return false;
     }
 
@@ -2278,6 +2708,15 @@ public static class Configuration
 
     public static float SwordGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("SwordDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("SwordDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = swordIncrementDamagePerLevel;
         float multiply = swordBaseDamage;
         while (level > 1)
@@ -2285,23 +2724,49 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
 
+        #region cache creation
+        if (cacheCalculations.TryGetValue("SwordDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
 
     public static bool SwordRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = swordBaseDurabilityRestoreChance;
-        float chanceToNotReduce = swordDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("SwordDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("SwordDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % swordDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= swordDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = swordBaseDurabilityRestoreChance;
+            float chanceToNotReduce = swordDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % swordDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= swordDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("SwordDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Sword durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -2417,6 +2882,15 @@ public static class Configuration
 
     public static float ShieldGetReductionMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("ShieldReduction", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("ShieldReduction", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseReduction = shieldBaseReduction;
 
         float incrementReduction = shieldIncreamentReductionPerLevel;
@@ -2428,22 +2902,47 @@ public static class Configuration
         }
 
         baseReduction += incrementReduction;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("ShieldReduction", out var newLevels))
+            newLevels.Add(playerLevel, baseReduction);
+        #endregion
         return baseReduction;
     }
 
     public static bool ShieldRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = shieldBaseDurabilityRestoreChance;
-        float chanceToNotReduce = shieldDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("ShieldDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("ShieldDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % shieldDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= shieldDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = shieldBaseDurabilityRestoreChance;
+            float chanceToNotReduce = shieldDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % shieldDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= shieldDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+            #region cache creation
+            if (cacheCalculations.TryGetValue("ShieldDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Shield durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -2540,6 +3039,15 @@ public static class Configuration
 
     public static float HandGetDamageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("HandDamage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("HandDamage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float incrementDamage = handIncrementDamagePerLevel;
         float multiply = handBaseDamage;
         while (level > 1)
@@ -2547,6 +3055,12 @@ public static class Configuration
             multiply += incrementDamage;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("HandDamage", out var newLevels))
+            newLevels.Add(playerLevel, multiply);
+        #endregion
         return multiply;
     }
     #endregion
@@ -2687,6 +3201,15 @@ public static class Configuration
 
     public static float FarmingGetHarvestMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("FarmingMultiply", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("FarmingMultiply", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = farmingBaseHarvestMultiply;
 
         float incrementMultiply = farmingIncrementHarvestMultiplyPerLevel;
@@ -2698,11 +3221,26 @@ public static class Configuration
         }
 
         baseMultiply += baseMultiply * multiply;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("FarmingMultiply", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
     public static float FarmingGetForageMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("FarmingMultiplyForage", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("FarmingMultiplyForage", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = farmingBaseForageMultiply;
 
         float incrementMultiply = farmingIncrementForageMultiplyPerLevel;
@@ -2714,22 +3252,49 @@ public static class Configuration
         }
 
         baseMultiply += baseMultiply * multiply;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("FarmingMultiplyForage", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
     public static bool FarmingRollChanceToNotReduceDurabilityByLevel(int level)
     {
-        float baseChanceToNotReduce = farmingBaseDurabilityRestoreChance;
-        float chanceToNotReduce = farmingDurabilityRestoreChancePerLevel;
-        while (level > 1)
+        float baseChanceToNotReduce = -1;
+
+        #region cache check
+        if (cacheCalculations.TryGetValue("FarmingDurabilityChance", out var levels))
+            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
+            else { }
+        else cacheCalculations.Add("FarmingDurabilityChance", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
+        if (baseChanceToNotReduce == -1)
         {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % farmingDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= farmingDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
+            baseChanceToNotReduce = farmingBaseDurabilityRestoreChance;
+            float chanceToNotReduce = farmingDurabilityRestoreChancePerLevel;
+            while (level > 1)
+            {
+                level -= 1;
+                // Every {} levels reduce the durability chance multiplicator
+                if (level % farmingDurabilityRestoreEveryLevelReduceChance == 0)
+                    chanceToNotReduce -= farmingDurabilityRestoreReduceChanceForEveryLevel;
+                // Increasing chance
+                baseChanceToNotReduce += chanceToNotReduce;
+            }
+
+            #region cache creation
+            if (cacheCalculations.TryGetValue("FarmingDurabilityChance", out var newLevels))
+                newLevels.Add(playerLevel, baseChanceToNotReduce);
+            #endregion
         }
+        #endregion
+
         // Check the chance 
         int chance = new Random().Next(0, 100);
         if (enableExtendedLog) Debug.Log($"Farming durability mechanic check: {baseChanceToNotReduce} : {chance}");
@@ -2909,6 +3474,15 @@ public static class Configuration
 
     public static float CookingGetSaturationMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("CookingSaturation", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("CookingSaturation", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = cookingBaseSaturationHoursMultiply;
 
         float incrementMultiply = cookingSaturationHoursMultiplyPerLevel;
@@ -2920,11 +3494,26 @@ public static class Configuration
         }
 
         baseMultiply += baseMultiply * multiply;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("CookingSaturation", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
     public static float CookingGetFreshHoursMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("CookingFresh", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("CookingFresh", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = cookingBaseFreshHoursMultiply;
 
         float incrementMultiply = cookingFreshHoursMultiplyPerLevel;
@@ -2936,6 +3525,12 @@ public static class Configuration
         }
 
         baseMultiply += baseMultiply * multiply;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("CookingFresh", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
@@ -3082,6 +3677,15 @@ public static class Configuration
 
     public static float PanningGetLootMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("PanningMultiply", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("PanningMultiply", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = panningBaseLootMultiply;
 
         float incrementMultiply = panningLootMultiplyPerLevel;
@@ -3093,6 +3697,12 @@ public static class Configuration
         }
 
         baseMultiply += baseMultiply * multiply;
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("PanningMultiply", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
@@ -3107,7 +3717,7 @@ public static class Configuration
             chanceToTriple += panningBaseChanceToTripleLoot;
             chanceToQuadruple += panningChanceToQuadrupleLootPerLevel;
         }
-        Random random = new Random();
+        Random random = new();
         if (random.Next(0, 101) <= (int)(chanceToQuadruple * 100)) return 3;
         if (random.Next(0, 101) <= (int)(chanceToTriple * 100)) return 2;
         if (random.Next(0, 101) <= (int)(chanceToDouble * 100)) return 1;
@@ -3230,6 +3840,15 @@ public static class Configuration
 
     public static float VitalityGetMaxHealthByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("VitalityMaxHealth", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("VitalityMaxHealth", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = vitalityBaseHP;
 
         float incrementMultiply = vitalityHPIncreasePerLevel;
@@ -3238,11 +3857,26 @@ public static class Configuration
             baseMultiply += incrementMultiply;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("VitalityMaxHealth", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
     public static float VitalityGetHealthRegenMultiplyByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("VitalityRegen", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("VitalityRegen", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = vitalityBaseHPRegen;
 
         float incrementMultiply = vitalityHPRegenIncreasePerLevel;
@@ -3251,6 +3885,12 @@ public static class Configuration
             baseMultiply += incrementMultiply;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("VitalityRegen", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
 
@@ -3259,15 +3899,15 @@ public static class Configuration
         float baseMultiply = vitalityEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
 
-        float multiply = vitalityEXPMultiplyByDamage;
-        while (calcDamage > 1)
-        {
-            // Increase experience
-            if (calcDamage % vitalityEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
-            calcDamage -= 1;
-        }
+        // Calculating the multiple of damage
+        int multiplesCount = calcDamage / vitalityEXPIncreaseByAmountDamage;
+
+        // Calculating the final multipliyer
+        baseMultiply *= (float)Math.Pow(1 + vitalityEXPMultiplyByDamage, multiplesCount);
+
         return (int)Math.Round(baseMultiply);
     }
+
     #endregion
 
     #region leatherarmor
@@ -3415,23 +4055,37 @@ public static class Configuration
         float baseMultiply = leatherArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
 
-        float multiply = (float)leatherArmorEXPMultiplyByDamage;
-        while (calcDamage > 1)
-        {
-            // Increase experience
-            if (calcDamage % leatherArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
-            calcDamage -= 1;
-        }
+        // Calculating the multiple of damage
+        int multiplesCount = calcDamage / leatherArmorEXPIncreaseByAmountDamage;
+
+        // Calculating the final multipliyer
+        baseMultiply *= (float)Math.Pow(1 + leatherArmorEXPMultiplyByDamage, multiplesCount);
+
         return (int)Math.Round(baseMultiply);
     }
     public static float LeatherArmorDamageReductionByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("LeatherArmorDamageReduction", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("LeatherArmorDamageReduction", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = leatherArmorBaseDamageReduction;
         while (level > 1)
         {
             baseMultiply += leatherArmorDamageReductionPerLevel;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("LeatherArmorDamageReduction", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
     public static bool LeatherArmorRollChanceToNotReduceDurabilityByLevel(int level)
@@ -3599,23 +4253,37 @@ public static class Configuration
         float baseMultiply = chainArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
 
-        float multiply = (float)chainArmorEXPMultiplyByDamage;
-        while (calcDamage > 1)
-        {
-            // Increase experience
-            if (calcDamage % chainArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
-            calcDamage -= 1;
-        }
+        // Calculating the multiple of damage
+        int multiplesCount = calcDamage / chainArmorEXPIncreaseByAmountDamage;
+
+        // Calculating the final multipliyer
+        baseMultiply *= (float)Math.Pow(1 + chainArmorEXPMultiplyByDamage, multiplesCount);
+
         return (int)Math.Round(baseMultiply);
     }
     public static float ChainArmorDamageReductionByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("ChainArmorDamageReduction", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("ChainArmorDamageReduction", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = chainArmorBaseDamageReduction;
         while (level > 1)
         {
             baseMultiply += chainArmorDamageReductionPerLevel;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("ChainArmorDamageReduction", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
     public static bool ChainArmorRollChanceToNotReduceDurabilityByLevel(int level)
@@ -3784,23 +4452,37 @@ public static class Configuration
         float baseMultiply = brigandineArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
 
-        float multiply = (float)brigandineArmorEXPMultiplyByDamage;
-        while (calcDamage > 1)
-        {
-            // Increase experience
-            if (calcDamage % brigandineArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
-            calcDamage -= 1;
-        }
+        // Calculating the multiple of damage
+        int multiplesCount = calcDamage / brigandineArmorEXPIncreaseByAmountDamage;
+
+        // Calculating the final multipliyer
+        baseMultiply *= (float)Math.Pow(1 + brigandineArmorEXPMultiplyByDamage, multiplesCount);
+
         return (int)Math.Round(baseMultiply);
     }
     public static float BrigandineArmorDamageReductionByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("BrigandineArmorDamageReduction", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("BrigandineArmorDamageReduction", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = brigandineArmorBaseDamageReduction;
         while (level > 1)
         {
             baseMultiply += brigandineArmorDamageReductionPerLevel;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("BrigandineArmorDamageReduction", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
     public static bool BrigandineArmorRollChanceToNotReduceDurabilityByLevel(int level)
@@ -3969,23 +4651,37 @@ public static class Configuration
         float baseMultiply = plateArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
 
-        float multiply = (float)plateArmorEXPMultiplyByDamage;
-        while (calcDamage > 1)
-        {
-            // Increase experience
-            if (calcDamage % plateArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
-            calcDamage -= 1;
-        }
+        // Calculating the multiple of damage
+        int multiplesCount = calcDamage / plateArmorEXPIncreaseByAmountDamage;
+
+        // Calculating the final multipliyer
+        baseMultiply *= (float)Math.Pow(1 + plateArmorEXPMultiplyByDamage, multiplesCount);
+
         return (int)Math.Round(baseMultiply);
     }
     public static float PlateArmorDamageReductionByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("PlateArmorDamageReduction", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("PlateArmorDamageReduction", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = plateArmorBaseDamageReduction;
         while (level > 1)
         {
             baseMultiply += plateArmorDamageReductionPerLevel;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("PlateArmorDamageReduction", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
     public static bool PlateArmorRollChanceToNotReduceDurabilityByLevel(int level)
@@ -4154,23 +4850,37 @@ public static class Configuration
         float baseMultiply = scaleArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
 
-        float multiply = (float)scaleArmorEXPMultiplyByDamage;
-        while (calcDamage > 1)
-        {
-            // Increase experience
-            if (calcDamage % scaleArmorEXPIncreaseByAmountDamage == 0) baseMultiply += baseMultiply * multiply;
-            calcDamage -= 1;
-        }
+        // Calculating the multiple of damage
+        int multiplesCount = calcDamage / scaleArmorEXPIncreaseByAmountDamage;
+
+        // Calculating the final multipliyer
+        baseMultiply *= (float)Math.Pow(1 + scaleArmorEXPMultiplyByDamage, multiplesCount);
+
         return (int)Math.Round(baseMultiply);
     }
     public static float ScaleArmorDamageReductionByLevel(int level)
     {
+        #region cache check
+        if (cacheCalculations.TryGetValue("ScaleArmorDamageReduction", out var levels))
+            if (levels.TryGetValue(level, out var value)) return value;
+            else { }
+        else cacheCalculations.Add("ScaleArmorDamageReduction", []);
+        int playerLevel = level;
+        #endregion
+
+        #region calculation
         float baseMultiply = scaleArmorBaseDamageReduction;
         while (level > 1)
         {
             baseMultiply += scaleArmorDamageReductionPerLevel;
             level -= 1;
         }
+        #endregion
+
+        #region cache creation
+        if (cacheCalculations.TryGetValue("ScaleArmorDamageReduction", out var newLevels))
+            newLevels.Add(playerLevel, baseMultiply);
+        #endregion
         return baseMultiply;
     }
     public static bool ScaleArmorRollChanceToNotReduceDurabilityByLevel(int level)
