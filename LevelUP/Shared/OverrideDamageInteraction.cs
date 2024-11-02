@@ -62,6 +62,9 @@ class OverwriteDamageInteraction
             // Checking if damage sources is from a player and from a server and if entity is alive
             if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
             {
+                if (Configuration.enableExtendedLog)
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} previous damage: {damage}");
+
                 // Melee Action
                 if (damageSource.SourceEntity is EntityPlayer)
                 {
@@ -205,9 +208,8 @@ class OverwriteDamageInteraction
                 {
                     // Get entities
                     EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
-                    EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;
 
-                    if (itemDamage != null)
+                    if (damageSource.SourceEntity is EntityProjectile itemDamage)
                     {
 
                         // Get player instance
@@ -246,6 +248,9 @@ class OverwriteDamageInteraction
                 }
                 // Invalid
                 else Debug.Log($"ERROR: Invalid damage type in OverwriteDamageInteraction, cause entity is invalid: {damageSource.GetCauseEntity()} or source entity is invalid: {damageSource.SourceEntity}");
+
+                if (Configuration.enableExtendedLog)
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} final damage: {damage}");
             }
 
             #region compatibility
@@ -266,6 +271,9 @@ class OverwriteDamageInteraction
             // Checking if received damage is a player and if is a server and if is alive
             if (__instance is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
             {
+                if (Configuration.enableExtendedLog)
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} received damage: {damage}");
+
                 // Get player source
                 EntityPlayer playerEntity = __instance as EntityPlayer;
                 // Get player instance
@@ -510,6 +518,9 @@ class OverwriteDamageInteraction
                     }
                     #endregion
                 }
+            
+                if (Configuration.enableExtendedLog)
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} received final damage: {damage}");
             };
 
             // Double check bug only if is a player hitting in single player
@@ -614,7 +625,7 @@ class OverwriteDamageInteraction
             // Setting new aim accuracy
             byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0)));
             if (Configuration.enableExtendedLog)
-                Debug.Log($"Bow: ${Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0))}, Server: {instance.serverAPI != null}");
+                Debug.Log($"Bow: ${Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0))}");
         }
     }
     #endregion
@@ -629,7 +640,7 @@ class OverwriteDamageInteraction
             // Setting new aim accuracy
             byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0)));
             if (Configuration.enableExtendedLog)
-                Debug.Log($"Bow: ${Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0))}, Server: {instance.serverAPI != null}");
+                Debug.Log($"Bow: ${Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0))}");
         }
     }
     #endregion
