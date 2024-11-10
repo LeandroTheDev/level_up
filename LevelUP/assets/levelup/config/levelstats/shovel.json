@@ -1,7 +1,7 @@
 {
-    "shovelEXPPerHit": 1,
-    "shovelEXPPerBreaking": 1,
-    "shovelEXPPerLevelBase": 10,
+    "shovelEXPPerHit": 10,
+    "shovelEXPPerBreaking": 10,
+    "shovelEXPPerLevelBase": 100,
     "shovelEXPMultiplyPerLevel": 2.0,
     "shovelBaseDamage": 1.0,
     "shovelIncrementDamagePerLevel": 0.1,

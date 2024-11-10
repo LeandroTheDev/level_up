@@ -1,7 +1,7 @@
 {
-    "pickaxeEXPPerHit": 1,
-    "pickaxeEXPPerBreaking": 1,
-    "pickaxeEXPPerLevelBase": 10,
+    "pickaxeEXPPerHit": 10,
+    "pickaxeEXPPerBreaking": 10,
+    "pickaxeEXPPerLevelBase": 100,
     "pickaxeEXPMultiplyPerLevel": 2.0,
     "pickaxeBaseDamage": 1.0,
     "pickaxeIncrementDamagePerLevel": 0.1,

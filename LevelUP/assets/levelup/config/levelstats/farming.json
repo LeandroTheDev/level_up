@@ -1,6 +1,6 @@
 {
-    "farmingEXPPerTill": 1,
-    "farmingEXPPerLevelBase": 10,
+    "farmingEXPPerTill": 10,
+    "farmingEXPPerLevelBase": 100,
     "farmingEXPMultiplyPerLevel": 2.5,
     "farmingBaseHarvestMultiply": 0.5,
     "farmingIncrementHarvestMultiplyPerLevel": 0.2,

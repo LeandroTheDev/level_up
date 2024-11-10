@@ -1,7 +1,7 @@
 {
-    "spearEXPPerHit": 1,
-    "spearEXPPerThrow": 2,
-    "spearEXPPerLevelBase": 10,
+    "spearEXPPerHit": 10,
+    "spearEXPPerThrow": 20,
+    "spearEXPPerLevelBase": 100,
     "spearEXPMultiplyPerLevel": 1.5,
     "spearBaseDamage": 1.0,
     "spearIncrementDamagePerLevel": 0.1,

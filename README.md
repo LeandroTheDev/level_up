@@ -37,7 +37,10 @@ All the mod calculations and patches is thinking in the server performance, feel
 
 Balancing was not very well thought out, you will probably find some things unusual or very strong, with everything you can make your changes in the configurations folder
 
-The configuration enableExtended logs can cause performances problems, because a lot of things in the mod is logged out, if the mod is very stable in your world/modpack please consider desabling it in configurations
+### Important Configurations
+Vitality will overwrite the health system, you need to change in configuration the base health system in ``levelstats/vitality.json`` changing in default game configuration will have no effects
+
+Debug logs is by default enabled, so that people with less knowledge can send logs in [issues](https://github.com/LeandroTheDev/level_up/issues) case of errors and bugs, you can disable it in base.json: ``enableExtendedLog``, this also can cause some cpu performances problems in low end cpus.
 
 ### About Level UP
 Level UP is open source project and can easily be accessed on the github, all contents from this mod is completly free.

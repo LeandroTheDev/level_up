@@ -1,6 +1,6 @@
 {
-    "bowEXPPerHit": 1,
-    "bowEXPPerLevelBase": 10,
+    "bowEXPPerHit": 10,
+    "bowEXPPerLevelBase": 100,
     "bowEXPMultiplyPerLevel": 1.3,
     "bowBaseDamage": 1.0,
     "bowIncrementDamagePerLevel": 0.1,
