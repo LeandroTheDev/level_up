@@ -1,8 +1,8 @@
 {
-    "plateArmorEXPPerReceiveHit": 1,
+    "plateArmorEXPPerReceiveHit": 10,
     "plateArmorEXPMultiplyByDamage": 0.3,
-    "plateArmorEXPIncreaseByAmountDamage": 2,
-    "plateArmorEXPPerLevelBase": 20,
+    "plateArmorEXPIncreaseByAmountDamage": 20,
+    "plateArmorEXPPerLevelBase": 200,
     "plateArmorEXPMultiplyPerLevel": 1.2,
     "plateArmorBaseDamageReduction": 0.0,
     "plateArmorDamageReductionPerLevel": 0.05,

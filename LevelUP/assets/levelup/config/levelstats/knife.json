@@ -1,8 +1,8 @@
 {
-    "knifeEXPPerHit": 1,
-    "knifeEXPPerHarvest": 5,
-    "knifeEXPPerBreaking": 1,
-    "knifeEXPPerLevelBase": 10,
+    "knifeEXPPerHit": 10,
+    "knifeEXPPerHarvest": 50,
+    "knifeEXPPerBreaking": 10,
+    "knifeEXPPerLevelBase": 100,
     "knifeEXPMultiplyPerLevel": 1.3,
     "knifeBaseDamage": 1.0,
     "knifeIncrementDamagePerLevel": 0.1,

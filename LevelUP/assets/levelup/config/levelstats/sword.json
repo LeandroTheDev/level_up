@@ -1,7 +1,7 @@
 {
-    "swordEXPPerHit": 1,
-    "swordEXPPerBreaking": 1,
-    "swordEXPPerLevelBase": 10,
+    "swordEXPPerHit": 10,
+    "swordEXPPerBreaking": 10,
+    "swordEXPPerLevelBase": 100,
     "swordEXPMultiplyPerLevel": 2.0,
     "swordBaseDamage": 1.0,
     "swordIncrementDamagePerLevel": 0.1,
