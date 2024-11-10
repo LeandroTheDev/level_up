@@ -63,7 +63,7 @@ class OverwriteDamageInteraction
             if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
             {
                 if (Configuration.enableExtendedLog)
-                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} previous damage: {damage}");
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer)?.GetName() ?? "PlayerProjectile"} previous damage: {damage}");   
 
                 // Melee Action
                 if (damageSource.SourceEntity is EntityPlayer)
@@ -250,7 +250,7 @@ class OverwriteDamageInteraction
                 else Debug.Log($"ERROR: Invalid damage type in OverwriteDamageInteraction, cause entity is invalid: {damageSource.GetCauseEntity()} or source entity is invalid: {damageSource.SourceEntity}");
 
                 if (Configuration.enableExtendedLog)
-                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} final damage: {damage}");
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer)?.GetName() ?? "PlayerProjectile"} final damage: {damage}");
             }
 
             #region compatibility
@@ -518,7 +518,7 @@ class OverwriteDamageInteraction
                     }
                     #endregion
                 }
-            
+
                 if (Configuration.enableExtendedLog)
                     Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} received final damage: {damage}");
             };
@@ -625,7 +625,7 @@ class OverwriteDamageInteraction
             // Setting new aim accuracy
             byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0)));
             if (Configuration.enableExtendedLog)
-                Debug.Log($"Bow: ${Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0))}");
+                Debug.Log($"Bow Accuracy: {Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0))}");
         }
     }
     #endregion
@@ -640,7 +640,7 @@ class OverwriteDamageInteraction
             // Setting new aim accuracy
             byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0)));
             if (Configuration.enableExtendedLog)
-                Debug.Log($"Bow: ${Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0))}");
+                Debug.Log($"Spear Accuracy: {Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0))}");
         }
     }
     #endregion
