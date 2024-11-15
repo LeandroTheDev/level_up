@@ -6,7 +6,7 @@
         "BoboDev"
     ],
     "description": "Add level system to your character",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "dependencies": {
         "game": ""
     }
