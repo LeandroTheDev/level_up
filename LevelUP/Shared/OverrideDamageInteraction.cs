@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -42,6 +43,7 @@ class OverwriteDamageInteraction
     [HarmonyPatch(typeof(Entity), "ReceiveDamage")]
     public static void ReceiveDamageStart(Entity __instance, DamageSource damageSource, ref float damage)
     {
+
         #region compatibility
         // Compatibility Layer Start Calculation
         float compatibilityStartDamage = __instance.Attributes.GetFloat("LevelUP_DamageInteraction_Compatibility_ExtendDamageStart_ReceiveDamage");
@@ -55,19 +57,23 @@ class OverwriteDamageInteraction
             damage += damage * compatibilityStartDamageMultiply;
         #endregion
 
+
         // Damage bug treatment
         if (damage > 0 && __instance.ShouldReceiveDamage(damageSource, damage))
         {
+
             // Player Does Damage
             // Checking if damage sources is from a player and from a server and if entity is alive
             if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
             {
+
                 if (Configuration.enableExtendedLog)
-                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer)?.GetName() ?? "PlayerProjectile"} previous damage: {damage}");   
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer)?.GetName() ?? "PlayerProjectile"} previous damage: {damage}");
 
                 // Melee Action
                 if (damageSource.SourceEntity is EntityPlayer)
                 {
+
                     // Get player source
                     EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
                     // Get player instance
@@ -187,6 +193,7 @@ class OverwriteDamageInteraction
                             #endregion
                     }
 
+
                     #region hand
                     if (Configuration.enableLevelHand && player.InventoryManager.ActiveHotbarSlot != null)
                     {
@@ -202,15 +209,18 @@ class OverwriteDamageInteraction
                         }
                     }
                     #endregion
+
                 }
                 // Ranged Action
                 else if (damageSource.GetCauseEntity() is EntityPlayer && damageSource.SourceEntity is EntityProjectile)
                 {
+
                     // Get entities
                     EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
 
                     if (damageSource.SourceEntity is EntityProjectile itemDamage)
                     {
+
 
                         // Get player instance
                         IPlayer player = __instance.Api.World.PlayerByUid(playerEntity.PlayerUID);
@@ -244,14 +254,16 @@ class OverwriteDamageInteraction
 
                         };
                         #endregion
+
                     }
                 }
                 // Invalid
                 else Debug.Log($"ERROR: Invalid damage type in OverwriteDamageInteraction, cause entity is invalid: {damageSource.GetCauseEntity()} or source entity is invalid: {damageSource.SourceEntity}");
-
                 if (Configuration.enableExtendedLog)
                     Debug.Log($"{(damageSource.SourceEntity as EntityPlayer)?.GetName() ?? "PlayerProjectile"} final damage: {damage}");
+
             }
+
 
             #region compatibility
             // Compatibility Layer Extend Final Calculation
@@ -266,13 +278,14 @@ class OverwriteDamageInteraction
                 // Receive damage by the compatibility layer
                 damage += damage * compatibilityFinalDamageMultiply;
             #endregion
-
             // Player Receive Damage
             // Checking if received damage is a player and if is a server and if is alive
             if (__instance is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
             {
+
+
                 if (Configuration.enableExtendedLog)
-                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} received damage: {damage}");
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer)?.GetName()} received damage: {damage}");
 
                 // Get player source
                 EntityPlayer playerEntity = __instance as EntityPlayer;
@@ -298,7 +311,6 @@ class OverwriteDamageInteraction
 
                 }
                 #endregion
-
                 // Check if the damage received is from a valid entity source damage
                 // in others cases the armor shouldn't reduce damage
                 if (damageSource.GetCauseEntity() != null || damageSource.SourceEntity != null)
@@ -329,7 +341,6 @@ class OverwriteDamageInteraction
                         }
                     }
                     #endregion
-
                     #region leatherarmor
                     if (Configuration.enableLevelLeatherArmor && damage < Configuration.DamageLimitLeatherArmor)
                     {
@@ -517,12 +528,13 @@ class OverwriteDamageInteraction
                         }
                     }
                     #endregion
+
                 }
 
                 if (Configuration.enableExtendedLog)
-                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer).Player.PlayerName} received final damage: {damage}");
-            };
+                    Debug.Log($"{(damageSource.SourceEntity as EntityPlayer)?.GetName()} received final damage: {damage}");
 
+            };
             // Double check bug only if is a player hitting in single player
             if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer)
                 singlePlayerDoubleCheck = !singlePlayerDoubleCheck;
@@ -652,18 +664,33 @@ class OverwriteDamageInteraction
     {
         if (!Configuration.enableLevelShield) return;
 
-        // Reduces the damage received more than normal based on shield level
-        double damageReduced = damage * Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
-        damage -= (float)damageReduced;
-        if (damage < 0) damage = 0;
-        if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduced} in shield damage");
+        ItemSlot[] shieldSlots =
+        [
+            player.Entity.LeftHandItemSlot,
+            player.Entity.RightHandItemSlot
+        ];
+        // Swipe all shields from player hands
+        for (int i = 0; i < shieldSlots.Length; i++)
+        {
+            ItemSlot shieldSlot = shieldSlots[i];
+            JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
+            // Checking if is a shield if not continues
+            if (attr == null || !attr.Exists)
+                continue;
 
-        // Servers
-        if (instance.serverAPI != null)
-            instance.serverAPI.OnExperienceEarned(player as IServerPlayer, "Increase_Shield_Hit");
-        // Single player treatment
-        else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-            instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Shield_Hit&lanplayername={player.PlayerName}");
+            // Reduces the damage received more than normal based on shield level
+            double damageReduced = damage * Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
+            damage -= (float)damageReduced;
+            if (damage < 0) damage = 0;
+            if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} reduced: {damageReduced} in shield damage");
+
+            // Servers
+            if (instance.serverAPI != null)
+                instance.serverAPI.OnExperienceEarned(player as IServerPlayer, "Increase_Shield_Hit");
+            // Single player treatment
+            else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
+                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Shield_Hit&lanplayername={player.PlayerName}");
+        }
     }
     #endregion
 }

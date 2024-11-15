@@ -2552,6 +2552,7 @@ public static class Configuration
                 if (level % hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToQuadruplePerLevelReducer;
                 baseChance += incrementChance;
             }
+            if(enableExtendedLog) Debug.Log($"Quadruple chance: {baseChance}");
             // Randomizes the chance and increase if chances hit
             if (baseChance >= new Random().Next(0, 100)) return 4;
         }
@@ -2566,6 +2567,7 @@ public static class Configuration
                 if (level % hammerIncreaseChanceToTriplePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToTriplePerLevelReducer;
                 baseChance += incrementChance;
             }
+            if(enableExtendedLog) Debug.Log($"Triple chance: {baseChance}");
             // Randomizes the chance and increase if chances hit
             if (baseChance >= new Random().Next(0, 100)) return 3;
         }
@@ -2580,6 +2582,7 @@ public static class Configuration
                 if (level % hammerIncreaseChanceToDoublePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToDoublePerLevelReducer;
                 baseChance += incrementChance;
             }
+            if(enableExtendedLog) Debug.Log($"Double chance: {baseChance}");
             // Randomizes the chance and increase if chances hit
             if (baseChance >= new Random().Next(0, 100)) return 2;
         }
