@@ -29,5 +29,5 @@
     "disableServerChannel": false,
     "enableLevelUpChatMessages": true,
     "enableLevelUpExperienceServerLog": false,
-    "enableExtendedLog": true
+    "enableExtendedLog": false
 }

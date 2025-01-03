@@ -40,7 +40,7 @@ Balancing was not very well thought out, you will probably find some things unus
 ### Important Configurations
 Vitality will overwrite the health system, you need to change in configuration the base health system in ``levelstats/vitality.json`` changing in default game configuration will have no effects
 
-Debug logs is by default enabled, so that people with less knowledge can send logs in [issues](https://github.com/LeandroTheDev/level_up/issues) case of errors and bugs, you can disable it in base.json: ``enableExtendedLog``, this also can cause some cpu performances problems in low end cpus.
+Debug logs is by default disabled, if you need to send logs you can send logs in [issues](https://github.com/LeandroTheDev/level_up/issues) case of errors and bugs, you can enable it in base.json: ``enableExtendedLog``, this also can cause some cpu performances problems in low end cpus.
 
 ### About Level UP
 Level UP is open source project and can easily be accessed on the github, all contents from this mod is completly free.
