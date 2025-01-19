@@ -258,10 +258,10 @@ class OverwriteDamageInteraction
                     }
                 }
                 // Invalid
-                else Debug.Log($"ERROR: Invalid damage type in OverwriteDamageInteraction, cause entity is invalid: {damageSource.GetCauseEntity()} or source entity is invalid: {damageSource.SourceEntity}");
+                else if (Configuration.enableExtendedLog)
+                    Debug.Log($"WARNING: Invalid damage type in OverwriteDamageInteraction, cause entity is unhandled: {damageSource.GetCauseEntity()} or source entity is unhandled: {damageSource.SourceEntity}");
                 if (Configuration.enableExtendedLog)
                     Debug.Log($"{(damageSource.SourceEntity as EntityPlayer)?.GetName() ?? "PlayerProjectile"} final damage: {damage}");
-
             }
 
 
