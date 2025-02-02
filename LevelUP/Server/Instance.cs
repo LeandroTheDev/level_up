@@ -835,6 +835,9 @@ class Instance
         // Cooking Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Cooking", GetSavedLevels("Cooking").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
 
+        // Panning Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Panning", GetSavedLevels("Panning").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
+
         // Vitality Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", GetSavedLevels("Vitality").GetValueOrDefault<string, ulong>(player.PlayerUID, 0), true);
 
