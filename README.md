@@ -42,7 +42,7 @@ Vitality will overwrite the health system, you need to change in configuration t
 
 Debug logs is by default disabled, if you need to send logs you can send logs in [issues](https://github.com/LeandroTheDev/level_up/issues) case of errors and bugs, you can enable it in base.json: ``enableExtendedLog``, this also can cause some cpu performances problems in low end cpus.
 
-### About Level UP
+# About Level UP
 Level UP is open source project and can easily be accessed on the github, all contents from this mod is completly free.
 
 If you want to contribute into the project you can access the project github and make your pull request.
@@ -53,20 +53,12 @@ Inspirations:
 - Valheim Level UP System
 - Minecraft LevelZ mod
 
-### Building
-Learn more about vintage story modding in [Linux](https://github.com/LeandroTheDev/arch_linux/wiki/Games#vintage-story-modding) or [Windows](https://wiki.vintagestory.at/index.php/Modding:Setting_up_your_Development_Environment)
+# Building
+- Install .NET in your system, open terminal type: ``dotnet new install VintageStory.Mod.Templates``
+- Create a template with the name ``LevelUP``: ``dotnet new vsmod --AddSolutionFile -o LevelUP``
+- [Clone the repository](https://github.com/LeandroTheDev/level_up/archive/refs/heads/main.zip)
+- Copy the ``CakeBuild`` and ``build.ps1`` or ``build.sh`` and paste inside the repository
 
-Download the mod template for vintage store with name LevelUP and paste all contents from this project in there
-
-> Linux
-
-Make a symbolic link for fast tests
-- ln -s /path/to/project/Releases/levelup/* /path/to/game/Mods/LevelUP/
-
-Execute the comamnd ./build.sh, consider having setup everthing from vintage story ide before
-
-> Windows
-
-Just open the visual studio with LevelUP.sln
+Now you can build using the ``build.ps1`` or ``build.sh`` file
 
 FTM License
