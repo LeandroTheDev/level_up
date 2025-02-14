@@ -87,6 +87,7 @@ class LevelSpear
 
         // Get the actual player total exp
         ulong playerExp = spearLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.SpearIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, spear exp earned: {exp}, actual: {playerExp}");

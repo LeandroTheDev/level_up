@@ -66,6 +66,7 @@ class LevelHunter
 
         // Get the actual player total exp
         ulong playerExp = hunterLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.HunterIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, hunter exp earned: {exp}, actual: {playerExp}");

@@ -13,5 +13,6 @@
     "bowChanceToNotLoseArrowReduceIncreaseEveryLevel": 5,
     "bowChanceToNotLoseArrowReduceQuantityEveryLevel": 0.5,
     "bowBaseAimAccuracy": 0.7,
-    "bowIncreaseAimAccuracyPerLevel": 0.02
+    "bowIncreaseAimAccuracyPerLevel": 0.02,
+    "bowMaxLevel": 999
 }

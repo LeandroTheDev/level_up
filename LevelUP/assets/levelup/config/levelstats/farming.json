@@ -9,5 +9,6 @@
     "farmingBaseDurabilityRestoreChance": 0.0,
     "farmingDurabilityRestoreChancePerLevel": 2.0,
     "farmingDurabilityRestoreEveryLevelReduceChance": 10,
-    "farmingDurabilityRestoreReduceChanceForEveryLevel": 0.5
+    "farmingDurabilityRestoreReduceChanceForEveryLevel": 0.5,
+    "farmingMaxLevel": 999
 }

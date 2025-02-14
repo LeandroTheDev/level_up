@@ -156,7 +156,8 @@ class Instance
             {
                 Debug.Log($"Channel Error: someone send a packet, but the lan name does not exist in online players: {lanName}, the function has been canceled");
                 return;
-            };
+            }
+            ;
         }
 
         switch (message)
@@ -236,6 +237,7 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.BowIsMaxLevel(exp)) return;
 
             // Increment
             levels[player.PlayerUID] = exp;
@@ -259,6 +261,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.KnifeIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -279,6 +283,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.KnifeIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -301,6 +307,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.AxeIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -321,6 +329,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.AxeIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -341,6 +351,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.AxeIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -363,6 +375,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.PickaxeIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -383,6 +397,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.PickaxeIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -405,6 +421,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.ShovelIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -425,6 +443,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.ShovelIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -447,6 +467,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.SpearIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -467,6 +489,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.SpearIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -489,6 +513,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.HammerIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -511,6 +537,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.SwordIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -533,6 +561,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.ShieldIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -555,6 +585,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.HandIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -578,6 +610,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.FarmingIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -587,7 +621,7 @@ class Instance
             if (Configuration.enableLevelUpExperienceServerLog)
                 Debug.Log($"{player.PlayerName} earned {earnedExp} exp with {levelType} by {reason}, actual: {exp}");
         }
-        // Till Soil
+        // Harvest Crop
         if (levelType == "Farming" && reason == "Harvest" && forceexp > 0)
         {
             // Get levels
@@ -598,6 +632,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.FarmingIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -620,6 +656,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.CookingIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -642,6 +680,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.PanningIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -664,6 +704,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.VitalityIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -686,6 +728,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.LeatherArmorIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -708,6 +752,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.ChainArmorIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -730,6 +776,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.BrigandineArmorIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -752,6 +800,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.PlateArmorIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it
@@ -774,6 +824,8 @@ class Instance
             // Minium exp earned is 1
             if (earnedExp <= 0) earnedExp = (ulong)Configuration.minimumEXPEarned;
             ulong exp = levels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0) + earnedExp;
+            if (Configuration.ScaleArmorIsMaxLevel(exp)) return;
+
             // Increment
             levels[player.PlayerUID] = exp;
             // Save it

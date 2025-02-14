@@ -400,6 +400,7 @@ public static class Configuration
     private static double hunterEXPMultiplyPerLevel = 1.5;
     private static float hunterBaseDamage = 1.0f;
     private static float hunterIncrementDamagePerLevel = 0.1f;
+    private static int hunterMaxLevel = 999;
 
     public static void PopulateHunterConfiguration(ICoreAPI api)
     {
@@ -436,6 +437,13 @@ public static class Configuration
                 else hunterIncrementDamagePerLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: hunterIncrementDamagePerLevel not set");
         }
+        { //hunterMaxLevel
+            if (hunterLevelStats.TryGetValue("hunterMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hunterMaxLevel is not int is {value.GetType()}");
+                else hunterMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hunterMaxLevel not set");
+        }
 
         // Get entity exp
         entityExpHunter.Clear();
@@ -469,6 +477,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool HunterIsMaxLevel(ulong exp)
+        => HunterGetLevelByEXP(exp) >= hunterMaxLevel;
 
     public static float HunterGetDamageMultiplyByLevel(int level)
     {
@@ -515,6 +526,7 @@ public static class Configuration
     private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.5f;
     private static float bowBaseAimAccuracy = 1.0f;
     private static float bowIncreaseAimAccuracyPerLevel = 0.5f;
+    private static int bowMaxLevel = 999;
 
     public static int ExpPerHitBow => bowEXPPerHit;
 
@@ -631,6 +643,13 @@ public static class Configuration
                 else bowIncreaseAimAccuracyPerLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel not set");
         }
+        { //bowMaxLevel
+            if (bowLevelStats.TryGetValue("bowMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: bowMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: bowMaxLevel is not int is {value.GetType()}");
+                else bowMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: bowMaxLevel not set");
+        }
 
         // Get entity exp
         entityExpBow.Clear();
@@ -665,6 +684,8 @@ public static class Configuration
         return level;
     }
 
+    public static bool BowIsMaxLevel(ulong exp)
+        => BowGetLevelByEXP(exp) >= bowMaxLevel;
     public static float BowGetDamageMultiplyByLevel(int level)
     {
         #region cache check
@@ -818,6 +839,7 @@ public static class Configuration
     private static float knifeDurabilityRestoreChancePerLevel = 2.0f;
     private static int knifeDurabilityRestoreEveryLevelReduceChance = 10;
     private static float knifeDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int knifeMaxLevel = 999;
 
     public static int ExpPerHitKnife => knifeEXPPerHit;
     public static int ExpPerHarvestKnife => knifeEXPPerHarvest;
@@ -936,6 +958,13 @@ public static class Configuration
                 else knifeDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreReduceChanceForEveryLevel not set");
         }
+        { //knifeMaxLevel
+            if (knifeLevelStats.TryGetValue("knifeMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeMaxLevel is not int is {value.GetType()}");
+                else knifeMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: knifeMaxLevel not set");
+        }
 
         // Get entity exp
         entityExpKnife.Clear();
@@ -969,6 +998,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool KnifeIsMaxLevel(ulong exp)
+        => KnifeGetLevelByEXP(exp) >= knifeMaxLevel;
 
     public static float KnifeGetDamageMultiplyByLevel(int level)
     {
@@ -1117,6 +1149,7 @@ public static class Configuration
     private static float axeDurabilityRestoreChancePerLevel = 2.0f;
     private static int axeDurabilityRestoreEveryLevelReduceChance = 10;
     private static float axeDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int axeMaxLevel = 999;
 
 
     public static int ExpPerHitAxe => axeEXPPerHit;
@@ -1221,6 +1254,13 @@ public static class Configuration
                 else axeDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: axeDurabilityRestoreReduceChanceForEveryLevel not set");
         }
+        { //axeMaxLevel
+            if (axeLevelStats.TryGetValue("axeMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: axeMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeMaxLevel is not int is {value.GetType()}");
+                else axeMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: axeMaxLevel not set");
+        }
 
         // Get entity exp
         entityExpAxe.Clear();
@@ -1253,6 +1293,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool AxeIsMaxLevel(ulong exp)
+        => AxeGetLevelByEXP(exp) >= axeMaxLevel;
 
     public static float AxeGetDamageMultiplyByLevel(int level)
     {
@@ -1371,6 +1414,7 @@ public static class Configuration
     private static float pickaxeDurabilityRestoreChancePerLevel = 2.0f;
     private static int pickaxeDurabilityRestoreEveryLevelReduceChance = 10;
     private static float pickaxeDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int pickaxeMaxLevel = 999;
 
 
     public static int ExpPerHitPickaxe => pickaxeEXPPerHit;
@@ -1481,6 +1525,13 @@ public static class Configuration
                 else pickaxeDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: pickaxeDurabilityRestoreReduceChanceForEveryLevel not set");
         }
+        { //pickaxeMaxLevel
+            if (pickaxeLevelStats.TryGetValue("pickaxeMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: pickaxeMaxLevel is not int is {value.GetType()}");
+                else pickaxeMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: pickaxeMaxLevel not set");
+        }
 
         // Get entity exp
         entityExpPickaxe.Clear();
@@ -1529,6 +1580,8 @@ public static class Configuration
         return level;
     }
 
+    public static bool PickaxeIsMaxLevel(ulong exp)
+        => PickaxeGetLevelByEXP(exp) >= pickaxeMaxLevel;
     public static float PickaxeGetOreMultiplyByLevel(int level)
     {
         #region cache check
@@ -1674,6 +1727,7 @@ public static class Configuration
     private static float shovelDurabilityRestoreChancePerLevel = 2.0f;
     private static int shovelDurabilityRestoreEveryLevelReduceChance = 10;
     private static float shovelDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int shovelMaxLevel = 999;
 
 
     public static int ExpPerHitShovel => shovelEXPPerHit;
@@ -1770,6 +1824,13 @@ public static class Configuration
                 else shovelDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: shovelDurabilityRestoreReduceChanceForEveryLevel not set");
         }
+        { //shovelMaxLevel
+            if (shovelLevelStats.TryGetValue("shovelMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shovelMaxLevel is not int is {value.GetType()}");
+                else shovelMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: shovelMaxLevel not set");
+        }
         // Get entity exp
         entityExpShovel.Clear();
         Dictionary<string, object> tmpentityExpShovel = LoadConfigurationByDirectoryAndName(
@@ -1802,6 +1863,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool ShovelIsMaxLevel(ulong exp)
+        => ShovelGetLevelByEXP(exp) >= shovelMaxLevel;
 
     public static float ShovelGetDamageMultiplyByLevel(int level)
     {
@@ -1917,6 +1981,7 @@ public static class Configuration
     private static float spearDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static float spearBaseAimAccuracy = 1.0f;
     private static float spearIncreaseAimAccuracyPerLevel = 0.5f;
+    private static int spearMaxLevel = 999;
 
 
     public static int ExpPerHitSpear => spearEXPPerHit;
@@ -2013,6 +2078,13 @@ public static class Configuration
                 else spearIncreaseAimAccuracyPerLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel not set");
         }
+        { //spearMaxLevel
+            if (spearLevelStats.TryGetValue("spearMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: spearMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: spearMaxLevel is not int is {value.GetType()}");
+                else spearMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: spearMaxLevel not set");
+        }
 
 
         // Get entity exp
@@ -2046,6 +2118,8 @@ public static class Configuration
         return level;
     }
 
+    public static bool SpearIsMaxLevel(ulong exp)
+        => SpearGetLevelByEXP(exp) >= spearMaxLevel;
     public static float SpearGetDamageMultiplyByLevel(int level)
     {
         #region cache check
@@ -2172,6 +2246,7 @@ public static class Configuration
     private static float hammerIncreaseChanceToQuadruplePerLevel = 0.5f;
     private static int hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel = 5;
     private static float hammerIncreaseChanceToQuadruplePerLevelReducer = 0.05f;
+    private static int hammerMaxLevel = 999;
 
     public static int ExpPerHitHammer => hammerEXPPerHit;
 
@@ -2371,6 +2446,13 @@ public static class Configuration
                 else hammerIncreaseChanceToQuadruplePerLevelReducer = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer not set");
         }
+        { //hammerMaxLevel
+            if (hammerLevelStats.TryGetValue("hammerMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerMaxLevel is not int is {value.GetType()}");
+                else hammerMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: hammerMaxLevel not set");
+        }
 
         // Get entity exp
         entityExpHammer.Clear();
@@ -2415,6 +2497,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool HammerIsMaxLevel(ulong exp)
+        => HammerGetLevelByEXP(exp) >= hammerMaxLevel;
 
     public static float HammerGetDamageMultiplyByLevel(int level)
     {
@@ -2552,7 +2637,7 @@ public static class Configuration
                 if (level % hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToQuadruplePerLevelReducer;
                 baseChance += incrementChance;
             }
-            if(enableExtendedLog) Debug.Log($"Quadruple chance: {baseChance}");
+            if (enableExtendedLog) Debug.Log($"Quadruple chance: {baseChance}");
             // Randomizes the chance and increase if chances hit
             if (baseChance >= new Random().Next(0, 100)) return 4;
         }
@@ -2567,7 +2652,7 @@ public static class Configuration
                 if (level % hammerIncreaseChanceToTriplePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToTriplePerLevelReducer;
                 baseChance += incrementChance;
             }
-            if(enableExtendedLog) Debug.Log($"Triple chance: {baseChance}");
+            if (enableExtendedLog) Debug.Log($"Triple chance: {baseChance}");
             // Randomizes the chance and increase if chances hit
             if (baseChance >= new Random().Next(0, 100)) return 3;
         }
@@ -2582,7 +2667,7 @@ public static class Configuration
                 if (level % hammerIncreaseChanceToDoublePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToDoublePerLevelReducer;
                 baseChance += incrementChance;
             }
-            if(enableExtendedLog) Debug.Log($"Double chance: {baseChance}");
+            if (enableExtendedLog) Debug.Log($"Double chance: {baseChance}");
             // Randomizes the chance and increase if chances hit
             if (baseChance >= new Random().Next(0, 100)) return 2;
         }
@@ -2601,6 +2686,7 @@ public static class Configuration
     private static float swordDurabilityRestoreChancePerLevel = 2.0f;
     private static int swordDurabilityRestoreEveryLevelReduceChance = 10;
     private static float swordDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int swordMaxLevel = 999;
 
 
     public static int ExpPerHitSword => swordEXPPerHit;
@@ -2675,6 +2761,13 @@ public static class Configuration
                 else swordDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreReduceChanceForEveryLevel not set");
         }
+        { //swordMaxLevel
+            if (swordLevelStats.TryGetValue("swordMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: swordMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: swordMaxLevel is not int is {value.GetType()}");
+                else swordMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: swordMaxLevel not set");
+        }
 
         // Get entity exp
         entityExpSword.Clear();
@@ -2708,6 +2801,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool SwordIsMaxLevel(ulong exp)
+        => SwordGetLevelByEXP(exp) >= swordMaxLevel;
 
     public static float SwordGetDamageMultiplyByLevel(int level)
     {
@@ -2788,6 +2884,7 @@ public static class Configuration
     private static float shieldDurabilityRestoreChancePerLevel = 2.0f;
     private static int shieldDurabilityRestoreEveryLevelReduceChance = 10;
     private static float shieldDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int shieldMaxLevel = 999;
 
 
     public static int ExpPerHitShield => shieldEXPPerHit;
@@ -2862,6 +2959,13 @@ public static class Configuration
                 else shieldDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreReduceChanceForEveryLevel not set");
         }
+        { //shieldMaxLevel
+            if (shieldLevelStats.TryGetValue("shieldMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shieldMaxLevel is not int is {value.GetType()}");
+                else shieldMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: shieldMaxLevel not set");
+        }
 
         Debug.Log("Shield configuration set");
     }
@@ -2882,6 +2986,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool ShieldIsMaxLevel(ulong exp)
+        => ShieldGetLevelByEXP(exp) >= shieldMaxLevel;
 
     public static float ShieldGetReductionMultiplyByLevel(int level)
     {
@@ -2961,6 +3068,7 @@ public static class Configuration
     private static double handEXPMultiplyPerLevel = 2.0;
     private static float handBaseDamage = 1.0f;
     private static float handIncrementDamagePerLevel = 0.1f;
+    private static int handMaxLevel = 999;
 
     public static int ExpPerHitHand => handEXPPerHit;
 
@@ -3006,6 +3114,13 @@ public static class Configuration
                 else handEXPPerHit = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: handEXPPerHit not set");
         }
+        { //handMaxLevel
+            if (handLevelStats.TryGetValue("handMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: handMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: handMaxLevel is not int is {value.GetType()}");
+                else handMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: handMaxLevel not set");
+        }
 
         // Get entity exp
         entityExpHand.Clear();
@@ -3039,6 +3154,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool HandIsMaxLevel(ulong exp)
+        => HandGetLevelByEXP(exp) >= handMaxLevel;
 
     public static float HandGetDamageMultiplyByLevel(int level)
     {
@@ -3081,6 +3199,7 @@ public static class Configuration
     private static float farmingDurabilityRestoreChancePerLevel = 2.0f;
     private static int farmingDurabilityRestoreEveryLevelReduceChance = 10;
     private static float farmingDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
+    private static int farmingMaxLevel = 999;
 
     public static int ExpPerTillFarming => farmingEXPPerTill;
 
@@ -3168,6 +3287,13 @@ public static class Configuration
                 else farmingDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: farmingDurabilityRestoreReduceChanceForEveryLevel not set");
         }
+        { //farmingMaxLevel
+            if (farmingLevelStats.TryGetValue("farmingMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: farmingMaxLevel is not int is {value.GetType()}");
+                else farmingMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: farmingMaxLevel not set");
+        }
 
 
         // Get crop exp
@@ -3202,6 +3328,8 @@ public static class Configuration
         return level;
     }
 
+    public static bool FarmingIsMaxLevel(ulong exp)
+        => FarmingGetLevelByEXP(exp) >= farmingMaxLevel;
     public static float FarmingGetHarvestMultiplyByLevel(int level)
     {
         #region cache check
@@ -3323,6 +3451,8 @@ public static class Configuration
     private static int cookingBaseRollsChanceToIncreaseServings = 1;
     private static int cookingEarnRollsChanceToIncreaseServingsEveryLevel = 5;
     private static int cookingEarnRollsChanceToIncreaseServingsQuantity = 1;
+    private static int cookingMaxLevel = 999;
+
     public static int ExpPerCookingcooking => cookingBaseExpPerCooking;
 
     public static void PopulateCookingConfiguration(ICoreAPI api)
@@ -3430,6 +3560,13 @@ public static class Configuration
                 else cookingEarnRollsChanceToIncreaseServingsQuantity = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity not set");
         }
+        { //cookingMaxLevel
+            if (cookingLevelStats.TryGetValue("cookingMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingMaxLevel is not int is {value.GetType()}");
+                else cookingMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: cookingMaxLevel not set");
+        }
 
         // Get single food exp multiply
         expMultiplySingleCooking.Clear();
@@ -3474,6 +3611,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool CookingIsMaxLevel(ulong exp)
+        => CookingGetLevelByEXP(exp) >= cookingMaxLevel;
 
     public static float CookingGetSaturationMultiplyByLevel(int level)
     {
@@ -3573,6 +3713,8 @@ public static class Configuration
     private static float panningChanceToTripleLootPerLevel = 0.5f;
     private static float panningBaseChanceToQuadrupleLoot = 0.0f;
     private static float panningChanceToQuadrupleLootPerLevel = 0.3f;
+    private static int panningMaxLevel = 999;
+
     public static int ExpPerPanning => panningBaseExpPerPanning;
 
     public static void PopulatePanningConfiguration(ICoreAPI api)
@@ -3659,6 +3801,13 @@ public static class Configuration
                 else panningChanceToQuadrupleLootPerLevel = (float)(double)value;
             else Debug.Log("CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel not set");
         }
+        { //panningMaxLevel
+            if (panningLevelStats.TryGetValue("panningMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: panningMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: panningMaxLevel is not int is {value.GetType()}");
+                else panningMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: panningMaxLevel not set");
+        }
         Debug.Log("Panning configuration set");
     }
 
@@ -3678,6 +3827,8 @@ public static class Configuration
         return level;
     }
 
+    public static bool PanningIsMaxLevel(ulong exp)
+        => PanningGetLevelByEXP(exp) >= panningMaxLevel;
     public static float PanningGetLootMultiplyByLevel(int level)
     {
         #region cache check
@@ -3739,6 +3890,7 @@ public static class Configuration
     private static float vitalityBaseHPRegen = 1.0f;
     private static float vitalityHPRegenIncreasePerLevel = 0.1f;
     private static int vitalityDamageLimit = 1000;
+    private static int vitalityMaxLevel = 999;
 
     public static int DamageLimitVitality => vitalityDamageLimit;
     public static float BaseHPVitality => vitalityBaseHP;
@@ -3821,6 +3973,13 @@ public static class Configuration
                 else vitalityDamageLimit = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: vitalityDamageLimit not set");
         }
+        { //vitalityMaxLevel
+            if (vitalityLevelStats.TryGetValue("vitalityMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityMaxLevel is not int is {value.GetType()}");
+                else vitalityMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: vitalityMaxLevel not set");
+        }
 
         Debug.Log("Vitality configuration set");
     }
@@ -3840,6 +3999,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool VitalityIsMaxLevel(ulong exp)
+        => VitalityGetLevelByEXP(exp) >= vitalityMaxLevel;
 
     public static float VitalityGetMaxHealthByLevel(int level)
     {
@@ -3927,6 +4089,7 @@ public static class Configuration
     private static int leatherArmorDurabilityRestoreEveryLevelReduceChance = 10;
     private static float leatherArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int leatherArmorDamageLimit = 1000;
+    private static int leatherArmorMaxLevel = 999;
 
     public static int DamageLimitLeatherArmor => leatherArmorDamageLimit;
 
@@ -4021,6 +4184,13 @@ public static class Configuration
                 else leatherArmorDamageLimit = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: leatherArmorDamageLimit not set");
         }
+        { //leatherArmorMaxLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorMaxLevel is not int is {value.GetType()}");
+                else leatherArmorMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: leatherArmorMaxLevel not set");
+        }
 
         // Get leather armor multiply exp
         expMultiplyHitLeatherArmor.Clear();
@@ -4053,6 +4223,10 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool LeatherArmorIsMaxLevel(ulong exp)
+        => LeatherArmorGetLevelByEXP(exp) >= leatherArmorMaxLevel;
+
     public static int LeatherArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         float baseMultiply = leatherArmorEXPPerReceiveHit;
@@ -4066,6 +4240,7 @@ public static class Configuration
 
         return (int)Math.Round(baseMultiply);
     }
+
     public static float LeatherArmorDamageReductionByLevel(int level)
     {
         #region cache check
@@ -4126,6 +4301,7 @@ public static class Configuration
     private static int chainArmorDurabilityRestoreEveryLevelReduceChance = 10;
     private static float chainArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int chainArmorDamageLimit = 1000;
+    private static int chainArmorMaxLevel = 999;
 
     public static int DamageLimitChainArmor => chainArmorDamageLimit;
 
@@ -4220,6 +4396,13 @@ public static class Configuration
                 else chainArmorDamageLimit = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: chainArmorDamageLimit not set");
         }
+        { //chainArmorMaxLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorMaxLevel is not int is {value.GetType()}");
+                else chainArmorMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: chainArmorMaxLevel not set");
+        }
 
         // Get leather armor multiply exp
         expMultiplyHitChainArmor.Clear();
@@ -4251,6 +4434,9 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool ChainArmorIsMaxLevel(ulong exp)
+        => ChainArmorGetLevelByEXP(exp) >= chainArmorMaxLevel;
     public static int ChainArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         float baseMultiply = chainArmorEXPPerReceiveHit;
@@ -4325,6 +4511,7 @@ public static class Configuration
     private static int brigandineArmorDurabilityRestoreEveryLevelReduceChance = 10;
     private static float brigandineArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int brigandineArmorDamageLimit = 1000;
+    private static int brigandineArmorMaxLevel = 999;
 
     public static int DamageLimitBrigandineArmor => brigandineArmorDamageLimit;
 
@@ -4419,6 +4606,13 @@ public static class Configuration
                 else brigandineArmorDamageLimit = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageLimit not set");
         }
+        { //brigandineArmorMaxLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorMaxLevel is not int is {value.GetType()}");
+                else brigandineArmorMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: brigandineArmorMaxLevel not set");
+        }
 
         // Get leather armor multiply exp
         expMultiplyHitBrigandineArmor.Clear();
@@ -4450,6 +4644,10 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool BrigandineArmorIsMaxLevel(ulong exp)
+        => BrigandineArmorGetLevelByEXP(exp) >= brigandineArmorMaxLevel;
+
     public static int BrigandineArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         float baseMultiply = brigandineArmorEXPPerReceiveHit;
@@ -4524,6 +4722,7 @@ public static class Configuration
     private static int plateArmorDurabilityRestoreEveryLevelReduceChance = 10;
     private static float plateArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int plateArmorDamageLimit = 1000;
+    private static int plateArmorMaxLevel = 999;
 
     public static int DamageLimitPlateArmor => plateArmorDamageLimit;
 
@@ -4618,6 +4817,13 @@ public static class Configuration
                 else plateArmorDamageLimit = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: plateArmorDamageLimit not set");
         }
+        { //plateArmorMaxLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorMaxLevel is not int is {value.GetType()}");
+                else plateArmorMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: plateArmorMaxLevel not set");
+        }
 
         // Get leather armor multiply exp
         expMultiplyHitPlateArmor.Clear();
@@ -4649,6 +4855,10 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool PlateArmorIsMaxLevel(ulong exp)
+        => PlateArmorGetLevelByEXP(exp) >= plateArmorMaxLevel;
+
     public static int PlateArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         float baseMultiply = plateArmorEXPPerReceiveHit;
@@ -4723,6 +4933,7 @@ public static class Configuration
     private static int scaleArmorDurabilityRestoreEveryLevelReduceChance = 10;
     private static float scaleArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int scaleArmorDamageLimit = 1000;
+    private static int scaleArmorMaxLevel = 999;
 
     public static int DamageLimitScaleArmor => scaleArmorDamageLimit;
 
@@ -4817,6 +5028,13 @@ public static class Configuration
                 else scaleArmorDamageLimit = (int)(long)value;
             else Debug.Log("CONFIGURATION ERROR: scaleArmorDamageLimit not set");
         }
+        { //scaleArmorMaxLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorMaxLevel", out object value))
+                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorMaxLevel is not int is {value.GetType()}");
+                else scaleArmorMaxLevel = (int)(long)value;
+            else Debug.Log("CONFIGURATION ERROR: scaleArmorMaxLevel not set");
+        }
 
         // Get leather armor multiply exp
         expMultiplyHitScaleArmor.Clear();
@@ -4848,6 +5066,10 @@ public static class Configuration
         }
         return level;
     }
+
+    public static bool ScaleArmorIsMaxLevel(ulong exp)
+        => ScaleArmorGetLevelByEXP(exp) >= scaleArmorMaxLevel;
+
     public static int ScaleArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         float baseMultiply = scaleArmorEXPPerReceiveHit;
@@ -4974,7 +5196,8 @@ public static class Configuration
                     {
                         Debug.Log($"WARNING: {configname} already exist in memory, duplicated class? how?");
                         continue;
-                    };
+                    }
+                    ;
 
                     // Get the configuration for the respective file
                     Dictionary<string, object> configClass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", configname, null);

@@ -25,5 +25,6 @@
     "hammerBaseChanceToQuadruple": 0.0,
     "hammerIncreaseChanceToQuadruplePerLevel": 0.5,
     "hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel": 5,
-    "hammerIncreaseChanceToQuadruplePerLevelReducer": 0.05
+    "hammerIncreaseChanceToQuadruplePerLevelReducer": 0.05,
+    "hammerMaxLevel": 999
 }

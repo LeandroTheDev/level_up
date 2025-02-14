@@ -13,5 +13,6 @@
     "knifeBaseDurabilityRestoreChance": 0.0,
     "knifeDurabilityRestoreChancePerLevel": 2.0,
     "knifeDurabilityRestoreEveryLevelReduceChance": 10,
-    "knifeDurabilityRestoreReduceChanceForEveryLevel": 0.5
+    "knifeDurabilityRestoreReduceChanceForEveryLevel": 0.5,
+    "knifeMaxLevel": 999
 }

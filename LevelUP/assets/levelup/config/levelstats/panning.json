@@ -9,5 +9,6 @@
     "panningBaseChanceToTripleLoot": 0.0,
     "panningChanceToTripleLootPerLevel": 0.03,
     "panningBaseChanceToQuadrupleLoot": 0.0,
-    "panningChanceToQuadrupleLootPerLevel": 0.01
+    "panningChanceToQuadrupleLootPerLevel": 0.01,
+    "panningMaxLevel": 999
 }

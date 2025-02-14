@@ -74,6 +74,7 @@ class LevelAxe
 
         // Get the actual player total exp
         ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.AxeIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, axe exp earned: {exp}, actual: {playerExp}");
@@ -105,6 +106,7 @@ class LevelAxe
 
         // Get the actual player total exp
         ulong playerExp = axeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.AxeIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableExtendedLog)
             Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, axe exp earned: {exp}, actual: {playerExp}");

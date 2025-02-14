@@ -75,6 +75,7 @@ class LevelPickaxe
 
         // Get the actual player total exp
         ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.PickaxeIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
