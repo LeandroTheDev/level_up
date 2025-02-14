@@ -8,5 +8,6 @@
     "vitalityHPIncreasePerLevel": 0.5,
     "vitalityBaseHPRegen": 1.0,
     "vitalityHPRegenIncreasePerLevel": 0.1,
-    "vitalityDamageLimit": 100
+    "vitalityDamageLimit": 100,
+    "vitalityMaxLevel": 999
 }

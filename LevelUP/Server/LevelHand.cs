@@ -72,6 +72,7 @@ class LevelHand
 
         // Get the actual player total exp
         ulong playerExp = handLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.HandIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, hand exp earned: {exp}, actual: {playerExp}");

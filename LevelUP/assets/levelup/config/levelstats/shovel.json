@@ -10,5 +10,6 @@
     "shovelBaseDurabilityRestoreChance": 0.0,
     "shovelDurabilityRestoreChancePerLevel": 2.0,
     "shovelDurabilityRestoreEveryLevelReduceChance": 10,
-    "shovelDurabilityRestoreReduceChanceForEveryLevel": 0.5
+    "shovelDurabilityRestoreReduceChanceForEveryLevel": 0.5,
+    "shovelMaxLevel": 999
 }

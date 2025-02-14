@@ -10,5 +10,6 @@
     "plateArmorDurabilityRestoreChancePerLevel": 2.0,
     "plateArmorDurabilityRestoreEveryLevelReduceChance": 10,
     "plateArmorDurabilityRestoreReduceChanceForEveryLevel": 0.5,
-    "plateArmorDamageLimit": 100
+    "plateArmorDamageLimit": 100,
+    "plateArmorMaxLevel": 999
 }

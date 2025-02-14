@@ -71,6 +71,7 @@ class LevelHammer
 
         // Get the actual player total exp
         ulong playerExp = hammerLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.HammerIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");

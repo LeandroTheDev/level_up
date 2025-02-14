@@ -75,6 +75,7 @@ class LevelShovel
 
         // Get the actual player total exp
         ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.ShovelIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, shovel exp earned: {exp}, actual: {playerExp}");
@@ -115,6 +116,7 @@ class LevelShovel
 
         // Get the actual player total exp
         ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.ShovelIsMaxLevel(playerExp)) return;
 
         Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, shovel exp earned: {exp}, actual: {playerExp}");
 

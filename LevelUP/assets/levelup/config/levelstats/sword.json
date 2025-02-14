@@ -8,5 +8,6 @@
     "swordBaseDurabilityRestoreChance": 0.0,
     "swordDurabilityRestoreChancePerLevel": 2.0,
     "swordDurabilityRestoreEveryLevelReduceChance": 10,
-    "swordDurabilityRestoreReduceChanceForEveryLevel": 0.5
+    "swordDurabilityRestoreReduceChanceForEveryLevel": 0.5,
+    "swordMaxLevel": 999
 }

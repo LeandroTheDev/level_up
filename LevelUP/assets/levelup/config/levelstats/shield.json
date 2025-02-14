@@ -8,5 +8,6 @@
     "shieldBaseDurabilityRestoreChance": 0.0,
     "shieldDurabilityRestoreChancePerLevel": 2.0,
     "shieldDurabilityRestoreEveryLevelReduceChance": 10,
-    "shieldDurabilityRestoreReduceChanceForEveryLevel": 0.5
+    "shieldDurabilityRestoreReduceChanceForEveryLevel": 0.5,
+    "shieldMaxLevel": 999
 }

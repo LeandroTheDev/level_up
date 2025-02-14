@@ -75,6 +75,7 @@ class LevelKnife
 
         // Get the actual player total exp
         ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.KnifeIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, knife exp earned: {exp}, actual: {playerExp}");
@@ -113,6 +114,7 @@ class LevelKnife
 
         // Get the actual player total exp
         ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        if (Configuration.KnifeIsMaxLevel(playerExp)) return;
 
         Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, knife exp earned: {exp}, actual: {playerExp}");
 
