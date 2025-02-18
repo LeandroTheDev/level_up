@@ -87,7 +87,7 @@ class OverwriteBlockBreak
                 instance.serverAPI?.OnExperienceEarned(playerEntity.Player as IServerPlayer, "Tree_Breaked_Axe");
             }
             // Single player treatment and lan treatment
-            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.compatibilityChannel.SendPacket($"Tree_Breaked_Axe&lanplayername={byEntity.GetName()}");
+            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.compatibilityChannel?.SendPacket($"Tree_Breaked_Axe&lanplayername={byEntity.GetName()}");
         }
     }
 
@@ -148,7 +148,7 @@ class OverwriteBlockBreak
                     instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, $"Farming_Harvest&forceexp={exp}");
                 // Single player treatment and lan treatment
                 else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                    instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
+                    instance.clientAPI.compatibilityChannel?.SendPacket($"Farming_Harvest&forceexp={exp}");
             }
 
             if (Configuration.enableExtendedLog)
