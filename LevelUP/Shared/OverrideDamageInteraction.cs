@@ -96,7 +96,7 @@ class OverwriteDamageInteraction
                                 // Single player treatment
                                 else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Knife_Hit&lanplayername={player.PlayerName}");
+                                    instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Knife_Hit&lanplayername={player.PlayerName}");
 
                             };
                             break;
@@ -111,7 +111,7 @@ class OverwriteDamageInteraction
                                 // Single player treatment
                                 else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Axe_Hit&lanplayername={player.PlayerName}");
+                                    instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Axe_Hit&lanplayername={player.PlayerName}");
 
                             };
                             break;
@@ -126,7 +126,7 @@ class OverwriteDamageInteraction
                                 // Single player treatment
                                 else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Pickaxe_Hit&lanplayername={player.PlayerName}");
+                                    instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Pickaxe_Hit&lanplayername={player.PlayerName}");
 
                             };
                             break;
@@ -141,7 +141,7 @@ class OverwriteDamageInteraction
                                 // Single player treatment
                                 else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Shovel_Hit&lanplayername={player.PlayerName}");
+                                    instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Shovel_Hit&lanplayername={player.PlayerName}");
 
                             };
                             break;
@@ -156,7 +156,7 @@ class OverwriteDamageInteraction
                                 // Single player treatment
                                 else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Spear_Hit&lanplayername={player.PlayerName}");
+                                    instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Spear_Hit&lanplayername={player.PlayerName}");
 
                             };
                             break;
@@ -171,7 +171,7 @@ class OverwriteDamageInteraction
                                 // Single player treatment
                                 else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Hammer_Hit&lanplayername={player.PlayerName}");
+                                    instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Hammer_Hit&lanplayername={player.PlayerName}");
 
                             };
                             break;
@@ -186,7 +186,7 @@ class OverwriteDamageInteraction
                                 // Single player treatment
                                 else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Sword_Hit&lanplayername={player.PlayerName}");
+                                    instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Sword_Hit&lanplayername={player.PlayerName}");
 
                             };
                             break;
@@ -205,7 +205,7 @@ class OverwriteDamageInteraction
                             if (player is IServerPlayer && instance.serverAPI != null) instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, "Increase_Hand_Hit");
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Hand_Hit&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Hand_Hit&lanplayername={player.PlayerName}");
                         }
                     }
                     #endregion
@@ -235,7 +235,7 @@ class OverwriteDamageInteraction
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Bow_Hit&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Bow_Hit&lanplayername={player.PlayerName}");
 
                         };
                         #endregion
@@ -250,7 +250,7 @@ class OverwriteDamageInteraction
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
 
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Spear_Hit&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Spear_Hit&lanplayername={player.PlayerName}");
 
                         };
                         #endregion
@@ -307,7 +307,7 @@ class OverwriteDamageInteraction
                         instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_Vitality_Hit&forceexp={Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation)}");
                     // Single player treatment
                     else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                        instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Vitality_Hit&forceexp={Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation)}&lanplayername={player.PlayerName}");
+                        instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Vitality_Hit&forceexp={Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation)}&lanplayername={player.PlayerName}");
 
                 }
                 #endregion
@@ -371,7 +371,7 @@ class OverwriteDamageInteraction
 
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_LeatherArmor_Hit&forceexp={(int)Math.Round(Configuration.LeatherArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
 
 
                             float damageReduction = Configuration.LeatherArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor")) * (float)multiply;
@@ -409,7 +409,7 @@ class OverwriteDamageInteraction
                                 instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_ChainArmor_Hit&forceexp={(int)Math.Round(Configuration.ChainArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
 
                             float damageReduction = Configuration.ChainArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor")) * (float)multiply;
                             damage -= damageReduction;
@@ -446,7 +446,7 @@ class OverwriteDamageInteraction
                                 instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_BrigandineArmor_Hit&forceexp={(int)Math.Round(Configuration.BrigandineArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_BrigandineArmor_Hit&forceexp={(int)Math.Round(Configuration.BrigandineArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_BrigandineArmor_Hit&forceexp={(int)Math.Round(Configuration.BrigandineArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
 
                             float damageReduction = Configuration.BrigandineArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_BrigandineArmor")) * (float)multiply;
                             damage -= damageReduction;
@@ -483,7 +483,7 @@ class OverwriteDamageInteraction
                                 instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_PlateArmor_Hit&forceexp={(int)Math.Round(Configuration.PlateArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_PlateArmor_Hit&forceexp={(int)Math.Round(Configuration.PlateArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_PlateArmor_Hit&forceexp={(int)Math.Round(Configuration.PlateArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
 
                             float damageReduction = Configuration.PlateArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_PlateArmor")) * (float)multiply;
                             damage -= damageReduction;
@@ -520,7 +520,7 @@ class OverwriteDamageInteraction
                                 instance.serverAPI?.OnExperienceEarned(player as IServerPlayer, $"Increase_ScaleArmor_Hit&forceexp={(int)Math.Round(Configuration.ScaleArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}");
                             // Single player treatment
                             else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && singlePlayerDoubleCheck)
-                                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_ScaleArmor_Hit&forceexp={(int)Math.Round(Configuration.ScaleArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
+                                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_ScaleArmor_Hit&forceexp={(int)Math.Round(Configuration.ScaleArmorBaseEXPEarnedByDAMAGE(damageCalculation) * multiply)}&lanplayername={player.PlayerName}");
 
                             float damageReduction = Configuration.ScaleArmorDamageReductionByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_ScaleArmor")) * (float)multiply;
                             damage -= damageReduction;
@@ -689,7 +689,7 @@ class OverwriteDamageInteraction
                 instance.serverAPI.OnExperienceEarned(player as IServerPlayer, "Increase_Shield_Hit");
             // Single player treatment
             else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Shield_Hit&lanplayername={player.PlayerName}");
+                instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Shield_Hit&lanplayername={player.PlayerName}");
         }
     }
     #endregion

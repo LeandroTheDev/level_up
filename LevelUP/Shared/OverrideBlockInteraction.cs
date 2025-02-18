@@ -64,7 +64,7 @@ class OverwriteBlockInteraction
         // Single player treatment and lan treatment
         else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer)
         {
-            instance.clientAPI.compatibilityChannel.SendPacket($"Knife_Harvest_Entity&lanplayername={byPlayer.PlayerName}");
+            instance.clientAPI.compatibilityChannel?.SendPacket($"Knife_Harvest_Entity&lanplayername={byPlayer.PlayerName}");
 
             // Get the final droprate
             float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) + compatibilityDroprate;
@@ -104,7 +104,7 @@ class OverwriteBlockInteraction
             }
         }
         // Single player treatment and lan treatment
-        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && secondsUsed >= 1.0f) instance.clientAPI.compatibilityChannel.SendPacket($"Soil_Till&lanplayername={byEntity.GetName()}");
+        else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer && secondsUsed >= 1.0f) instance.clientAPI.compatibilityChannel?.SendPacket($"Soil_Till&lanplayername={byEntity.GetName()}");
     }
 
     // Overwrite Berry Forage while breaking
@@ -128,7 +128,7 @@ class OverwriteBlockInteraction
                 // Single player treatment and lan treatment
                 else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
                 {
-                    instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
+                    instance.clientAPI.compatibilityChannel?.SendPacket($"Farming_Harvest&forceexp={exp}");
                 }
             }
         }
@@ -155,7 +155,7 @@ class OverwriteBlockInteraction
                 // Single player treatment and lan treatment
                 else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
                 {
-                    instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
+                    instance.clientAPI.compatibilityChannel?.SendPacket($"Farming_Harvest&forceexp={exp}");
                 }
             }
         }
@@ -182,7 +182,7 @@ class OverwriteBlockInteraction
                 // Single player treatment and lan treatment
                 else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
                 {
-                    instance.clientAPI.compatibilityChannel.SendPacket($"Farming_Harvest&forceexp={exp}");
+                    instance.clientAPI.compatibilityChannel?.SendPacket($"Farming_Harvest&forceexp={exp}");
                 }
             }
         }
@@ -279,7 +279,7 @@ class OverwriteBlockInteraction
                         instance.serverAPI.OnExperienceEarned(player as IServerPlayer, $"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle))}");
                     // Single player treatment and lan treatment
                     else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                        instance.clientAPI.compatibilityChannel.SendPacket($"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle))}&lanplayername={player.PlayerName}");
+                        instance.clientAPI.compatibilityChannel?.SendPacket($"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle))}&lanplayername={player.PlayerName}");
                 }
                 // For pots cooking
                 else if (Configuration.expMultiplyPotsCooking.TryGetValue(output.Collectible.Code.ToString(), out double expMultiplyPots))
@@ -348,7 +348,7 @@ class OverwriteBlockInteraction
                         instance.serverAPI.OnExperienceEarned(player as IServerPlayer, $"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots))}");
                     // Single player treatment and lan treatment
                     else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                        instance.clientAPI.compatibilityChannel.SendPacket($"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots))}&lanplayername={player.PlayerName}");
+                        instance.clientAPI.compatibilityChannel?.SendPacket($"Cooking_Finished&forceexp={(int)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots))}&lanplayername={player.PlayerName}");
                 }
             });
             // Thread timeout
@@ -426,7 +426,7 @@ class OverwriteBlockInteraction
                     instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, "Increase_Hammer_Hit");
                 // Single player treatment
                 else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                    instance.clientAPI.compatibilityChannel.SendPacket($"Increase_Hammer_Hit&lanplayername={byPlayer.PlayerName}");
+                    instance.clientAPI.compatibilityChannel?.SendPacket($"Increase_Hammer_Hit&lanplayername={byPlayer.PlayerName}");
             }
         }
     }
@@ -649,7 +649,7 @@ class OverwriteBlockInteraction
                 }
 
                 // Increasing exp for panning
-                instance.clientAPI.compatibilityChannel.SendPacket($"Panning_Finished&lanplayername={player.PlayerName}");
+                instance.clientAPI.compatibilityChannel?.SendPacket($"Panning_Finished&lanplayername={player.PlayerName}");
             }
 
         }
