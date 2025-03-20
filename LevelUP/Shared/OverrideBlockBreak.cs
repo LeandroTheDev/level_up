@@ -70,6 +70,42 @@ class OverwriteBlockBreak
         return __result;
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
+    public static float GetMiningSpeed(float __result, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
+    {
+        float miningSpeedCompatibility = forPlayer.Entity.Attributes.GetFloat("LevelUP_BlockBreak_ExtendMiningSpeed_GetMiningSpeedModifier");
+        forPlayer.Entity.Attributes.RemoveAttribute("LevelUP_BlockBreak_ExtendMiningSpeed_GetMiningSpeedModifier");
+        switch (forPlayer.InventoryManager.ActiveTool)
+        {
+            case EnumTool.Axe:
+                if (block.BlockMaterial == EnumBlockMaterial.Wood)
+                    return Configuration.enableLevelAxe ? __result * forPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                else return 1.0f;
+            case EnumTool.Pickaxe:
+                if (block.BlockMaterial == EnumBlockMaterial.Brick ||
+                    block.BlockMaterial == EnumBlockMaterial.Ceramic ||
+                    block.BlockMaterial == EnumBlockMaterial.Metal ||
+                    block.BlockMaterial == EnumBlockMaterial.Ore ||
+                    block.BlockMaterial == EnumBlockMaterial.Stone)
+                    return Configuration.enableLevelPickaxe ? __result * forPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                else return 1.0f;
+            case EnumTool.Shovel:
+                if (block.BlockMaterial == EnumBlockMaterial.Soil ||
+                    block.BlockMaterial == EnumBlockMaterial.Gravel ||
+                    block.BlockMaterial == EnumBlockMaterial.Sand ||
+                    block.BlockMaterial == EnumBlockMaterial.Snow)
+                    return Configuration.enableLevelShovel ? __result * forPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                else return 1.0f;
+            case EnumTool.Knife:
+                if (block.BlockMaterial == EnumBlockMaterial.Plant ||
+                    block.BlockMaterial == EnumBlockMaterial.Leaves)
+                    return Configuration.enableLevelKnife ? __result * forPlayer.Entity.WatchedAttributes.GetFloat("LevelUP_Knife_MiningSpeed", 1.0f) + miningSpeedCompatibility : __result;
+                else return 1.0f;
+        }
+        return __result;
+    }
+
     // Overwrite Wood Axe Breaking
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ItemAxe), "OnBlockBrokenWith")]
@@ -139,7 +175,7 @@ class OverwriteBlockBreak
                 }
                 index++;
             }
-            
+
             // Add harvest experience
             if (exp != null)
             {
