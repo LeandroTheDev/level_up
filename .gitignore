@@ -3,6 +3,6 @@ CakeBuild
 Releases
 LevelUP/bin
 LevelUP/obj
+LevelUP/Properties
 LevelUP.sln
 build.ps1
-build.sh

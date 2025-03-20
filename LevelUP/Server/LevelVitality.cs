@@ -111,14 +111,17 @@ class LevelVitality
         playerStats.UpdateMaxHealth();
 
         if (Configuration.enableExtendedLog)
+        {
             Debug.Log($"{player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
+            Debug.Log($"VITALITY Calculation Variables: {playerMaxHealth}:{playerRegen}, Level: {Configuration.VitalityGetLevelByEXP(playerExp)}");
+        }
     }
 
     private void PlayerDisconnect(IServerPlayer player)
     {
         // Disconnected during the loading
         if (player == null) return;
-        
+
         // Get stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
         if (playerStats == null) { Debug.Log($"ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }

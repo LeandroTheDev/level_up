@@ -61,7 +61,6 @@ class OverwriteDamageInteraction
         // Damage bug treatment
         if (damage > 0 && __instance.ShouldReceiveDamage(damageSource, damage))
         {
-
             // Player Does Damage
             // Checking if damage sources is from a player and from a server and if entity is alive
             if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer && __instance.World.Side == EnumAppSide.Server && __instance.Alive)
@@ -212,7 +211,11 @@ class OverwriteDamageInteraction
 
                 }
                 // Ranged Action
-                else if (damageSource.GetCauseEntity() is EntityPlayer && damageSource.SourceEntity is EntityProjectile)
+                // Native Game: damageSource.SourceEntity is EntityProjectile
+                // Combat Overhaul compatibility: damageSource.SourceEntity.GetType().ToString() == "CombatOverhaul.RangedSystems.ProjectileEntity")
+                else if (damageSource.GetCauseEntity() is EntityPlayer &&
+                    (damageSource.SourceEntity is EntityProjectile ||
+                    damageSource.SourceEntity.GetType().ToString() == "CombatOverhaul.RangedSystems.ProjectileEntity"))
                 {
 
                     // Get entities
