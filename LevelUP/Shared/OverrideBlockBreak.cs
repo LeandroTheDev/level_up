@@ -74,6 +74,8 @@ class OverwriteBlockBreak
     [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
     public static float GetMiningSpeed(float __result, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
     {
+        if (forPlayer == null || forPlayer.Entity == null) return __result;
+
         float miningSpeedCompatibility = forPlayer.Entity.Attributes.GetFloat("LevelUP_BlockBreak_ExtendMiningSpeed_GetMiningSpeedModifier");
         forPlayer.Entity.Attributes.RemoveAttribute("LevelUP_BlockBreak_ExtendMiningSpeed_GetMiningSpeedModifier");
         switch (forPlayer.InventoryManager.ActiveTool)
