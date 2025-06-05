@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -32,18 +30,6 @@ class LevelKnife
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, ulong> GetSavedLevels()
-    {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Knife");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    }
-
-    private void SaveLevels(Dictionary<string, ulong> knifeLevels)
-    {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Knife", JsonSerializer.Serialize(knifeLevels));
-    }
-
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
@@ -62,31 +48,18 @@ class LevelKnife
         // Check if player is using a bow
         if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;
 
-        // Get all players levels
-        Dictionary<string, ulong> knifeLevels = GetSavedLevels();
-
         // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.entityExpKnife.GetValueOrDefault(entity.Code.ToString()) + (Configuration.entityExpKnife.GetValueOrDefault(entity.Code.ToString()) * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Knife"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.entityExpKnife.GetValueOrDefault(entity.Code.ToString());
 
         // Get the actual player total exp
-        ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Knife");
         if (Configuration.KnifeIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, knife exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        knifeLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(knifeLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", knifeLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Knife", exp);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
@@ -101,29 +74,16 @@ class LevelKnife
             default: return;
         }
 
-        // Get all players levels
-        Dictionary<string, ulong> knifeLevels = GetSavedLevels();
-
         // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.ExpPerBreakingKnife + (Configuration.ExpPerBreakingKnife * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Knife"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.ExpPerBreakingKnife;
 
         // Get the actual player total exp
-        ulong playerExp = knifeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Knife");
         if (Configuration.KnifeIsMaxLevel(playerExp)) return;
 
         Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, knife exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        knifeLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(knifeLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Knife", knifeLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Knife", exp);
     }
 }

@@ -6,9 +6,5 @@
     "farmingIncrementHarvestMultiplyPerLevel": 0.2,
     "farmingBaseForageMultiply": 1.0,
     "farmingIncrementForageMultiplyPerLevel": 0.2,
-    "farmingBaseDurabilityRestoreChance": 0.0,
-    "farmingDurabilityRestoreChancePerLevel": 2.0,
-    "farmingDurabilityRestoreEveryLevelReduceChance": 10,
-    "farmingDurabilityRestoreReduceChanceForEveryLevel": 0.5,
     "farmingMaxLevel": 999
 }

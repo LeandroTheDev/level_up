@@ -35,13 +35,6 @@ class LevelVitality
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, ulong> GetSavedLevels()
-    {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Vitality");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    }
-
     private Dictionary<string, double> GetSavedState()
     {
         byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Vitality_Players_Health");
@@ -57,7 +50,7 @@ class LevelVitality
             // Check infinity bug
             if (double.IsInfinity(keyValue.Value))
             {
-                Debug.Log($"ERROR: {keyValue.Key} vitalityState is infinity??, reseting to {Configuration.BaseHPVitality} before saving");
+                Debug.LogError($"ERROR: {keyValue.Key} vitalityState is infinity??, reseting to {Configuration.BaseHPVitality} before saving");
                 playerState[keyValue.Key] = Configuration.BaseHPVitality;
             }
         }
@@ -66,22 +59,19 @@ class LevelVitality
 
     private void PlayerJoin(IServerPlayer player)
     {
-        // Get all players levels
-        Dictionary<string, ulong> VitalityLevels = GetSavedLevels();
-
         // Get the actual player total exp
-        ulong playerExp = VitalityLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Vitality");
 
         // Get player stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
         // Check if stats is null
-        if (playerStats == null) { Debug.Log($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
+        if (playerStats == null) { Debug.LogError($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
 
         // Getting health stats
         float playerMaxHealth = Configuration.VitalityGetMaxHealthByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
         if (float.IsInfinity(playerMaxHealth))
         {
-            Debug.Log($"ERROR: Max health calculation returned any infinity number, please contact BoboDev and report this issue, base health set to {Configuration.BaseHPVitality}");
+            Debug.LogError($"ERROR: Max health calculation returned any infinity number, please contact BoboDev and report this issue, base health set to {Configuration.BaseHPVitality}");
             playerMaxHealth = Configuration.BaseHPVitality;
         }
 
@@ -89,7 +79,7 @@ class LevelVitality
         float playerRegen = Configuration.VitalityGetHealthRegenMultiplyByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
         if (float.IsInfinity(playerRegen))
         {
-            Debug.Log($"ERROR: Regeneration calculation returned any infinity number, please contact BoboDev and report this issue, base regen set to {Configuration.BaseHPRegenVitality}");
+            Debug.LogError($"ERROR: Regeneration calculation returned any infinity number, please contact BoboDev and report this issue, base regen set to {Configuration.BaseHPRegenVitality}");
             playerRegen = Configuration.BaseHPRegenVitality;
         }
 
@@ -103,18 +93,15 @@ class LevelVitality
         else
         {
             playerStats.Health = playerMaxHealth;
-            if (Configuration.enableExtendedLog)
-                Debug.Log($"Cannot find the player: {player.PlayerName} previous health, probably is the first login");
-        };
+            Debug.LogDebug($"Cannot find the player: {player.PlayerName} previous health, probably is the first login");
+        }
 
         // Refresh for the player
         playerStats.UpdateMaxHealth();
 
-        if (Configuration.enableExtendedLog)
-        {
-            Debug.Log($"{player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
-            Debug.Log($"VITALITY Calculation Variables: {playerMaxHealth}:{playerRegen}, Level: {Configuration.VitalityGetLevelByEXP(playerExp)}");
-        }
+
+        Debug.LogDebug($"{player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
+        Debug.LogDebug($"VITALITY Calculation Variables: {playerMaxHealth}:{playerRegen}, Level: {Configuration.VitalityGetLevelByEXP(playerExp)}");
     }
 
     private void PlayerDisconnect(IServerPlayer player)
@@ -124,12 +111,12 @@ class LevelVitality
 
         // Get stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
-        if (playerStats == null) { Debug.Log($"ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
+        if (playerStats == null) { Debug.LogError($"ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
 
         // Check error treatment
         if (float.IsInfinity(playerStats.Health))
         {
-            Debug.Log($"ERROR SAVING PLAYER STATE: Player Health is infinity, caused by {player.PlayerName} setting the health to 1.0");
+            Debug.LogError($"ERROR SAVING PLAYER STATE: Player Health is infinity, caused by {player.PlayerName} setting the health to 1.0");
             playerState[player.PlayerUID] = 1.0f;
         }
         // Update it
@@ -142,13 +129,12 @@ class LevelVitality
         }
         catch (Exception ex)
         {
-            Debug.Log($"VITALITY ERROR: Cannot save state after disconnecting, the player {player.PlayerName} crashed, playerLife: {playerStats.Health} reason: {ex.Message}");
-            if (Configuration.enableExtendedLog)
-            {
-                Debug.Log("Debugging all vitality states...");
-                foreach (KeyValuePair<string, double> keyValue in playerState)
-                    Debug.Log($"VITALITY DEBUG: Player: {keyValue.Key} Health: {keyValue.Value}");
-            }
+            Debug.LogError($"VITALITY ERROR: Cannot save state after disconnecting, the player {player.PlayerName} crashed, playerLife: {playerStats.Health} reason: {ex.Message}");
+
+            Debug.LogDebug("Debugging all vitality states...");
+            foreach (KeyValuePair<string, double> keyValue in playerState)
+                Debug.LogDebug($"VITALITY DEBUG: Player: {keyValue.Key} Health: {keyValue.Value}");
+
         }
     }
 }

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -32,18 +30,6 @@ class LevelPickaxe
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, ulong> GetSavedLevels()
-    {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Pickaxe");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    }
-
-    private void SaveLevels(Dictionary<string, ulong> pickaxeLevels)
-    {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Pickaxe", JsonSerializer.Serialize(pickaxeLevels));
-    }
-
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
@@ -62,31 +48,18 @@ class LevelPickaxe
         // Check if player is using a Pickaxe
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
 
-        // Get all players levels
-        Dictionary<string, ulong> pickaxeLevels = GetSavedLevels();
-
         // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.entityExpPickaxe.GetValueOrDefault(entity.Code.ToString()) + (Configuration.entityExpPickaxe.GetValueOrDefault(entity.Code.ToString()) * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Pickaxe"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.entityExpPickaxe.GetValueOrDefault(entity.Code.ToString());
 
         // Get the actual player total exp
-        ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Pickaxe");
         if (Configuration.PickaxeIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        pickaxeLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(pickaxeLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", pickaxeLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Pickaxe", exp);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
@@ -95,27 +68,16 @@ class LevelPickaxe
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Stone && breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Ore) return;
 
-        // Get all players levels
-        Dictionary<string, ulong> pickaxeLevels = GetSavedLevels();
-
         // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.oresExpPickaxe.GetValueOrDefault(breakedBlock.Block.Code.ToString(), Configuration.ExpPerBreakingPickaxe) + (Configuration.oresExpPickaxe.GetValueOrDefault(breakedBlock.Block.Code.ToString(), Configuration.ExpPerBreakingPickaxe) * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Pickaxe"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.oresExpPickaxe.GetValueOrDefault(breakedBlock.Block.Code.ToString(), Configuration.ExpPerBreakingPickaxe);
 
         // Get the actual player total exp
-        ulong playerExp = pickaxeLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Pickaxe");
+        if (Configuration.PickaxeIsMaxLevel(playerExp)) return;
 
         Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
+        
         // Incrementing
-        pickaxeLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(pickaxeLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Pickaxe", pickaxeLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Pickaxe", exp);
     }
 }

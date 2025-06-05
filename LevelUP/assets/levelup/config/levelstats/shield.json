@@ -5,9 +5,5 @@
     "shieldEXPMultiplyPerLevel": 2.0,
     "shieldBaseReduction": 0.0,
     "shieldIncreamentReductionPerLevel": 0.03,
-    "shieldBaseDurabilityRestoreChance": 0.0,
-    "shieldDurabilityRestoreChancePerLevel": 2.0,
-    "shieldDurabilityRestoreEveryLevelReduceChance": 10,
-    "shieldDurabilityRestoreReduceChanceForEveryLevel": 0.5,
     "shieldMaxLevel": 999
 }

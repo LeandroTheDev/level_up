@@ -6,10 +6,6 @@
     "scaleArmorEXPMultiplyPerLevel": 1.2,
     "scaleArmorBaseDamageReduction": 0.0,
     "scaleArmorDamageReductionPerLevel": 0.05,
-    "scaleArmorBaseDurabilityRestoreChance": 0.0,
-    "scaleArmorDurabilityRestoreChancePerLevel": 2.0,
-    "scaleArmorDurabilityRestoreEveryLevelReduceChance": 10,
-    "scaleArmorDurabilityRestoreReduceChanceForEveryLevel": 0.5,
     "scaleArmorDamageLimit": 100,
     "scaleArmorMaxLevel": 999
 }

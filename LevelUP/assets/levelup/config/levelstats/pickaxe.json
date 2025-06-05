@@ -9,9 +9,5 @@
     "pickaxeIncrementMiningSpeedMultiplyPerLevel": 0.1,
     "pickaxeBaseOreMultiply": 0.0,
     "pickaxeIncrementOreMultiplyPerLevel": 0.2,
-    "pickaxeBaseDurabilityRestoreChance": 0.0,
-    "pickaxeDurabilityRestoreChancePerLevel": 2.0,
-    "pickaxeDurabilityRestoreEveryLevelReduceChance": 10,
-    "pickaxeDurabilityRestoreReduceChanceForEveryLevel": 0.5,
     "pickaxeMaxLevel": 999
 }

@@ -2,8 +2,6 @@
     "cookingBaseExpPerCooking": 30,
     "cookingEXPPerLevelBase": 100,
     "cookingEXPMultiplyPerLevel": 1.3,
-    "cookingBaseSaturationHoursMultiply": 1.0,
-    "cookingSaturationHoursMultiplyPerLevel": 0.1,
     "cookingBaseFreshHoursMultiply": 1.0,
     "cookingFreshHoursMultiplyPerLevel": 0.04,
     "cookingBaseChanceToIncreaseServings": 1.0,

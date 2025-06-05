@@ -1,4 +1,5 @@
-﻿using Vintagestory.API.Client;
+﻿using LevelUP.Server;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
@@ -33,6 +34,7 @@ public class Initialization : ModSystem
 
         Debug.LoadLogger(api.Logger);
         Debug.Log($"Running on Version: {Mod.Info.Version}");
+        Experience.LoadInstance(api);
         sharedInstance.InstanciateAPI(api);
         sharedInstance.OverwriteFunctions();
     }
@@ -69,5 +71,18 @@ public class Debug
     static public void Log(string message)
     {
         logger?.Log(EnumLogType.Notification, $"[LevelUP] {message}");
+    }
+    static public void LogDebug(string message)
+    {
+        if (Configuration.enableExtendedLog)
+            logger?.Log(EnumLogType.Debug, $"[LevelUP] {message}");
+    }
+    static public void LogWarn(string message)
+    {
+        logger?.Log(EnumLogType.Warning, $"[LevelUP] {message}");
+    }
+    static public void LogError(string message)
+    {
+        logger?.Log(EnumLogType.Error, $"[LevelUP] {message}");
     }
 }

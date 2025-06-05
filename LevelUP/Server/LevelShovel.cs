@@ -32,18 +32,6 @@ class LevelShovel
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, ulong> GetSavedLevels()
-    {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Shovel");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    }
-
-    private void SaveLevels(Dictionary<string, ulong> shovelLevels)
-    {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Shovel", JsonSerializer.Serialize(shovelLevels));
-    }
-
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
@@ -62,31 +50,18 @@ class LevelShovel
         // Check if player is using a Shovel
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
 
-        // Get all players levels
-        Dictionary<string, ulong> shovelLevels = GetSavedLevels();
-
         // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shovel"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0);
 
         // Get the actual player total exp
-        ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Shovel");
         if (Configuration.ShovelIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, shovel exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        shovelLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(shovelLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Shovel", shovelLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Shovel", exp);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
@@ -103,29 +78,16 @@ class LevelShovel
             default: return;
         }
 
-        // Get all players levels
-        Dictionary<string, ulong> shovelLevels = GetSavedLevels();
-
         // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.ExpPerBreakingShovel + (Configuration.ExpPerBreakingShovel * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Shovel"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.ExpPerBreakingShovel;
 
         // Get the actual player total exp
-        ulong playerExp = shovelLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Shovel");
         if (Configuration.ShovelIsMaxLevel(playerExp)) return;
 
         Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, shovel exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        shovelLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(shovelLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Shovel", shovelLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Shovel", exp);
     }
 }

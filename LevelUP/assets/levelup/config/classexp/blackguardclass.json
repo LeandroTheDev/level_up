@@ -18,5 +18,6 @@
     "classChainArmorLevelMultiply": 1.0,
     "classBrigandineArmorLevelMultiply": 1.0,
     "classPlateArmorLevelMultiply": 1.0,
-    "classScaleArmorLevelMultiply": 1.0
+    "classScaleArmorLevelMultiply": 1.0,
+    "classSmithingLevelMultiply": 1.5
 }

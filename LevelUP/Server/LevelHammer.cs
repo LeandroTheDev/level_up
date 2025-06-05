@@ -28,18 +28,6 @@ class LevelHammer
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, ulong> GetSavedLevels()
-    {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Hammer");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    }
-
-    private void SaveLevels(Dictionary<string, ulong> hammerLevels)
-    {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Hammer", JsonSerializer.Serialize(hammerLevels));
-    }
-
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
@@ -58,30 +46,16 @@ class LevelHammer
         // Check if player is using a Hammer
         if (player.InventoryManager.ActiveTool != EnumTool.Hammer) return;
 
-        // Get all players levels
-        Dictionary<string, ulong> hammerLevels = GetSavedLevels();
-
-        // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.entityExpHammer.GetValueOrDefault(entity.Code.ToString()) + (Configuration.entityExpHammer.GetValueOrDefault(entity.Code.ToString()) * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Hammer"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.entityExpHammer.GetValueOrDefault(entity.Code.ToString());
 
         // Get the actual player total exp
-        ulong playerExp = hammerLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Hammer");
         if (Configuration.HammerIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        hammerLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(hammerLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hammer", hammerLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Hammer", exp);
     }
 }

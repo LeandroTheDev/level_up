@@ -8,7 +8,6 @@ namespace LevelUP.Client;
 class Instance
 {
     public ICoreClientAPI api;
-    public IClientNetworkChannel compatibilityChannel;
     public IClientNetworkChannel communicationChannel;
     public Dictionary<string, bool> enabledLevels = [];
 
@@ -28,7 +27,6 @@ class Instance
     {
         api = clientAPI;
         characterView.Init(this);
-        compatibilityChannel = api.Network.RegisterChannel("LevelUP").RegisterMessageType(typeof(string));
         communicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
         communicationChannel.SetMessageHandler<ServerMessage>(OnServerMessage);
         temporaryTickListener = api.Event.RegisterGameTickListener(OnTick, 1000, 1000);
