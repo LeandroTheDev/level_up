@@ -156,6 +156,22 @@ class Experience
     }
 
     /// <summary>
+    /// Manually increase a sub experience from a level type with any desired amount
+    /// </summary>
+    /// <param name="player">Player instance</param>
+    /// <param name="type">Level type</param>
+    /// <param name="subType">Sub level type</param>
+    /// <param name="amount">Experience quantity to be increased</param>
+    static public void IncreaseSubExperience(IPlayer player, string type, string subType, ulong amount)
+    {
+        ulong experienceEarned = amount;
+        string playerClass = player.Entity.WatchedAttributes.GetString("characterClass");
+        float classMultiply = Configuration.GetEXPMultiplyByClassAndLevelType(playerClass, type);
+
+        IncrementSubExperience(player, type, subType, (ulong)Math.Round(experienceEarned * classMultiply));
+    }
+
+    /// <summary>
     /// Will safely add more experience to the desired player
     /// </summary>
     /// <param name="player">Player instance</param>
@@ -175,6 +191,35 @@ class Experience
         _playerLoadedExperience[player.PlayerUID][type]["experience"] += amount;
 
         Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
+
+        if (Configuration.enableLevelUpExperienceServerLog)
+            Debug.Log($"[EXPERIENCE] {player.PlayerName}: {amount}, {type}");
+    }
+
+    /// <summary>
+    /// Will safely add more sub experience to the desired player
+    /// </summary>
+    /// <param name="player">Player instance</param>
+    /// <param name="type">The level type</param>
+    /// <param name="subType">The sub level type</param>
+    /// <param name="amount">Amount of experience earned</param>
+    static private void IncrementSubExperience(IPlayer player, string type, string subType, ulong amount)
+    {
+        if (!_playerLoadedExperience.TryGetValue(player.PlayerUID, out _))
+            _playerLoadedExperience.Add(player.PlayerUID, []);
+
+        if (!_playerLoadedExperience[player.PlayerUID].TryGetValue(type, out _))
+            _playerLoadedExperience[player.PlayerUID].Add(type, []);
+
+        if (!_playerLoadedExperience[player.PlayerUID][type].TryGetValue(subType, out _))
+            _playerLoadedExperience[player.PlayerUID][type].Add(subType, 0);
+
+        _playerLoadedExperience[player.PlayerUID][type][subType] += amount;
+
+        Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
+
+        if (Configuration.enableLevelUpExperienceServerLog)
+            Debug.Log($"[EXPERIENCE] {player.PlayerName}: {amount}, {type}/{subType}");
     }
 
     /// <summary>
@@ -233,6 +278,22 @@ class Experience
                 if (data.TryGetValue("experience", out ulong experience)) return experience;
         return 0;
     }
+
+    /// <summary>
+    /// Returns the player sub level type experience
+    /// </summary>
+    /// <param name="player">Player instance</param>
+    /// <param name="type">Level type</param>
+    /// <param name="subType">Sub level type</param>
+    /// <returns></returns>
+    static public ulong GetSubExperience(IPlayer player, string type, string subType)
+    {
+        if (_playerLoadedExperience.TryGetValue(player.PlayerUID, out Dictionary<string, Dictionary<string, ulong>> levels))
+            if (levels.TryGetValue(type, out Dictionary<string, ulong> data))
+                if (data.TryGetValue(subType, out ulong experience)) return experience;
+        return 0;
+    }
+
 
     static public void SaveExperience(ICoreServerAPI api)
     {
