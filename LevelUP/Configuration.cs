@@ -86,7 +86,6 @@ public static class Configuration
     public static double hardcoreLosePercentage = 0.8;
     public static int hardcorePenaltyDelayInWorldSeconds = 1000;
     public static bool hardcoreMessageWhenDying = true;
-    public static bool enableDurabilityMechanic = true;
     public static bool enableLevelHunter = true;
     public static bool enableLevelBow = true;
     public static bool enableLevelKnife = true;
@@ -148,13 +147,6 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: hardcoreMessageWhenDying is not boolean is {value.GetType()}");
                 else hardcoreMessageWhenDying = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: hardcoreMessageWhenDying not set");
-        }
-        { //enableDurabilityMechanic
-            if (baseConfigs.TryGetValue("enableDurabilityMechanic", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableDurabilityMechanic is null");
-                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableDurabilityMechanic is not boolean is {value.GetType()}");
-                else enableDurabilityMechanic = (bool)value;
-            else Debug.LogError("CONFIGURATION ERROR: enableDurabilityMechanic not set");
         }
         { //enableLevelHunter
             if (baseConfigs.TryGetValue("enableLevelHunter", out object value))
@@ -482,7 +474,7 @@ public static class Configuration
 
     public static float HunterGetDamageMultiplyByLevel(int level)
     {
-        return hunterBaseDamage + hunterIncrementDamagePerLevel * (level - 1);
+        return hunterBaseDamage + hunterIncrementDamagePerLevel * level;
     }
     #endregion
 
@@ -635,7 +627,7 @@ public static class Configuration
         => BowGetLevelByEXP(exp) >= bowMaxLevel;
     public static float BowGetDamageMultiplyByLevel(int level)
     {
-        return bowBaseDamage + bowIncrementDamagePerLevel * (level - 1);
+        return bowBaseDamage + bowIncrementDamagePerLevel * level;
     }
 
     public static float BowGetChanceToNotLoseArrowByLevel(int level)
@@ -664,7 +656,7 @@ public static class Configuration
 
     public static float BowGetAimAccuracyByLevel(int level)
     {
-        return bowBaseAimAccuracy + bowIncreaseAimAccuracyPerLevel * (level - 1);
+        return bowBaseAimAccuracy + bowIncreaseAimAccuracyPerLevel * level;
     }
 
     #endregion
@@ -823,12 +815,12 @@ public static class Configuration
 
     public static float KnifeGetDamageMultiplyByLevel(int level)
     {
-        return knifeBaseDamage + knifeIncrementDamagePerLevel * (level - 1);
+        return knifeBaseDamage + knifeIncrementDamagePerLevel * level;
     }
 
     public static float KnifeGetHarvestMultiplyByLevel(int level)
     {
-        return knifeBaseHarvestMultiply * (1 + knifeIncrementHarvestMultiplyPerLevel * (level - 1));
+        return knifeBaseHarvestMultiply * (1 + knifeIncrementHarvestMultiplyPerLevel * level);
     }
 
     public static float KnifeGetMiningMultiplyByLevel(int level)
@@ -836,7 +828,7 @@ public static class Configuration
         float baseSpeed = knifeBaseMiningSpeed;
         float incrementSpeed = knifeIncrementMiningSpeedMultiplyPerLevel;
 
-        float multiply = incrementSpeed * (level - 1);
+        float multiply = incrementSpeed * level;
         baseSpeed += baseSpeed * multiply;
 
         return baseSpeed;
@@ -982,12 +974,12 @@ public static class Configuration
 
     public static float AxeGetDamageMultiplyByLevel(int level)
     {
-        return axeBaseDamage + axeIncrementDamagePerLevel * (level - 1);
+        return axeBaseDamage + axeIncrementDamagePerLevel * level;
     }
 
     public static float AxeGetMiningMultiplyByLevel(int level)
     {
-        return axeBaseMiningSpeed * (1 + axeIncrementMiningSpeedMultiplyPerLevel * (level - 1));
+        return axeBaseMiningSpeed * (1 + axeIncrementMiningSpeedMultiplyPerLevel * level);
     }
     #endregion
 
@@ -1154,12 +1146,12 @@ public static class Configuration
 
     public static float PickaxeGetDamageMultiplyByLevel(int level)
     {
-        return pickaxeBaseDamage + pickaxeIncrementDamagePerLevel * (level - 1);
+        return pickaxeBaseDamage + pickaxeIncrementDamagePerLevel * level;
     }
 
     public static float PickaxeGetMiningMultiplyByLevel(int level)
     {
-        return pickaxeBaseMiningSpeed * (1 + pickaxeIncrementMiningSpeedMultiplyPerLevel * (level - 1));
+        return pickaxeBaseMiningSpeed * (1 + pickaxeIncrementMiningSpeedMultiplyPerLevel * level);
     }
     #endregion
 
@@ -1289,12 +1281,12 @@ public static class Configuration
 
     public static float ShovelGetDamageMultiplyByLevel(int level)
     {
-        return shovelBaseDamage + shovelIncrementDamagePerLevel * (level - 1);
+        return shovelBaseDamage + shovelIncrementDamagePerLevel * level;
     }
 
     public static float ShovelGetMiningMultiplyByLevel(int level)
     {
-        return shovelBaseMiningSpeed * (1 + shovelIncrementMiningSpeedMultiplyPerLevel * (level - 1));
+        return shovelBaseMiningSpeed * (1 + shovelIncrementMiningSpeedMultiplyPerLevel * level);
     }
     #endregion
 
@@ -1425,12 +1417,12 @@ public static class Configuration
 
     public static float SpearGetDamageMultiplyByLevel(int level)
     {
-        return spearBaseDamage + spearIncrementDamagePerLevel * (level - 1);
+        return spearBaseDamage + spearIncrementDamagePerLevel * level;
     }
 
     public static float SpearGetAimAccuracyByLevel(int level)
     {
-        return spearBaseAimAccuracy + spearIncreaseAimAccuracyPerLevel * (level - 1);
+        return spearBaseAimAccuracy + spearIncreaseAimAccuracyPerLevel * level;
     }
     #endregion
 
@@ -1676,7 +1668,7 @@ public static class Configuration
 
     public static float HammerGetDamageMultiplyByLevel(int level)
     {
-        return hammerBaseDamage + hammerIncrementDamagePerLevel * (level - 1);
+        return hammerBaseDamage + hammerIncrementDamagePerLevel * level;
     }
 
     public static bool HammerShouldRetrieveSmithByLevel(int level)
@@ -1867,7 +1859,7 @@ public static class Configuration
 
     public static float SwordGetDamageMultiplyByLevel(int level)
     {
-        return swordBaseDamage + swordIncrementDamagePerLevel * (level - 1);
+        return swordBaseDamage + swordIncrementDamagePerLevel * level;
     }
     #endregion
 
@@ -2063,7 +2055,7 @@ public static class Configuration
 
     public static float HandGetDamageMultiplyByLevel(int level)
     {
-        return handBaseDamage + handIncrementDamagePerLevel * (level - 1);
+        return handBaseDamage + handIncrementDamagePerLevel * level;
     }
     #endregion
 
@@ -2184,12 +2176,12 @@ public static class Configuration
 
     public static float FarmingGetHarvestMultiplyByLevel(int level)
     {
-        return farmingBaseHarvestMultiply * (1 + farmingIncrementHarvestMultiplyPerLevel * (level - 1));
+        return farmingBaseHarvestMultiply * (1 + farmingIncrementHarvestMultiplyPerLevel * level);
     }
 
     public static float FarmingGetForageMultiplyByLevel(int level)
     {
-        return farmingBaseForageMultiply * (1 + farmingIncrementForageMultiplyPerLevel * (level - 1));
+        return farmingBaseForageMultiply * (1 + farmingIncrementForageMultiplyPerLevel * level);
     }
     #endregion
 
@@ -2362,7 +2354,7 @@ public static class Configuration
 
     public static float CookingGetFreshHoursMultiplyByLevel(int level)
     {
-        return cookingBaseFreshHoursMultiply * (1 + cookingFreshHoursMultiplyPerLevel * (level - 1));
+        return cookingBaseFreshHoursMultiply * (1 + cookingFreshHoursMultiplyPerLevel * level);
     }
 
     public static int CookingGetServingsByLevelAndServings(int level, int quantityServings)
@@ -2530,7 +2522,7 @@ public static class Configuration
 
     public static float PanningGetLootMultiplyByLevel(int level)
     {
-        return panningBaseLootMultiply * (1 + panningLootMultiplyPerLevel * (level - 1));
+        return panningBaseLootMultiply * (1 + panningLootMultiplyPerLevel * level);
     }
 
     public static int PanningGetLootQuantityMultiplyByLevel(int level)
@@ -2553,7 +2545,13 @@ public static class Configuration
     private static int smithingEXPPerLevelBase = 10;
     private static double smithingEXPMultiplyPerLevel = 2.5;
     private static float smithingBaseDurabilityMultiply = 1.0f;
-    private static float smithingIncrementDurabilityMultiplyPerLevel = 0.1f;
+    private static float smithingIncrementDurabilityMultiplyPerLevel = 0.05f;
+    private static float smithingBaseAttackPowerMultiply = 1.0f;
+    private static float smithingIncrementAttackPowerMultiplyPerLevel = 0.05f;
+    private static float smithingBaseMiningSpeedMultiply = 1.0f;
+    private static float smithingIncrementMiningSpeedMultiplyPerLevel = 0.05f;
+    private static float smithingBaseArmorProtectionMultiply = 1.0f;
+    private static float smithingIncrementArmorProtectionMultiplyPerLevel = 0.05f;
     private static int smithingMaxLevel = 999;
 
     public static void PopulateSmithingConfiguration(ICoreAPI api)
@@ -2590,6 +2588,48 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingIncrementDurabilityMultiplyPerLevel is not double is {value.GetType()}");
                 else smithingIncrementDurabilityMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: smithingIncrementDurabilityMultiplyPerLevel not set");
+        }
+        { //smithingBaseAttackPowerMultiply
+            if (smithingLevelStats.TryGetValue("smithingBaseAttackPowerMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingBaseAttackPowerMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingBaseAttackPowerMultiply is not double is {value.GetType()}");
+                else smithingBaseAttackPowerMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingBaseAttackPowerMultiply not set");
+        }
+        { //smithingIncrementAttackPowerMultiplyPerLevel
+            if (smithingLevelStats.TryGetValue("smithingIncrementAttackPowerMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingIncrementAttackPowerMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingIncrementAttackPowerMultiplyPerLevel is not double is {value.GetType()}");
+                else smithingIncrementAttackPowerMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingIncrementAttackPowerMultiplyPerLevel not set");
+        }
+        { //smithingBaseMiningSpeedMultiply
+            if (smithingLevelStats.TryGetValue("smithingBaseMiningSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingBaseMiningSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingBaseMiningSpeedMultiply is not double is {value.GetType()}");
+                else smithingBaseMiningSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingBaseMiningSpeedMultiply not set");
+        }
+        { //smithingIncrementMiningSpeedMultiplyPerLevel
+            if (smithingLevelStats.TryGetValue("smithingIncrementMiningSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingIncrementMiningSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingIncrementMiningSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else smithingIncrementMiningSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingIncrementMiningSpeedMultiplyPerLevel not set");
+        }
+        { //smithingBaseArmorProtectionMultiply
+            if (smithingLevelStats.TryGetValue("smithingBaseArmorProtectionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingBaseArmorProtectionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingBaseArmorProtectionMultiply is not double is {value.GetType()}");
+                else smithingBaseArmorProtectionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingBaseArmorProtectionMultiply not set");
+        }
+        { //smithingIncrementArmorProtectionMultiplyPerLevel
+            if (smithingLevelStats.TryGetValue("smithingIncrementArmorProtectionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingIncrementArmorProtectionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingIncrementArmorProtectionMultiplyPerLevel is not double is {value.GetType()}");
+                else smithingIncrementArmorProtectionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingIncrementArmorProtectionMultiplyPerLevel not set");
         }
         { //smithingMaxLevel
             if (smithingLevelStats.TryGetValue("smithingMaxLevel", out object value))
@@ -2638,7 +2678,22 @@ public static class Configuration
 
     public static float SmithingGetDurabilityMultiplyByLevel(int level)
     {
-        return smithingBaseDurabilityMultiply * (1 + smithingIncrementDurabilityMultiplyPerLevel * (level - 1));
+        return smithingBaseDurabilityMultiply * (1 + smithingIncrementDurabilityMultiplyPerLevel * level);
+    }
+
+    public static float SmithingGetAttackPowerMultiplyByLevel(int level)
+    {
+        return smithingBaseAttackPowerMultiply * (1 + smithingIncrementAttackPowerMultiplyPerLevel * level);
+    }
+
+    public static float SmithingGetMiningSpeedMultiplyByLevel(int level)
+    {
+        return smithingBaseMiningSpeedMultiply * (1 + smithingIncrementMiningSpeedMultiplyPerLevel * level);
+    }
+
+    public static float SmithingGetArmorProtectionMultiplyByLevel(int level)
+    {
+        return smithingBaseArmorProtectionMultiply * (1 + smithingIncrementArmorProtectionMultiplyPerLevel * level);
     }
     #endregion
 
@@ -2771,12 +2826,12 @@ public static class Configuration
 
     public static float VitalityGetMaxHealthByLevel(int level)
     {
-        return vitalityBaseHP + vitalityHPIncreasePerLevel * (level - 1);
+        return vitalityBaseHP + vitalityHPIncreasePerLevel * level;
     }
 
     public static float VitalityGetHealthRegenMultiplyByLevel(int level)
     {
-        return vitalityBaseHPRegen + vitalityHPRegenIncreasePerLevel * (level - 1);
+        return vitalityBaseHPRegen + vitalityHPRegenIncreasePerLevel * level;
     }
 
     public static int VitalityEXPEarnedByDAMAGE(float damage)
@@ -2925,7 +2980,7 @@ public static class Configuration
 
     public static float LeatherArmorDamageReductionByLevel(int level)
     {
-        return leatherArmorBaseDamageReduction + leatherArmorDamageReductionPerLevel * (level - 1);
+        return leatherArmorBaseDamageReduction + leatherArmorDamageReductionPerLevel * level;
     }
     #endregion
 
@@ -3063,7 +3118,7 @@ public static class Configuration
 
     public static float ChainArmorDamageReductionByLevel(int level)
     {
-        return chainArmorBaseDamageReduction + chainArmorDamageReductionPerLevel * (level - 1);
+        return chainArmorBaseDamageReduction + chainArmorDamageReductionPerLevel * level;
     }
     #endregion
 
@@ -3200,7 +3255,7 @@ public static class Configuration
 
     public static float BrigandineArmorDamageReductionByLevel(int level)
     {
-        return brigandineArmorBaseDamageReduction + brigandineArmorDamageReductionPerLevel * (level - 1);
+        return brigandineArmorBaseDamageReduction + brigandineArmorDamageReductionPerLevel * level;
     }
     #endregion
 

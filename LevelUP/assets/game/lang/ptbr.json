@@ -80,6 +80,6 @@
     "levelupdocs-scalearmor-text": "<strong>Armadura de Escamas</strong><br><i>Armadura de Escamas: Infantaria</i><br><br>Ao receber dano utilizando armaduras de Escamas você irá obter experiência com armaduras de escamas, quanto mais armaduras de escamas você tiver mais experiência você irá obter.<br><br><strong>Melhorias</strong><br>Níveis de armadura de escamas vão lhe conceder mais resistencia a danos.",
 
     "levelupdocs-smithing": "Sobre a Ferraria",
-    "levelupdocs-smithing-title": "Level: Ferraria",
-    "levelupdocs-smithing-text": "<strong>Ferraria</strong><br><i>Ferraria: Forjador</i><br><br>Quando você craftar você irá obter experiência, dependendo do craft você recebera mais experiência.<br><br><strong>Melhorias</strong><br>Ferraria irá garantir ferramentas com durabilidade maior."
+    "levelupdocs-smithing-title": "Níveis: Ferraria",
+    "levelupdocs-smithing-text": "<strong>Ferraria</strong><br><i>Ferraria: Forjador</i><br><br>Quando você craftar ferramentas ou armaduras você irá obter experiência, dependendo do craft você recebera mais experiência.<br><br><strong>Melhorias</strong><br>Ferraria irá garantir ferramentas e armadura com durabilidade, dano, velocidade de mineração maior e aumento de proteção nas armaduras, ferraria tem sub níveis, quanto mais você craftar uma ferramenta ou armadura mais forte será, dependerá do quanto você crafta ela."
 }

@@ -1,7 +1,11 @@
 {
-    "smithingEXPPerLevelBase": 10,
-    "smithingEXPMultiplyPerLevel": 2.5,
-    "smithingBaseDurabilityMultiply": 0.5,
-    "smithingIncrementDurabilityMultiplyPerLevel": 0.2,    
+    "smithingEXPPerLevelBase": 500,
+    "smithingEXPMultiplyPerLevel": 1.1,
+    "smithingBaseDurabilityMultiply": 1.0,
+    "smithingIncrementDurabilityMultiplyPerLevel": 0.05,
+    "smithingBaseAttackPowerMultiply": 1.0,
+    "smithingIncrementAttackPowerMultiplyPerLevel": 0.05,
+    "smithingBaseMiningSpeedMultiply": 1.0,
+    "smithingIncrementMiningSpeedMultiplyPerLevel": 0.05,
     "smithingMaxLevel": 999
 }
