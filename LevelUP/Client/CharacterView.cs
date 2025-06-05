@@ -123,6 +123,15 @@ class CharacterView
         }
         #endregion
 
+        #region hammer
+        if (instance.enabledLevels["Smithing"])
+        {
+            levelsAdded++;
+            levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:smithing.png")));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:smithing")}: {GetLevelByLevelName("Smithing")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+        }
+        #endregion
+
         #region sword
         if (instance.enabledLevels["Sword"])
         {

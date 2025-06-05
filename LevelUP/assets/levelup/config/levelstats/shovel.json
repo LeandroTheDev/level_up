@@ -7,9 +7,5 @@
     "shovelIncrementDamagePerLevel": 0.1,
     "shovelBaseMiningSpeed": 1.0,
     "shovelIncrementMiningSpeedMultiplyPerLevel": 0.1,
-    "shovelBaseDurabilityRestoreChance": 0.0,
-    "shovelDurabilityRestoreChancePerLevel": 2.0,
-    "shovelDurabilityRestoreEveryLevelReduceChance": 10,
-    "shovelDurabilityRestoreReduceChanceForEveryLevel": 0.5,
     "shovelMaxLevel": 999
 }

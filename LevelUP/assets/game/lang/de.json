@@ -77,5 +77,9 @@
 
     "levelupdocs-scalearmor": "About the Scale Armor",
     "levelupdocs-scalearmor-title": "Level: Scale Armor",
-    "levelupdocs-scalearmor-text": "<strong>Scale Armor</strong><br><i>Scale Armor: Infantry</i><br><br>When you receive damage using scale armor you will gain experience with scale armor, the more scale armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Scale armor levels will grant you more resistance to damage."
+    "levelupdocs-scalearmor-text": "<strong>Scale Armor</strong><br><i>Scale Armor: Infantry</i><br><br>When you receive damage using scale armor you will gain experience with scale armor, the more scale armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Scale armor levels will grant you more resistance to damage.",
+
+    "levelupdocs-smithing": "About the Smithing",
+    "levelupdocs-smithing-title": "Level: Smithing",
+    "levelupdocs-smithing-text": "<strong>Smithing</strong><br><i>Smithing: Forger</i><br><br>When you craft tools you will gain experience with smithing, depending on the craft you might earn more experience.<br><br><strong>Upgrades</strong><br>Smithing will garant more durable tools."
 }

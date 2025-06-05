@@ -1,0 +1,7 @@
+{
+    "smithingEXPPerLevelBase": 10,
+    "smithingEXPMultiplyPerLevel": 2.5,
+    "smithingBaseDurabilityMultiply": 0.5,
+    "smithingIncrementDurabilityMultiplyPerLevel": 0.2,    
+    "smithingMaxLevel": 999
+}

@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -21,24 +19,10 @@ class LevelBow
         Debug.Log("Level Bow initialized");
     }
 
-#pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulateBowConfiguration(coreAPI);
-    }
-#pragma warning restore CA1822
-
-    private Dictionary<string, ulong> GetSavedLevels()
-    {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Bow");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    }
-
-    private void SaveLevels(Dictionary<string, ulong> bowLevels)
-    {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Bow", JsonSerializer.Serialize(bowLevels));
     }
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
@@ -46,42 +30,28 @@ class LevelBow
         // Error treatment
         if (damageSource == null) return;
         // Checking ranged weapon damage
-        if (damageSource.SourceEntity is EntityProjectile && damageSource.GetCauseEntity() is EntityPlayer)
-        {
-            // Get entities
-            EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;
-            // Check if projectile is not from any arrow
-            if (!itemDamage.GetName().Contains("arrow")) return;
-            EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
+        if (damageSource.SourceEntity is not EntityProjectile || damageSource.GetCauseEntity() is not EntityPlayer) return;
 
-            // Get player instance
-            IPlayer player = playerEntity.Player;
+        // Get entities
+        EntityProjectile itemDamage = damageSource.SourceEntity as EntityProjectile;
+        // Check if projectile is not from any arrow
+        if (!itemDamage.GetName().Contains("arrow")) return;
+        EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
 
-            // Get all players levels
-            Dictionary<string, ulong> bowLevels = GetSavedLevels();
+        // Get player instance
+        IPlayer player = playerEntity.Player;
 
-            // Get the exp received
-            float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-            int exp = (int)(Configuration.entityExpBow.GetValueOrDefault(entity.Code.ToString(), 0) + (Configuration.entityExpBow.GetValueOrDefault(entity.Code.ToString(), 0) * experienceMultiplierCompatibility));
-            // Increasing by player class
-            exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Bow"));
-            // Minium exp earned is 1
-            if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        // Get the exp received
+        ulong exp = (ulong)Configuration.entityExpBow.GetValueOrDefault(entity.Code.ToString(), 0);
 
-            // Get the actual player total exp
-            ulong playerExp = bowLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
-            if (Configuration.BowIsMaxLevel(playerExp)) return;
+        // Get the actual player total exp
+        ulong playerExp = Experience.GetExperience(player, "Bow");
+        if (Configuration.BowIsMaxLevel(playerExp)) return;
 
-            if (Configuration.enableLevelUpExperienceServerLog)
-                Debug.Log($"{player.PlayerName} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
+        if (Configuration.enableLevelUpExperienceServerLog)
+            Debug.Log($"{player.PlayerName} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
 
-            // Incrementing
-            bowLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-            // Saving
-            SaveLevels(bowLevels);
-            // Updating
-            Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Bow", bowLevels[player.PlayerUID]);
-        }
+        // Incrementing
+        Experience.IncreaseExperience(player, "Bow", exp);
     }
 }

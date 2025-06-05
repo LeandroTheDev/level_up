@@ -10,9 +10,5 @@
     "knifeIncrementHarvestMultiplyPerLevel": 0.08,
     "knifeBaseMiningSpeed": 1.0,
     "knifeIncrementMiningSpeedMultiplyPerLevel": 0.1,
-    "knifeBaseDurabilityRestoreChance": 0.0,
-    "knifeDurabilityRestoreChancePerLevel": 2.0,
-    "knifeDurabilityRestoreEveryLevelReduceChance": 10,
-    "knifeDurabilityRestoreReduceChanceForEveryLevel": 0.5,
     "knifeMaxLevel": 999
 }

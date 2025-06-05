@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -29,18 +27,6 @@ class LevelHand
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, ulong> GetSavedLevels()
-    {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Hand");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    }
-
-    private void SaveLevels(Dictionary<string, ulong> handLevels)
-    {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Hand", JsonSerializer.Serialize(handLevels));
-    }
-
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
@@ -59,30 +45,16 @@ class LevelHand
         // Check if player is using the hands
         if (player.InventoryManager.ActiveHotbarSlot.Itemstack != null) return;
 
-        // Get all players levels
-        Dictionary<string, ulong> handLevels = GetSavedLevels();
-
-        // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString()) + (Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString()) * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Hand"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString());
 
         // Get the actual player total exp
-        ulong playerExp = handLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Hand");
         if (Configuration.HandIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, hand exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        handLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(handLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Hand", handLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Hand", exp);
     }
 }

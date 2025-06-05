@@ -6,10 +6,6 @@
     "brigandineArmorEXPMultiplyPerLevel": 1.2,
     "brigandineArmorBaseDamageReduction": 0.0,
     "brigandineArmorDamageReductionPerLevel": 0.05,
-    "brigandineArmorBaseDurabilityRestoreChance": 0.0,
-    "brigandineArmorDurabilityRestoreChancePerLevel": 2.0,
-    "brigandineArmorDurabilityRestoreEveryLevelReduceChance": 10,
-    "brigandineArmorDurabilityRestoreReduceChanceForEveryLevel": 0.5,
     "brigandineArmorDamageLimit": 100,
     "brigandineArmorMaxLevel": 999
 }

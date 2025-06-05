@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using LevelUP.Server;
 using Newtonsoft.Json;
 using ProtoBuf;
 using Vintagestory.API.Common;
@@ -10,10 +11,7 @@ namespace LevelUP;
 #pragma warning disable CA2211
 public static class Configuration
 {
-    /// <summary>
-    ///  Stores all levels simple calculations in the memory, to reduce CPU usage in calculations
-    /// </summary>
-    private static readonly Dictionary<string, Dictionary<int, float>> cacheCalculations = [];
+    private static readonly Random Random = new();
 
     private static Dictionary<string, object> LoadConfigurationByDirectoryAndName(ICoreAPI api, string directory, string name, string defaultDirectory)
     {
@@ -28,14 +26,14 @@ public static class Configuration
         }
         catch (DirectoryNotFoundException)
         {
-            Debug.Log($"WARNING: Server configurations directory does not exist creating {name}.json and directory...");
+            Debug.LogWarn($"WARNING: Server configurations directory does not exist creating {name}.json and directory...");
             try
             {
                 Directory.CreateDirectory(directoryPath);
             }
             catch (Exception ex)
             {
-                Debug.Log($"ERROR: Cannot create directory: {ex.Message}");
+                Debug.LogError($"ERROR: Cannot create directory: {ex.Message}");
             }
             Debug.Log("Loading default configurations...");
             // Load default configurations
@@ -50,12 +48,12 @@ public static class Configuration
             }
             catch (Exception ex)
             {
-                Debug.Log($"ERROR: Cannot save default files to {configPath}, reason: {ex.Message}");
+                Debug.LogError($"ERROR: Cannot save default files to {configPath}, reason: {ex.Message}");
             }
         }
         catch (FileNotFoundException)
         {
-            Debug.Log($"WARNING: Server configurations {name}.json cannot be found, recreating file from default");
+            Debug.LogWarn($"WARNING: Server configurations {name}.json cannot be found, recreating file from default");
             Debug.Log("Loading default configurations...");
             // Load default configurations
             loadedConfig = api.Assets.Get(new AssetLocation(defaultDirectory)).ToObject<Dictionary<string, object>>();
@@ -75,7 +73,7 @@ public static class Configuration
         }
         catch (Exception ex)
         {
-            Debug.Log($"ERROR: Cannot read the server configurations: {ex.Message}");
+            Debug.LogError($"ERROR: Cannot read the server configurations: {ex.Message}");
             Debug.Log("Loading default values from mod assets...");
             // Load default configurations
             loadedConfig = api.Assets.Get(new AssetLocation(defaultDirectory)).ToObject<Dictionary<string, object>>();
@@ -109,9 +107,9 @@ public static class Configuration
     public static bool enableLevelBrigandineArmor = true;
     public static bool enableLevelPlateArmor = true;
     public static bool enableLevelScaleArmor = true;
+    public static bool enableLevelSmithing = true;
     public static int cookingFirePitOverflow = 10;
     public static int minimumEXPEarned = 1;
-    public static bool disableServerChannel = false;
     public static bool enableLevelUpChatMessages = false;
     public static bool enableLevelUpExperienceServerLog = false;
     public static bool enableExtendedLog = false;
@@ -125,228 +123,228 @@ public static class Configuration
             "levelup:config/base.json");
         { //enableHardcore
             if (baseConfigs.TryGetValue("enableHardcore", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableHardcore is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableHardcore is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableHardcore is not boolean is {value.GetType()}");
                 else enableHardcore = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableHardcore not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableHardcore not set");
         }
         { //hardcoreLosePercentage
             if (baseConfigs.TryGetValue("hardcoreLosePercentage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hardcoreLosePercentage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hardcoreLosePercentage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hardcoreLosePercentage is not double is {value.GetType()}");
                 else hardcoreLosePercentage = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: hardcoreLosePercentage not set");
+            else Debug.LogError("CONFIGURATION ERROR: hardcoreLosePercentage not set");
         }
         { //hardcorePenaltyDelayInWorldSeconds
             if (baseConfigs.TryGetValue("hardcorePenaltyDelayInWorldSeconds", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hardcorePenaltyDelayInWorldSeconds is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hardcorePenaltyDelayInWorldSeconds is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hardcorePenaltyDelayInWorldSeconds is not int is {value.GetType()}");
                 else hardcorePenaltyDelayInWorldSeconds = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hardcorePenaltyDelayInWorldSeconds not set");
+            else Debug.LogError("CONFIGURATION ERROR: hardcorePenaltyDelayInWorldSeconds not set");
         }
         { //hardcoreMessageWhenDying
             if (baseConfigs.TryGetValue("hardcoreMessageWhenDying", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hardcoreMessageWhenDying is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hardcoreMessageWhenDying is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: hardcoreMessageWhenDying is not boolean is {value.GetType()}");
                 else hardcoreMessageWhenDying = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: hardcoreMessageWhenDying not set");
+            else Debug.LogError("CONFIGURATION ERROR: hardcoreMessageWhenDying not set");
         }
         { //enableDurabilityMechanic
             if (baseConfigs.TryGetValue("enableDurabilityMechanic", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableDurabilityMechanic is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableDurabilityMechanic is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableDurabilityMechanic is not boolean is {value.GetType()}");
                 else enableDurabilityMechanic = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableDurabilityMechanic not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableDurabilityMechanic not set");
         }
         { //enableLevelHunter
             if (baseConfigs.TryGetValue("enableLevelHunter", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelHunter is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelHunter is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHunter is not boolean is {value.GetType()}");
                 else enableLevelHunter = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelHunter not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelHunter not set");
         }
         { //enableLevelBow
             if (baseConfigs.TryGetValue("enableLevelBow", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelBow is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelBow is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelBow is not boolean is {value.GetType()}");
                 else enableLevelBow = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelBow not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelBow not set");
         }
         { //enableLevelKnife
             if (baseConfigs.TryGetValue("enableLevelKnife", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelKnife is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelKnife is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelKnife is not boolean is {value.GetType()}");
                 else enableLevelKnife = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelKnife not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelKnife not set");
         }
         { //enableLevelSpear
             if (baseConfigs.TryGetValue("enableLevelSpear", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelSpear is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelSpear is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelSpear is not boolean is {value.GetType()}");
                 else enableLevelSpear = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelSpear not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelSpear not set");
         }
         { //enableLevelHammer
             if (baseConfigs.TryGetValue("enableLevelHammer", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelHammer is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelHammer is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHammer is not boolean is {value.GetType()}");
                 else enableLevelHammer = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelHammer not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelHammer not set");
         }
         { //enableLevelAxe
             if (baseConfigs.TryGetValue("enableLevelAxe", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelAxe is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelAxe is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelAxe is not boolean is {value.GetType()}");
                 else enableLevelAxe = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelAxe not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelAxe not set");
         }
         { //enableLevelPickaxe
             if (baseConfigs.TryGetValue("enableLevelPickaxe", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelPickaxe is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelPickaxe is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelPickaxe is not boolean is {value.GetType()}");
                 else enableLevelPickaxe = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelPickaxe not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelPickaxe not set");
         }
         { //enableLevelShovel
             if (baseConfigs.TryGetValue("enableLevelShovel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelShovel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelShovel is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelShovel is not boolean is {value.GetType()}");
                 else enableLevelShovel = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelShovel not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelShovel not set");
         }
         { //enableLevelHammer
             if (baseConfigs.TryGetValue("enableLevelHammer", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelHammer is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelHammer is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHammer is not boolean is {value.GetType()}");
                 else enableLevelHammer = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelHammer not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelHammer not set");
         }
         { //enableLevelSword
             if (baseConfigs.TryGetValue("enableLevelSword", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelSword is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelSword is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelSword is not boolean is {value.GetType()}");
                 else enableLevelSword = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelSword not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelSword not set");
         }
         { //enableLevelShield
             if (baseConfigs.TryGetValue("enableLevelShield", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelShield is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelShield is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelShield is not boolean is {value.GetType()}");
                 else enableLevelShield = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelShield not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelShield not set");
         }
         { //enableLevelHand
             if (baseConfigs.TryGetValue("enableLevelHand", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelHand is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelHand is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHand is not boolean is {value.GetType()}");
                 else enableLevelHand = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelHand not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelHand not set");
         }
         { //enableLevelFarming
             if (baseConfigs.TryGetValue("enableLevelFarming", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelFarming is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelFarming is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelFarming is not boolean is {value.GetType()}");
                 else enableLevelFarming = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelFarming not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelFarming not set");
         }
 
         { //enableLevelCooking
             if (baseConfigs.TryGetValue("enableLevelCooking", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelCooking is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelCooking is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelCooking is not boolean is {value.GetType()}");
                 else enableLevelCooking = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelCooking not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelCooking not set");
         }
         { //enableLevelPanning
             if (baseConfigs.TryGetValue("enableLevelPanning", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelPanning is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelPanning is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelPanning is not boolean is {value.GetType()}");
                 else enableLevelPanning = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelPanning not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelPanning not set");
         }
         { //enableLevelVitality
             if (baseConfigs.TryGetValue("enableLevelVitality", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelVitality is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelVitality is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelVitality is not boolean is {value.GetType()}");
                 else enableLevelVitality = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelVitality not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelVitality not set");
         }
         { //enableLevelLeatherArmor
             if (baseConfigs.TryGetValue("enableLevelLeatherArmor", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelLeatherArmor is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelLeatherArmor is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelLeatherArmor is not boolean is {value.GetType()}");
                 else enableLevelLeatherArmor = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelLeatherArmor not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelLeatherArmor not set");
         }
         { //enableLevelChainArmor
             if (baseConfigs.TryGetValue("enableLevelChainArmor", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelChainArmor is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelChainArmor is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelChainArmor is not boolean is {value.GetType()}");
                 else enableLevelChainArmor = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelChainArmor not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelChainArmor not set");
         }
         { //enableLevelBrigandineArmor
             if (baseConfigs.TryGetValue("enableLevelBrigandineArmor", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelBrigandineArmor is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelBrigandineArmor is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelBrigandineArmor is not boolean is {value.GetType()}");
                 else enableLevelBrigandineArmor = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelBrigandineArmor not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelBrigandineArmor not set");
         }
         { //enableLevelPlateArmor
             if (baseConfigs.TryGetValue("enableLevelPlateArmor", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelPlateArmor is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelPlateArmor is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelPlateArmor is not boolean is {value.GetType()}");
                 else enableLevelPlateArmor = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelPlateArmor not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelPlateArmor not set");
         }
         { //enableLevelScaleArmor
             if (baseConfigs.TryGetValue("enableLevelScaleArmor", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelScaleArmor is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelScaleArmor is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelScaleArmor is not boolean is {value.GetType()}");
                 else enableLevelScaleArmor = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelScaleArmor not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelScaleArmor not set");
+        }
+        { //enableLevelSmithing
+            if (baseConfigs.TryGetValue("enableLevelSmithing", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelSmithing is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelSmithing is not boolean is {value.GetType()}");
+                else enableLevelSmithing = (bool)value;
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelSmithing not set");
         }
         { //cookingFirePitOverflow
             if (baseConfigs.TryGetValue("cookingFirePitOverflow", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingFirePitOverflow is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingFirePitOverflow is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingFirePitOverflow is not int is {value.GetType()}");
                 else cookingFirePitOverflow = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingFirePitOverflow not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingFirePitOverflow not set");
         }
         { //minimumEXPEarned
             if (baseConfigs.TryGetValue("minimumEXPEarned", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: minimumEXPEarned is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: minimumEXPEarned is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: minimumEXPEarned is not int is {value.GetType()}");
                 else minimumEXPEarned = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: minimumEXPEarned not set");
-        }
-        { //disableServerChannel
-            if (baseConfigs.TryGetValue("disableServerChannel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: disableServerChannel is null");
-                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: disableServerChannel is not boolean is {value.GetType()}");
-                else disableServerChannel = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: disableServerChannel not set");
+            else Debug.LogError("CONFIGURATION ERROR: minimumEXPEarned not set");
         }
         { //enableLevelUpChatMessages
             if (baseConfigs.TryGetValue("enableLevelUpChatMessages", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelUpChatMessages is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelUpChatMessages is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelUpChatMessages is not boolean is {value.GetType()}");
                 else enableLevelUpChatMessages = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelUpChatMessages not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelUpChatMessages not set");
         }
         { //enableLevelUpExperienceServerLog
             if (baseConfigs.TryGetValue("enableLevelUpExperienceServerLog", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableLevelUpExperienceServerLog is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelUpExperienceServerLog is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelUpExperienceServerLog is not boolean is {value.GetType()}");
                 else enableLevelUpExperienceServerLog = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableLevelUpExperienceServerLog not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelUpExperienceServerLog not set");
         }
         { //enableExtendedLog
             if (baseConfigs.TryGetValue("enableExtendedLog", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: enableExtendedLog is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableExtendedLog is null");
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableExtendedLog is not boolean is {value.GetType()}");
                 else enableExtendedLog = (bool)value;
-            else Debug.Log("CONFIGURATION ERROR: enableExtendedLog not set");
+            else Debug.LogError("CONFIGURATION ERROR: enableExtendedLog not set");
         }
     }
 
@@ -375,9 +373,10 @@ public static class Configuration
             case "BrigandineArmor": return BrigandineArmorGetLevelByEXP(exp);
             case "PlateArmor": return PlateArmorGetLevelByEXP(exp);
             case "ScaleArmor": return ScaleArmorGetLevelByEXP(exp);
+            case "Smithing": return SmithingGetLevelByEXP(exp);
             default: break;
         }
-        Debug.Log($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the Configuration.cs");
+        Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the Configuration.cs");
         return 1;
     }
 
@@ -411,38 +410,38 @@ public static class Configuration
             "levelup:config/levelstats/hunter.json");
         { //hunterEXPPerLevelBase
             if (hunterLevelStats.TryGetValue("hunterEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hunterEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hunterEXPPerLevelBase is not int is {value.GetType()}");
                 else hunterEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: hunterEXPPerLevelBase not set");
         }
         { //hunterEXPMultiplyPerLevel
             if (hunterLevelStats.TryGetValue("hunterEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hunterEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else hunterEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hunterEXPMultiplyPerLevel not set");
         }
         { //hunterBaseDamage
             if (hunterLevelStats.TryGetValue("hunterBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hunterBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterBaseDamage is not double is {value.GetType()}");
                 else hunterBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: hunterBaseDamage not set");
         }
         { //hunterIncrementDamagePerLevel
             if (hunterLevelStats.TryGetValue("hunterIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hunterIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hunterIncrementDamagePerLevel is not double is {value.GetType()}");
                 else hunterIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hunterIncrementDamagePerLevel not set");
         }
         { //hunterMaxLevel
             if (hunterLevelStats.TryGetValue("hunterMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hunterMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hunterMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hunterMaxLevel is not int is {value.GetType()}");
                 else hunterMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hunterMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hunterMaxLevel not set");
         }
 
         // Get entity exp
@@ -463,19 +462,19 @@ public static class Configuration
 
     public static int HunterGetLevelByEXP(ulong exp)
     {
+        double baseExp = hunterEXPPerLevelBase;
+        double multiplier = hunterEXPMultiplyPerLevel;
 
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = hunterEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        if (multiplier == 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= hunterEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool HunterIsMaxLevel(ulong exp)
@@ -483,29 +482,7 @@ public static class Configuration
 
     public static float HunterGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("HunterDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("HunterDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = hunterIncrementDamagePerLevel;
-        float multiply = hunterBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("HunterDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
+        return hunterBaseDamage + hunterIncrementDamagePerLevel * (level - 1);
     }
     #endregion
 
@@ -516,10 +493,6 @@ public static class Configuration
     private static double bowEXPMultiplyPerLevel = 1.3;
     private static float bowBaseDamage = 1.0f;
     private static float bowIncrementDamagePerLevel = 0.1f;
-    private static float bowBaseDurabilityRestoreChance = 0.0f;
-    private static float bowDurabilityRestoreChancePerLevel = 2.0f;
-    private static int bowDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float bowDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static float bowBaseChanceToNotLoseArrow = 50.0f;
     private static float bowChanceToNotLoseArrowBaseIncreasePerLevel = 2.0f;
     private static int bowChanceToNotLoseArrowReduceIncreaseEveryLevel = 5;
@@ -540,115 +513,88 @@ public static class Configuration
 
         { //bowEXPPerLevelBase
             if (bowLevelStats.TryGetValue("bowEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: bowEXPPerLevelBase is not int is {value.GetType()}");
                 else bowEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: bowEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowEXPPerLevelBase not set");
         }
         { //bowEXPMultiplyPerLevel
             if (bowLevelStats.TryGetValue("bowEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else bowEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowEXPMultiplyPerLevel not set");
         }
         { //bowBaseDamage
             if (bowLevelStats.TryGetValue("bowBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseDamage is not double is {value.GetType()}");
                 else bowBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowBaseDamage not set");
         }
         { //bowIncrementDamagePerLevel
             if (bowLevelStats.TryGetValue("bowIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowIncrementDamagePerLevel is not double is {value.GetType()}");
                 else bowIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowIncrementDamagePerLevel not set");
         }
         { //bowEXPPerHit
             if (bowLevelStats.TryGetValue("bowEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: bowEXPPerHit is not int is {value.GetType()}");
                 else bowEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: bowEXPPerHit not set");
-        }
-        { //bowBaseDurabilityRestoreChance
-            if (bowLevelStats.TryGetValue("bowBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else bowBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowBaseDurabilityRestoreChance not set");
-        }
-        { //bowDurabilityRestoreChancePerLevel
-            if (bowLevelStats.TryGetValue("bowDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else bowDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowDurabilityRestoreChancePerLevel not set");
-        }
-        { //bowDurabilityRestoreEveryLevelReduceChance
-            if (bowLevelStats.TryGetValue("bowDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: bowDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else bowDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: bowDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //bowDurabilityRestoreReduceChanceForEveryLevel
-            if (bowLevelStats.TryGetValue("bowDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else bowDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowEXPPerHit not set");
+            Experience.LoadExperience("Bow", "Hit", (ulong)bowEXPPerHit);
         }
         { //bowBaseChanceToNotLoseArrow
             if (bowLevelStats.TryGetValue("bowBaseChanceToNotLoseArrow", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowBaseChanceToNotLoseArrow is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowBaseChanceToNotLoseArrow is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseChanceToNotLoseArrow is not double is {value.GetType()}");
                 else bowBaseChanceToNotLoseArrow = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowBaseChanceToNotLoseArrow not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowBaseChanceToNotLoseArrow not set");
         }
         { //bowChanceToNotLoseArrowBaseIncreasePerLevel
             if (bowLevelStats.TryGetValue("bowChanceToNotLoseArrowBaseIncreasePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowChanceToNotLoseArrowBaseIncreasePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowChanceToNotLoseArrowBaseIncreasePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowChanceToNotLoseArrowBaseIncreasePerLevel is not double is {value.GetType()}");
                 else bowChanceToNotLoseArrowBaseIncreasePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowChanceToNotLoseArrowBaseIncreasePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowChanceToNotLoseArrowBaseIncreasePerLevel not set");
         }
         { //bowChanceToNotLoseArrowReduceIncreaseEveryLevel
             if (bowLevelStats.TryGetValue("bowChanceToNotLoseArrowReduceIncreaseEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceIncreaseEveryLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceIncreaseEveryLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceIncreaseEveryLevel is not int is {value.GetType()}");
                 else bowChanceToNotLoseArrowReduceIncreaseEveryLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceIncreaseEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceIncreaseEveryLevel not set");
         }
         { //bowChanceToNotLoseArrowReduceQuantityEveryLevel
             if (bowLevelStats.TryGetValue("bowChanceToNotLoseArrowReduceQuantityEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceQuantityEveryLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceQuantityEveryLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceQuantityEveryLevel is not double is {value.GetType()}");
                 else bowChanceToNotLoseArrowReduceQuantityEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceQuantityEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceQuantityEveryLevel not set");
         }
         { //bowBaseAimAccuracy
             if (bowLevelStats.TryGetValue("bowBaseAimAccuracy", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowBaseAimAccuracy is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowBaseAimAccuracy is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseAimAccuracy is not double is {value.GetType()}");
                 else bowBaseAimAccuracy = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowBaseAimAccuracy not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowBaseAimAccuracy not set");
         }
         { //bowIncreaseAimAccuracyPerLevel
             if (bowLevelStats.TryGetValue("bowIncreaseAimAccuracyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel is not double is {value.GetType()}");
                 else bowIncreaseAimAccuracyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel not set");
         }
         { //bowMaxLevel
             if (bowLevelStats.TryGetValue("bowMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: bowMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: bowMaxLevel is not int is {value.GetType()}");
                 else bowMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: bowMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: bowMaxLevel not set");
         }
 
         // Get entity exp
@@ -669,155 +615,56 @@ public static class Configuration
 
     public static int BowGetLevelByEXP(ulong exp)
     {
+        double baseExp = bowEXPPerLevelBase;
+        double multiplier = bowEXPMultiplyPerLevel;
 
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = bowEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= bowEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
+
 
     public static bool BowIsMaxLevel(ulong exp)
         => BowGetLevelByEXP(exp) >= bowMaxLevel;
     public static float BowGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("BowDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("BowDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = bowIncrementDamagePerLevel;
-        float multiply = bowBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("BowDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
-    }
-
-    public static bool BowRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("BowDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("BowDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = bowBaseDurabilityRestoreChance;
-            float chanceToNotReduce = bowDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % bowDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= bowDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("BowDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Bow durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return bowBaseDamage + bowIncrementDamagePerLevel * (level - 1);
     }
 
     public static float BowGetChanceToNotLoseArrowByLevel(int level)
     {
-        float baseChanceToNotLose = -1;
+        int totalLevels = level - 1;
+        int reduceEvery = bowChanceToNotLoseArrowReduceIncreaseEveryLevel;
+        float baseIncrement = bowChanceToNotLoseArrowBaseIncreasePerLevel;
+        float reductionPerStep = bowChanceToNotLoseArrowReduceQuantityEveryLevel;
 
-        #region cache check
-        if (cacheCalculations.TryGetValue("BowArrowNotLoseChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotLose = value;
-            else { }
-        else cacheCalculations.Add("BowArrowNotLoseChance", []);
-        int playerLevel = level;
-        #endregion
+        int numberOfFullBlocks = totalLevels / reduceEvery;
+        int remainingLevels = totalLevels % reduceEvery;
 
-        #region calculation
-        if (baseChanceToNotLose == -1)
-        {
-            baseChanceToNotLose = bowBaseChanceToNotLoseArrow;
-            float chanceToNotLose = bowChanceToNotLoseArrowBaseIncreasePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the lose arrow chance multiplicator
-                if (level % bowChanceToNotLoseArrowReduceIncreaseEveryLevel == 0)
-                    chanceToNotLose -= bowChanceToNotLoseArrowReduceQuantityEveryLevel;
-                // Increasing chance
-                baseChanceToNotLose += chanceToNotLose;
-            }
+        float sumFullBlocks = numberOfFullBlocks * reduceEvery *
+            (2 * baseIncrement - (numberOfFullBlocks - 1) * reductionPerStep) / 2;
 
-            #region cache creation
-            if (cacheCalculations.TryGetValue("BowArrowNotLoseChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotLose);
-            #endregion
-        }
-        #endregion
+        float currentIncrement = baseIncrement - numberOfFullBlocks * reductionPerStep;
+        float sumRemaining = remainingLevels * currentIncrement;
 
-        // Returns the chance
-        if (baseChanceToNotLose >= new Random().Next(0, 100)) return 1.0f;
-        else return 0.0f;
+        float finalChance = bowBaseChanceToNotLoseArrow + sumFullBlocks + sumRemaining;
+
+        if (finalChance >= Random.Next(0, 100))
+            return 1.0f;
+        else
+            return 0.0f;
     }
 
     public static float BowGetAimAccuracyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("BowAccuracy", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("BowAccuracy", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        // Exp base for level
-        float accuracyPerLevelBase = bowBaseAimAccuracy;
-        while (level > 1)
-        {
-            accuracyPerLevelBase += bowIncreaseAimAccuracyPerLevel;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("BowAccuracy", out var newLevels))
-            newLevels.Add(playerLevel, accuracyPerLevelBase);
-        #endregion
-        return accuracyPerLevelBase;
+        return bowBaseAimAccuracy + bowIncreaseAimAccuracyPerLevel * (level - 1);
     }
 
     #endregion
@@ -835,10 +682,6 @@ public static class Configuration
     private static float knifeIncrementHarvestMultiplyPerLevel = 0.2f;
     private static float knifeBaseMiningSpeed = 1.0f;
     private static float knifeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
-    private static float knifeBaseDurabilityRestoreChance = 0.0f;
-    private static float knifeDurabilityRestoreChancePerLevel = 2.0f;
-    private static int knifeDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float knifeDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int knifeMaxLevel = 999;
 
     public static int ExpPerHitKnife => knifeEXPPerHit;
@@ -855,115 +698,90 @@ public static class Configuration
 
         { //knifeEXPPerLevelBase
             if (knifeLevelStats.TryGetValue("knifeEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerLevelBase is not int is {value.GetType()}");
                 else knifeEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeEXPPerLevelBase not set");
         }
         { //knifeEXPMultiplyPerLevel
             if (knifeLevelStats.TryGetValue("knifeEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else knifeEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeEXPMultiplyPerLevel not set");
         }
         { //knifeBaseDamage
             if (knifeLevelStats.TryGetValue("knifeBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeBaseDamage is not double is {value.GetType()}");
                 else knifeBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeBaseDamage not set");
         }
         { //knifeIncrementDamagePerLevel
             if (knifeLevelStats.TryGetValue("knifeIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeIncrementDamagePerLevel is not double is {value.GetType()}");
                 else knifeIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeIncrementDamagePerLevel not set");
         }
         { //knifeEXPPerHit
             if (knifeLevelStats.TryGetValue("knifeEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerHit is not int is {value.GetType()}");
                 else knifeEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeEXPPerHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeEXPPerHit not set");
+            Experience.LoadExperience("Knife", "Hit", (ulong)knifeEXPPerHit);
         }
         { //knifeEXPPerHarvest
             if (knifeLevelStats.TryGetValue("knifeEXPPerHarvest", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerHarvest is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeEXPPerHarvest is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerHarvest is not int is {value.GetType()}");
                 else knifeEXPPerHarvest = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeEXPPerHarvest not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeEXPPerHarvest not set");
+            Experience.LoadExperience("Knife", "Harvest", (ulong)knifeEXPPerHarvest);
         }
         { //knifeEXPPerBreaking
             if (knifeLevelStats.TryGetValue("knifeEXPPerBreaking", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeEXPPerBreaking is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeEXPPerBreaking is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeEXPPerBreaking is not int is {value.GetType()}");
                 else knifeEXPPerBreaking = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeEXPPerBreaking not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeEXPPerBreaking not set");
+            Experience.LoadExperience("Knife", "Break", (ulong)knifeEXPPerBreaking);
         }
         { //knifeBaseHarvestMultiply
             if (knifeLevelStats.TryGetValue("knifeBaseHarvestMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeBaseHarvestMultiply is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeBaseHarvestMultiply is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeBaseHarvestMultiply is not double is {value.GetType()}");
                 else knifeBaseHarvestMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeBaseHarvestMultiply not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeBaseHarvestMultiply not set");
         }
         { //knifeIncrementHarvestMultiplyPerLevel
             if (knifeLevelStats.TryGetValue("knifeIncrementHarvestMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel is not double is {value.GetType()}");
                 else knifeIncrementHarvestMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeIncrementHarvestMultiplyPerLevel not set");
         }
         { //knifeBaseMiningSpeed
             if (knifeLevelStats.TryGetValue("knifeBaseMiningSpeed", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeBaseMiningSpeed is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeBaseMiningSpeed is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeBaseMiningSpeed is not double is {value.GetType()}");
                 else knifeBaseMiningSpeed = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeBaseMiningSpeed not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeBaseMiningSpeed not set");
         }
         { //knifeIncrementMiningSpeedMultiplyPerLevel
             if (knifeLevelStats.TryGetValue("knifeIncrementMiningSpeedMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeIncrementMiningSpeedMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeIncrementMiningSpeedMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeIncrementMiningSpeedMultiplyPerLevel is not double is {value.GetType()}");
                 else knifeIncrementMiningSpeedMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeIncrementMiningSpeedMultiplyPerLevel not set");
-        }
-        { //knifeBaseDurabilityRestoreChance
-            if (knifeLevelStats.TryGetValue("knifeBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else knifeBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeBaseDurabilityRestoreChance not set");
-        }
-        { //knifeDurabilityRestoreChancePerLevel
-            if (knifeLevelStats.TryGetValue("knifeDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else knifeDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreChancePerLevel not set");
-        }
-        { //knifeDurabilityRestoreEveryLevelReduceChance
-            if (knifeLevelStats.TryGetValue("knifeDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else knifeDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //knifeDurabilityRestoreReduceChanceForEveryLevel
-            if (knifeLevelStats.TryGetValue("knifeDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: knifeDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else knifeDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeIncrementMiningSpeedMultiplyPerLevel not set");
         }
         { //knifeMaxLevel
             if (knifeLevelStats.TryGetValue("knifeMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: knifeMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: knifeMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: knifeMaxLevel is not int is {value.GetType()}");
                 else knifeMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: knifeMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: knifeMaxLevel not set");
         }
 
         // Get entity exp
@@ -984,153 +802,45 @@ public static class Configuration
 
     public static int KnifeGetLevelByEXP(ulong exp)
     {
+        double baseExp = knifeEXPPerLevelBase;
+        double multiplier = knifeEXPMultiplyPerLevel;
 
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = knifeEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= knifeEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
+
 
     public static bool KnifeIsMaxLevel(ulong exp)
         => KnifeGetLevelByEXP(exp) >= knifeMaxLevel;
 
     public static float KnifeGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("KnifeDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("KnifeDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = knifeIncrementDamagePerLevel;
-        float multiply = knifeBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("KnifeDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
+        return knifeBaseDamage + knifeIncrementDamagePerLevel * (level - 1);
     }
 
     public static float KnifeGetHarvestMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("KnifeHarvest", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("KnifeHarvest", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = knifeBaseHarvestMultiply;
-
-        float incrementMultiply = knifeIncrementHarvestMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementMultiply;
-            level -= 1;
-        }
-        baseMultiply += baseMultiply * multiply;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("KnifeHarvest", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return knifeBaseHarvestMultiply * (1 + knifeIncrementHarvestMultiplyPerLevel * (level - 1));
     }
 
     public static float KnifeGetMiningMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("KnifeMining", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("KnifeMining", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
         float baseSpeed = knifeBaseMiningSpeed;
-
         float incrementSpeed = knifeIncrementMiningSpeedMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            level -= 1;
-            multiply += incrementSpeed;
-        }
 
-        baseSpeed += baseSpeed * incrementSpeed;
-        #endregion
+        float multiply = incrementSpeed * (level - 1);
+        baseSpeed += baseSpeed * multiply;
 
-        #region cache creation
-        if (cacheCalculations.TryGetValue("KnifeMining", out var newLevels))
-            newLevels.Add(playerLevel, baseSpeed);
-        #endregion
         return baseSpeed;
     }
-
-    public static bool KnifeRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("KnifeDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("KnifeDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = knifeBaseDurabilityRestoreChance;
-            float chanceToNotReduce = knifeDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % knifeDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= knifeDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("KnifeDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Knife durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
-    }
-
     #endregion
 
     #region axe
@@ -1145,10 +855,6 @@ public static class Configuration
     private static float axeIncrementDamagePerLevel = 0.1f;
     private static float axeBaseMiningSpeed = 1.0f;
     private static float axeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
-    private static float axeBaseDurabilityRestoreChance = 0.0f;
-    private static float axeDurabilityRestoreChancePerLevel = 2.0f;
-    private static int axeDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float axeDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int axeMaxLevel = 999;
 
 
@@ -1165,101 +871,77 @@ public static class Configuration
             "levelup:config/levelstats/axe.json");
         { //axeEXPPerLevelBase
             if (axeLevelStats.TryGetValue("axeEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeEXPPerLevelBase is not int is {value.GetType()}");
                 else axeEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: axeEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeEXPPerLevelBase not set");
         }
         { //axeEXPMultiplyPerLevel
             if (axeLevelStats.TryGetValue("axeEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: axeEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else axeEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: axeEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeEXPMultiplyPerLevel not set");
         }
         { //axeBaseDamage
             if (axeLevelStats.TryGetValue("axeBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: axeBaseDamage is not double is {value.GetType()}");
                 else axeBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: axeBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeBaseDamage not set");
         }
         { //axeIncrementDamagePerLevel
             if (axeLevelStats.TryGetValue("axeIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: axeIncrementDamagePerLevel is not double is {value.GetType()}");
                 else axeIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: axeIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeIncrementDamagePerLevel not set");
         }
         { //axeEXPPerHit
             if (axeLevelStats.TryGetValue("axeEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeEXPPerHit is not int is {value.GetType()}");
                 else axeEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: axeEXPPerHit not set");
+
+            else Debug.LogError("CONFIGURATION ERROR: axeEXPPerHit not set");
+            Experience.LoadExperience("Axe", "Hit", (ulong)axeEXPPerHit);
         }
         { //axeEXPPerBreaking
             if (axeLevelStats.TryGetValue("axeEXPPerBreaking", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeEXPPerBreaking is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeEXPPerBreaking is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeEXPPerBreaking is not int is {value.GetType()}");
                 else axeEXPPerBreaking = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: axeEXPPerBreaking not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeEXPPerBreaking not set");
+            Experience.LoadExperience("Axe", "Break", (ulong)axeEXPPerBreaking);
         }
         { //axeEXPPerTreeBreaking
             if (axeLevelStats.TryGetValue("axeEXPPerTreeBreaking", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeEXPPerTreeBreaking is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeEXPPerTreeBreaking is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeEXPPerTreeBreaking is not int is {value.GetType()}");
                 else axeEXPPerTreeBreaking = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: axeEXPPerTreeBreaking not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeEXPPerTreeBreaking not set");
+            Experience.LoadExperience("Axe", "TreeBreak", (ulong)axeEXPPerTreeBreaking);
         }
         { //axeBaseMiningSpeed
             if (axeLevelStats.TryGetValue("axeBaseMiningSpeed", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeBaseMiningSpeed is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeBaseMiningSpeed is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: axeBaseMiningSpeed is not double is {value.GetType()}");
                 else axeBaseMiningSpeed = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: axeBaseMiningSpeed not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeBaseMiningSpeed not set");
         }
         { //axeIncrementMiningSpeedMultiplyPerLevel
             if (axeLevelStats.TryGetValue("axeIncrementMiningSpeedMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeIncrementMiningSpeedMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeIncrementMiningSpeedMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: axeIncrementMiningSpeedMultiplyPerLevel is not double is {value.GetType()}");
                 else axeIncrementMiningSpeedMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: axeIncrementMiningSpeedMultiplyPerLevel not set");
-        }
-        { //axeBaseDurabilityRestoreChance
-            if (axeLevelStats.TryGetValue("axeBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: axeBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else axeBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: axeBaseDurabilityRestoreChance not set");
-        }
-        { //axeDurabilityRestoreChancePerLevel
-            if (axeLevelStats.TryGetValue("axeDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: axeDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else axeDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: axeDurabilityRestoreChancePerLevel not set");
-        }
-        { //axeDurabilityRestoreEveryLevelReduceChance
-            if (axeLevelStats.TryGetValue("axeDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else axeDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: axeDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //axeDurabilityRestoreReduceChanceForEveryLevel
-            if (axeLevelStats.TryGetValue("axeDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: axeDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else axeDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: axeDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeIncrementMiningSpeedMultiplyPerLevel not set");
         }
         { //axeMaxLevel
             if (axeLevelStats.TryGetValue("axeMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: axeMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: axeMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: axeMaxLevel is not int is {value.GetType()}");
                 else axeMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: axeMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: axeMaxLevel not set");
         }
 
         // Get entity exp
@@ -1280,18 +962,19 @@ public static class Configuration
 
     public static int AxeGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = axeEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = axeEXPPerLevelBase;
+        double multiplier = axeEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= axeEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool AxeIsMaxLevel(ulong exp)
@@ -1299,101 +982,12 @@ public static class Configuration
 
     public static float AxeGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("AxeDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("AxeDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = axeIncrementDamagePerLevel;
-        float multiply = axeBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("AxeDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
+        return axeBaseDamage + axeIncrementDamagePerLevel * (level - 1);
     }
 
     public static float AxeGetMiningMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("AxeMining", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("AxeMining", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseSpeed = axeBaseMiningSpeed;
-
-        float incrementSpeed = axeIncrementMiningSpeedMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            level -= 1;
-            multiply += incrementSpeed;
-        }
-
-        baseSpeed += baseSpeed * incrementSpeed;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("AxeMining", out var newLevels))
-            newLevels.Add(playerLevel, baseSpeed);
-        #endregion
-        return baseSpeed;
-    }
-
-    public static bool AxeRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("AxeDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("AxeDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = axeBaseDurabilityRestoreChance;
-            float chanceToNotReduce = axeDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % axeDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= axeDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("AxeDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Axe durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return axeBaseMiningSpeed * (1 + axeIncrementMiningSpeedMultiplyPerLevel * (level - 1));
     }
     #endregion
 
@@ -1410,10 +1004,6 @@ public static class Configuration
     private static float pickaxeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
     private static float pickaxeBaseOreMultiply = 0.5f;
     private static float pickaxeIncrementOreMultiplyPerLevel = 0.2f;
-    private static float pickaxeBaseDurabilityRestoreChance = 0.0f;
-    private static float pickaxeDurabilityRestoreChancePerLevel = 2.0f;
-    private static int pickaxeDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float pickaxeDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int pickaxeMaxLevel = 999;
 
 
@@ -1429,108 +1019,82 @@ public static class Configuration
             "levelup:config/levelstats/pickaxe.json");
         { //pickaxeEXPPerLevelBase
             if (pickaxeLevelStats.TryGetValue("pickaxeEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: pickaxeEXPPerLevelBase is not int is {value.GetType()}");
                 else pickaxeEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeEXPPerLevelBase not set");
         }
         { //pickaxeEXPMultiplyPerLevel
             if (pickaxeLevelStats.TryGetValue("pickaxeEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else pickaxeEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeEXPMultiplyPerLevel not set");
         }
         { //pickaxeBaseDamage
             if (pickaxeLevelStats.TryGetValue("pickaxeBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeBaseDamage is not double is {value.GetType()}");
                 else pickaxeBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeBaseDamage not set");
         }
         { //pickaxeIncrementDamagePerLevel
             if (pickaxeLevelStats.TryGetValue("pickaxeIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeIncrementDamagePerLevel is not double is {value.GetType()}");
                 else pickaxeIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeIncrementDamagePerLevel not set");
         }
         { //pickaxeEXPPerHit
             if (pickaxeLevelStats.TryGetValue("pickaxeEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: pickaxeEXPPerHit is not int is {value.GetType()}");
                 else pickaxeEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeEXPPerHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeEXPPerHit not set");
+            Experience.LoadExperience("Pickaxe", "Hit", (ulong)pickaxeEXPPerHit);
         }
         { //pickaxeEXPPerBreaking
             if (pickaxeLevelStats.TryGetValue("pickaxeEXPPerBreaking", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeEXPPerBreaking is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeEXPPerBreaking is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: pickaxeEXPPerBreaking is not int is {value.GetType()}");
                 else pickaxeEXPPerBreaking = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeEXPPerBreaking not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeEXPPerBreaking not set");
+            Experience.LoadExperience("Pickaxe", "Break", (ulong)pickaxeEXPPerBreaking);
         }
         { //pickaxeBaseMiningSpeed
             if (pickaxeLevelStats.TryGetValue("pickaxeBaseMiningSpeed", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeBaseMiningSpeed is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeBaseMiningSpeed is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeBaseMiningSpeed is not double is {value.GetType()}");
                 else pickaxeBaseMiningSpeed = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeBaseMiningSpeed not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeBaseMiningSpeed not set");
         }
         { //pickaxeIncrementMiningSpeedMultiplyPerLevel
             if (pickaxeLevelStats.TryGetValue("pickaxeIncrementMiningSpeedMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeIncrementMiningSpeedMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeIncrementMiningSpeedMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeIncrementMiningSpeedMultiplyPerLevel is not double is {value.GetType()}");
                 else pickaxeIncrementMiningSpeedMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeIncrementMiningSpeedMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeIncrementMiningSpeedMultiplyPerLevel not set");
         }
         { //pickaxeBaseOreMultiply
             if (pickaxeLevelStats.TryGetValue("pickaxeBaseOreMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeBaseOreMultiply is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeBaseOreMultiply is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeBaseOreMultiply is not double is {value.GetType()}");
                 else pickaxeBaseOreMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeBaseOreMultiply not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeBaseOreMultiply not set");
         }
         { //pickaxeIncrementOreMultiplyPerLevel
             if (pickaxeLevelStats.TryGetValue("pickaxeIncrementOreMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeIncrementOreMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeIncrementOreMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeIncrementOreMultiplyPerLevel is not double is {value.GetType()}");
                 else pickaxeIncrementOreMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeIncrementOreMultiplyPerLevel not set");
-        }
-        { //pickaxeBaseDurabilityRestoreChance
-            if (pickaxeLevelStats.TryGetValue("pickaxeBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else pickaxeBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeBaseDurabilityRestoreChance not set");
-        }
-        { //pickaxeDurabilityRestoreChancePerLevel
-            if (pickaxeLevelStats.TryGetValue("pickaxeDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else pickaxeDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeDurabilityRestoreChancePerLevel not set");
-        }
-        { //pickaxeDurabilityRestoreEveryLevelReduceChance
-            if (pickaxeLevelStats.TryGetValue("pickaxeDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: pickaxeDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else pickaxeDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //pickaxeDurabilityRestoreReduceChanceForEveryLevel
-            if (pickaxeLevelStats.TryGetValue("pickaxeDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: pickaxeDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else pickaxeDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeIncrementOreMultiplyPerLevel not set");
         }
         { //pickaxeMaxLevel
             if (pickaxeLevelStats.TryGetValue("pickaxeMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: pickaxeMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: pickaxeMaxLevel is not int is {value.GetType()}");
                 else pickaxeMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: pickaxeMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: pickaxeMaxLevel not set");
         }
 
         // Get entity exp
@@ -1565,151 +1129,37 @@ public static class Configuration
 
     public static int PickaxeGetLevelByEXP(ulong exp)
     {
+        double baseExp = pickaxeEXPPerLevelBase;
+        double multiplier = pickaxeEXPMultiplyPerLevel;
 
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = pickaxeEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= pickaxeEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool PickaxeIsMaxLevel(ulong exp)
         => PickaxeGetLevelByEXP(exp) >= pickaxeMaxLevel;
+
     public static float PickaxeGetOreMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("PickaxeMultiply", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("PickaxeMultiply", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = pickaxeBaseOreMultiply;
-
-        float incrementMultiply = pickaxeIncrementOreMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementMultiply;
-            level -= 1;
-        }
-
-        baseMultiply += baseMultiply * multiply;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("PickaxeMultiply", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return pickaxeBaseOreMultiply * (1 + pickaxeIncrementOreMultiplyPerLevel * Math.Max(0, level - 1));
     }
 
     public static float PickaxeGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("PickaxeDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("PickaxeDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = pickaxeIncrementDamagePerLevel;
-        float multiply = pickaxeBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("PickaxeDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
+        return pickaxeBaseDamage + pickaxeIncrementDamagePerLevel * (level - 1);
     }
 
     public static float PickaxeGetMiningMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("PickaxeMining", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("PickaxeMining", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseSpeed = pickaxeBaseMiningSpeed;
-
-        float incrementSpeed = pickaxeIncrementMiningSpeedMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            level -= 1;
-            multiply += incrementSpeed;
-        }
-
-        baseSpeed += baseSpeed * incrementSpeed;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("PickaxeMining", out var newLevels))
-            newLevels.Add(playerLevel, baseSpeed);
-        #endregion
-        return baseSpeed;
-    }
-
-    public static bool PickaxeRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("PickaxeDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("PickaxeDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = pickaxeBaseDurabilityRestoreChance;
-            float chanceToNotReduce = pickaxeDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % pickaxeDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= pickaxeDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("PickaxeDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Pickaxe durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return pickaxeBaseMiningSpeed * (1 + pickaxeIncrementMiningSpeedMultiplyPerLevel * (level - 1));
     }
     #endregion
 
@@ -1723,10 +1173,6 @@ public static class Configuration
     private static float shovelIncrementDamagePerLevel = 0.1f;
     private static float shovelBaseMiningSpeed = 1.0f;
     private static float shovelIncrementMiningSpeedMultiplyPerLevel = 0.1f;
-    private static float shovelBaseDurabilityRestoreChance = 0.0f;
-    private static float shovelDurabilityRestoreChancePerLevel = 2.0f;
-    private static int shovelDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float shovelDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int shovelMaxLevel = 999;
 
 
@@ -1742,94 +1188,68 @@ public static class Configuration
             "levelup:config/levelstats/shovel.json");
         { //shovelEXPPerLevelBase
             if (shovelLevelStats.TryGetValue("shovelEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shovelEXPPerLevelBase is not int is {value.GetType()}");
                 else shovelEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelEXPPerLevelBase not set");
         }
         { //shovelEXPMultiplyPerLevel
             if (shovelLevelStats.TryGetValue("shovelEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shovelEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else shovelEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelEXPMultiplyPerLevel not set");
         }
         { //shovelBaseDamage
             if (shovelLevelStats.TryGetValue("shovelBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shovelBaseDamage is not double is {value.GetType()}");
                 else shovelBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelBaseDamage not set");
         }
         { //shovelIncrementDamagePerLevel
             if (shovelLevelStats.TryGetValue("shovelIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shovelIncrementDamagePerLevel is not double is {value.GetType()}");
                 else shovelIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelIncrementDamagePerLevel not set");
         }
         { //shovelEXPPerHit
             if (shovelLevelStats.TryGetValue("shovelEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shovelEXPPerHit is not int is {value.GetType()}");
                 else shovelEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelEXPPerHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelEXPPerHit not set");
+            Experience.LoadExperience("Shovel", "Hit", (ulong)shovelEXPPerHit);
         }
         { //shovelEXPPerBreaking
             if (shovelLevelStats.TryGetValue("shovelEXPPerBreaking", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelEXPPerBreaking is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelEXPPerBreaking is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shovelEXPPerBreaking is not int is {value.GetType()}");
                 else shovelEXPPerBreaking = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelEXPPerBreaking not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelEXPPerBreaking not set");
+            Experience.LoadExperience("Shovel", "Break", (ulong)shovelEXPPerBreaking);
         }
         { //shovelBaseMiningSpeed
             if (shovelLevelStats.TryGetValue("shovelBaseMiningSpeed", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelBaseMiningSpeed is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelBaseMiningSpeed is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shovelBaseMiningSpeed is not double is {value.GetType()}");
                 else shovelBaseMiningSpeed = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelBaseMiningSpeed not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelBaseMiningSpeed not set");
         }
         { //shovelIncrementMiningSpeedMultiplyPerLevel
             if (shovelLevelStats.TryGetValue("shovelIncrementMiningSpeedMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelIncrementMiningSpeedMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelIncrementMiningSpeedMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shovelIncrementMiningSpeedMultiplyPerLevel is not double is {value.GetType()}");
                 else shovelIncrementMiningSpeedMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelIncrementMiningSpeedMultiplyPerLevel not set");
-        }
-        { //shovelBaseDurabilityRestoreChance
-            if (shovelLevelStats.TryGetValue("shovelBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shovelBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else shovelBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelBaseDurabilityRestoreChance not set");
-        }
-        { //shovelDurabilityRestoreChancePerLevel
-            if (shovelLevelStats.TryGetValue("shovelDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shovelDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else shovelDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelDurabilityRestoreChancePerLevel not set");
-        }
-        { //shovelDurabilityRestoreEveryLevelReduceChance
-            if (shovelLevelStats.TryGetValue("shovelDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shovelDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else shovelDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //shovelDurabilityRestoreReduceChanceForEveryLevel
-            if (shovelLevelStats.TryGetValue("shovelDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shovelDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else shovelDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelIncrementMiningSpeedMultiplyPerLevel not set");
         }
         { //shovelMaxLevel
             if (shovelLevelStats.TryGetValue("shovelMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shovelMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shovelMaxLevel is not int is {value.GetType()}");
                 else shovelMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shovelMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: shovelMaxLevel not set");
         }
         // Get entity exp
         entityExpShovel.Clear();
@@ -1849,19 +1269,19 @@ public static class Configuration
 
     public static int ShovelGetLevelByEXP(ulong exp)
     {
+        double baseExp = shovelEXPPerLevelBase;
+        double multiplier = shovelEXPMultiplyPerLevel;
 
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = shovelEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= shovelEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool ShovelIsMaxLevel(ulong exp)
@@ -1869,101 +1289,12 @@ public static class Configuration
 
     public static float ShovelGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("ShovelDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("ShovelDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = shovelIncrementDamagePerLevel;
-        float multiply = shovelBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("ShovelDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
+        return shovelBaseDamage + shovelIncrementDamagePerLevel * (level - 1);
     }
 
     public static float ShovelGetMiningMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("ShovelMining", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("ShovelMining", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseSpeed = shovelBaseMiningSpeed;
-
-        float incrementSpeed = shovelIncrementMiningSpeedMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            level -= 1;
-            multiply += incrementSpeed;
-        }
-
-        baseSpeed += baseSpeed * incrementSpeed;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("ShovelMining", out var newLevels))
-            newLevels.Add(playerLevel, baseSpeed);
-        #endregion
-        return baseSpeed;
-    }
-
-    public static bool ShovelRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("ShovelDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("ShovelDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = shovelBaseDurabilityRestoreChance;
-            float chanceToNotReduce = shovelDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % shovelDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= shovelDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("ShovelDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Shovel durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return shovelBaseMiningSpeed * (1 + shovelIncrementMiningSpeedMultiplyPerLevel * (level - 1));
     }
     #endregion
 
@@ -1975,10 +1306,6 @@ public static class Configuration
     private static double spearEXPMultiplyPerLevel = 1.5;
     private static float spearBaseDamage = 1.0f;
     private static float spearIncrementDamagePerLevel = 0.1f;
-    private static float spearBaseDurabilityRestoreChance = 0.0f;
-    private static float spearDurabilityRestoreChancePerLevel = 2.0f;
-    private static int spearDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float spearDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static float spearBaseAimAccuracy = 1.0f;
     private static float spearIncreaseAimAccuracyPerLevel = 0.5f;
     private static int spearMaxLevel = 999;
@@ -1996,94 +1323,68 @@ public static class Configuration
             "levelup:config/levelstats/spear.json");
         { //spearEXPPerLevelBase
             if (spearLevelStats.TryGetValue("spearEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: spearEXPPerLevelBase is not int is {value.GetType()}");
                 else spearEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: spearEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearEXPPerLevelBase not set");
         }
         { //spearEXPMultiplyPerLevel
             if (spearLevelStats.TryGetValue("spearEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else spearEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: spearEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearEXPMultiplyPerLevel not set");
         }
         { //spearBaseDamage
             if (spearLevelStats.TryGetValue("spearBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearBaseDamage is not double is {value.GetType()}");
                 else spearBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: spearBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearBaseDamage not set");
         }
         { //spearIncrementDamagePerLevel
             if (spearLevelStats.TryGetValue("spearIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearIncrementDamagePerLevel is not double is {value.GetType()}");
                 else spearIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: spearIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearIncrementDamagePerLevel not set");
         }
         { //spearEXPPerHit
             if (spearLevelStats.TryGetValue("spearEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: spearEXPPerHit is not int is {value.GetType()}");
                 else spearEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: spearEXPPerHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearEXPPerHit not set");
+            Experience.LoadExperience("Spear", "Hit", (ulong)spearEXPPerHit);
         }
         { //spearEXPPerThrow
             if (spearLevelStats.TryGetValue("spearEXPPerThrow", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearEXPPerThrow is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearEXPPerThrow is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: spearEXPPerThrow is not int is {value.GetType()}");
                 else spearEXPPerThrow = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: spearEXPPerThrow not set");
-        }
-        { //spearBaseDurabilityRestoreChance
-            if (spearLevelStats.TryGetValue("spearBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else spearBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: spearBaseDurabilityRestoreChance not set");
-        }
-        { //spearDurabilityRestoreChancePerLevel
-            if (spearLevelStats.TryGetValue("spearDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else spearDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: spearDurabilityRestoreChancePerLevel not set");
-        }
-        { //spearDurabilityRestoreEveryLevelReduceChance
-            if (spearLevelStats.TryGetValue("spearDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: spearDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else spearDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: spearDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //spearDurabilityRestoreReduceChanceForEveryLevel
-            if (spearLevelStats.TryGetValue("spearDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else spearDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: spearDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearEXPPerThrow not set");
+            Experience.LoadExperience("Spear", "Throw", (ulong)spearEXPPerThrow);
         }
         { //spearBaseAimAccuracy
             if (spearLevelStats.TryGetValue("spearBaseAimAccuracy", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearBaseAimAccuracy is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearBaseAimAccuracy is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearBaseAimAccuracy is not double is {value.GetType()}");
                 else spearBaseAimAccuracy = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: spearBaseAimAccuracy not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearBaseAimAccuracy not set");
         }
         { //spearIncreaseAimAccuracyPerLevel
             if (spearLevelStats.TryGetValue("spearIncreaseAimAccuracyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel is not double is {value.GetType()}");
                 else spearIncreaseAimAccuracyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel not set");
         }
         { //spearMaxLevel
             if (spearLevelStats.TryGetValue("spearMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: spearMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: spearMaxLevel is not int is {value.GetType()}");
                 else spearMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: spearMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: spearMaxLevel not set");
         }
 
 
@@ -2104,115 +1405,32 @@ public static class Configuration
 
     public static int SpearGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = spearEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = spearEXPPerLevelBase;
+        double multiplier = spearEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= spearEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool SpearIsMaxLevel(ulong exp)
         => SpearGetLevelByEXP(exp) >= spearMaxLevel;
+
     public static float SpearGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("SpearDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("SpearDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = spearIncrementDamagePerLevel;
-        float multiply = spearBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("SpearDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
-    }
-
-    public static bool SpearRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("SpearDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("SpearDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = spearBaseDurabilityRestoreChance;
-            float chanceToNotReduce = spearDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % spearDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= spearDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("SpearDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Spear durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return spearBaseDamage + spearIncrementDamagePerLevel * (level - 1);
     }
 
     public static float SpearGetAimAccuracyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("SpearAccuracy", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("SpearAccuracy", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        // Exp base for level
-        float accuracyPerLevelBase = spearBaseAimAccuracy;
-        while (level > 1)
-        {
-            accuracyPerLevelBase += spearIncreaseAimAccuracyPerLevel;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("SpearAccuracy", out var newLevels))
-            newLevels.Add(playerLevel, accuracyPerLevelBase);
-        #endregion
-        return accuracyPerLevelBase;
+        return spearBaseAimAccuracy + spearIncreaseAimAccuracyPerLevel * (level - 1);
     }
     #endregion
 
@@ -2224,16 +1442,10 @@ public static class Configuration
     private static double hammerEXPMultiplyPerLevel = 1.5;
     private static float hammerBaseDamage = 1.0f;
     private static float hammerIncrementDamagePerLevel = 0.1f;
-    private static float hammerBaseDurabilityRestoreChance = 0.0f;
-    private static float hammerDurabilityRestoreChancePerLevel = 2.0f;
-    private static int hammerDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float hammerDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static float hammerBaseSmithRetrieveChance = 0.0f;
     private static float hammerSmithRetrieveChancePerLevel = 2.0f;
     private static int hammerSmithRetrieveEveryLevelReduceChance = 10;
     private static float hammerSmithRetrieveReduceChanceForEveryLevel = 0.5f;
-    private static float hammerBaseSmithAnimationSpeed = 1.0f;
-    private static float hammerIncreaseSmithAnimationSpeedPerLevel = 0.1f;
     private static float hammerBaseChanceToDouble = 0.0f;
     private static float hammerIncreaseChanceToDoublePerLevel = 2.0f;
     private static int hammerIncreaseChanceToDoublePerLevelReducerPerLevel = 5;
@@ -2259,199 +1471,158 @@ public static class Configuration
             "levelup:config/levelstats/hammer.json");
         { //hammerEXPPerLevelBase
             if (hammerLevelStats.TryGetValue("hammerEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerEXPPerLevelBase is not int is {value.GetType()}");
                 else hammerEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerEXPPerLevelBase not set");
         }
         { //hammerEXPMultiplyPerLevel
             if (hammerLevelStats.TryGetValue("hammerEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else hammerEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerEXPMultiplyPerLevel not set");
         }
         { //hammerBaseDamage
             if (hammerLevelStats.TryGetValue("hammerBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseDamage is not double is {value.GetType()}");
                 else hammerBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerBaseDamage not set");
         }
         { //hammerIncrementDamagePerLevel
             if (hammerLevelStats.TryGetValue("hammerIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncrementDamagePerLevel is not double is {value.GetType()}");
                 else hammerIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncrementDamagePerLevel not set");
         }
         { //hammerEXPPerHit
             if (hammerLevelStats.TryGetValue("hammerEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerEXPPerHit is not int is {value.GetType()}");
                 else hammerEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerEXPPerHit not set");
-        }
-        { //hammerBaseDurabilityRestoreChance
-            if (hammerLevelStats.TryGetValue("hammerBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else hammerBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerBaseDurabilityRestoreChance not set");
-        }
-        { //hammerDurabilityRestoreChancePerLevel
-            if (hammerLevelStats.TryGetValue("hammerDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else hammerDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreChancePerLevel not set");
-        }
-        { //hammerDurabilityRestoreEveryLevelReduceChance
-            if (hammerLevelStats.TryGetValue("hammerDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else hammerDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //hammerDurabilityRestoreReduceChanceForEveryLevel
-            if (hammerLevelStats.TryGetValue("hammerDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else hammerDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerEXPPerHit not set");
+            Experience.LoadExperience("Hammer", "Hit", (ulong)hammerEXPPerHit);
         }
         { //hammerBaseSmithRetrieveChance
             if (hammerLevelStats.TryGetValue("hammerBaseSmithRetrieveChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseSmithRetrieveChance is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerBaseSmithRetrieveChance is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseSmithRetrieveChance is not double is {value.GetType()}");
                 else hammerBaseSmithRetrieveChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerBaseSmithRetrieveChance not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerBaseSmithRetrieveChance not set");
         }
         { //hammerSmithRetrieveChancePerLevel
             if (hammerLevelStats.TryGetValue("hammerSmithRetrieveChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveChancePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerSmithRetrieveChancePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerSmithRetrieveChancePerLevel is not double is {value.GetType()}");
                 else hammerSmithRetrieveChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveChancePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerSmithRetrieveChancePerLevel not set");
         }
         { //hammerSmithRetrieveEveryLevelReduceChance
             if (hammerLevelStats.TryGetValue("hammerSmithRetrieveEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveEveryLevelReduceChance is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerSmithRetrieveEveryLevelReduceChance is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerSmithRetrieveEveryLevelReduceChance is not int is {value.GetType()}");
                 else hammerSmithRetrieveEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveEveryLevelReduceChance not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerSmithRetrieveEveryLevelReduceChance not set");
         }
         { //hammerSmithRetrieveReduceChanceForEveryLevel
             if (hammerLevelStats.TryGetValue("hammerSmithRetrieveReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveReduceChanceForEveryLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerSmithRetrieveReduceChanceForEveryLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerSmithRetrieveReduceChanceForEveryLevel is not double is {value.GetType()}");
                 else hammerSmithRetrieveReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerSmithRetrieveReduceChanceForEveryLevel not set");
-        }
-        { //hammerBaseSmithAnimationSpeed
-            if (hammerLevelStats.TryGetValue("hammerBaseSmithAnimationSpeed", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseSmithAnimationSpeed is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseSmithAnimationSpeed is not double is {value.GetType()}");
-                else hammerBaseSmithAnimationSpeed = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerBaseSmithAnimationSpeed not set");
-        }
-        { //hammerIncreaseSmithAnimationSpeedPerLevel
-            if (hammerLevelStats.TryGetValue("hammerIncreaseSmithAnimationSpeedPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseSmithAnimationSpeedPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseSmithAnimationSpeedPerLevel is not double is {value.GetType()}");
-                else hammerIncreaseSmithAnimationSpeedPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseSmithAnimationSpeedPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerSmithRetrieveReduceChanceForEveryLevel not set");
         }
         { //hammerBaseChanceToDouble
             if (hammerLevelStats.TryGetValue("hammerBaseChanceToDouble", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToDouble is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerBaseChanceToDouble is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseChanceToDouble is not double is {value.GetType()}");
                 else hammerBaseChanceToDouble = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToDouble not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerBaseChanceToDouble not set");
         }
         { //hammerIncreaseChanceToDoublePerLevel
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToDoublePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevel is not double is {value.GetType()}");
                 else hammerIncreaseChanceToDoublePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevel not set");
         }
         { //hammerIncreaseChanceToDoublePerLevelReducerPerLevel
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToDoublePerLevelReducerPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducerPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducerPerLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducerPerLevel is not int is {value.GetType()}");
                 else hammerIncreaseChanceToDoublePerLevelReducerPerLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducerPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducerPerLevel not set");
         }
         { //hammerIncreaseChanceToDoublePerLevelReducer
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToDoublePerLevelReducer", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducer is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducer is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducer is not double is {value.GetType()}");
                 else hammerIncreaseChanceToDoublePerLevelReducer = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducer not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToDoublePerLevelReducer not set");
         }
         { //hammerBaseChanceToTriple
             if (hammerLevelStats.TryGetValue("hammerBaseChanceToTriple", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToTriple is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerBaseChanceToTriple is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseChanceToTriple is not double is {value.GetType()}");
                 else hammerBaseChanceToTriple = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToTriple not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerBaseChanceToTriple not set");
         }
         { //hammerIncreaseChanceToTriplePerLevel
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToTriplePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevel is not double is {value.GetType()}");
                 else hammerIncreaseChanceToTriplePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevel not set");
         }
         { //hammerIncreaseChanceToTriplePerLevelReducerPerLevel
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToTriplePerLevelReducerPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducerPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducerPerLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducerPerLevel is not int is {value.GetType()}");
                 else hammerIncreaseChanceToTriplePerLevelReducerPerLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducerPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducerPerLevel not set");
         }
         { //hammerIncreaseChanceToTriplePerLevelReducer
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToTriplePerLevelReducer", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducer is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducer is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducer is not double is {value.GetType()}");
                 else hammerIncreaseChanceToTriplePerLevelReducer = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducer not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToTriplePerLevelReducer not set");
         }
         { //hammerBaseChanceToQuadruple
             if (hammerLevelStats.TryGetValue("hammerBaseChanceToQuadruple", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToQuadruple is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerBaseChanceToQuadruple is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerBaseChanceToQuadruple is not double is {value.GetType()}");
                 else hammerBaseChanceToQuadruple = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerBaseChanceToQuadruple not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerBaseChanceToQuadruple not set");
         }
         { //hammerIncreaseChanceToQuadruplePerLevel
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToQuadruplePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevel is not double is {value.GetType()}");
                 else hammerIncreaseChanceToQuadruplePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevel not set");
         }
         { //hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel is not int is {value.GetType()}");
                 else hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel not set");
         }
         { //hammerIncreaseChanceToQuadruplePerLevelReducer
             if (hammerLevelStats.TryGetValue("hammerIncreaseChanceToQuadruplePerLevelReducer", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer is not double is {value.GetType()}");
                 else hammerIncreaseChanceToQuadruplePerLevelReducer = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerIncreaseChanceToQuadruplePerLevelReducer not set");
         }
         { //hammerMaxLevel
             if (hammerLevelStats.TryGetValue("hammerMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: hammerMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: hammerMaxLevel is not int is {value.GetType()}");
                 else hammerMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: hammerMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: hammerMaxLevel not set");
         }
 
         // Get entity exp
@@ -2484,195 +1655,115 @@ public static class Configuration
 
     public static int HammerGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = hammerEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = hammerEXPPerLevelBase;
+        double multiplier = hammerEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= hammerEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
+
 
     public static bool HammerIsMaxLevel(ulong exp)
         => HammerGetLevelByEXP(exp) >= hammerMaxLevel;
 
     public static float HammerGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("HammerDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("HammerDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = hammerIncrementDamagePerLevel;
-        float multiply = hammerBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("HammerDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
-    }
-
-    public static bool HammerRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("HammerDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("HammerDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = hammerBaseDurabilityRestoreChance;
-            float chanceToNotReduce = hammerDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % hammerDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= hammerDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("HammerDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Hammer durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return hammerBaseDamage + hammerIncrementDamagePerLevel * (level - 1);
     }
 
     public static bool HammerShouldRetrieveSmithByLevel(int level)
     {
-        float baseChanceToRetrieve = -1;
+        int totalLevels = level - 1;
+        int reduceEvery = hammerSmithRetrieveEveryLevelReduceChance;
+        float baseChance = hammerBaseSmithRetrieveChance;
+        float baseIncrement = hammerSmithRetrieveChancePerLevel;
+        float reductionPerStep = hammerSmithRetrieveReduceChanceForEveryLevel;
 
-        #region cache check
-        if (cacheCalculations.TryGetValue("HammerRetrieve", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToRetrieve = value;
-            else { }
-        else cacheCalculations.Add("HammerRetrieve", []);
-        int playerLevel = level;
-        #endregion
+        int fullBlocks = totalLevels / reduceEvery;
+        int remainingLevels = totalLevels % reduceEvery;
 
-        if (baseChanceToRetrieve == -1)
-        {
-            baseChanceToRetrieve = hammerBaseSmithRetrieveChance;
-            float chanceToNotReduce = hammerSmithRetrieveChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % hammerSmithRetrieveEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= hammerSmithRetrieveReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToRetrieve += chanceToNotReduce;
-            }
+        float sumFullBlocks = fullBlocks * reduceEvery *
+            (2 * baseIncrement - (fullBlocks - 1) * reductionPerStep) / 2;
 
-            #region cache creation
-            if (cacheCalculations.TryGetValue("HammerRetrieve", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToRetrieve);
-            #endregion
-        }
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Hammer should retrieve smith mechanic check: {baseChanceToRetrieve} : {chance}");
-        if (baseChanceToRetrieve >= chance) return true;
-        else return false;
-    }
+        float currentIncrement = baseIncrement - fullBlocks * reductionPerStep;
+        float sumRemaining = remainingLevels * currentIncrement;
 
-    public static float HammerGetAnimationSpeedByLevel(int level)
-    {
-        float baseSpeed = hammerBaseSmithAnimationSpeed;
+        float finalChance = baseChance + sumFullBlocks + sumRemaining;
 
-        float incrementDamage = hammerIncreaseSmithAnimationSpeedPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
+        int chance = Random.Next(0, 100);
 
-        baseSpeed += baseSpeed * incrementDamage;
-        return baseSpeed;
+        if (enableExtendedLog)
+            Debug.Log($"Hammer should retrieve smith mechanic check: {finalChance} : {chance}");
+
+        return finalChance >= chance;
     }
 
     public static int HammerGetResultMultiplyByLevel(int level)
     {
-        // We calculate the most difficulty to most easily
-        { // Quadruple
-            int baseLevel = level;
-            float baseChance = hammerBaseChanceToQuadruple;
-            float incrementChance = hammerIncreaseChanceToQuadruplePerLevel;
-            while (baseLevel > 1)
-            {
-                baseLevel -= 1;
-                // Reduce chance every {} chanceToIncrease
-                if (level % hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToQuadruplePerLevelReducer;
-                baseChance += incrementChance;
-            }
-            if (enableExtendedLog) Debug.Log($"Quadruple chance: {baseChance}");
-            // Randomizes the chance and increase if chances hit
-            if (baseChance >= new Random().Next(0, 100)) return 4;
+        static float CalculateChance(
+            int level,
+            float baseChance,
+            float incrementChancePerLevel,
+            int reducerEveryLevels,
+            float reducerAmountPerStep)
+        {
+            int totalLevels = level - 1;
+            int fullBlocks = totalLevels / reducerEveryLevels;
+            int remainingLevels = totalLevels % reducerEveryLevels;
+
+            float sumFullBlocks = fullBlocks * reducerEveryLevels *
+                (2 * incrementChancePerLevel - (fullBlocks - 1) * reducerAmountPerStep) / 2;
+
+            float currentIncrement = incrementChancePerLevel - fullBlocks * reducerAmountPerStep;
+            float sumRemaining = remainingLevels * currentIncrement;
+
+            return baseChance + sumFullBlocks + sumRemaining;
         }
-        { // Triple
-            int baseLevel = level;
-            float baseChance = hammerBaseChanceToTriple;
-            float incrementChance = hammerIncreaseChanceToTriplePerLevel;
-            while (baseLevel > 1)
-            {
-                baseLevel -= 1;
-                // Reduce chance every {} chanceToIncrease
-                if (level % hammerIncreaseChanceToTriplePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToTriplePerLevelReducer;
-                baseChance += incrementChance;
-            }
-            if (enableExtendedLog) Debug.Log($"Triple chance: {baseChance}");
-            // Randomizes the chance and increase if chances hit
-            if (baseChance >= new Random().Next(0, 100)) return 3;
-        }
-        { // Double
-            int baseLevel = level;
-            float baseChance = hammerBaseChanceToDouble;
-            float incrementChance = hammerIncreaseChanceToDoublePerLevel;
-            while (baseLevel > 1)
-            {
-                baseLevel -= 1;
-                // Reduce chance every {} chanceToIncrease
-                if (level % hammerIncreaseChanceToDoublePerLevelReducerPerLevel == 0) incrementChance -= hammerIncreaseChanceToDoublePerLevelReducer;
-                baseChance += incrementChance;
-            }
-            if (enableExtendedLog) Debug.Log($"Double chance: {baseChance}");
-            // Randomizes the chance and increase if chances hit
-            if (baseChance >= new Random().Next(0, 100)) return 2;
-        }
+
+        // Quadruple
+        float quadChance = CalculateChance(
+            level,
+            hammerBaseChanceToQuadruple,
+            hammerIncreaseChanceToQuadruplePerLevel,
+            hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel,
+            hammerIncreaseChanceToQuadruplePerLevelReducer);
+
+        if (enableExtendedLog) Debug.Log($"Quadruple chance: {quadChance}");
+        if (quadChance >= Random.Next(0, 100)) return 4;
+
+        // Triple
+        float tripleChance = CalculateChance(
+            level,
+            hammerBaseChanceToTriple,
+            hammerIncreaseChanceToTriplePerLevel,
+            hammerIncreaseChanceToTriplePerLevelReducerPerLevel,
+            hammerIncreaseChanceToTriplePerLevelReducer);
+
+        if (enableExtendedLog) Debug.Log($"Triple chance: {tripleChance}");
+        if (tripleChance >= Random.Next(0, 100)) return 3;
+
+        // Double
+        float doubleChance = CalculateChance(
+            level,
+            hammerBaseChanceToDouble,
+            hammerIncreaseChanceToDoublePerLevel,
+            hammerIncreaseChanceToDoublePerLevelReducerPerLevel,
+            hammerIncreaseChanceToDoublePerLevelReducer);
+
+        if (enableExtendedLog) Debug.Log($"Double chance: {doubleChance}");
+        if (doubleChance >= Random.Next(0, 100)) return 2;
+
         return 1;
     }
+
     #endregion
 
     #region sword
@@ -2682,10 +1773,6 @@ public static class Configuration
     private static double swordEXPMultiplyPerLevel = 2.0;
     private static float swordBaseDamage = 1.0f;
     private static float swordIncrementDamagePerLevel = 0.1f;
-    private static float swordBaseDurabilityRestoreChance = 0.0f;
-    private static float swordDurabilityRestoreChancePerLevel = 2.0f;
-    private static int swordDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float swordDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int swordMaxLevel = 999;
 
 
@@ -2700,73 +1787,46 @@ public static class Configuration
             "levelup:config/levelstats/sword.json");
         { //swordEXPPerLevelBase
             if (swordLevelStats.TryGetValue("swordEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: swordEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: swordEXPPerLevelBase is not int is {value.GetType()}");
                 else swordEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: swordEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: swordEXPPerLevelBase not set");
         }
         { //swordEXPMultiplyPerLevel
             if (swordLevelStats.TryGetValue("swordEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: swordEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else swordEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: swordEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: swordEXPMultiplyPerLevel not set");
         }
         { //swordBaseDamage
             if (swordLevelStats.TryGetValue("swordBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: swordBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordBaseDamage is not double is {value.GetType()}");
                 else swordBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: swordBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: swordBaseDamage not set");
         }
         { //swordIncrementDamagePerLevel
             if (swordLevelStats.TryGetValue("swordIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: swordIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordIncrementDamagePerLevel is not double is {value.GetType()}");
                 else swordIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: swordIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: swordIncrementDamagePerLevel not set");
         }
         { //swordEXPPerHit
             if (swordLevelStats.TryGetValue("swordEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: swordEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: swordEXPPerHit is not int is {value.GetType()}");
                 else swordEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: swordEXPPerHit not set");
-        }
-        { //swordBaseDurabilityRestoreChance
-            if (swordLevelStats.TryGetValue("swordBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else swordBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: swordBaseDurabilityRestoreChance not set");
-        }
-        { //swordDurabilityRestoreChancePerLevel
-            if (swordLevelStats.TryGetValue("swordDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else swordDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreChancePerLevel not set");
-        }
-        { //swordDurabilityRestoreEveryLevelReduceChance
-            if (swordLevelStats.TryGetValue("swordDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: swordDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else swordDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //swordDurabilityRestoreReduceChanceForEveryLevel
-            if (swordLevelStats.TryGetValue("swordDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: swordDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else swordDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: swordDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: swordEXPPerHit not set");
+            Experience.LoadExperience("Sword", "Hit", (ulong)swordEXPPerHit);
         }
         { //swordMaxLevel
             if (swordLevelStats.TryGetValue("swordMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: swordMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: swordMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: swordMaxLevel is not int is {value.GetType()}");
                 else swordMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: swordMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: swordMaxLevel not set");
         }
 
         // Get entity exp
@@ -2787,19 +1847,19 @@ public static class Configuration
 
     public static int SwordGetLevelByEXP(ulong exp)
     {
+        double baseExp = swordEXPPerLevelBase;
+        double multiplier = swordEXPMultiplyPerLevel;
 
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = swordEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= swordEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool SwordIsMaxLevel(ulong exp)
@@ -2807,70 +1867,7 @@ public static class Configuration
 
     public static float SwordGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("SwordDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("SwordDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = swordIncrementDamagePerLevel;
-        float multiply = swordBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("SwordDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
-    }
-
-    public static bool SwordRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("SwordDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("SwordDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = swordBaseDurabilityRestoreChance;
-            float chanceToNotReduce = swordDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % swordDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= swordDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("SwordDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Sword durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return swordBaseDamage + swordIncrementDamagePerLevel * (level - 1);
     }
     #endregion
 
@@ -2880,10 +1877,6 @@ public static class Configuration
     private static double shieldEXPMultiplyPerLevel = 2.0;
     private static float shieldBaseReduction = 1.0f;
     private static float shieldIncreamentReductionPerLevel = 0.1f;
-    private static float shieldBaseDurabilityRestoreChance = 0.0f;
-    private static float shieldDurabilityRestoreChancePerLevel = 2.0f;
-    private static int shieldDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float shieldDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int shieldMaxLevel = 999;
 
 
@@ -2898,73 +1891,46 @@ public static class Configuration
             "levelup:config/levelstats/shield.json");
         { //shieldEXPPerLevelBase
             if (shieldLevelStats.TryGetValue("shieldEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shieldEXPPerLevelBase is not int is {value.GetType()}");
                 else shieldEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: shieldEXPPerLevelBase not set");
         }
         { //shieldEXPMultiplyPerLevel
             if (shieldLevelStats.TryGetValue("shieldEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else shieldEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel not set");
         }
         { //shieldBaseReduction
             if (shieldLevelStats.TryGetValue("shieldBaseReduction", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldBaseReduction is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBaseReduction is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseReduction is not double is {value.GetType()}");
                 else shieldBaseReduction = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldBaseReduction not set");
+            else Debug.LogError("CONFIGURATION ERROR: shieldBaseReduction not set");
         }
         { //shieldIncreamentReductionPerLevel
             if (shieldLevelStats.TryGetValue("shieldIncreamentReductionPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldIncreamentReductionPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldIncreamentReductionPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldIncreamentReductionPerLevel is not double is {value.GetType()}");
                 else shieldIncreamentReductionPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldIncreamentReductionPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: shieldIncreamentReductionPerLevel not set");
         }
         { //shieldEXPPerHit
             if (shieldLevelStats.TryGetValue("shieldEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shieldEXPPerHit is not int is {value.GetType()}");
                 else shieldEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldEXPPerHit not set");
-        }
-        { //shieldBaseDurabilityRestoreChance
-            if (shieldLevelStats.TryGetValue("shieldBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else shieldBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldBaseDurabilityRestoreChance not set");
-        }
-        { //shieldDurabilityRestoreChancePerLevel
-            if (shieldLevelStats.TryGetValue("shieldDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else shieldDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreChancePerLevel not set");
-        }
-        { //shieldDurabilityRestoreEveryLevelReduceChance
-            if (shieldLevelStats.TryGetValue("shieldDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shieldDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else shieldDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //shieldDurabilityRestoreReduceChanceForEveryLevel
-            if (shieldLevelStats.TryGetValue("shieldDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else shieldDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: shieldEXPPerHit not set");
+            Experience.LoadExperience("Shield", "Hit", (ulong)shieldEXPPerHit);
         }
         { //shieldMaxLevel
             if (shieldLevelStats.TryGetValue("shieldMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: shieldMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: shieldMaxLevel is not int is {value.GetType()}");
                 else shieldMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: shieldMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: shieldMaxLevel not set");
         }
 
         Debug.Log("Shield configuration set");
@@ -2972,19 +1938,19 @@ public static class Configuration
 
     public static int ShieldGetLevelByEXP(ulong exp)
     {
+        double baseExp = shieldEXPPerLevelBase;
+        double multiplier = shieldEXPMultiplyPerLevel;
 
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = shieldEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= shieldEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool ShieldIsMaxLevel(ulong exp)
@@ -2992,72 +1958,7 @@ public static class Configuration
 
     public static float ShieldGetReductionMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("ShieldReduction", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("ShieldReduction", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseReduction = shieldBaseReduction;
-
-        float incrementReduction = shieldIncreamentReductionPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementReduction;
-            level -= 1;
-        }
-
-        baseReduction += incrementReduction;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("ShieldReduction", out var newLevels))
-            newLevels.Add(playerLevel, baseReduction);
-        #endregion
-        return baseReduction;
-    }
-
-    public static bool ShieldRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("ShieldDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("ShieldDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = shieldBaseDurabilityRestoreChance;
-            float chanceToNotReduce = shieldDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % shieldDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= shieldDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-            #region cache creation
-            if (cacheCalculations.TryGetValue("ShieldDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Shield durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return shieldBaseReduction + shieldIncreamentReductionPerLevel * Math.Max(0, level - 1);
     }
     #endregion
 
@@ -3081,45 +1982,46 @@ public static class Configuration
             "levelup:config/levelstats/hand.json");
         { //handEXPPerLevelBase
             if (handLevelStats.TryGetValue("handEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: handEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: handEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: handEXPPerLevelBase is not int is {value.GetType()}");
                 else handEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: handEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: handEXPPerLevelBase not set");
         }
         { //handEXPMultiplyPerLevel
             if (handLevelStats.TryGetValue("handEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: handEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: handEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: handEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else handEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: handEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: handEXPMultiplyPerLevel not set");
         }
         { //handBaseDamage
             if (handLevelStats.TryGetValue("handBaseDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: handBaseDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: handBaseDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: handBaseDamage is not double is {value.GetType()}");
                 else handBaseDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: handBaseDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: handBaseDamage not set");
         }
         { //handIncrementDamagePerLevel
             if (handLevelStats.TryGetValue("handIncrementDamagePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: handIncrementDamagePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: handIncrementDamagePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: handIncrementDamagePerLevel is not double is {value.GetType()}");
                 else handIncrementDamagePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: handIncrementDamagePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: handIncrementDamagePerLevel not set");
         }
         { //handEXPPerHit
             if (handLevelStats.TryGetValue("handEXPPerHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: handEXPPerHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: handEXPPerHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: handEXPPerHit is not int is {value.GetType()}");
                 else handEXPPerHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: handEXPPerHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: handEXPPerHit not set");
+            Experience.LoadExperience("Hand", "Hit", (ulong)handEXPPerHit);
         }
         { //handMaxLevel
             if (handLevelStats.TryGetValue("handMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: handMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: handMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: handMaxLevel is not int is {value.GetType()}");
                 else handMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: handMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: handMaxLevel not set");
         }
 
         // Get entity exp
@@ -3140,49 +2042,28 @@ public static class Configuration
 
     public static int HandGetLevelByEXP(ulong exp)
     {
+        double baseExp = handEXPPerLevelBase;
+        double multiplier = handEXPMultiplyPerLevel;
 
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = handEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= handEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
+
 
     public static bool HandIsMaxLevel(ulong exp)
         => HandGetLevelByEXP(exp) >= handMaxLevel;
 
     public static float HandGetDamageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("HandDamage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("HandDamage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float incrementDamage = handIncrementDamagePerLevel;
-        float multiply = handBaseDamage;
-        while (level > 1)
-        {
-            multiply += incrementDamage;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("HandDamage", out var newLevels))
-            newLevels.Add(playerLevel, multiply);
-        #endregion
-        return multiply;
+        return handBaseDamage + handIncrementDamagePerLevel * (level - 1);
     }
     #endregion
 
@@ -3195,10 +2076,6 @@ public static class Configuration
     private static float farmingIncrementHarvestMultiplyPerLevel = 0.2f;
     private static float farmingBaseForageMultiply = 1.0f;
     private static float farmingIncrementForageMultiplyPerLevel = 0.2f;
-    private static float farmingBaseDurabilityRestoreChance = 0.0f;
-    private static float farmingDurabilityRestoreChancePerLevel = 2.0f;
-    private static int farmingDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float farmingDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int farmingMaxLevel = 999;
 
     public static int ExpPerTillFarming => farmingEXPPerTill;
@@ -3212,87 +2089,60 @@ public static class Configuration
             "levelup:config/levelstats/farming.json");
         { //farmingEXPPerLevelBase
             if (farmingLevelStats.TryGetValue("farmingEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: farmingEXPPerLevelBase is not int is {value.GetType()}");
                 else farmingEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: farmingEXPPerLevelBase not set");
         }
         { //farmingEXPMultiplyPerLevel
             if (farmingLevelStats.TryGetValue("farmingEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else farmingEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: farmingEXPMultiplyPerLevel not set");
         }
         { //farmingEXPPerTill
             if (farmingLevelStats.TryGetValue("farmingEXPPerTill", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingEXPPerTill is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingEXPPerTill is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: farmingEXPPerTill is not int is {value.GetType()}");
                 else farmingEXPPerTill = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingEXPPerTill not set");
+            else Debug.LogError("CONFIGURATION ERROR: farmingEXPPerTill not set");
+            Experience.LoadExperience("Farming", "Till", (ulong)farmingEXPPerTill);
         }
         { //farmingBaseHarvestMultiply
             if (farmingLevelStats.TryGetValue("farmingBaseHarvestMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingBaseHarvestMultiply is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingBaseHarvestMultiply is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingBaseHarvestMultiply is not double is {value.GetType()}");
                 else farmingBaseHarvestMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingBaseHarvestMultiply not set");
+            else Debug.LogError("CONFIGURATION ERROR: farmingBaseHarvestMultiply not set");
         }
         { //farmingIncrementHarvestMultiplyPerLevel
             if (farmingLevelStats.TryGetValue("farmingIncrementHarvestMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingIncrementHarvestMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingIncrementHarvestMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingIncrementHarvestMultiplyPerLevel is not double is {value.GetType()}");
                 else farmingIncrementHarvestMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingIncrementHarvestMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: farmingIncrementHarvestMultiplyPerLevel not set");
         }
         { //farmingBaseForageMultiply
             if (farmingLevelStats.TryGetValue("farmingBaseForageMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingBaseForageMultiply is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingBaseForageMultiply is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingBaseForageMultiply is not double is {value.GetType()}");
                 else farmingBaseForageMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingBaseForageMultiply not set");
+            else Debug.LogError("CONFIGURATION ERROR: farmingBaseForageMultiply not set");
         }
         { //farmingIncrementForageMultiplyPerLevel
             if (farmingLevelStats.TryGetValue("farmingIncrementForageMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingIncrementForageMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingIncrementForageMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingIncrementForageMultiplyPerLevel is not double is {value.GetType()}");
                 else farmingIncrementForageMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingIncrementForageMultiplyPerLevel not set");
-        }
-        { //farmingBaseDurabilityRestoreChance
-            if (farmingLevelStats.TryGetValue("farmingBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else farmingBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingBaseDurabilityRestoreChance not set");
-        }
-        { //farmingDurabilityRestoreChancePerLevel
-            if (farmingLevelStats.TryGetValue("farmingDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else farmingDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingDurabilityRestoreChancePerLevel not set");
-        }
-        { //farmingDurabilityRestoreEveryLevelReduceChance
-            if (farmingLevelStats.TryGetValue("farmingDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: farmingDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else farmingDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //farmingDurabilityRestoreReduceChanceForEveryLevel
-            if (farmingLevelStats.TryGetValue("farmingDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else farmingDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: farmingIncrementForageMultiplyPerLevel not set");
         }
         { //farmingMaxLevel
             if (farmingLevelStats.TryGetValue("farmingMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: farmingMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: farmingMaxLevel is not int is {value.GetType()}");
                 else farmingMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: farmingMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: farmingMaxLevel not set");
         }
 
 
@@ -3314,123 +2164,32 @@ public static class Configuration
 
     public static int FarmingGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = farmingEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = farmingEXPPerLevelBase;
+        double multiplier = farmingEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= farmingEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool FarmingIsMaxLevel(ulong exp)
         => FarmingGetLevelByEXP(exp) >= farmingMaxLevel;
+
     public static float FarmingGetHarvestMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("FarmingMultiply", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("FarmingMultiply", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = farmingBaseHarvestMultiply;
-
-        float incrementMultiply = farmingIncrementHarvestMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementMultiply;
-            level -= 1;
-        }
-
-        baseMultiply += baseMultiply * multiply;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("FarmingMultiply", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return farmingBaseHarvestMultiply * (1 + farmingIncrementHarvestMultiplyPerLevel * (level - 1));
     }
 
     public static float FarmingGetForageMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("FarmingMultiplyForage", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("FarmingMultiplyForage", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = farmingBaseForageMultiply;
-
-        float incrementMultiply = farmingIncrementForageMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementMultiply;
-            level -= 1;
-        }
-
-        baseMultiply += baseMultiply * multiply;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("FarmingMultiplyForage", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
-    }
-
-    public static bool FarmingRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = -1;
-
-        #region cache check
-        if (cacheCalculations.TryGetValue("FarmingDurabilityChance", out var levels))
-            if (levels.TryGetValue(level, out var value)) baseChanceToNotReduce = value;
-            else { }
-        else cacheCalculations.Add("FarmingDurabilityChance", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        if (baseChanceToNotReduce == -1)
-        {
-            baseChanceToNotReduce = farmingBaseDurabilityRestoreChance;
-            float chanceToNotReduce = farmingDurabilityRestoreChancePerLevel;
-            while (level > 1)
-            {
-                level -= 1;
-                // Every {} levels reduce the durability chance multiplicator
-                if (level % farmingDurabilityRestoreEveryLevelReduceChance == 0)
-                    chanceToNotReduce -= farmingDurabilityRestoreReduceChanceForEveryLevel;
-                // Increasing chance
-                baseChanceToNotReduce += chanceToNotReduce;
-            }
-
-            #region cache creation
-            if (cacheCalculations.TryGetValue("FarmingDurabilityChance", out var newLevels))
-                newLevels.Add(playerLevel, baseChanceToNotReduce);
-            #endregion
-        }
-        #endregion
-
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Farming durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return farmingBaseForageMultiply * (1 + farmingIncrementForageMultiplyPerLevel * (level - 1));
     }
     #endregion
 
@@ -3440,8 +2199,6 @@ public static class Configuration
     private static int cookingBaseExpPerCooking = 3;
     private static int cookingEXPPerLevelBase = 10;
     private static double cookingEXPMultiplyPerLevel = 1.3;
-    private static float cookingBaseSaturationHoursMultiply = 1.0f;
-    private static float cookingSaturationHoursMultiplyPerLevel = 0.1f;
     private static float cookingBaseFreshHoursMultiply = 1.0f;
     private static float cookingFreshHoursMultiplyPerLevel = 0.1f;
     private static float cookingBaseChanceToIncreaseServings = 1.0f;
@@ -3464,108 +2221,95 @@ public static class Configuration
             "levelup:config/levelstats/cooking.json");
         { //cookingBaseExpPerCooking
             if (cookingLevelStats.TryGetValue("cookingBaseExpPerCooking", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseExpPerCooking is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingBaseExpPerCooking is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingBaseExpPerCooking is not int is {value.GetType()}");
                 else cookingBaseExpPerCooking = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingBaseExpPerCooking not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingBaseExpPerCooking not set");
+            Experience.LoadExperience("Cooking", "Cooking", (ulong)cookingBaseExpPerCooking);
         }
         { //cookingEXPPerLevelBase
             if (cookingLevelStats.TryGetValue("cookingEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingEXPPerLevelBase is not int is {value.GetType()}");
                 else cookingEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingEXPPerLevelBase not set");
         }
         { //cookingEXPMultiplyPerLevel
             if (cookingLevelStats.TryGetValue("cookingEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else cookingEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingEXPMultiplyPerLevel not set");
-        }
-        { //cookingBaseSaturationHoursMultiply
-            if (cookingLevelStats.TryGetValue("cookingBaseSaturationHoursMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseSaturationHoursMultiply is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingBaseSaturationHoursMultiply is not double is {value.GetType()}");
-                else cookingBaseSaturationHoursMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingBaseSaturationHoursMultiply not set");
-        }
-        { //cookingSaturationHoursMultiplyPerLevel
-            if (cookingLevelStats.TryGetValue("cookingSaturationHoursMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingSaturationHoursMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingSaturationHoursMultiplyPerLevel is not double is {value.GetType()}");
-                else cookingSaturationHoursMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingSaturationHoursMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingEXPMultiplyPerLevel not set");
         }
         { //cookingBaseFreshHoursMultiply
             if (cookingLevelStats.TryGetValue("cookingBaseFreshHoursMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseFreshHoursMultiply is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingBaseFreshHoursMultiply is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingBaseFreshHoursMultiply is not double is {value.GetType()}");
                 else cookingBaseFreshHoursMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingBaseFreshHoursMultiply not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingBaseFreshHoursMultiply not set");
         }
         { //cookingFreshHoursMultiplyPerLevel
             if (cookingLevelStats.TryGetValue("cookingFreshHoursMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingFreshHoursMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingFreshHoursMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingFreshHoursMultiplyPerLevel is not double is {value.GetType()}");
                 else cookingFreshHoursMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingFreshHoursMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingFreshHoursMultiplyPerLevel not set");
         }
         { //cookingBaseChanceToIncreaseServings
             if (cookingLevelStats.TryGetValue("cookingBaseChanceToIncreaseServings", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseChanceToIncreaseServings is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingBaseChanceToIncreaseServings is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingBaseChanceToIncreaseServings is not double is {value.GetType()}");
                 else cookingBaseChanceToIncreaseServings = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingBaseChanceToIncreaseServings not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingBaseChanceToIncreaseServings not set");
         }
         { //cookingIncrementChanceToIncreaseServings
             if (cookingLevelStats.TryGetValue("cookingIncrementChanceToIncreaseServings", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings is not double is {value.GetType()}");
                 else cookingIncrementChanceToIncreaseServings = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings not set");
         }
         { //cookingEveryChanceToIncreaseServingsReduceChance
             if (cookingLevelStats.TryGetValue("cookingEveryChanceToIncreaseServingsReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance is not double is {value.GetType()}");
                 else cookingEveryChanceToIncreaseServingsReduceChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance not set");
         }
         { //cookingChanceToIncreaseServingsReducerTotal
             if (cookingLevelStats.TryGetValue("cookingChanceToIncreaseServingsReducerTotal", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingChanceToIncreaseServingsReducerTotal is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingChanceToIncreaseServingsReducerTotal is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingChanceToIncreaseServingsReducerTotal is not double is {value.GetType()}");
                 else cookingChanceToIncreaseServingsReducerTotal = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingChanceToIncreaseServingsReducerTotal not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingChanceToIncreaseServingsReducerTotal not set");
         }
         { //cookingBaseRollsChanceToIncreaseServings
             if (cookingLevelStats.TryGetValue("cookingBaseRollsChanceToIncreaseServings", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingBaseRollsChanceToIncreaseServings is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingBaseRollsChanceToIncreaseServings is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingBaseRollsChanceToIncreaseServings is not int is {value.GetType()}");
                 else cookingBaseRollsChanceToIncreaseServings = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingBaseRollsChanceToIncreaseServings not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingBaseRollsChanceToIncreaseServings not set");
         }
         { //cookingEarnRollsChanceToIncreaseServingsEveryLevel
             if (cookingLevelStats.TryGetValue("cookingEarnRollsChanceToIncreaseServingsEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsEveryLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsEveryLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsEveryLevel is not int is {value.GetType()}");
                 else cookingEarnRollsChanceToIncreaseServingsEveryLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsEveryLevel not set");
         }
         { //cookingEarnRollsChanceToIncreaseServingsQuantity
             if (cookingLevelStats.TryGetValue("cookingEarnRollsChanceToIncreaseServingsQuantity", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity is not int is {value.GetType()}");
                 else cookingEarnRollsChanceToIncreaseServingsQuantity = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingEarnRollsChanceToIncreaseServingsQuantity not set");
         }
         { //cookingMaxLevel
             if (cookingLevelStats.TryGetValue("cookingMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: cookingMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingMaxLevel is not int is {value.GetType()}");
                 else cookingMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: cookingMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: cookingMaxLevel not set");
         }
 
         // Get single food exp multiply
@@ -3598,83 +2342,27 @@ public static class Configuration
 
     public static int CookingGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = cookingEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = cookingEXPPerLevelBase;
+        double multiplier = cookingEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 20 percentage increasing per level
-            expPerLevelBase *= cookingEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool CookingIsMaxLevel(ulong exp)
         => CookingGetLevelByEXP(exp) >= cookingMaxLevel;
 
-    public static float CookingGetSaturationMultiplyByLevel(int level)
-    {
-        #region cache check
-        if (cacheCalculations.TryGetValue("CookingSaturation", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("CookingSaturation", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = cookingBaseSaturationHoursMultiply;
-
-        float incrementMultiply = cookingSaturationHoursMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementMultiply;
-            level -= 1;
-        }
-
-        baseMultiply += baseMultiply * multiply;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("CookingSaturation", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
-    }
-
     public static float CookingGetFreshHoursMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("CookingFresh", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("CookingFresh", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = cookingBaseFreshHoursMultiply;
-
-        float incrementMultiply = cookingFreshHoursMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementMultiply;
-            level -= 1;
-        }
-
-        baseMultiply += baseMultiply * multiply;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("CookingFresh", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return cookingBaseFreshHoursMultiply * (1 + cookingFreshHoursMultiplyPerLevel * (level - 1));
     }
 
     public static int CookingGetServingsByLevelAndServings(int level, int quantityServings)
@@ -3682,21 +2370,29 @@ public static class Configuration
         float chanceToIncrease = cookingBaseChanceToIncreaseServings;
         float incrementChance = cookingIncrementChanceToIncreaseServings;
         int rolls = cookingBaseRollsChanceToIncreaseServings;
-        while (level > 1)
+
+        int levelsToProcess = level - 1;
+
+        float levelsToProcessInt = levelsToProcess;
+        float reduceSteps = levelsToProcessInt / cookingEveryChanceToIncreaseServingsReduceChance;
+        float remainingLevels = levelsToProcessInt % cookingEveryChanceToIncreaseServingsReduceChance;
+
+        float sumReducedIncrements = reduceSteps * cookingEveryChanceToIncreaseServingsReduceChance *
+            (2 * incrementChance - (reduceSteps - 1) * cookingChanceToIncreaseServingsReducerTotal) / 2;
+
+        float currentIncrement = incrementChance - reduceSteps * cookingChanceToIncreaseServingsReducerTotal;
+        float sumRemaining = remainingLevels * currentIncrement;
+
+        chanceToIncrease += sumReducedIncrements + sumRemaining;
+
+        rolls += levelsToProcess / cookingEarnRollsChanceToIncreaseServingsEveryLevel * cookingEarnRollsChanceToIncreaseServingsQuantity;
+
+        for (int i = 0; i < rolls; i++)
         {
-            level -= 1;
-            // Reduce change every {} chanceToIncrease
-            if (chanceToIncrease % cookingEveryChanceToIncreaseServingsReduceChance == 0) incrementChance -= cookingChanceToIncreaseServingsReducerTotal;
-            chanceToIncrease += incrementChance;
-            // Increase rolls change by 1 every 5 levels
-            if (level % cookingEarnRollsChanceToIncreaseServingsEveryLevel == 0) rolls += cookingEarnRollsChanceToIncreaseServingsQuantity;
+            if (chanceToIncrease >= Random.Next(0, 100))
+                quantityServings += 1;
         }
-        while (rolls > 0)
-        {
-            // Randomizes the chance and increase if chances hit
-            if (chanceToIncrease >= new Random().Next(0, 100)) quantityServings += 1;
-            rolls -= 1;
-        }
+
         return quantityServings;
     }
     #endregion
@@ -3724,160 +2420,228 @@ public static class Configuration
             "ModConfig/LevelUP/config/levelstats",
             "panning",
             "levelup:config/levelstats/panning.json");
-        { //panningBaseExpPerpanning
+        { //panningBaseExpPerPanning
             if (panningLevelStats.TryGetValue("panningBaseExpPerPanning", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseExpPerPanning is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningBaseExpPerPanning is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: panningBaseExpPerPanning is not int is {value.GetType()}");
                 else panningBaseExpPerPanning = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: panningBaseExpPerPanning not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningBaseExpPerPanning not set");
+            Experience.LoadExperience("Panning", "Panning", (ulong)panningBaseExpPerPanning);
         }
         { //panningEXPPerLevelBase
             if (panningLevelStats.TryGetValue("panningEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: panningEXPPerLevelBase is not int is {value.GetType()}");
                 else panningEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: panningEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningEXPPerLevelBase not set");
         }
         { //panningEXPMultiplyPerLevel
             if (panningLevelStats.TryGetValue("panningEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else panningEXPMultiplyPerLevel = (double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningEXPMultiplyPerLevel not set");
         }
         { //panningBaseLootMultiply
             if (panningLevelStats.TryGetValue("panningBaseLootMultiply", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseLootMultiply is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningBaseLootMultiply is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningBaseLootMultiply is not double is {value.GetType()}");
                 else panningBaseLootMultiply = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningBaseLootMultiply not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningBaseLootMultiply not set");
         }
         { //panningLootMultiplyPerLevel
             if (panningLevelStats.TryGetValue("panningLootMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningLootMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningLootMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningLootMultiplyPerLevel is not double is {value.GetType()}");
                 else panningLootMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningLootMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningLootMultiplyPerLevel not set");
         }
         { //panningBaseChanceToDoubleLoot
             if (panningLevelStats.TryGetValue("panningBaseChanceToDoubleLoot", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseChanceToDoubleLoot is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningBaseChanceToDoubleLoot is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningBaseChanceToDoubleLoot is not double is {value.GetType()}");
                 else panningBaseChanceToDoubleLoot = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningBaseChanceToDoubleLoot not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningBaseChanceToDoubleLoot not set");
         }
         { //panningChanceToDoubleLootPerLevel
             if (panningLevelStats.TryGetValue("panningChanceToDoubleLootPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningChanceToDoubleLootPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningChanceToDoubleLootPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningChanceToDoubleLootPerLevel is not double is {value.GetType()}");
                 else panningChanceToDoubleLootPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningChanceToDoubleLootPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningChanceToDoubleLootPerLevel not set");
         }
         { //panningBaseChanceToTripleLoot
             if (panningLevelStats.TryGetValue("panningBaseChanceToTripleLoot", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseChanceToTripleLoot is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningBaseChanceToTripleLoot is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningBaseChanceToTripleLoot is not double is {value.GetType()}");
                 else panningBaseChanceToTripleLoot = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningBaseChanceToTripleLoot not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningBaseChanceToTripleLoot not set");
         }
         { //panningChanceToTripleLootPerLevel
             if (panningLevelStats.TryGetValue("panningChanceToTripleLootPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningChanceToTripleLootPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningChanceToTripleLootPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningChanceToTripleLootPerLevel is not double is {value.GetType()}");
                 else panningChanceToTripleLootPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningChanceToTripleLootPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningChanceToTripleLootPerLevel not set");
         }
         { //panningBaseChanceToQuadrupleLoot
             if (panningLevelStats.TryGetValue("panningBaseChanceToQuadrupleLoot", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningBaseChanceToQuadrupleLoot is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningBaseChanceToQuadrupleLoot is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningBaseChanceToQuadrupleLoot is not double is {value.GetType()}");
                 else panningBaseChanceToQuadrupleLoot = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningBaseChanceToQuadrupleLoot not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningBaseChanceToQuadrupleLoot not set");
         }
         { //panningChanceToQuadrupleLootPerLevel
             if (panningLevelStats.TryGetValue("panningChanceToQuadrupleLootPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel is not double is {value.GetType()}");
                 else panningChanceToQuadrupleLootPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningChanceToQuadrupleLootPerLevel not set");
         }
         { //panningMaxLevel
             if (panningLevelStats.TryGetValue("panningMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: panningMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: panningMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: panningMaxLevel is not int is {value.GetType()}");
                 else panningMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: panningMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: panningMaxLevel not set");
         }
         Debug.Log("Panning configuration set");
     }
 
     public static int PanningGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = panningEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = panningEXPPerLevelBase;
+        double multiplier = panningEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 20 percentage increasing per level
-            expPerLevelBase *= panningEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool PanningIsMaxLevel(ulong exp)
         => PanningGetLevelByEXP(exp) >= panningMaxLevel;
+
     public static float PanningGetLootMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("PanningMultiply", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("PanningMultiply", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = panningBaseLootMultiply;
-
-        float incrementMultiply = panningLootMultiplyPerLevel;
-        float multiply = 0.0f;
-        while (level > 1)
-        {
-            multiply += incrementMultiply;
-            level -= 1;
-        }
-
-        baseMultiply += baseMultiply * multiply;
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("PanningMultiply", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return panningBaseLootMultiply * (1 + panningLootMultiplyPerLevel * (level - 1));
     }
 
     public static int PanningGetLootQuantityMultiplyByLevel(int level)
     {
-        double chanceToDouble = panningBaseChanceToDoubleLoot;
-        double chanceToTriple = panningChanceToTripleLootPerLevel;
-        double chanceToQuadruple = panningBaseChanceToQuadrupleLoot;
-        for (int i = 0; i < level; i++)
-        {
-            chanceToDouble += panningChanceToDoubleLootPerLevel;
-            chanceToTriple += panningBaseChanceToTripleLoot;
-            chanceToQuadruple += panningChanceToQuadrupleLootPerLevel;
-        }
-        Random random = new();
-        if (random.Next(0, 101) <= (int)(chanceToQuadruple * 100)) return 3;
-        if (random.Next(0, 101) <= (int)(chanceToTriple * 100)) return 2;
-        if (random.Next(0, 101) <= (int)(chanceToDouble * 100)) return 1;
-        return 0;
+        double chanceToDouble = panningBaseChanceToDoubleLoot + panningChanceToDoubleLootPerLevel * level;
+        double chanceToTriple = panningBaseChanceToTripleLoot + panningChanceToTripleLootPerLevel * level;
+        double chanceToQuadruple = panningBaseChanceToQuadrupleLoot + panningChanceToQuadrupleLootPerLevel * level;
+
+        double roll = Random.NextDouble();
+
+        if (roll <= chanceToQuadruple) return 4;
+        if (roll <= chanceToTriple) return 3;
+        if (roll <= chanceToDouble) return 2;
+        return 1;
     }
     #endregion
+
+    #region smithing
+    public static readonly Dictionary<string, int> expPerCraftSmithing = [];
+    private static int smithingEXPPerLevelBase = 10;
+    private static double smithingEXPMultiplyPerLevel = 2.5;
+    private static float smithingBaseDurabilityMultiply = 1.0f;
+    private static float smithingIncrementDurabilityMultiplyPerLevel = 0.1f;
+    private static int smithingMaxLevel = 999;
+
+    public static void PopulateSmithingConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> smithingLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "smithing",
+            "levelup:config/levelstats/smithing.json");
+        { //smithingEXPPerLevelBase
+            if (smithingLevelStats.TryGetValue("smithingEXPPerLevelBase", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: smithingEXPPerLevelBase is not int is {value.GetType()}");
+                else smithingEXPPerLevelBase = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingEXPPerLevelBase not set");
+        }
+        { //smithingEXPMultiplyPerLevel
+            if (smithingLevelStats.TryGetValue("smithingEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else smithingEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingEXPMultiplyPerLevel not set");
+        }
+        { //smithingBaseDurabilityMultiply
+            if (smithingLevelStats.TryGetValue("smithingBaseDurabilityMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingBaseDurabilityMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingBaseDurabilityMultiply is not double is {value.GetType()}");
+                else smithingBaseDurabilityMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingBaseDurabilityMultiply not set");
+        }
+        { //smithingIncrementDurabilityMultiplyPerLevel
+            if (smithingLevelStats.TryGetValue("smithingIncrementDurabilityMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingIncrementDurabilityMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingIncrementDurabilityMultiplyPerLevel is not double is {value.GetType()}");
+                else smithingIncrementDurabilityMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingIncrementDurabilityMultiplyPerLevel not set");
+        }
+        { //smithingMaxLevel
+            if (smithingLevelStats.TryGetValue("smithingMaxLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: smithingMaxLevel is not int is {value.GetType()}");
+                else smithingMaxLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingMaxLevel not set");
+        }
+
+
+        // Get crop exp
+        expPerCraftSmithing.Clear();
+        Dictionary<string, object> tmpexpPerCraftSmithing = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "smithingcrafts",
+            "levelup:config/levelstats/smithingcrafts.json");
+        foreach (KeyValuePair<string, object> pair in tmpexpPerCraftSmithing)
+        {
+            if (pair.Value is long value) expPerCraftSmithing.Add(pair.Key, (int)value);
+            else Debug.Log($"CONFIGURATION ERROR: expPerCraftSmithing {pair.Key} is not int");
+        }
+
+        Debug.Log("Smithing configuration set");
+    }
+
+    public static int SmithingGetLevelByEXP(ulong exp)
+    {
+        double baseExp = smithingEXPPerLevelBase;
+        double multiplier = smithingEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
+        {
+            return (int)(exp / baseExp);
+        }
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static bool SmithingIsMaxLevel(ulong exp)
+        => SmithingGetLevelByEXP(exp) >= smithingMaxLevel;
+
+    public static float SmithingGetDurabilityMultiplyByLevel(int level)
+    {
+        return smithingBaseDurabilityMultiply * (1 + smithingIncrementDurabilityMultiplyPerLevel * (level - 1));
+    }
+    #endregion
+
 
     #region vitality
     private static int vitalityEXPPerReceiveHit = 1;
@@ -3905,80 +2669,81 @@ public static class Configuration
             "levelup:config/levelstats/vitality.json");
         { //vitalityEXPPerLevelBase
             if (vitalityLevelStats.TryGetValue("vitalityEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityEXPPerLevelBase is not int is {value.GetType()}");
                 else vitalityEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityEXPPerLevelBase not set");
         }
         { //vitalityEXPMultiplyPerLevel
             if (vitalityLevelStats.TryGetValue("vitalityEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else vitalityEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityEXPMultiplyPerLevel not set");
         }
         { //vitalityEXPPerReceiveHit
             if (vitalityLevelStats.TryGetValue("vitalityEXPPerReceiveHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPPerReceiveHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityEXPPerReceiveHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityEXPPerReceiveHit is not int is {value.GetType()}");
                 else vitalityEXPPerReceiveHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityEXPPerReceiveHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityEXPPerReceiveHit not set");
+            Experience.LoadExperience("Vitality", "Hit", (ulong)vitalityEXPPerReceiveHit);
         }
         { //vitalityEXPMultiplyByDamage
             if (vitalityLevelStats.TryGetValue("vitalityEXPMultiplyByDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPMultiplyByDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityEXPMultiplyByDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityEXPMultiplyByDamage is not double is {value.GetType()}");
                 else vitalityEXPMultiplyByDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityEXPMultiplyByDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityEXPMultiplyByDamage not set");
         }
         { //vitalityHPIncreasePerLevel
             if (vitalityLevelStats.TryGetValue("vitalityHPIncreasePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityHPIncreasePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityHPIncreasePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityHPIncreasePerLevel is not double is {value.GetType()}");
                 else vitalityHPIncreasePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityHPIncreasePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityHPIncreasePerLevel not set");
         }
         { //vitalityBaseHP
             if (vitalityLevelStats.TryGetValue("vitalityBaseHP", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityBaseHP is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityBaseHP is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityBaseHP is not double is {value.GetType()}");
                 else vitalityBaseHP = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityBaseHP not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityBaseHP not set");
         }
         { //vitalityEXPIncreaseByAmountDamage
             if (vitalityLevelStats.TryGetValue("vitalityEXPIncreaseByAmountDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityEXPIncreaseByAmountDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityEXPIncreaseByAmountDamage is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityEXPIncreaseByAmountDamage is not int is {value.GetType()}");
                 else vitalityEXPIncreaseByAmountDamage = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityEXPIncreaseByAmountDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityEXPIncreaseByAmountDamage not set");
         }
         { //vitalityBaseHPRegen
             if (vitalityLevelStats.TryGetValue("vitalityBaseHPRegen", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityBaseHPRegen is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityBaseHPRegen is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityBaseHPRegen is not double is {value.GetType()}");
                 else vitalityBaseHPRegen = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityBaseHPRegen not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityBaseHPRegen not set");
         }
         { //vitalityHPRegenIncreasePerLevel
             if (vitalityLevelStats.TryGetValue("vitalityHPRegenIncreasePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel is not double is {value.GetType()}");
                 else vitalityHPRegenIncreasePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityHPRegenIncreasePerLevel not set");
         }
         { //vitalityDamageLimit
             if (vitalityLevelStats.TryGetValue("vitalityDamageLimit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityDamageLimit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityDamageLimit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityDamageLimit is not int is {value.GetType()}");
                 else vitalityDamageLimit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityDamageLimit not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityDamageLimit not set");
         }
         { //vitalityMaxLevel
             if (vitalityLevelStats.TryGetValue("vitalityMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: vitalityMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: vitalityMaxLevel is not int is {value.GetType()}");
                 else vitalityMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: vitalityMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: vitalityMaxLevel not set");
         }
 
         Debug.Log("Vitality configuration set");
@@ -3986,18 +2751,19 @@ public static class Configuration
 
     public static int VitalityGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = vitalityEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = vitalityEXPPerLevelBase;
+        double multiplier = vitalityEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= vitalityEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool VitalityIsMaxLevel(ulong exp)
@@ -4005,74 +2771,24 @@ public static class Configuration
 
     public static float VitalityGetMaxHealthByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("VitalityMaxHealth", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("VitalityMaxHealth", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = vitalityBaseHP;
-
-        float incrementMultiply = vitalityHPIncreasePerLevel;
-        while (level > 1)
-        {
-            baseMultiply += incrementMultiply;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("VitalityMaxHealth", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return vitalityBaseHP + vitalityHPIncreasePerLevel * (level - 1);
     }
 
     public static float VitalityGetHealthRegenMultiplyByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("VitalityRegen", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("VitalityRegen", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = vitalityBaseHPRegen;
-
-        float incrementMultiply = vitalityHPRegenIncreasePerLevel;
-        while (level > 1)
-        {
-            baseMultiply += incrementMultiply;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("VitalityRegen", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return vitalityBaseHPRegen + vitalityHPRegenIncreasePerLevel * (level - 1);
     }
 
     public static int VitalityEXPEarnedByDAMAGE(float damage)
     {
-        float baseMultiply = vitalityEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
-
-        // Calculating the multiple of damage
         int multiplesCount = calcDamage / vitalityEXPIncreaseByAmountDamage;
+        float multiplier = 1 + vitalityEXPMultiplyByDamage;
 
-        // Calculating the final multipliyer
-        baseMultiply *= (float)Math.Pow(1 + vitalityEXPMultiplyByDamage, multiplesCount);
+        float baseMultiply = vitalityEXPPerReceiveHit * (float)Math.Pow(multiplier, multiplesCount);
 
         return (int)Math.Round(baseMultiply);
     }
-
     #endregion
 
     #region leatherarmor
@@ -4084,10 +2800,6 @@ public static class Configuration
     private static double leatherArmorEXPMultiplyPerLevel = 2.0;
     private static float leatherArmorBaseDamageReduction = 0.0f;
     private static float leatherArmorDamageReductionPerLevel = 0.05f;
-    private static float leatherArmorBaseDurabilityRestoreChance = 0.0f;
-    private static float leatherArmorDurabilityRestoreChancePerLevel = 2.0f;
-    private static int leatherArmorDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float leatherArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int leatherArmorDamageLimit = 1000;
     private static int leatherArmorMaxLevel = 999;
 
@@ -4102,94 +2814,67 @@ public static class Configuration
             "levelup:config/levelstats/leatherarmor.json");
         { //leatherArmorEXPPerReceiveHit
             if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPPerReceiveHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit is not int is {value.GetType()}");
                 else leatherArmorEXPPerReceiveHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit not set");
+            Experience.LoadExperience("LeatherArmor", "Hit", (ulong)leatherArmorEXPPerReceiveHit);
         }
         { //leatherArmorEXPMultiplyByDamage
             if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPMultiplyByDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPMultiplyByDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyByDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPMultiplyByDamage is not double is {value.GetType()}");
                 else leatherArmorEXPMultiplyByDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPMultiplyByDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyByDamage not set");
         }
         { //leatherArmorEXPIncreaseByAmountDamage
             if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPIncreaseByAmountDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPIncreaseByAmountDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPIncreaseByAmountDamage is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
                 else leatherArmorEXPIncreaseByAmountDamage = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPIncreaseByAmountDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPIncreaseByAmountDamage not set");
         }
         { //leatherArmorEXPPerLevelBase
             if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else leatherArmorEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPPerLevelBase not set");
         }
         { //leatherArmorEXPMultiplyPerLevel
             if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else leatherArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel not set");
         }
         { //leatherArmorBaseDamageReduction
             if (leatherArmorLevelStats.TryGetValue("leatherArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorBaseDamageReduction is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorBaseDamageReduction is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorBaseDamageReduction is not double is {value.GetType()}");
                 else leatherArmorBaseDamageReduction = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorBaseDamageReduction not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorBaseDamageReduction not set");
         }
         { //leatherArmorDamageReductionPerLevel
             if (leatherArmorLevelStats.TryGetValue("leatherArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel is not double is {value.GetType()}");
                 else leatherArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel not set");
-        }
-        { //leatherArmorBaseDurabilityRestoreChance
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else leatherArmorBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorBaseDurabilityRestoreChance not set");
-        }
-        { //leatherArmorDurabilityRestoreChancePerLevel
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else leatherArmorDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreChancePerLevel not set");
-        }
-        { //leatherArmorDurabilityRestoreEveryLevelReduceChance
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else leatherArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //leatherArmorDurabilityRestoreReduceChanceForEveryLevel
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else leatherArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel not set");
         }
         { //leatherArmorDamageLimit
             if (leatherArmorLevelStats.TryGetValue("leatherArmorDamageLimit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorDamageLimit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorDamageLimit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorDamageLimit is not int is {value.GetType()}");
                 else leatherArmorDamageLimit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorDamageLimit not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorDamageLimit not set");
         }
         { //leatherArmorMaxLevel
             if (leatherArmorLevelStats.TryGetValue("leatherArmorMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: leatherArmorMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorMaxLevel is not int is {value.GetType()}");
                 else leatherArmorMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: leatherArmorMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorMaxLevel not set");
         }
 
         // Get leather armor multiply exp
@@ -4207,21 +2892,21 @@ public static class Configuration
         Debug.Log("Leather Armor configuration set");
     }
 
-
     public static int LeatherArmorGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = leatherArmorEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = leatherArmorEXPPerLevelBase;
+        double multiplier = leatherArmorEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= leatherArmorEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool LeatherArmorIsMaxLevel(ulong exp)
@@ -4229,61 +2914,18 @@ public static class Configuration
 
     public static int LeatherArmorBaseEXPEarnedByDAMAGE(float damage)
     {
-        float baseMultiply = leatherArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
-
-        // Calculating the multiple of damage
         int multiplesCount = calcDamage / leatherArmorEXPIncreaseByAmountDamage;
+        float multiplier = 1 + leatherArmorEXPMultiplyByDamage;
 
-        // Calculating the final multipliyer
-        baseMultiply *= (float)Math.Pow(1 + leatherArmorEXPMultiplyByDamage, multiplesCount);
+        float baseMultiply = leatherArmorEXPPerReceiveHit * (float)Math.Pow(multiplier, multiplesCount);
 
         return (int)Math.Round(baseMultiply);
     }
 
     public static float LeatherArmorDamageReductionByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("LeatherArmorDamageReduction", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("LeatherArmorDamageReduction", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = leatherArmorBaseDamageReduction;
-        while (level > 1)
-        {
-            baseMultiply += leatherArmorDamageReductionPerLevel;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("LeatherArmorDamageReduction", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
-    }
-    public static bool LeatherArmorRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = leatherArmorBaseDurabilityRestoreChance;
-        float chanceToNotReduce = leatherArmorDurabilityRestoreChancePerLevel;
-        while (level > 1)
-        {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % leatherArmorDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= leatherArmorDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
-        }
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Leather Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
+        return leatherArmorBaseDamageReduction + leatherArmorDamageReductionPerLevel * (level - 1);
     }
     #endregion
 
@@ -4296,10 +2938,6 @@ public static class Configuration
     private static double chainArmorEXPMultiplyPerLevel = 2.0;
     private static float chainArmorBaseDamageReduction = 0.0f;
     private static float chainArmorDamageReductionPerLevel = 0.05f;
-    private static float chainArmorBaseDurabilityRestoreChance = 0.0f;
-    private static float chainArmorDurabilityRestoreChancePerLevel = 2.0f;
-    private static int chainArmorDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float chainArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int chainArmorDamageLimit = 1000;
     private static int chainArmorMaxLevel = 999;
 
@@ -4314,94 +2952,67 @@ public static class Configuration
             "levelup:config/levelstats/chainarmor.json");
         { //chainArmorEXPPerReceiveHit
             if (chainArmorLevelStats.TryGetValue("chainArmorEXPPerReceiveHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerReceiveHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorEXPPerReceiveHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPPerReceiveHit is not int is {value.GetType()}");
                 else chainArmorEXPPerReceiveHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerReceiveHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPPerReceiveHit not set");
+            Experience.LoadExperience("ChainArmor", "Hit", (ulong)chainArmorEXPPerReceiveHit);
         }
         { //chainArmorEXPMultiplyByDamage
             if (chainArmorLevelStats.TryGetValue("chainArmorEXPMultiplyByDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPMultiplyByDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyByDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPMultiplyByDamage is not double is {value.GetType()}");
                 else chainArmorEXPMultiplyByDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPMultiplyByDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyByDamage not set");
         }
         { //chainArmorEXPIncreaseByAmountDamage
             if (chainArmorLevelStats.TryGetValue("chainArmorEXPIncreaseByAmountDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPIncreaseByAmountDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorEXPIncreaseByAmountDamage is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
                 else chainArmorEXPIncreaseByAmountDamage = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPIncreaseByAmountDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPIncreaseByAmountDamage not set");
         }
         { //chainArmorEXPPerLevelBase
             if (chainArmorLevelStats.TryGetValue("chainArmorEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else chainArmorEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPPerLevelBase not set");
         }
         { //chainArmorEXPMultiplyPerLevel
             if (chainArmorLevelStats.TryGetValue("chainArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else chainArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel not set");
         }
         { //chainArmorBaseDamageReduction
             if (chainArmorLevelStats.TryGetValue("chainArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorBaseDamageReduction is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorBaseDamageReduction is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorBaseDamageReduction is not double is {value.GetType()}");
                 else chainArmorBaseDamageReduction = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorBaseDamageReduction not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorBaseDamageReduction not set");
         }
         { //chainArmorDamageReductionPerLevel
             if (chainArmorLevelStats.TryGetValue("chainArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDamageReductionPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorDamageReductionPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorDamageReductionPerLevel is not double is {value.GetType()}");
                 else chainArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorDamageReductionPerLevel not set");
-        }
-        { //chainArmorBaseDurabilityRestoreChance
-            if (chainArmorLevelStats.TryGetValue("chainArmorBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else chainArmorBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorBaseDurabilityRestoreChance not set");
-        }
-        { //chainArmorDurabilityRestoreChancePerLevel
-            if (chainArmorLevelStats.TryGetValue("chainArmorDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else chainArmorDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreChancePerLevel not set");
-        }
-        { //chainArmorDurabilityRestoreEveryLevelReduceChance
-            if (chainArmorLevelStats.TryGetValue("chainArmorDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else chainArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //chainArmorDurabilityRestoreReduceChanceForEveryLevel
-            if (chainArmorLevelStats.TryGetValue("chainArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else chainArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorDamageReductionPerLevel not set");
         }
         { //chainArmorDamageLimit
             if (chainArmorLevelStats.TryGetValue("chainArmorDamageLimit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorDamageLimit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorDamageLimit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorDamageLimit is not int is {value.GetType()}");
                 else chainArmorDamageLimit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorDamageLimit not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorDamageLimit not set");
         }
         { //chainArmorMaxLevel
             if (chainArmorLevelStats.TryGetValue("chainArmorMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: chainArmorMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorMaxLevel is not int is {value.GetType()}");
                 else chainArmorMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: chainArmorMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorMaxLevel not set");
         }
 
         // Get leather armor multiply exp
@@ -4421,80 +3032,39 @@ public static class Configuration
 
     public static int ChainArmorGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = chainArmorEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = chainArmorEXPPerLevelBase;
+        double multiplier = chainArmorEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= chainArmorEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool ChainArmorIsMaxLevel(ulong exp)
         => ChainArmorGetLevelByEXP(exp) >= chainArmorMaxLevel;
+
     public static int ChainArmorBaseEXPEarnedByDAMAGE(float damage)
     {
-        float baseMultiply = chainArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
-
-        // Calculating the multiple of damage
         int multiplesCount = calcDamage / chainArmorEXPIncreaseByAmountDamage;
+        float multiplier = 1 + chainArmorEXPMultiplyByDamage;
 
-        // Calculating the final multipliyer
-        baseMultiply *= (float)Math.Pow(1 + chainArmorEXPMultiplyByDamage, multiplesCount);
+        float baseMultiply = chainArmorEXPPerReceiveHit * (float)Math.Pow(multiplier, multiplesCount);
 
         return (int)Math.Round(baseMultiply);
     }
+
     public static float ChainArmorDamageReductionByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("ChainArmorDamageReduction", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("ChainArmorDamageReduction", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = chainArmorBaseDamageReduction;
-        while (level > 1)
-        {
-            baseMultiply += chainArmorDamageReductionPerLevel;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("ChainArmorDamageReduction", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return chainArmorBaseDamageReduction + chainArmorDamageReductionPerLevel * (level - 1);
     }
-    public static bool ChainArmorRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = chainArmorBaseDurabilityRestoreChance;
-        float chanceToNotReduce = chainArmorDurabilityRestoreChancePerLevel;
-        while (level > 1)
-        {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % chainArmorDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= chainArmorDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
-        }
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Chain Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
-    }
-
     #endregion
 
     #region brigandinearmor
@@ -4506,10 +3076,6 @@ public static class Configuration
     private static double brigandineArmorEXPMultiplyPerLevel = 2.0;
     private static float brigandineArmorBaseDamageReduction = 0.0f;
     private static float brigandineArmorDamageReductionPerLevel = 0.05f;
-    private static float brigandineArmorBaseDurabilityRestoreChance = 0.0f;
-    private static float brigandineArmorDurabilityRestoreChancePerLevel = 2.0f;
-    private static int brigandineArmorDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float brigandineArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int brigandineArmorDamageLimit = 1000;
     private static int brigandineArmorMaxLevel = 999;
 
@@ -4524,94 +3090,67 @@ public static class Configuration
             "levelup:config/levelstats/brigandinearmor.json");
         { //brigandineArmorEXPPerReceiveHit
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPPerReceiveHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit is not int is {value.GetType()}");
                 else brigandineArmorEXPPerReceiveHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit not set");
+            Experience.LoadExperience("BrigandineArmor", "Hit", (ulong)brigandineArmorEXPPerReceiveHit);
         }
         { //brigandineArmorEXPMultiplyByDamage
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPMultiplyByDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPMultiplyByDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyByDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPMultiplyByDamage is not double is {value.GetType()}");
                 else brigandineArmorEXPMultiplyByDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPMultiplyByDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyByDamage not set");
         }
         { //brigandineArmorEXPIncreaseByAmountDamage
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPIncreaseByAmountDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPIncreaseByAmountDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPIncreaseByAmountDamage is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
                 else brigandineArmorEXPIncreaseByAmountDamage = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPIncreaseByAmountDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPIncreaseByAmountDamage not set");
         }
         { //brigandineArmorEXPPerLevelBase
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else brigandineArmorEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase not set");
         }
         { //brigandineArmorEXPMultiplyPerLevel
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else brigandineArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel not set");
         }
         { //brigandineArmorBaseDamageReduction
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorBaseDamageReduction is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorBaseDamageReduction is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorBaseDamageReduction is not double is {value.GetType()}");
                 else brigandineArmorBaseDamageReduction = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorBaseDamageReduction not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorBaseDamageReduction not set");
         }
         { //brigandineArmorDamageReductionPerLevel
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel is not double is {value.GetType()}");
                 else brigandineArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel not set");
-        }
-        { //brigandineArmorBaseDurabilityRestoreChance
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else brigandineArmorBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorBaseDurabilityRestoreChance not set");
-        }
-        { //brigandineArmorDurabilityRestoreChancePerLevel
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else brigandineArmorDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreChancePerLevel not set");
-        }
-        { //brigandineArmorDurabilityRestoreEveryLevelReduceChance
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else brigandineArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //brigandineArmorDurabilityRestoreReduceChanceForEveryLevel
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else brigandineArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel not set");
         }
         { //brigandineArmorDamageLimit
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDamageLimit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageLimit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorDamageLimit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDamageLimit is not int is {value.GetType()}");
                 else brigandineArmorDamageLimit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorDamageLimit not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorDamageLimit not set");
         }
         { //brigandineArmorMaxLevel
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: brigandineArmorMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorMaxLevel is not int is {value.GetType()}");
                 else brigandineArmorMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: brigandineArmorMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorMaxLevel not set");
         }
 
         // Get leather armor multiply exp
@@ -4631,18 +3170,18 @@ public static class Configuration
 
     public static int BrigandineArmorGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = brigandineArmorEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = brigandineArmorEXPPerLevelBase;
+        double multiplier = brigandineArmorEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= brigandineArmorEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool BrigandineArmorIsMaxLevel(ulong exp)
@@ -4650,62 +3189,19 @@ public static class Configuration
 
     public static int BrigandineArmorBaseEXPEarnedByDAMAGE(float damage)
     {
-        float baseMultiply = brigandineArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
-
-        // Calculating the multiple of damage
         int multiplesCount = calcDamage / brigandineArmorEXPIncreaseByAmountDamage;
+        float multiplier = 1 + brigandineArmorEXPMultiplyByDamage;
 
-        // Calculating the final multipliyer
-        baseMultiply *= (float)Math.Pow(1 + brigandineArmorEXPMultiplyByDamage, multiplesCount);
+        float baseMultiply = brigandineArmorEXPPerReceiveHit * (float)Math.Pow(multiplier, multiplesCount);
 
         return (int)Math.Round(baseMultiply);
     }
+
     public static float BrigandineArmorDamageReductionByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("BrigandineArmorDamageReduction", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("BrigandineArmorDamageReduction", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = brigandineArmorBaseDamageReduction;
-        while (level > 1)
-        {
-            baseMultiply += brigandineArmorDamageReductionPerLevel;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("BrigandineArmorDamageReduction", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return brigandineArmorBaseDamageReduction + brigandineArmorDamageReductionPerLevel * (level - 1);
     }
-    public static bool BrigandineArmorRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = brigandineArmorBaseDurabilityRestoreChance;
-        float chanceToNotReduce = brigandineArmorDurabilityRestoreChancePerLevel;
-        while (level > 1)
-        {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % brigandineArmorDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= brigandineArmorDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
-        }
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Brigandine Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
-    }
-
     #endregion
 
     #region platearmor
@@ -4717,10 +3213,6 @@ public static class Configuration
     private static double plateArmorEXPMultiplyPerLevel = 2.0;
     private static float plateArmorBaseDamageReduction = 0.0f;
     private static float plateArmorDamageReductionPerLevel = 0.05f;
-    private static float plateArmorBaseDurabilityRestoreChance = 0.0f;
-    private static float plateArmorDurabilityRestoreChancePerLevel = 2.0f;
-    private static int plateArmorDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float plateArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int plateArmorDamageLimit = 1000;
     private static int plateArmorMaxLevel = 999;
 
@@ -4735,94 +3227,67 @@ public static class Configuration
             "levelup:config/levelstats/platearmor.json");
         { //plateArmorEXPPerReceiveHit
             if (plateArmorLevelStats.TryGetValue("plateArmorEXPPerReceiveHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPPerReceiveHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorEXPPerReceiveHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPPerReceiveHit is not int is {value.GetType()}");
                 else plateArmorEXPPerReceiveHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPPerReceiveHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPPerReceiveHit not set");
+            Experience.LoadExperience("PlateArmor", "Hit", (ulong)plateArmorEXPPerReceiveHit);
         }
         { //plateArmorEXPMultiplyByDamage
             if (plateArmorLevelStats.TryGetValue("plateArmorEXPMultiplyByDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPMultiplyByDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyByDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPMultiplyByDamage is not double is {value.GetType()}");
                 else plateArmorEXPMultiplyByDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPMultiplyByDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyByDamage not set");
         }
         { //plateArmorEXPIncreaseByAmountDamage
             if (plateArmorLevelStats.TryGetValue("plateArmorEXPIncreaseByAmountDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPIncreaseByAmountDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorEXPIncreaseByAmountDamage is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
                 else plateArmorEXPIncreaseByAmountDamage = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPIncreaseByAmountDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPIncreaseByAmountDamage not set");
         }
         { //plateArmorEXPPerLevelBase
             if (plateArmorLevelStats.TryGetValue("plateArmorEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else plateArmorEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPPerLevelBase not set");
         }
         { //plateArmorEXPMultiplyPerLevel
             if (plateArmorLevelStats.TryGetValue("plateArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else plateArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel not set");
         }
         { //plateArmorBaseDamageReduction
             if (plateArmorLevelStats.TryGetValue("plateArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorBaseDamageReduction is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorBaseDamageReduction is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorBaseDamageReduction is not double is {value.GetType()}");
                 else plateArmorBaseDamageReduction = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorBaseDamageReduction not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorBaseDamageReduction not set");
         }
         { //plateArmorDamageReductionPerLevel
             if (plateArmorLevelStats.TryGetValue("plateArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDamageReductionPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorDamageReductionPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorDamageReductionPerLevel is not double is {value.GetType()}");
                 else plateArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorDamageReductionPerLevel not set");
-        }
-        { //plateArmorBaseDurabilityRestoreChance
-            if (plateArmorLevelStats.TryGetValue("plateArmorBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else plateArmorBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorBaseDurabilityRestoreChance not set");
-        }
-        { //plateArmorDurabilityRestoreChancePerLevel
-            if (plateArmorLevelStats.TryGetValue("plateArmorDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else plateArmorDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreChancePerLevel not set");
-        }
-        { //plateArmorDurabilityRestoreEveryLevelReduceChance
-            if (plateArmorLevelStats.TryGetValue("plateArmorDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else plateArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //plateArmorDurabilityRestoreReduceChanceForEveryLevel
-            if (plateArmorLevelStats.TryGetValue("plateArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else plateArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorDamageReductionPerLevel not set");
         }
         { //plateArmorDamageLimit
             if (plateArmorLevelStats.TryGetValue("plateArmorDamageLimit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorDamageLimit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorDamageLimit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorDamageLimit is not int is {value.GetType()}");
                 else plateArmorDamageLimit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorDamageLimit not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorDamageLimit not set");
         }
         { //plateArmorMaxLevel
             if (plateArmorLevelStats.TryGetValue("plateArmorMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: plateArmorMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorMaxLevel is not int is {value.GetType()}");
                 else plateArmorMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: plateArmorMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorMaxLevel not set");
         }
 
         // Get leather armor multiply exp
@@ -4842,18 +3307,18 @@ public static class Configuration
 
     public static int PlateArmorGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = plateArmorEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = plateArmorEXPPerLevelBase;
+        double multiplier = plateArmorEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= plateArmorEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
 
     public static bool PlateArmorIsMaxLevel(ulong exp)
@@ -4861,62 +3326,19 @@ public static class Configuration
 
     public static int PlateArmorBaseEXPEarnedByDAMAGE(float damage)
     {
-        float baseMultiply = plateArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
-
-        // Calculating the multiple of damage
         int multiplesCount = calcDamage / plateArmorEXPIncreaseByAmountDamage;
+        float multiplier = 1 + plateArmorEXPMultiplyByDamage;
 
-        // Calculating the final multipliyer
-        baseMultiply *= (float)Math.Pow(1 + plateArmorEXPMultiplyByDamage, multiplesCount);
+        float baseMultiply = plateArmorEXPPerReceiveHit * (float)Math.Pow(multiplier, multiplesCount);
 
         return (int)Math.Round(baseMultiply);
     }
+
     public static float PlateArmorDamageReductionByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("PlateArmorDamageReduction", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("PlateArmorDamageReduction", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = plateArmorBaseDamageReduction;
-        while (level > 1)
-        {
-            baseMultiply += plateArmorDamageReductionPerLevel;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("PlateArmorDamageReduction", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return plateArmorBaseDamageReduction + plateArmorDamageReductionPerLevel * Math.Max(0, level - 1);
     }
-    public static bool PlateArmorRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = plateArmorBaseDurabilityRestoreChance;
-        float chanceToNotReduce = plateArmorDurabilityRestoreChancePerLevel;
-        while (level > 1)
-        {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % plateArmorDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= plateArmorDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
-        }
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Plate Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
-    }
-
     #endregion
 
     #region scalearmor
@@ -4928,10 +3350,6 @@ public static class Configuration
     private static double scaleArmorEXPMultiplyPerLevel = 2.0;
     private static float scaleArmorBaseDamageReduction = 0.0f;
     private static float scaleArmorDamageReductionPerLevel = 0.05f;
-    private static float scaleArmorBaseDurabilityRestoreChance = 0.0f;
-    private static float scaleArmorDurabilityRestoreChancePerLevel = 2.0f;
-    private static int scaleArmorDurabilityRestoreEveryLevelReduceChance = 10;
-    private static float scaleArmorDurabilityRestoreReduceChanceForEveryLevel = 0.5f;
     private static int scaleArmorDamageLimit = 1000;
     private static int scaleArmorMaxLevel = 999;
 
@@ -4946,94 +3364,67 @@ public static class Configuration
             "levelup:config/levelstats/scalearmor.json");
         { //scaleArmorEXPPerReceiveHit
             if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPPerReceiveHit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit is not int is {value.GetType()}");
                 else scaleArmorEXPPerReceiveHit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit not set");
+            Experience.LoadExperience("ScaleArmor", "Hit", (ulong)scaleArmorEXPPerReceiveHit);
         }
         { //scaleArmorEXPMultiplyByDamage
             if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPMultiplyByDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPMultiplyByDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyByDamage is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPMultiplyByDamage is not double is {value.GetType()}");
                 else scaleArmorEXPMultiplyByDamage = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPMultiplyByDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyByDamage not set");
         }
         { //scaleArmorEXPIncreaseByAmountDamage
             if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPIncreaseByAmountDamage", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPIncreaseByAmountDamage is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPIncreaseByAmountDamage is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
                 else scaleArmorEXPIncreaseByAmountDamage = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPIncreaseByAmountDamage not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPIncreaseByAmountDamage not set");
         }
         { //scaleArmorEXPPerLevelBase
             if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPPerLevelBase", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPPerLevelBase is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPPerLevelBase is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else scaleArmorEXPPerLevelBase = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPPerLevelBase not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPPerLevelBase not set");
         }
         { //scaleArmorEXPMultiplyPerLevel
             if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
                 else scaleArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel not set");
         }
         { //scaleArmorBaseDamageReduction
             if (scaleArmorLevelStats.TryGetValue("scaleArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorBaseDamageReduction is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorBaseDamageReduction is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorBaseDamageReduction is not double is {value.GetType()}");
                 else scaleArmorBaseDamageReduction = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorBaseDamageReduction not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorBaseDamageReduction not set");
         }
         { //scaleArmorDamageReductionPerLevel
             if (scaleArmorLevelStats.TryGetValue("scaleArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel is not double is {value.GetType()}");
                 else scaleArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel not set");
-        }
-        { //scaleArmorBaseDurabilityRestoreChance
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorBaseDurabilityRestoreChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorBaseDurabilityRestoreChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorBaseDurabilityRestoreChance is not double is {value.GetType()}");
-                else scaleArmorBaseDurabilityRestoreChance = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorBaseDurabilityRestoreChance not set");
-        }
-        { //scaleArmorDurabilityRestoreChancePerLevel
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorDurabilityRestoreChancePerLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreChancePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorDurabilityRestoreChancePerLevel is not double is {value.GetType()}");
-                else scaleArmorDurabilityRestoreChancePerLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreChancePerLevel not set");
-        }
-        { //scaleArmorDurabilityRestoreEveryLevelReduceChance
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorDurabilityRestoreEveryLevelReduceChance", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreEveryLevelReduceChance is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorDurabilityRestoreEveryLevelReduceChance is not int is {value.GetType()}");
-                else scaleArmorDurabilityRestoreEveryLevelReduceChance = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreEveryLevelReduceChance not set");
-        }
-        { //scaleArmorDurabilityRestoreReduceChanceForEveryLevel
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorDurabilityRestoreReduceChanceForEveryLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreReduceChanceForEveryLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorDurabilityRestoreReduceChanceForEveryLevel is not double is {value.GetType()}");
-                else scaleArmorDurabilityRestoreReduceChanceForEveryLevel = (float)(double)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorDurabilityRestoreReduceChanceForEveryLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel not set");
         }
         { //scaleArmorDamageLimit
             if (scaleArmorLevelStats.TryGetValue("scaleArmorDamageLimit", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorDamageLimit is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorDamageLimit is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorDamageLimit is not int is {value.GetType()}");
                 else scaleArmorDamageLimit = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorDamageLimit not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorDamageLimit not set");
         }
         { //scaleArmorMaxLevel
             if (scaleArmorLevelStats.TryGetValue("scaleArmorMaxLevel", out object value))
-                if (value is null) Debug.Log("CONFIGURATION ERROR: scaleArmorMaxLevel is null");
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorMaxLevel is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorMaxLevel is not int is {value.GetType()}");
                 else scaleArmorMaxLevel = (int)(long)value;
-            else Debug.Log("CONFIGURATION ERROR: scaleArmorMaxLevel not set");
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorMaxLevel not set");
         }
 
         // Get leather armor multiply exp
@@ -5053,81 +3444,39 @@ public static class Configuration
 
     public static int ScaleArmorGetLevelByEXP(ulong exp)
     {
-        int level = 0;
-        // Exp base for level
-        double expPerLevelBase = scaleArmorEXPPerLevelBase;
-        double calcExp = double.Parse(exp.ToString());
-        while (calcExp > 0)
+        double baseExp = scaleArmorEXPPerLevelBase;
+        double multiplier = scaleArmorEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
         {
-            level += 1;
-            calcExp -= expPerLevelBase;
-            // 10 percentage increasing per level
-            expPerLevelBase *= scaleArmorEXPMultiplyPerLevel;
+            return (int)(exp / baseExp);
         }
-        return level;
+
+        double expDouble = exp;
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
     }
+
 
     public static bool ScaleArmorIsMaxLevel(ulong exp)
         => ScaleArmorGetLevelByEXP(exp) >= scaleArmorMaxLevel;
 
     public static int ScaleArmorBaseEXPEarnedByDAMAGE(float damage)
     {
-        float baseMultiply = scaleArmorEXPPerReceiveHit;
         int calcDamage = (int)Math.Round(damage);
-
-        // Calculating the multiple of damage
         int multiplesCount = calcDamage / scaleArmorEXPIncreaseByAmountDamage;
+        float multiplier = 1 + scaleArmorEXPMultiplyByDamage;
 
-        // Calculating the final multipliyer
-        baseMultiply *= (float)Math.Pow(1 + scaleArmorEXPMultiplyByDamage, multiplesCount);
+        float baseMultiply = scaleArmorEXPPerReceiveHit * (float)Math.Pow(multiplier, multiplesCount);
 
         return (int)Math.Round(baseMultiply);
     }
+
     public static float ScaleArmorDamageReductionByLevel(int level)
     {
-        #region cache check
-        if (cacheCalculations.TryGetValue("ScaleArmorDamageReduction", out var levels))
-            if (levels.TryGetValue(level, out var value)) return value;
-            else { }
-        else cacheCalculations.Add("ScaleArmorDamageReduction", []);
-        int playerLevel = level;
-        #endregion
-
-        #region calculation
-        float baseMultiply = scaleArmorBaseDamageReduction;
-        while (level > 1)
-        {
-            baseMultiply += scaleArmorDamageReductionPerLevel;
-            level -= 1;
-        }
-        #endregion
-
-        #region cache creation
-        if (cacheCalculations.TryGetValue("ScaleArmorDamageReduction", out var newLevels))
-            newLevels.Add(playerLevel, baseMultiply);
-        #endregion
-        return baseMultiply;
+        return scaleArmorBaseDamageReduction + scaleArmorDamageReductionPerLevel * Math.Max(0, level - 1);
     }
-    public static bool ScaleArmorRollChanceToNotReduceDurabilityByLevel(int level)
-    {
-        float baseChanceToNotReduce = scaleArmorBaseDurabilityRestoreChance;
-        float chanceToNotReduce = scaleArmorDurabilityRestoreChancePerLevel;
-        while (level > 1)
-        {
-            level -= 1;
-            // Every {} levels reduce the durability chance multiplicator
-            if (level % scaleArmorDurabilityRestoreEveryLevelReduceChance == 0)
-                chanceToNotReduce -= scaleArmorDurabilityRestoreReduceChanceForEveryLevel;
-            // Increasing chance
-            baseChanceToNotReduce += chanceToNotReduce;
-        }
-        // Check the chance 
-        int chance = new Random().Next(0, 100);
-        if (enableExtendedLog) Debug.Log($"Scale Armor durability mechanic check: {baseChanceToNotReduce} : {chance}");
-        if (baseChanceToNotReduce >= chance) return true;
-        else return false;
-    }
-
     #endregion
 
     #region classexp
@@ -5159,18 +3508,19 @@ public static class Configuration
                     case "Vitality": return (float)Convert.ToSingle(classConfigs["classVitalityLevelMultiply"]);
                     case "LeatherArmor": return (float)Convert.ToSingle(classConfigs["classLeatherArmorLevelMultiply"]);
                     case "ChainArmor": return (float)Convert.ToSingle(classConfigs["classChainArmorLevelMultiply"]);
+                    case "Smithing": return (float)Convert.ToSingle(classConfigs["classSmithingLevelMultiply"]);
                     default:
-                        Debug.Log($"ERROR: The leveltype {levelType} does not exist");
+                        Debug.LogError($"ERROR: The leveltype {levelType} does not exist");
                         return 1.0f;
                 }
             }
             catch (Exception ex)
             {
-                Debug.Log($"ERROR: Unable to find the value from {levelType} in {playerClass} configurations, you probably miss something in the json configuration, ex message: {ex.Message}");
+                Debug.LogError($"ERROR: Unable to find the value from {levelType} in {playerClass} configurations, you probably miss something in the json configuration, ex message: {ex.Message}");
                 return 1.0f;
             }
         }
-        Debug.Log($"ERROR: The class {playerClass} does not exist in the configurations, probably a custom class without configs");
+        Debug.LogError($"ERROR: The class {playerClass} does not exist in the configurations, probably a custom class without configs");
         return 1.0f;
     }
 
@@ -5194,7 +3544,7 @@ public static class Configuration
                     if (!classExperience.TryGetValue(configname, out _)) classExperience.Add(configname, []);
                     else
                     {
-                        Debug.Log($"WARNING: {configname} already exist in memory, duplicated class? how?");
+                        Debug.LogWarn($"WARNING: {configname} already exist in memory, duplicated class? how?");
                         continue;
                     }
                     ;
@@ -5210,7 +3560,7 @@ public static class Configuration
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log($"ERROR: Cannot load the class {configname}, probably the file is corrupted? reason: {ex.Message}");
+                    Debug.Log($"ERROR: Cannot load the class {configname}, probably the file is invalid? reason: {ex.Message}");
                 }
             }
 
@@ -5219,37 +3569,49 @@ public static class Configuration
         // Classes directory doesn't exist
         else
         {
-            Debug.Log("WARNING: Server configuration classes directory doesn't exist, creating default classes");
+            Debug.LogWarn("WARNING: Server configuration classes directory doesn't exist, creating default classes");
 
             Dictionary<string, object> hunterclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "hunterclass", "levelup:config/classexp/hunterclass.json");
             classExperience.Add("hunterclass", []);
             foreach (KeyValuePair<string, object> pair in hunterclass)
+            {
                 classExperience["hunterclass"].Add(pair.Key, pair.Value);
+            }
 
             Dictionary<string, object> commonerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "commonerclass", "levelup:config/classexp/commonerclass.json");
             classExperience.Add("commonerclass", []);
             foreach (KeyValuePair<string, object> pair in commonerclass)
+            {
                 classExperience["commonerclass"].Add(pair.Key, pair.Value);
+            }
 
             Dictionary<string, object> blackguardclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "blackguardclass", "levelup:config/classexp/blackguardclass.json");
             classExperience.Add("blackguardclass", []);
             foreach (KeyValuePair<string, object> pair in blackguardclass)
+            {
                 classExperience["blackguardclass"].Add(pair.Key, pair.Value);
+            }
 
             Dictionary<string, object> clockmakerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "clockmakerclass", "levelup:config/classexp/clockmakerclass.json");
             classExperience.Add("clockmakerclass", []);
             foreach (KeyValuePair<string, object> pair in clockmakerclass)
+            {
                 classExperience["clockmakerclass"].Add(pair.Key, pair.Value);
+            }
 
             Dictionary<string, object> malefactorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "malefactorclass", "levelup:config/classexp/malefactorclass.json");
             classExperience.Add("malefactorclass", []);
             foreach (KeyValuePair<string, object> pair in malefactorclass)
+            {
                 classExperience["malefactorclass"].Add(pair.Key, pair.Value);
+            }
 
             Dictionary<string, object> tailorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "tailorclass", "levelup:config/classexp/tailorclass.json");
             classExperience.Add("tailorclass", []);
             foreach (KeyValuePair<string, object> pair in tailorclass)
+            {
                 classExperience["tailorclass"].Add(pair.Key, pair.Value);
+            }
         }
     }
     #endregion

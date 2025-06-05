@@ -24,9 +24,9 @@
     "enableLevelBrigandineArmor": true,
     "enableLevelPlateArmor": true,
     "enableLevelScaleArmor": true,
+    "enableLevelSmithing": true,
     "cookingFirePitOverflow": 10,
     "minimumEXPEarned": 1,
-    "disableServerChannel": false,
     "enableLevelUpChatMessages": true,
     "enableLevelUpExperienceServerLog": false,
     "enableExtendedLog": false

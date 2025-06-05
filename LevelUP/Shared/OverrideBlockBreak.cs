@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using LevelUP.Server;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
@@ -28,7 +29,7 @@ class OverwriteBlockBreak
         else
         {
             if (instance.side == EnumAppSide.Client) Debug.Log("Block break overwriter has already patched, probably by the singleplayer server");
-            else Debug.Log("ERROR: Block break overwriter has already patched, did some mod already has levelup_blockbreak in harmony?");
+            else Debug.LogError("ERROR: Block break overwriter has already patched, did some mod already has levelup_blockbreak in harmony?");
         }
     }
 
@@ -115,18 +116,7 @@ class OverwriteBlockBreak
     {
         // Check if axe breaked is a player
         if (Configuration.enableLevelAxe && byEntity is EntityPlayer)
-        {
-            EntityPlayer playerEntity = byEntity as EntityPlayer;
-
-            // Check if is server side
-            if (playerEntity.Player is IServerPlayer && world.Side == EnumAppSide.Server)
-            {
-                // Earny xp by breaking tree
-                instance.serverAPI?.OnExperienceEarned(playerEntity.Player as IServerPlayer, "Tree_Breaked_Axe");
-            }
-            // Single player treatment and lan treatment
-            else if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer) instance.clientAPI.compatibilityChannel?.SendPacket($"Tree_Breaked_Axe&lanplayername={byEntity.GetName()}");
-        }
+            Experience.IncreaseExperience((byEntity as EntityPlayer).Player, "Axe", "TreeBreak");
     }
 
     // Overwrite Ores Drop
@@ -135,14 +125,11 @@ class OverwriteBlockBreak
     public static void OnBlockBroken(BlockOre __instance, IWorldAccessor world, IPlayer byPlayer, ref float dropQuantityMultiplier)
     {
         // Check if is from the server
-        if (Configuration.enableLevelPickaxe && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
+        if (Configuration.enableLevelPickaxe && byPlayer != null && world.Side == EnumAppSide.Server)
         {
-            IServerPlayer player = byPlayer as IServerPlayer;
             // Increasing ore drop rate
-            dropQuantityMultiplier += Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
-
-            if (Configuration.enableExtendedLog)
-                Debug.Log($"{player.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))}");
+            dropQuantityMultiplier += Configuration.PickaxeGetOreMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
+            Debug.LogDebug($"{byPlayer.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))}");
         }
     }
 
@@ -154,10 +141,8 @@ class OverwriteBlockBreak
         // Natural breaking without player treatment
         if (byPlayer == null) return __result;
 
-        int cropDropCompatibility = byPlayer.Entity.Attributes.GetInt("LevelUP_BlockBreak_ExtendCropDrops_GetDrops");
-        byPlayer.Entity.Attributes.RemoveAttribute("LevelUP_BlockBreak_ExtendCropDrops_GetDrops");
         // Check if is from the server
-        if (Configuration.enableLevelFarming && byPlayer is IServerPlayer && world.Side == EnumAppSide.Server)
+        if (Configuration.enableLevelFarming && byPlayer != null && world.Side == EnumAppSide.Server)
         {
             // Crop experience if exist
             int? exp = null;
@@ -169,9 +154,8 @@ class OverwriteBlockBreak
                 if (Configuration.expPerHarvestFarming.TryGetValue(itemStack.ToString(), out int _exp))
                 {
                     exp = _exp;
-                    IServerPlayer player = byPlayer as IServerPlayer;
                     // Multiply crop drop
-                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))) + cropDropCompatibility;
+                    itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
                     // Update item stack result
                     __result[index] = itemStack;
                 }
@@ -180,17 +164,9 @@ class OverwriteBlockBreak
 
             // Add harvest experience
             if (exp != null)
-            {
-                // Dedicated Servers
-                if (instance.serverAPI != null)
-                    instance.serverAPI.OnExperienceEarned(byPlayer as IServerPlayer, $"Farming_Harvest&forceexp={exp}");
-                // Single player treatment and lan treatment
-                else if (instance.clientAPI?.api.IsSinglePlayer ?? false)
-                    instance.clientAPI.compatibilityChannel?.SendPacket($"Farming_Harvest&forceexp={exp}");
-            }
+                Experience.IncreaseExperience(byPlayer, "Farming", (ulong)exp);
 
-            if (Configuration.enableExtendedLog)
-                Debug.Log($"{byPlayer.PlayerName} breaked a crop, multiply drop: {Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))}");
+            Debug.LogDebug($"{byPlayer.PlayerName} breaked a crop, multiply drop: {Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))}, experience: {exp}");
         }
         return __result;
     }

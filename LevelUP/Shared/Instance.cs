@@ -3,6 +3,7 @@ using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
+
 class Instance
 {
     public Client.Instance clientAPI;
@@ -35,12 +36,13 @@ class Instance
         blockInteraction.overwriter?.UnpatchAll();
     }
 
-    public static void UpdateLevelAndNotify(ICoreServerAPI api, IPlayer player, string levelType, ulong exp, bool disableLevelUpNotify = false)
+    public static void UpdateLevelAndNotify(ICoreServerAPI _, IPlayer player, string levelType, ulong exp, bool disableLevelUpNotify = false)
     {
         // Previous exp level, before getting the new experience
         int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}", 0));
         // Actual player level
         int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
+
         // Check if player leveled up
         if (previousLevel < nextLevel)
         {
@@ -59,16 +61,16 @@ class Instance
                 // Get player stats
                 EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
                 // Check if stats is null
-                if (playerStats == null) { Debug.Log($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
+                if (playerStats == null) { Debug.LogError($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
 
                 // Getting health stats
                 playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByLevel(nextLevel);
-                player.Entity.WatchedAttributes.SetFloat("regenSpeed", Configuration.VitalityGetHealthRegenMultiplyByLevel(nextLevel)); 
+                player.Entity.WatchedAttributes.SetFloat("regenSpeed", Configuration.VitalityGetHealthRegenMultiplyByLevel(nextLevel));
 
                 // Refresh for the player
                 playerStats.UpdateMaxHealth();
 
-                if (Configuration.enableExtendedLog) Debug.Log($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
+                Debug.LogDebug($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
             }
         }
 

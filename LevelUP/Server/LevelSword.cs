@@ -29,18 +29,6 @@ class LevelSword
     }
 #pragma warning restore CA1822
 
-    private Dictionary<string, ulong> GetSavedLevels()
-    {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Sword");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        return JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-    }
-
-    private void SaveLevels(Dictionary<string, ulong> swordLevels)
-    {
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Sword", JsonSerializer.Serialize(swordLevels));
-    }
-
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
         // Error treatment
@@ -59,30 +47,17 @@ class LevelSword
         // Check if player is using a Sword
         if (player.InventoryManager.ActiveTool != EnumTool.Sword) return;
 
-        // Get all players levels
-        Dictionary<string, ulong> swordLevels = GetSavedLevels();
-
         // Get the exp received
-        float experienceMultiplierCompatibility = player.Entity.Attributes.GetFloat("LevelUP_Server_Instance_ExperienceMultiplier_IncreaseExp");
-        int exp = (int)(Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString()) + (Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString()) * experienceMultiplierCompatibility));
-        // Increasing by player class
-        exp = (int)Math.Round(exp * Configuration.GetEXPMultiplyByClassAndLevelType(player.Entity.WatchedAttributes.GetString("characterClass"), "Sword"));
-        // Minium exp earned is 1
-        if (exp <= 0) exp = Configuration.minimumEXPEarned;
+        ulong exp = (ulong)Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString());
 
         // Get the actual player total exp
-        ulong playerExp = swordLevels.GetValueOrDefault<string, ulong>(player.PlayerUID, 0);
+        ulong playerExp = Experience.GetExperience(player, "Sword");
         if (Configuration.SwordIsMaxLevel(playerExp)) return;
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, sword exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        swordLevels[player.PlayerUID] = playerExp + (ulong)exp;
-
-        // Saving
-        SaveLevels(swordLevels);
-        // Updating
-        Shared.Instance.UpdateLevelAndNotify(instance.api, player, "Sword", swordLevels[player.PlayerUID]);
+        Experience.IncreaseExperience(player, "Sword", exp);
     }
 }
