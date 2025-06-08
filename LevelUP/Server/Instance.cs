@@ -266,239 +266,218 @@ class Instance
 
         { // Hunter
             ulong exp = Experience.GetExperience(player, "Hunter");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.HunterGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.HunterGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Hunter", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Hunter", expToReduce);
         }
         { // Bow
             ulong exp = Experience.GetExperience(player, "Bow");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.BowGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.BowGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Bow", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Bow", expToReduce);
         }
         { // Knife
             ulong exp = Experience.GetExperience(player, "Knife");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.KnifeGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.KnifeGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Knife", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Knife", expToReduce);
         }
         { // Axe
             ulong exp = Experience.GetExperience(player, "Axe");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.AxeGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.AxeGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Axe", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Axe", expToReduce);
         }
         { // Pickaxe
             ulong exp = Experience.GetExperience(player, "Pickaxe");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.PickaxeGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.PickaxeGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Pickaxe", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Pickaxe", expToReduce);
         }
         { // Shovel
             ulong exp = Experience.GetExperience(player, "Shovel");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.ShovelGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.ShovelGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Shovel", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Shovel", expToReduce);
         }
         { // Spear
             ulong exp = Experience.GetExperience(player, "Spear");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.SpearGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.SpearGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Spear", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Spear", expToReduce);
         }
         { // Hammer
             ulong exp = Experience.GetExperience(player, "Hammer");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.HammerGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.HammerGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Hammer", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Hammer", expToReduce);
         }
         { // Sword
             ulong exp = Experience.GetExperience(player, "Sword");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.SwordGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.SwordGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Sword", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Sword", expToReduce);
         }
         { // Shield
             ulong exp = Experience.GetExperience(player, "Shield");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.ShieldGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.ShieldGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Shield", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Shield", expToReduce);
         }
         { // Hand
             ulong exp = Experience.GetExperience(player, "Hand");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.HandGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.HandGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Hand", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Hand", expToReduce);
         }
         { // Farming
             ulong exp = Experience.GetExperience(player, "Farming");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.FarmingGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.FarmingGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Farming", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Farming", expToReduce);
         }
         { // Cooking
             ulong exp = Experience.GetExperience(player, "Cooking");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.CookingGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.CookingGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Cooking", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Cooking", expToReduce);
         }
         { // Panning
             ulong exp = Experience.GetExperience(player, "Panning");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.PanningGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.PanningGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Panning", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Panning", expToReduce);
         }
         { // Vitality
             ulong exp = Experience.GetExperience(player, "Vitality");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.VitalityGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.VitalityGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Vitality", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Vitality", expToReduce);
         }
         { // LeatherArmor
             ulong exp = Experience.GetExperience(player, "LeatherArmor");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.LeatherArmorGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.LeatherArmorGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "LeatherArmor", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "LeatherArmor", expToReduce);
         }
         { // ChainArmor
             ulong exp = Experience.GetExperience(player, "ChainArmor");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.ChainArmorGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.ChainArmorGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "ChainArmor", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "ChainArmor", expToReduce);
         }
         { // BrigandineArmor
             ulong exp = Experience.GetExperience(player, "BrigandineArmor");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.BrigandineArmorGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.BrigandineArmorGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "BrigandineArmor", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "BrigandineArmor", expToReduce);
         }
         { // PlateArmor
             ulong exp = Experience.GetExperience(player, "PlateArmor");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.PlateArmorGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.PlateArmorGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "PlateArmor", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "PlateArmor", expToReduce);
         }
         { // ScaleArmor
             ulong exp = Experience.GetExperience(player, "ScaleArmor");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.ScaleArmorGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.ScaleArmorGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "ScaleArmor", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "ScaleArmor", expToReduce);
         }
         { // Smithing
             ulong exp = Experience.GetExperience(player, "Smithing");
-            ulong expToReduce = (ulong)Math.Round(exp * losePercentage);
-            while (true)
-            {
-                if (expToReduce <= 10) break;
+            int currentLevel = Configuration.SmithingGetLevelByEXP(exp);
+            ulong minExpToStayAtThisLevel = Configuration.SmithingGetExpForLevel(currentLevel);
 
-                if (Experience.ReduceExperience(player, "Smithing", expToReduce)) break;
-                else expToReduce /= 2;
-            }
+            ulong maxExpToLose = exp - minExpToStayAtThisLevel;
+
+            ulong expToReduce = Math.Min((ulong)Math.Round(exp * losePercentage), maxExpToLose);
+            Experience.ReduceExperience(player, "Smithing", expToReduce);
         }
 
         if (overwriteLose == -1)
         {
-            Debug.LogDebug($"{player.PlayerUID} died and lost {(int)((1.0 - losePercentage) * 100)}% of all experience");
+            Debug.LogDebug($"{player.PlayerUID} died and lost {(int)((1.0 - losePercentage) * 100)}% progress to the next level");
             if (Configuration.hardcoreMessageWhenDying)
                 communicationChannel.SendPacket(new ServerMessage() { message = $"playerhardcoredied&{(int)((1.0 - losePercentage) * 100)}" }, player);
         }

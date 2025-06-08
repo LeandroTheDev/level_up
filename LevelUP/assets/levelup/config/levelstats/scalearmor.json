@@ -2,7 +2,7 @@
     "scaleArmorEXPPerReceiveHit": 10,
     "scaleArmorEXPMultiplyByDamage": 0.3,
     "scaleArmorEXPIncreaseByAmountDamage": 20,
-    "scaleArmorEXPPerLevelBase": 20,
+    "scaleArmorEXPPerLevelBase": 50,
     "scaleArmorEXPMultiplyPerLevel": 1.2,
     "scaleArmorBaseDamageReduction": 0.0,
     "scaleArmorDamageReductionPerLevel": 0.05,

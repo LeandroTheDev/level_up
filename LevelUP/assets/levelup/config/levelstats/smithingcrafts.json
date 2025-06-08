@@ -245,6 +245,8 @@
     
     // Leather Armor    
     "LeatherArmor?game:armor-head-sewn-leather": 150,
+    "LeatherArmor?game:armor-body-sewn-leather": 200,
+    "LeatherArmor?game:armor-legs-sewn-leather": 150,
     "LeatherArmor?game:clothes-shoulder-stained-leather-poncho": 100,
     "LeatherArmor?game:clothes-hand-heavy-leather-gloves": 100,
     "LeatherArmor?game:clothes-upperbodyover-malefactor-tunic": 100,
