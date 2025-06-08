@@ -69,6 +69,6 @@ class LevelSpear
             Debug.Log($"{player.PlayerName} killed: {entity.Code}, spear exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
-        Experience.IncreaseExperience(player, "Shovel", exp);
+        Experience.IncreaseExperience(player, "Spear", exp);
     }
 }

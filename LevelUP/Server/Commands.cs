@@ -54,20 +54,11 @@ class Commands
         // Check if experience is a valid decimal number
         if (!long.TryParse(args[3], out _)) return TextCommandResult.Success($"Invalid experience value, use only decimal numbers", "3");
 
-        // Get levels
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData($"LevelUPData_{args[1]}");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        Dictionary<string, ulong> levels = JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-
         IServerPlayer player = GetPlayerByUsernameOrUID(args[2]);
         if (player == null) return TextCommandResult.Success($"Player {args[2]} not found or not online", "14");
 
-        // Update experience
-        if (levels.TryGetValue(player.PlayerUID, out ulong _)) levels[player.PlayerUID] = ulong.Parse(args[3]);
-        else levels[player.PlayerUID] = ulong.Parse(args[3]);
-
-        // Save it
-        instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
+        // Update player levels
+        Experience.ChangeExperience(player, args[1], ulong.Parse(args[3]));
 
         // Refresh player levels
         Instance.UpdatePlayerLevels(player, instance.api);
@@ -86,25 +77,16 @@ class Commands
         // Check if experience is a valid decimal number
         if (!long.TryParse(args[3], out _)) return TextCommandResult.Success($"Invalid experience value, use only decimal numbers", "3");
 
-        // Get levels
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData($"LevelUPData_{args[1]}");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        Dictionary<string, ulong> levels = JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-
         IServerPlayer player = GetPlayerByUsernameOrUID(args[2]);
         if (player == null) return TextCommandResult.Success($"Player {args[2]} not found or not online", "14");
 
-        // Update experience
-        if (levels.TryGetValue(player.PlayerUID, out ulong _)) levels[player.PlayerUID] += ulong.Parse(args[3]);
-        else levels[player.PlayerUID] = ulong.Parse(args[3]);
-
-        // Save it
-        instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
+        // Incrementing player experience
+        Experience.IncreaseExperience(player, args[1], ulong.Parse(args[3]));
 
         // Refresh player levels
         Instance.UpdatePlayerLevels(player, instance.api);
 
-        return TextCommandResult.Success($"Added {player.PlayerName} experience to {args[3]} on level {args[1]}", "11");
+        return TextCommandResult.Success($"Added {args[3]} experience to {player.PlayerName} on level {args[1]}", "11");
     }
 
     private TextCommandResult ReduceExperience(string[] args)
@@ -118,28 +100,16 @@ class Commands
         // Check if experience is a valid decimal number
         if (!long.TryParse(args[3], out _)) return TextCommandResult.Success($"Invalid experience value, use only decimal numbers", "3");
 
-        // Get levels
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData($"LevelUPData_{args[1]}");
-        string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
-        Dictionary<string, ulong> levels = JsonSerializer.Deserialize<Dictionary<string, ulong>>(data);
-
         IServerPlayer player = GetPlayerByUsernameOrUID(args[2]);
         if (player == null) return TextCommandResult.Success($"Player {args[2]} not found or not online", "14");
 
-        // Update experience
-        if (levels.TryGetValue(player.PlayerUID, out ulong _)) levels[player.PlayerUID] -= ulong.Parse(args[3]);
-        else levels[player.PlayerUID] = 0;
-
-        // Negative experience treatment
-        if (levels[player.PlayerUID] < 0) levels[player.PlayerUID] = 0;
-
-        // Save it
-        instance.api.WorldManager.SaveGame.StoreData($"LevelUPData_{args[1]}", JsonSerializer.Serialize(levels));
+        // Reducing the player experience
+        Experience.ReduceExperience(player, args[1], ulong.Parse(args[3]), true);
 
         // Refresh player levels
         Instance.UpdatePlayerLevels(player, instance.api);
 
-        return TextCommandResult.Success($"Reduced {player.PlayerName} experience to {args[3]} on level {args[1]}", "12");
+        return TextCommandResult.Success($"Reduced {args[3]} experience to {player.PlayerName} on level {args[1]}", "12");
     }
 
     private TextCommandResult ResetPlayerStatus(string[] args)

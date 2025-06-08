@@ -385,6 +385,37 @@ public static class Configuration
         return -1.0f;
     }
 
+    public static bool CheckMaxLevelByLevelTypeEXP(string levelType, ulong exp)
+    {
+        switch (levelType)
+        {
+            case "Hunter": return HunterIsMaxLevel(exp);
+            case "Bow": return BowIsMaxLevel(exp);
+            case "Knife": return KnifeIsMaxLevel(exp);
+            case "Axe": return AxeIsMaxLevel(exp);
+            case "Pickaxe": return PickaxeIsMaxLevel(exp);
+            case "Shovel": return ShovelIsMaxLevel(exp);
+            case "Spear": return SpearIsMaxLevel(exp);
+            case "Hammer": return HammerIsMaxLevel(exp);
+            case "Sword": return SwordIsMaxLevel(exp);
+            case "Shield": return ShieldIsMaxLevel(exp);
+            case "Hand": return HandIsMaxLevel(exp);
+            case "Farming": return FarmingIsMaxLevel(exp);
+            case "Cooking": return CookingIsMaxLevel(exp);
+            case "Panning": return PanningIsMaxLevel(exp);
+            case "Vitality": return VitalityIsMaxLevel(exp);
+            case "LeatherArmor": return LeatherArmorIsMaxLevel(exp);
+            case "ChainArmor": return ChainArmorIsMaxLevel(exp);
+            case "BrigandineArmor": return BrigandineArmorIsMaxLevel(exp);
+            case "PlateArmor": return PlateArmorIsMaxLevel(exp);
+            case "ScaleArmor": return ScaleArmorIsMaxLevel(exp);
+            case "Smithing": return SmithingIsMaxLevel(exp);
+            default: break;
+        }
+        Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function CheckMaxLevelByLevelTypeEXP did you forget to add it? check the Configuration.cs");
+        return false;
+    }
+
     #region hunter
     public static readonly Dictionary<string, int> entityExpHunter = [];
     private static int hunterEXPPerLevelBase = 10;
@@ -467,6 +498,20 @@ public static class Configuration
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong HunterGetExpForLevel(int level)
+    {
+        double baseExp = hunterEXPPerLevelBase;
+        double multiplier = hunterEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
     }
 
     public static bool HunterIsMaxLevel(ulong exp)
@@ -622,6 +667,19 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong BowGetExpForLevel(int level)
+    {
+        double baseExp = bowEXPPerLevelBase;
+        double multiplier = bowEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
 
     public static bool BowIsMaxLevel(ulong exp)
         => BowGetLevelByEXP(exp) >= bowMaxLevel;
@@ -809,6 +867,19 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong KnifeGetExpForLevel(int level)
+    {
+        double baseExp = knifeEXPPerLevelBase;
+        double multiplier = knifeEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
 
     public static bool KnifeIsMaxLevel(ulong exp)
         => KnifeGetLevelByEXP(exp) >= knifeMaxLevel;
@@ -967,6 +1038,20 @@ public static class Configuration
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong AxeGetExpForLevel(int level)
+    {
+        double baseExp = axeEXPPerLevelBase;
+        double multiplier = axeEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
     }
 
     public static bool AxeIsMaxLevel(ulong exp)
@@ -1136,6 +1221,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong PickaxeGetExpForLevel(int level)
+    {
+        double baseExp = pickaxeEXPPerLevelBase;
+        double multiplier = pickaxeEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool PickaxeIsMaxLevel(ulong exp)
         => PickaxeGetLevelByEXP(exp) >= pickaxeMaxLevel;
 
@@ -1276,6 +1375,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong ShovelGetExpForLevel(int level)
+    {
+        double baseExp = shovelEXPPerLevelBase;
+        double multiplier = shovelEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool ShovelIsMaxLevel(ulong exp)
         => ShovelGetLevelByEXP(exp) >= shovelMaxLevel;
 
@@ -1410,6 +1523,20 @@ public static class Configuration
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong SpearGetExpForLevel(int level)
+    {
+        double baseExp = spearEXPPerLevelBase;
+        double multiplier = spearEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
     }
 
     public static bool SpearIsMaxLevel(ulong exp)
@@ -1662,6 +1789,19 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong HammerGetExpForLevel(int level)
+    {
+        double baseExp = hammerEXPPerLevelBase;
+        double multiplier = hammerEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
 
     public static bool HammerIsMaxLevel(ulong exp)
         => HammerGetLevelByEXP(exp) >= hammerMaxLevel;
@@ -1854,6 +1994,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong SwordGetExpForLevel(int level)
+    {
+        double baseExp = swordEXPPerLevelBase;
+        double multiplier = swordEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool SwordIsMaxLevel(ulong exp)
         => SwordGetLevelByEXP(exp) >= swordMaxLevel;
 
@@ -1943,6 +2097,20 @@ public static class Configuration
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong ShieldGetExpForLevel(int level)
+    {
+        double baseExp = shieldEXPPerLevelBase;
+        double multiplier = shieldEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
     }
 
     public static bool ShieldIsMaxLevel(ulong exp)
@@ -2049,6 +2217,19 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong HandGetExpForLevel(int level)
+    {
+        double baseExp = handEXPPerLevelBase;
+        double multiplier = handEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
 
     public static bool HandIsMaxLevel(ulong exp)
         => HandGetLevelByEXP(exp) >= handMaxLevel;
@@ -2169,6 +2350,20 @@ public static class Configuration
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong FarmingGetExpForLevel(int level)
+    {
+        double baseExp = farmingEXPPerLevelBase;
+        double multiplier = farmingEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
     }
 
     public static bool FarmingIsMaxLevel(ulong exp)
@@ -2349,6 +2544,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong CookingGetExpForLevel(int level)
+    {
+        double baseExp = cookingEXPPerLevelBase;
+        double multiplier = cookingEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool CookingIsMaxLevel(ulong exp)
         => CookingGetLevelByEXP(exp) >= cookingMaxLevel;
 
@@ -2517,6 +2726,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong PanningGetExpForLevel(int level)
+    {
+        double baseExp = panningEXPPerLevelBase;
+        double multiplier = panningEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool PanningIsMaxLevel(ulong exp)
         => PanningGetLevelByEXP(exp) >= panningMaxLevel;
 
@@ -2673,6 +2896,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong SmithingGetExpForLevel(int level)
+    {
+        double baseExp = smithingEXPPerLevelBase;
+        double multiplier = smithingEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool SmithingIsMaxLevel(ulong exp)
         => SmithingGetLevelByEXP(exp) >= smithingMaxLevel;
 
@@ -2696,7 +2933,6 @@ public static class Configuration
         return smithingBaseArmorProtectionMultiply * (1 + smithingIncrementArmorProtectionMultiplyPerLevel * level);
     }
     #endregion
-
 
     #region vitality
     private static int vitalityEXPPerReceiveHit = 1;
@@ -2821,6 +3057,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong VitalityGetExpForLevel(int level)
+    {
+        double baseExp = vitalityEXPPerLevelBase;
+        double multiplier = vitalityEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool VitalityIsMaxLevel(ulong exp)
         => VitalityGetLevelByEXP(exp) >= vitalityMaxLevel;
 
@@ -2851,7 +3101,7 @@ public static class Configuration
     private static int leatherArmorEXPPerReceiveHit = 1;
     private static float leatherArmorEXPMultiplyByDamage = 0.5f;
     private static int leatherArmorEXPIncreaseByAmountDamage = 1;
-    private static int leatherArmorEXPPerLevelBase = 10;
+    private static int leatherArmorEXPPerLevelBase = 50;
     private static double leatherArmorEXPMultiplyPerLevel = 2.0;
     private static float leatherArmorBaseDamageReduction = 0.0f;
     private static float leatherArmorDamageReductionPerLevel = 0.05f;
@@ -2964,6 +3214,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong LeatherArmorGetExpForLevel(int level)
+    {
+        double baseExp = leatherArmorEXPPerLevelBase;
+        double multiplier = leatherArmorEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool LeatherArmorIsMaxLevel(ulong exp)
         => LeatherArmorGetLevelByEXP(exp) >= leatherArmorMaxLevel;
 
@@ -2989,7 +3253,7 @@ public static class Configuration
     private static int chainArmorEXPPerReceiveHit = 1;
     private static float chainArmorEXPMultiplyByDamage = 0.5f;
     private static int chainArmorEXPIncreaseByAmountDamage = 1;
-    private static int chainArmorEXPPerLevelBase = 10;
+    private static int chainArmorEXPPerLevelBase = 50;
     private static double chainArmorEXPMultiplyPerLevel = 2.0;
     private static float chainArmorBaseDamageReduction = 0.0f;
     private static float chainArmorDamageReductionPerLevel = 0.05f;
@@ -3102,6 +3366,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong ChainArmorGetExpForLevel(int level)
+    {
+        double baseExp = chainArmorEXPPerLevelBase;
+        double multiplier = chainArmorEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool ChainArmorIsMaxLevel(ulong exp)
         => ChainArmorGetLevelByEXP(exp) >= chainArmorMaxLevel;
 
@@ -3127,7 +3405,7 @@ public static class Configuration
     private static int brigandineArmorEXPPerReceiveHit = 1;
     private static float brigandineArmorEXPMultiplyByDamage = 0.5f;
     private static int brigandineArmorEXPIncreaseByAmountDamage = 1;
-    private static int brigandineArmorEXPPerLevelBase = 10;
+    private static int brigandineArmorEXPPerLevelBase = 50;
     private static double brigandineArmorEXPMultiplyPerLevel = 2.0;
     private static float brigandineArmorBaseDamageReduction = 0.0f;
     private static float brigandineArmorDamageReductionPerLevel = 0.05f;
@@ -3237,6 +3515,20 @@ public static class Configuration
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong BrigandineArmorGetExpForLevel(int level)
+    {
+        double baseExp = brigandineArmorEXPPerLevelBase;
+        double multiplier = brigandineArmorEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
     }
 
     public static bool BrigandineArmorIsMaxLevel(ulong exp)
@@ -3376,6 +3668,20 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong PlateArmorGetExpForLevel(int level)
+    {
+        double baseExp = plateArmorEXPPerLevelBase;
+        double multiplier = plateArmorEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
     public static bool PlateArmorIsMaxLevel(ulong exp)
         => PlateArmorGetLevelByEXP(exp) >= plateArmorMaxLevel;
 
@@ -3401,7 +3707,7 @@ public static class Configuration
     private static int scaleArmorEXPPerReceiveHit = 1;
     private static float scaleArmorEXPMultiplyByDamage = 0.5f;
     private static int scaleArmorEXPIncreaseByAmountDamage = 1;
-    private static int scaleArmorEXPPerLevelBase = 10;
+    private static int scaleArmorEXPPerLevelBase = 50;
     private static double scaleArmorEXPMultiplyPerLevel = 2.0;
     private static float scaleArmorBaseDamageReduction = 0.0f;
     private static float scaleArmorDamageReductionPerLevel = 0.05f;
@@ -3513,6 +3819,19 @@ public static class Configuration
         return Math.Max(0, (int)Math.Floor(level));
     }
 
+    public static ulong ScaleArmorGetExpForLevel(int level)
+    {
+        double baseExp = scaleArmorEXPPerLevelBase;
+        double multiplier = scaleArmorEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
 
     public static bool ScaleArmorIsMaxLevel(ulong exp)
         => ScaleArmorGetLevelByEXP(exp) >= scaleArmorMaxLevel;

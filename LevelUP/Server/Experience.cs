@@ -188,6 +188,9 @@ class Experience
         if (!_playerLoadedExperience[player.PlayerUID][type].TryGetValue("experience", out _))
             _playerLoadedExperience[player.PlayerUID][type].Add("experience", 0);
 
+        if (Configuration.CheckMaxLevelByLevelTypeEXP(type, _playerLoadedExperience[player.PlayerUID][type]["experience"] + amount))
+            return;
+
         _playerLoadedExperience[player.PlayerUID][type]["experience"] += amount;
 
         Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
@@ -216,10 +219,37 @@ class Experience
 
         _playerLoadedExperience[player.PlayerUID][type][subType] += amount;
 
+        if (Configuration.CheckMaxLevelByLevelTypeEXP(type, _playerLoadedExperience[player.PlayerUID][type][subType] + amount))
+            return;
+
         Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"[EXPERIENCE] {player.PlayerName}: {amount}, {type}/{subType}");
+    }
+
+    /// <summary>
+    /// Force change the experience of a specific level type from a player
+    /// </summary>
+    /// <param name="player">Player instance</param>
+    /// <param name="type">The level type</param>
+    /// <param name="amount">Amount of experience earned</param>
+    static public void ChangeExperience(IPlayer player, string type, ulong amount)
+    {
+        if (!_playerLoadedExperience.TryGetValue(player.PlayerUID, out _))
+            _playerLoadedExperience.Add(player.PlayerUID, []);
+
+        if (!_playerLoadedExperience[player.PlayerUID].TryGetValue(type, out _))
+            _playerLoadedExperience[player.PlayerUID].Add(type, []);
+
+        if (!_playerLoadedExperience[player.PlayerUID][type].TryGetValue("experience", out _))
+            _playerLoadedExperience[player.PlayerUID][type].Add("experience", 0);
+
+        _playerLoadedExperience[player.PlayerUID][type]["experience"] = amount;
+
+        Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
+
+        Debug.Log($"[EXPERIENCE] All experience of {player.PlayerName} has changed to: {amount}, {type}");
     }
 
     /// <summary>
@@ -229,9 +259,23 @@ class Experience
     /// <param name="type">Level type</param>
     /// <param name="amount">Amount to be reduced</param>
     /// <returns>false if not reduced, true if is reduced</returns>
-    static public bool ReduceExperience(IPlayer player, string type, ulong amount)
+    static public bool ReduceExperience(IPlayer player, string type, ulong amount, bool ignoreLevel = false)
     {
         ulong currentlyExp = GetExperience(player, type);
+        if (ignoreLevel)
+        {
+            if (currentlyExp - amount < 0)
+            {
+                DecrementExperience(player, type, currentlyExp);
+                return true;
+            }
+            else
+            {
+                DecrementExperience(player, type, amount);
+                return true;
+            }
+        }
+
         int currentlyLevel = Configuration.GetLevelByLevelTypeEXP(type, currentlyExp);
         int nextLevel = Configuration.GetLevelByLevelTypeEXP(type, currentlyExp - amount);
 

@@ -193,10 +193,11 @@ class OverwriteBlockInteraction
             }
 
             // Run on secondary thread to not freeze the server
-            Task thread = Task.Run(() =>
+            Task thread = Task.Run(async () =>
             {
                 // Because output is magically added by something we need to constantly check it
-                while (__instance.outputStack == null) { }
+                while (__instance.outputStack == null) await Task.Delay(50);
+
                 // Finally receive output
                 ItemStack output = __instance.outputStack;
                 // Check if output doesn't exist
@@ -205,10 +206,7 @@ class OverwriteBlockInteraction
                 Debug.LogDebug($"Cooking output: {output.Collectible.Code}, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
 
                 // Update player experience to the most proximity player
-                // or if is single player get the player playing
-                IPlayer player = instance.serverAPI?.api.World.NearestPlayer(__instance.Pos.X, __instance.Pos.Y, __instance.Pos.Z);
-                if (instance.clientAPI != null && instance.clientAPI.api.IsSinglePlayer)
-                    player = instance.clientAPI.api.World.Player;
+                IPlayer player = __instance.Api.World.NearestPlayer(__instance.Pos.X, __instance.Pos.Y, __instance.Pos.Z);
 
                 // If cannot find the nearest player
                 if (player == null)
@@ -406,7 +404,7 @@ class OverwriteBlockInteraction
         if (!Configuration.enableLevelPanning) return true;
         if (byEntity.Api.Side != EnumAppSide.Server) return true;
 
-        // Another function setted as private...
+        // Recreation of a private function in BlockPan instance
         ItemStack Resolve(EnumItemClass type, string code)
         {
             if (type == EnumItemClass.Block)
@@ -502,11 +500,16 @@ class OverwriteBlockInteraction
     #endregion
 
     #region smithing
+
+    // Luckly the durability, miningspeed and attackpower is unique by the item
+    // so we just save the attribute and change it to be shared with the client and update the viewbox
+
     // Overwrite Craft
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ItemSlotCraftingOutput), "CraftSingle")]
     public static void CraftSingleFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op)
     {
+        if (!Configuration.enableLevelSmithing) return;
         if (op.World.Api.Side != EnumAppSide.Server) return;
         if (sinkSlot == null || sinkSlot.Itemstack == null) return;
         if (op.ActingPlayer == null) return;
@@ -743,18 +746,14 @@ class OverwriteBlockInteraction
                                 // Check if exist, and change it
                                 if (protectionModifiers.TryGetValue("relativeProtection", out _))
                                 {
-                                    jsonObject["protectionModifiers"]["relativeProtection"] = (float)jsonObject["protectionModifiers"]["relativeProtection"] * multiplyProtection;
-                                    // Set the attribute so the client can handle visualy
                                     sinkSlot.Itemstack.Attributes.SetFloat("relativeProtection", (float)jsonObject["protectionModifiers"]["relativeProtection"] * multiplyProtection);
-                                    Debug.LogDebug($"{op.ActingPlayer} armor relativeProtection: {jsonObject["protectionModifiers"]["relativeProtection"]}/{multiplyProtection}");
+                                    Debug.LogDebug($"{op.ActingPlayer.PlayerName} armor relativeProtection: {jsonObject["protectionModifiers"]["relativeProtection"]}/{multiplyProtection}");
                                 }
                                 // Check if exist, and change it
-                                if (protectionModifiers.TryGetValue("relativeProtection", out _))
+                                if (protectionModifiers.TryGetValue("flatDamageReduction", out _))
                                 {
-                                    jsonObject["protectionModifiers"]["flatDamageReduction"] = (float)jsonObject["protectionModifiers"]["flatDamageReduction"] * multiplyProtection;
-                                    // Set the attribute so the client can handle visualy
                                     sinkSlot.Itemstack.Attributes.SetFloat("flatDamageReduction", (float)jsonObject["protectionModifiers"]["flatDamageReduction"] * multiplyProtection);
-                                    Debug.LogDebug($"{op.ActingPlayer} armor flatDamageReduction: {jsonObject["protectionModifiers"]["flatDamageReduction"]}/{multiplyProtection}");
+                                    Debug.LogDebug($"{op.ActingPlayer.PlayerName} armor flatDamageReduction: {jsonObject["protectionModifiers"]["flatDamageReduction"]}/{multiplyProtection}");
                                 }
                             }
 
@@ -807,6 +806,7 @@ class OverwriteBlockInteraction
     [HarmonyPatch(typeof(ItemSlotCraftingOutput), "CraftMany")]
     public static void CraftManyFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op)
     {
+        if (!Configuration.enableLevelSmithing) return;
         if (op.World.Api.Side != EnumAppSide.Server) return;
         if (sinkSlot == null || sinkSlot.Itemstack == null) return;
         if (op.ActingPlayer == null) return;
@@ -1118,16 +1118,12 @@ class OverwriteBlockInteraction
                                     // Check if exist, and change it
                                     if (protectionModifiers.TryGetValue("relativeProtection", out _))
                                     {
-                                        jsonObject["protectionModifiers"]["relativeProtection"] = (float)jsonObject["protectionModifiers"]["relativeProtection"] * multiplyProtection;
-                                        // Set the attribute so the client can handle visualy
                                         sinkSlot.Itemstack.Attributes.SetFloat("relativeProtection", (float)jsonObject["protectionModifiers"]["relativeProtection"] * multiplyProtection);
                                         Debug.LogDebug($"{op.ActingPlayer} armor relativeProtection: {jsonObject["protectionModifiers"]["relativeProtection"]}/{multiplyProtection}");
                                     }
                                     // Check if exist, and change it
-                                    if (protectionModifiers.TryGetValue("relativeProtection", out _))
+                                    if (protectionModifiers.TryGetValue("flatDamageReduction", out _))
                                     {
-                                        jsonObject["protectionModifiers"]["flatDamageReduction"] = (float)jsonObject["protectionModifiers"]["flatDamageReduction"] * multiplyProtection;
-                                        // Set the attribute so the client can handle visualy
                                         sinkSlot.Itemstack.Attributes.SetFloat("flatDamageReduction", (float)jsonObject["protectionModifiers"]["flatDamageReduction"] * multiplyProtection);
                                         Debug.LogDebug($"{op.ActingPlayer} armor flatDamageReduction: {jsonObject["protectionModifiers"]["flatDamageReduction"]}/{multiplyProtection}");
                                     }
@@ -1216,6 +1212,13 @@ class OverwriteBlockInteraction
         });
     }
 
+    /// In the next part of the code, we will edit the view of the client to show
+    /// the modified protection (GetHeldArmorInfoStart), because vintage story share the ProtectionModifiers
+    /// between all items of the same type we can't edit and modify a unique item,
+    /// so every time a player handle the armor damage we edit the ProtectionModifier
+    /// based on the attribute set in craft (HandleDamagedStart), this will refresh
+    /// the ProtectionModifiers every time it will be used, making the item "unique"
+
     // Overwrite Visual Protections
     // This is necessary so the protection system is more accurate
     [HarmonyPrefix]
@@ -1229,5 +1232,53 @@ class OverwriteBlockInteraction
             __instance.ProtectionModifiers.FlatDamageReduction = inSlot.Itemstack.Attributes.GetFloat("flatDamageReduction");
     }
 
+    // Overwrite Protection Damage Handle
+    // This is necessary so the protection system is more accurate
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ModSystemWearableStats), "handleDamaged")]
+    public static void HandleDamagedStart(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
+    {
+        if (!Configuration.enableLevelSmithing) return;
+        if (player.Entity.World.Side != EnumAppSide.Server) return;
+
+        IInventory inv = player.InventoryManager.GetOwnInventory("character");
+
+        // In the native code, only use the inventory 12,13,14 to calculate the damage protection,
+        // also is random which part of the armor is used to be calculated, but we recalculate everthing
+        // because we don't know what part will be used on the prefix
+        for (int i = 12; i <= 14; i++)
+        {
+            ItemSlot armorSlot = inv[i];
+            if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
+            {
+                // If the armor is created from a non player source, and a player can craft
+                // the armor, they will be incosistent, so we need to refresh the default values
+                // too unfurtunally
+
+                Debug.LogDebug($"{player.PlayerName} {armorSlot.Itemstack.GetName()} Armor System Handling before R/F: {armorWearable.ProtectionModifiers.RelativeProtection}");
+
+                // Only modify the relativeProtection if exist
+                if (armorSlot.Itemstack.Attributes.GetFloat("relativeProtection", -1f) != -1f)
+                    armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Attributes.GetFloat("relativeProtection");
+                else // Otherwises we need to refresh from default
+                {
+                    if (armorSlot.Itemstack.Collectible.Attributes.KeyExists("protectionModifiers"))
+                        if (armorSlot.Itemstack.Collectible.Attributes["protectionModifiers"].KeyExists("relativeProtection"))
+                            armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Collectible.Attributes["protectionModifiers"]["relativeProtection"].AsFloat();
+                }
+                // Only modify the relativeProtection if exist
+                if (armorSlot.Itemstack.Attributes.GetFloat("flatDamageReduction", -1f) != -1f)
+                    armorWearable.ProtectionModifiers.FlatDamageReduction = armorSlot.Itemstack.Attributes.GetFloat("flatDamageReduction");
+                else // Otherwises we need to refresh from default
+                {
+                    if (armorSlot.Itemstack.Collectible.Attributes.KeyExists("protectionModifiers"))
+                        if (armorSlot.Itemstack.Collectible.Attributes["protectionModifiers"].KeyExists("relativeProtection"))
+                            armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Collectible.Attributes["protectionModifiers"]["relativeProtection"].AsFloat();
+                }
+
+                Debug.LogDebug($"{player.PlayerName} {armorSlot.Itemstack.GetName()} Armor System Handling after R/F: {armorWearable.ProtectionModifiers.RelativeProtection}/{armorWearable.ProtectionModifiers.FlatDamageReduction}");
+            }
+        }
+    }
     #endregion
 }
