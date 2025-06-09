@@ -156,7 +156,6 @@ class OverwriteBlockInteraction
     #endregion
 
     #region cooking
-    static int cookingFirePitOverflow = 0;
     // Overwrite Fire Pit
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BlockEntityFirepit), "heatInput")]
@@ -175,7 +174,6 @@ class OverwriteBlockInteraction
         // Check if him finished cooking
         if (cookingTime >= maxCookingTime)
         {
-            cookingFirePitOverflow++;
             // Check if input stack exists on exp earn, this means the player is reheating the food, disabling the experience mechanic
             if (Configuration.expMultiplySingleCooking.TryGetValue(__instance.inputStack.Collectible.Code.ToString(), out double _)) return;
             else if (Configuration.expMultiplyPotsCooking.TryGetValue(__instance.inputStack.Collectible.Code.ToString(), out double _)) return;
@@ -185,25 +183,31 @@ class OverwriteBlockInteraction
 
             Debug.LogDebug($"{__instance.inputStack.Collectible.Code} finished cooking, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
 
-            // Overflow check
-            if (cookingFirePitOverflow >= Configuration.cookingFirePitOverflow)
-            {
-                Debug.Log($"Cooking overflowed, too many players? or there is a missing recipe causing reheating bug? recipe: {__instance.inputStack.Collectible.Code}, stats and experience ignored, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}, if recipe is missing please add in configs/levelstats/cookingpots.json or configs/levelstats/cookingsingles.json");
-                return;
-            }
-
             // Run on secondary thread to not freeze the server
-            Task thread = Task.Run(async () =>
+            // This is necessary because we have a loop to receive the outputStack
+            Task.Run(async () =>
             {
+                Debug.LogDebug("Thread created, waiting for cooking outputStack...");
+
                 // Because output is magically added by something we need to constantly check it
-                while (__instance.outputStack == null) await Task.Delay(50);
+                int tries = 0;
+                while (__instance.outputStack == null && tries < 3)
+                {
+                    await Task.Delay(50);
+                    tries++;
+                }
+                // After that time if the output stack is still null we just give up
+                if (__instance.outputStack == null)
+                {
+                    if (Configuration.enableExtendedLog)
+                        Debug.LogWarn($"[COOKING] Server is overloaded? someone finished cooking but the output is still null, or maybe a ninja pickup the food in 50 milliseconds after completion");
+                    return;
+                }
 
                 // Finally receive output
                 ItemStack output = __instance.outputStack;
-                // Check if output doesn't exist
-                if (output is null || output.Collectible is null) return;
 
-                Debug.LogDebug($"Cooking output: {output.Collectible.Code}, X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
+                Debug.LogDebug($"Cooking outputStack: {output.Collectible.Code}, cooking position: X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
 
                 // Update player experience to the most proximity player
                 IPlayer player = __instance.Api.World.NearestPlayer(__instance.Pos.X, __instance.Pos.Y, __instance.Pos.Z);
@@ -291,16 +295,12 @@ class OverwriteBlockInteraction
 
                     Experience.IncreaseExperience(player, "Cooking", (ulong)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots)));
                 }
-            });
-            // Thread timeout
-            Task.Delay(100).ContinueWith((_) =>
-            {
-                if (!thread.IsCompleted)
-                    Debug.Log("WARNING: Output thread in cooking function has forcelly disposed, did the server is overloaded? cooking experience and status have been lost");
-
-                thread.Dispose();
-                if (cookingFirePitOverflow > 0)
-                    cookingFirePitOverflow -= 1;
+                // Unkown
+                else
+                {
+                    Debug.LogWarn($"[COOKING] Unkown recipe, giving default experience to {player.PlayerName}, recipe: {output.Collectible.Code}, please add in configs/levelstats/cookingpots.json or configs/levelstats/cookingsingles.json");
+                    Experience.IncreaseExperience(player, "Cooking", (ulong)Configuration.ExpPerCookingcooking);
+                }
             });
         }
     }

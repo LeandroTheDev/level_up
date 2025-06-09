@@ -1,25 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
 class LevelShovel
 {
-    private Instance instance;
-
-    public void Init(Instance _instance)
+    public void Init()
     {
-        instance = _instance;
         // Instanciate death event
-        instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
-        instance.api.Event.BreakBlock += OnBreakBlock;
+        Instance.api.Event.BreakBlock += OnBreakBlock;
 
         Debug.Log("Level Shovel initialized");
     }

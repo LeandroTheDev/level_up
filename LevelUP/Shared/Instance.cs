@@ -1,3 +1,4 @@
+using LevelUP.Server;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
@@ -54,6 +55,8 @@ class Instance
                     Server.Instance.communicationChannel.SendPacket(new ServerMessage() { message = $"playerlevelup&{nextLevel}&{levelType}" }, player as IServerPlayer);
             }
             Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
+
+            ExperienceEvents.PlayerLeveledUp(player, levelType, exp, nextLevel);
 
             // if vitality leveled we need to update the player max health
             if (levelType == "Vitality")

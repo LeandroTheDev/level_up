@@ -15,6 +15,7 @@ Features:
 - Custom classes and items from other mods (in ModConfig)
 - Survival Guide, for undestanding what each level will do
 - Multi Language support
+- API for modders [wiki](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility)
 
 Not all item codes is added to the json configurations files, some armors/items/meats/entities/blocks can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
 

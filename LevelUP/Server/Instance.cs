@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -8,7 +9,7 @@ namespace LevelUP.Server;
 
 class Instance
 {
-    public ICoreServerAPI api;
+    static internal ICoreServerAPI api;
     static public IServerNetworkChannel communicationChannel;
     private readonly Commands commands = new();
 
@@ -50,31 +51,31 @@ class Instance
         api.Event.PlayerNowPlaying += player => UpdatePlayerLevels(player, api);
 
         // Enable levels
-        if (Configuration.enableLevelHunter) levelHunter.Init(this);
-        if (Configuration.enableLevelBow) levelBow.Init(this);
-        if (Configuration.enableLevelKnife) levelKnife.Init(this);
-        if (Configuration.enableLevelAxe) levelAxe.Init(this);
-        if (Configuration.enableLevelPickaxe) levelPickaxe.Init(this);
-        if (Configuration.enableLevelShovel) levelShovel.Init(this);
-        if (Configuration.enableLevelSpear) levelSpear.Init(this);
-        if (Configuration.enableLevelHammer) levelHammer.Init(this);
-        if (Configuration.enableLevelSword) levelSword.Init(this);
-        if (Configuration.enableLevelShield) levelShield.Init(this);
-        if (Configuration.enableLevelHand) levelHand.Init(this);
-        if (Configuration.enableLevelFarming) levelFarming.Init(this);
-        if (Configuration.enableLevelVitality) levelVitality.Init(this);
-        if (Configuration.enableLevelCooking) levelCooking.Init(this);
-        if (Configuration.enableLevelPanning) levelPanning.Init(this);
-        if (Configuration.enableLevelLeatherArmor) levelLeatherArmor.Init(this);
-        if (Configuration.enableLevelChainArmor) levelChainArmor.Init(this);
-        if (Configuration.enableLevelBrigandineArmor) levelBrigandineArmor.Init(this);
-        if (Configuration.enableLevelPlateArmor) levelPlateArmor.Init(this);
-        if (Configuration.enableLevelScaleArmor) levelScaleArmor.Init(this);
-        if (Configuration.enableLevelSmithing) levelSmithing.Init(this);
+        if (Configuration.enableLevelHunter) levelHunter.Init();
+        if (Configuration.enableLevelBow) levelBow.Init();
+        if (Configuration.enableLevelKnife) levelKnife.Init();
+        if (Configuration.enableLevelAxe) levelAxe.Init();
+        if (Configuration.enableLevelPickaxe) levelPickaxe.Init();
+        if (Configuration.enableLevelShovel) levelShovel.Init();
+        if (Configuration.enableLevelSpear) levelSpear.Init();
+        if (Configuration.enableLevelHammer) levelHammer.Init();
+        if (Configuration.enableLevelSword) levelSword.Init();
+        if (Configuration.enableLevelShield) levelShield.Init();
+        if (Configuration.enableLevelHand) levelHand.Init();
+        if (Configuration.enableLevelFarming) levelFarming.Init();
+        if (Configuration.enableLevelVitality) levelVitality.Init();
+        if (Configuration.enableLevelCooking) levelCooking.Init();
+        if (Configuration.enableLevelPanning) levelPanning.Init();
+        if (Configuration.enableLevelLeatherArmor) levelLeatherArmor.Init();
+        if (Configuration.enableLevelChainArmor) levelChainArmor.Init();
+        if (Configuration.enableLevelBrigandineArmor) levelBrigandineArmor.Init();
+        if (Configuration.enableLevelPlateArmor) levelPlateArmor.Init();
+        if (Configuration.enableLevelScaleArmor) levelScaleArmor.Init();
+        if (Configuration.enableLevelSmithing) levelSmithing.Init();
         Debug.Log("Server Levels instanciated");
 
         // Register commands
-        commands.Init(this);
+        commands.Init();
         communicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
         communicationChannel.SetMessageHandler<ServerMessage>(OnChannelMessage);
         Debug.Log("Server Communication Network registered");

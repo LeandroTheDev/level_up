@@ -1,22 +1,16 @@
-using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
 class LevelSword
 {
-    private Instance instance;
-
-    public void Init(Instance _instance)
+    public void Init()
     {
-        instance = _instance;
         // Instanciate death event
-        instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.OnEntityDeath += OnEntityDeath;
 
         Debug.Log("Level Sword initialized");
     }

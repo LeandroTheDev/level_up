@@ -7,13 +7,10 @@ namespace LevelUP.Server;
 
 class LevelSpear
 {
-    private Instance instance;
-
-    public void Init(Instance _instance)
-    {
-        instance = _instance;
+    public void Init()
+    {        
         // Instanciate death event
-        instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.OnEntityDeath += OnEntityDeath;
 
         Debug.Log("Level Spear initialized");
     }
