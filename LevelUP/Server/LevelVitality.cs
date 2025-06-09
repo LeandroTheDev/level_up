@@ -10,16 +10,14 @@ namespace LevelUP.Server;
 
 class LevelVitality
 {
-    private Instance instance;
     private Dictionary<string, double> playerState = [];
 
-    public void Init(Instance _instance)
+    public void Init()
     {
-        instance = _instance;
         // Instanciate Events
-        instance.api.Event.PlayerNowPlaying += PlayerJoin;
-        instance.api.Event.PlayerDisconnect += PlayerDisconnect;
-        instance.api.Event.GameWorldSave += SaveState;
+        Instance.api.Event.PlayerNowPlaying += PlayerJoin;
+        Instance.api.Event.PlayerDisconnect += PlayerDisconnect;
+        Instance.api.Event.GameWorldSave += SaveState;
 
         // Load player state
         playerState = GetSavedState();
@@ -37,7 +35,7 @@ class LevelVitality
 
     private Dictionary<string, double> GetSavedState()
     {
-        byte[] dataBytes = instance.api.WorldManager.SaveGame.GetData("LevelUPData_Vitality_Players_Health");
+        byte[] dataBytes = Instance.api.WorldManager.SaveGame.GetData("LevelUPData_Vitality_Players_Health");
         string data = dataBytes == null ? "{}" : SerializerUtil.Deserialize<string>(dataBytes);
         return JsonSerializer.Deserialize<Dictionary<string, double>>(data);
     }
@@ -54,7 +52,7 @@ class LevelVitality
                 playerState[keyValue.Key] = Configuration.BaseHPVitality;
             }
         }
-        instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality_Players_Health", JsonSerializer.Serialize(playerState));
+        Instance.api.WorldManager.SaveGame.StoreData("LevelUPData_Vitality_Players_Health", JsonSerializer.Serialize(playerState));
     }
 
     private void PlayerJoin(IServerPlayer player)

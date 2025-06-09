@@ -6,13 +6,12 @@ class LevelSmithing
 {
     public Instance instance;
 
-    public void Init(Instance _instance)
+#pragma warning disable CA1822
+    public void Init()
     {
-        instance = _instance;
         Debug.Log("Level Smithing initialized");
     }
 
-#pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration

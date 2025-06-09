@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -8,13 +7,11 @@ namespace LevelUP.Server;
 
 class LevelBow
 {
-    private Instance instance;
-
-    public void Init(Instance _instance)
+#pragma warning disable CA1822
+    public void Init()
     {
-        instance = _instance;
         // Instanciate death event
-        instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.OnEntityDeath += OnEntityDeath;
 
         Debug.Log("Level Bow initialized");
     }

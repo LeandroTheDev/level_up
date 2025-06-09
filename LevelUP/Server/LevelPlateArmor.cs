@@ -4,15 +4,12 @@ namespace LevelUP.Server;
 
 class LevelPlateArmor
 {
-    public Instance instance;
-
-    public void Init(Instance _instance)
+#pragma warning disable CA1822
+    public void Init()
     {
-        instance = _instance;
         Debug.Log("Level Plate Armor initialized");
     }
 
-#pragma warning disable CA1822
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration

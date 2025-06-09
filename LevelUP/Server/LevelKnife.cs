@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -9,15 +8,12 @@ namespace LevelUP.Server;
 
 class LevelKnife
 {
-    private Instance instance;
-
-    public void Init(Instance _instance)
+    public void Init()
     {
-        instance = _instance;
         // Instanciate death event
-        instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
-        instance.api.Event.BreakBlock += OnBreakBlock;
+        Instance.api.Event.BreakBlock += OnBreakBlock;
 
         Debug.Log("Level Knife initialized");
     }

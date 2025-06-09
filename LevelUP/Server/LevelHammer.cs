@@ -1,22 +1,15 @@
-using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
-using Vintagestory.API.Server;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
 class LevelHammer
 {
-    public Instance instance;
-
-    public void Init(Instance _instance)
+    public void Init()
     {
-        instance = _instance;
-        instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.OnEntityDeath += OnEntityDeath;
         Debug.Log("Level Hammer initialized");
     }
 

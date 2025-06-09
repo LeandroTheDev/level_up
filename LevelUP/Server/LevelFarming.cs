@@ -7,13 +7,10 @@ namespace LevelUP.Server;
 
 class LevelFarming
 {
-    private Instance instance;
-
-    public void Init(Instance _instance)
+    public void Init()
     {
-        instance = _instance;
         // Instanciate break block event
-        instance.api.Event.BreakBlock += OnBreakBlock;
+        Instance.api.Event.BreakBlock += OnBreakBlock;
 
         Debug.Log("Level Farming initialized");
     }

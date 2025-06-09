@@ -1,21 +1,15 @@
-using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
-using Vintagestory.API.Util;
 
 namespace LevelUP.Server;
 
 class LevelHunter
 {
-    private Instance instance;
-
-    public void Init(Instance _instance)
+    public void Init()
     {
-        instance = _instance;
         // Instanciate death event
-        instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.OnEntityDeath += OnEntityDeath;
 
         Debug.Log("Level Hunter initialized");
     }
@@ -37,7 +31,7 @@ class LevelHunter
         else return;
 
         // Get player instance
-        IPlayer player = instance.api.World.PlayerByUid(playerEntity.PlayerUID);
+        IPlayer player = playerEntity.Player;
 
         ulong exp = (ulong)Configuration.entityExpHunter.GetValueOrDefault(entity.Code.ToString());
 

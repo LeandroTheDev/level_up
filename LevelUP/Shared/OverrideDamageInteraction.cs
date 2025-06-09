@@ -45,7 +45,18 @@ class OverwriteDamageInteraction
         // Player Does Damage
         if (damageSource.SourceEntity is EntityPlayer || damageSource.GetCauseEntity() is EntityPlayer)
         {
-            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer)?.GetName() ?? "PlayerProjectile"} previous damage: {damage}");
+            if (damageSource.SourceEntity is EntityPlayer)
+                Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer).GetName() ?? "PlayerProjectile"} previous damage: {damage}");
+
+            // Check if source entity is a projectile
+            bool SourceEntityIsProjectile()
+            {
+                return
+                // Native Game
+                damageSource.SourceEntity is EntityProjectile ||
+                // Combat Overhaul compatibility
+                damageSource.SourceEntity.GetType().ToString() == "CombatOverhaul.RangedSystems.ProjectileEntity";
+            }
 
             // Melee Action
             if (damageSource.SourceEntity is EntityPlayer)
@@ -54,6 +65,9 @@ class OverwriteDamageInteraction
                 EntityPlayer playerEntity = damageSource.SourceEntity as EntityPlayer;
                 // Get player instance
                 IPlayer player = playerEntity.Player;
+
+                // Integration
+                damage = OverwriteDamageInteractionEvents.GetExternalMeleeDamageStart(player, damageSource, damage);
 
                 #region hunter
                 // Increase the damage
@@ -139,45 +153,49 @@ class OverwriteDamageInteraction
                         #endregion
                         break;
                 }
+
+                // Integration
+                damage = OverwriteDamageInteractionEvents.GetExternalMeleeDamageFinish(player, damageSource, damage);
             }
             // Ranged Action
-            // Native Game: damageSource.SourceEntity is EntityProjectile
-            // Combat Overhaul compatibility: damageSource.SourceEntity.GetType().ToString() == "CombatOverhaul.RangedSystems.ProjectileEntity")
-            else if (damageSource.GetCauseEntity() is EntityPlayer &&
-                (damageSource.SourceEntity is EntityProjectile ||
-                damageSource.SourceEntity.GetType().ToString() == "CombatOverhaul.RangedSystems.ProjectileEntity"))
+            else if (damageSource.GetCauseEntity() is EntityPlayer && SourceEntityIsProjectile())
             {
-                // Get entities
+                // Get player entity
                 EntityPlayer playerEntity = damageSource.GetCauseEntity() as EntityPlayer;
 
-                if (damageSource.SourceEntity is EntityProjectile itemDamage)
+                // Get player instance
+                IPlayer player = playerEntity.Player;
+
+                // Integration
+                damage = OverwriteDamageInteractionEvents.GetExternalRangedDamageStart(player, damageSource, damage);
+
+                #region bow
+                // Increase the damage if the damage source is from any arrow
+                if (Configuration.enableLevelBow && damageSource.SourceEntity.GetName().Contains("arrow"))
                 {
-                    // Get player instance
-                    IPlayer player = playerEntity.Player;
-
-                    #region bow
-                    // Increase the damage if the damage source is from any arrow
-                    if (Configuration.enableLevelBow && itemDamage.GetName().Contains("arrow"))
-                    {
-                        damage *= Configuration.BowGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
-                        Experience.IncreaseExperience(player, "Bow", "Hit");
-                    }
-                    #endregion
-
-                    #region spear
-                    // Increase the damage if the damage source is from any spear
-                    if (Configuration.enableLevelSpear && itemDamage.GetName().Contains("spear"))
-                    {
-                        damage *= Configuration.SpearGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
-                        Experience.IncreaseExperience(player, "Spear", "Hit");
-                    }
-                    #endregion
+                    damage *= Configuration.BowGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+                    Experience.IncreaseExperience(player, "Bow", "Hit");
                 }
+                #endregion
+
+                #region spear
+                // Increase the damage if the damage source is from any spear
+                if (Configuration.enableLevelSpear && damageSource.SourceEntity.GetName().Contains("spear"))
+                {
+                    damage *= Configuration.SpearGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
+                    Experience.IncreaseExperience(player, "Spear", "Hit");
+                }
+                #endregion
+
+                // Integration
+                damage = OverwriteDamageInteractionEvents.GetExternalRangedDamageFinish(player, damageSource, damage);
             }
             // Invalid
             else if (Configuration.enableExtendedLog)
                 Debug.LogWarn($"WARNING: Invalid damage type in OverwriteDamageInteraction, cause entity is unhandled: {damageSource.GetCauseEntity()} or source entity is unhandled: {damageSource.SourceEntity}");
-            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer)?.GetName() ?? "PlayerProjectile"} final damage: {damage}");
+
+            if (damageSource.SourceEntity is EntityPlayer)
+                Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer).GetName() ?? "PlayerProjectile"} final damage: {damage}");
         }
 
         // Player Receive Damage
@@ -188,7 +206,10 @@ class OverwriteDamageInteraction
             // Get player source
             EntityPlayer playerEntity = __instance as EntityPlayer;
             // Get player instance
-            IPlayer player = __instance.World.PlayerByUid(playerEntity.PlayerUID);
+            IPlayer player = playerEntity.Player;
+
+            // Integration
+            damage = OverwriteDamageInteractionEvents.GetExternalReceiveDamageStart(player, damageSource, damage);
 
             #region vitality
             if (Configuration.enableLevelVitality && damage < Configuration.DamageLimitVitality)
@@ -205,10 +226,10 @@ class OverwriteDamageInteraction
 
             // Check if the damage received is from a valid entity source damage
             // in others cases the armor shouldn't reduce damage
+            List<string> equippedArmors = null;
             if (damageSource.GetCauseEntity() != null || damageSource.SourceEntity != null)
             {
-
-                List<string> equippedArmors = [];
+                equippedArmors = [];
                 { // Getting all player equipped armors
                     foreach (IInventory playerInventory in player.InventoryManager.Inventories.Values)
                     {
@@ -247,6 +268,8 @@ class OverwriteDamageInteraction
                 double multiplyBrigandineArmor = 1.0;
                 double multiplyPlateArmor = 1.0;
                 double multiplyScaleArmor = 1.0;
+
+                // Getting all multiply
                 foreach (string armorCode in equippedArmors)
                 {
                     if (Configuration.enableLevelLeatherArmor && damage < Configuration.DamageLimitLeatherArmor)
@@ -299,6 +322,7 @@ class OverwriteDamageInteraction
                             Debug.LogDebug($"{player.PlayerName} received damage using: {armorCode} as armor");
                     }
                 }
+
                 { // Experience Armor
                     // Leather Armor
                     if (multiplyLeatherArmor > 1.0)
@@ -352,8 +376,10 @@ class OverwriteDamageInteraction
                 }
             }
 
-            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer)?.GetName()} received final damage: {damage}");
+            // Integration
+            damage = OverwriteDamageInteractionEvents.GetExternalReceiveDamageFinish(player, damageSource, equippedArmors, damage);
 
+            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer).GetName()} received final damage: {damage}");
         }
 
         // If the armor reduces less than 0, just change to 0
@@ -376,8 +402,14 @@ class OverwriteDamageInteraction
             if (__instance.FiredBy is EntityPlayer)
             {
                 EntityPlayer playerEntity = __instance.FiredBy as EntityPlayer;
+
+                float chance = Configuration.BowGetChanceToNotLoseArrowByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+
+                // Integration
+                chance = OverwriteDamageInteractionEvents.GetExternalBowDropChance(playerEntity.Player, chance);
+
                 // Change the change based on level
-                __instance.DropOnImpactChance = Configuration.BowGetChanceToNotLoseArrowByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+                __instance.DropOnImpactChance = chance;
             }
         }
     }
@@ -391,10 +423,15 @@ class OverwriteDamageInteraction
 
         if (byEntity is EntityPlayer)
         {
-            // Setting new aim accuracy
-            byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0)));
+            float chance = Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0));
 
-            Debug.LogDebug($"Bow Accuracy: {Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0))}");
+            // Integration
+            chance = OverwriteDamageInteractionEvents.GetExternalBowAiming((byEntity as EntityPlayer).Player, chance);
+
+            // Setting new aim accuracy
+            byEntity.Attributes.SetFloat("aimingAccuracy", chance);
+
+            Debug.LogDebug($"Bow Accuracy: {chance}");
         }
     }
     #endregion
@@ -409,9 +446,14 @@ class OverwriteDamageInteraction
 
         if (byEntity is EntityPlayer)
         {
+            float chance = Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0));
+
+            // Integration
+            chance = OverwriteDamageInteractionEvents.GetExternalSpearAiming((byEntity as EntityPlayer).Player, chance);
+
             // Setting new aim accuracy
-            byEntity.Attributes.SetFloat("aimingAccuracy", Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0)));
-            Debug.LogDebug($"Spear Accuracy: {Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0))}");
+            byEntity.Attributes.SetFloat("aimingAccuracy", chance);
+            Debug.LogDebug($"Spear Accuracy: {chance}");
         }
     }
     #endregion
@@ -438,9 +480,16 @@ class OverwriteDamageInteraction
             if (attr == null || !attr.Exists)
                 continue;
 
+            // Integration
+            damage = OverwriteDamageInteractionEvents.GetExternalShieldReceiveDamageStart(player, dmgSource, damage);
+
             // Reduces the damage received more than normal based on shield level
-            double damageReduced = damage * Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
-            damage -= (float)damageReduced;
+            float damageReduced = damage * Configuration.ShieldGetReductionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
+            damage -= damageReduced;
+
+            // Integration
+            damage = OverwriteDamageInteractionEvents.GetExternalShieldReceiveDamageFinish(player, dmgSource, damage);
+
             if (damage < 0) damage = 0;
             Debug.LogDebug($"{player.PlayerName} reduced: {damageReduced} in shield damage");
 
@@ -449,3 +498,90 @@ class OverwriteDamageInteraction
     }
     #endregion
 }
+
+#region Compatibility
+public static class OverwriteDamageInteractionEvents
+{
+    public delegate void DamageModifierHandler(IPlayer player, DamageSource damageSource, ref float damage);
+    public delegate void DamageArmorModifierHandler(IPlayer player, DamageSource damageSource, List<string> equippedArmors, ref float damage);
+    public delegate void PlayerFloatModifierHandler(IPlayer player, ref float number);
+
+    public static event DamageModifierHandler OnPlayerMeleeDoDamageStart;
+    public static event DamageModifierHandler OnPlayerMeleeDoDamageFinish;
+    public static event DamageModifierHandler OnPlayerRangedDoDamageStart;
+    public static event DamageModifierHandler OnPlayerRangedDoDamageFinish;
+    public static event DamageModifierHandler OnPlayerReceiveDamageStart;
+    public static event DamageArmorModifierHandler OnPlayerReceiveDamageFinish;
+    public static event PlayerFloatModifierHandler OnBowDropChanceRefresh;
+    public static event PlayerFloatModifierHandler OnBowAimingRefresh;
+    public static event PlayerFloatModifierHandler OnSpearAimingRefresh;
+    public static event DamageModifierHandler OnPlayerShieldReceiveDamageStart;
+    public static event DamageModifierHandler OnPlayerShieldReceiveDamageFinish;
+
+    public static float GetExternalMeleeDamageStart(IPlayer player, DamageSource damageSource, float damage)
+    {
+        OnPlayerMeleeDoDamageStart?.Invoke(player, damageSource, ref damage);
+        return damage;
+    }
+
+    public static float GetExternalMeleeDamageFinish(IPlayer player, DamageSource damageSource, float damage)
+    {
+        OnPlayerMeleeDoDamageFinish?.Invoke(player, damageSource, ref damage);
+        return damage;
+    }
+
+    public static float GetExternalRangedDamageStart(IPlayer player, DamageSource damageSource, float damage)
+    {
+        OnPlayerRangedDoDamageStart?.Invoke(player, damageSource, ref damage);
+        return damage;
+    }
+
+    public static float GetExternalRangedDamageFinish(IPlayer player, DamageSource damageSource, float damage)
+    {
+        OnPlayerRangedDoDamageFinish?.Invoke(player, damageSource, ref damage);
+        return damage;
+    }
+
+    public static float GetExternalReceiveDamageStart(IPlayer player, DamageSource damageSource, float damage)
+    {
+        OnPlayerReceiveDamageStart?.Invoke(player, damageSource, ref damage);
+        return damage;
+    }
+
+    public static float GetExternalReceiveDamageFinish(IPlayer player, DamageSource damageSource, List<string> equippedArmors, float damage)
+    {
+        OnPlayerReceiveDamageFinish?.Invoke(player, damageSource, equippedArmors, ref damage);
+        return damage;
+    }
+
+    public static float GetExternalBowDropChance(IPlayer player, float chance)
+    {
+        OnBowDropChanceRefresh?.Invoke(player, ref chance);
+        return chance;
+    }
+
+    public static float GetExternalBowAiming(IPlayer player, float chance)
+    {
+        OnBowAimingRefresh?.Invoke(player, ref chance);
+        return chance;
+    }
+
+    public static float GetExternalSpearAiming(IPlayer player, float chance)
+    {
+        OnSpearAimingRefresh?.Invoke(player, ref chance);
+        return chance;
+    }
+
+    public static float GetExternalShieldReceiveDamageStart(IPlayer player, DamageSource damageSource, float damage)
+    {
+        OnPlayerShieldReceiveDamageStart?.Invoke(player, damageSource, ref damage);
+        return damage;
+    }
+
+    public static float GetExternalShieldReceiveDamageFinish(IPlayer player, DamageSource damageSource, float damage)
+    {
+        OnPlayerShieldReceiveDamageFinish?.Invoke(player, damageSource, ref damage);
+        return damage;
+    }
+}
+#endregion

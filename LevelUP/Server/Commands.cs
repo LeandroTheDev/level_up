@@ -8,12 +8,10 @@ namespace LevelUP.Server;
 
 class Commands
 {
-    Instance instance;
-    public void Init(Instance _instance)
+    public void Init()
     {
-        instance = _instance;
         // Create register command
-        instance.api.ChatCommands.Create("levelup")
+        Instance.api.ChatCommands.Create("levelup")
         // Description
         .WithDescription("Manipulate level UP")
         // Chat privilege
@@ -61,7 +59,7 @@ class Commands
         Experience.ChangeExperience(player, args[1], ulong.Parse(args[3]));
 
         // Refresh player levels
-        Instance.UpdatePlayerLevels(player, instance.api);
+        Instance.UpdatePlayerLevels(player, Instance.api);
 
         return TextCommandResult.Success($"Changed experience from {player.PlayerName} to {args[3]} on level {args[1]}", "10");
     }
@@ -84,7 +82,7 @@ class Commands
         Experience.IncreaseExperience(player, args[1], ulong.Parse(args[3]));
 
         // Refresh player levels
-        Instance.UpdatePlayerLevels(player, instance.api);
+        Instance.UpdatePlayerLevels(player, Instance.api);
 
         return TextCommandResult.Success($"Added {args[3]} experience to {player.PlayerName} on level {args[1]}", "11");
     }
@@ -107,7 +105,7 @@ class Commands
         Experience.ReduceExperience(player, args[1], ulong.Parse(args[3]), true);
 
         // Refresh player levels
-        Instance.UpdatePlayerLevels(player, instance.api);
+        Instance.UpdatePlayerLevels(player, Instance.api);
 
         return TextCommandResult.Success($"Reduced {args[3]} experience to {player.PlayerName} on level {args[1]}", "12");
     }
@@ -165,7 +163,7 @@ class Commands
         player.Entity.WatchedAttributes.SetFloat("regenSpeed", 1.0f);
 
         // Refresh player levels
-        Instance.UpdatePlayerLevels(player, instance.api);
+        Instance.UpdatePlayerLevels(player, Instance.api);
 
         return TextCommandResult.Success($"{args[1]} status has been reseted to vanilla default", "13");
     }
@@ -182,10 +180,10 @@ class Commands
         if (player == null) return TextCommandResult.Success($"Player {args[1]} not found or not online", "14");
 
         // Removing experience from all levels to this player
-        Instance.ResetPlayerLevels(player, instance.api, 0);
+        Instance.ResetPlayerLevels(player, Instance.api, 0);
 
         // Refresh player levels
-        Instance.UpdatePlayerLevels(player, instance.api);
+        Instance.UpdatePlayerLevels(player, Instance.api);
 
         return TextCommandResult.Success($"{args[1]} levels has been reseted to 0", "13");
     }
@@ -193,7 +191,7 @@ class Commands
 
     private IServerPlayer GetPlayerByUsernameOrUID(string usernameOrUID)
     {
-        foreach (IPlayer player in instance.api.World.AllOnlinePlayers)
+        foreach (IPlayer player in Instance.api.World.AllOnlinePlayers)
         {
             if (player.PlayerName == usernameOrUID || player.PlayerUID == usernameOrUID) return player as IServerPlayer;
         }
