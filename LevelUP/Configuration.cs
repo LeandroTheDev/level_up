@@ -2944,7 +2944,7 @@ public static class Configuration
     private static float vitalityBaseHP = 10.0f;
     private static float vitalityBaseHPRegen = 1.0f;
     private static float vitalityHPRegenIncreasePerLevel = 0.1f;
-    private static int vitalityDamageLimit = 1000;
+    private static int vitalityDamageLimit = 100;
     private static int vitalityMaxLevel = 999;
 
     public static int DamageLimitVitality => vitalityDamageLimit;

@@ -198,10 +198,21 @@ class OverwriteDamageInteraction
                 Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer).GetName() ?? "PlayerProjectile"} final damage: {damage}");
         }
 
-        // Player Receive Damage
-        if (__instance is EntityPlayer)
+        bool ValidPlayerReceivedDamage()
         {
-            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer)?.GetName()} received damage: {damage}");
+            return damageSource.Type switch
+            {
+                EnumDamageType.Hunger => false,
+                EnumDamageType.Heal => false,
+                EnumDamageType.Suffocation => false,
+                _ => true,
+            };
+        }
+
+        // Player Receive Damage
+        if (__instance is EntityPlayer && ValidPlayerReceivedDamage())
+        {
+            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer)?.GetName()} received damage: {damage} from: {damageSource.Type}");
 
             // Get player source
             EntityPlayer playerEntity = __instance as EntityPlayer;
