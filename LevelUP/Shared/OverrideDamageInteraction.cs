@@ -390,7 +390,7 @@ class OverwriteDamageInteraction
             // Integration
             damage = OverwriteDamageInteractionEvents.GetExternalReceiveDamageFinish(player, damageSource, equippedArmors, damage);
 
-            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer).GetName()} received final damage: {damage}");
+            Debug.LogDebug($"{player.PlayerName} received final damage: {damage}");
         }
 
         // If the armor reduces less than 0, just change to 0
