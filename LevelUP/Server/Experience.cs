@@ -8,7 +8,7 @@ using Vintagestory.API.Util;
 
 namespace LevelUP.Server;
 
-class Experience
+public class Experience
 {
     static private string _saveDirectory = "";
 

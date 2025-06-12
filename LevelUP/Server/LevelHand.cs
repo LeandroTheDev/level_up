@@ -47,8 +47,7 @@ class LevelHand
         ulong playerExp = Experience.GetExperience(player, "Hand");
         if (Configuration.HandIsMaxLevel(playerExp)) return;
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} killed: {entity.Code}, hand exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hand exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Hand", exp);

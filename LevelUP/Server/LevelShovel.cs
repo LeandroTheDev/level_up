@@ -52,8 +52,7 @@ class LevelShovel
         ulong playerExp = Experience.GetExperience(player, "Shovel");
         if (Configuration.ShovelIsMaxLevel(playerExp)) return;
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} killed: {entity.Code}, shovel exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, shovel exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Shovel", exp);

@@ -106,7 +106,7 @@ class OverwriteBlockBreak
         return __result;
     }
 
-    // Overwrite Wood Axe Breaking
+    // Overwrite Wood Axe Tree Breaking
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ItemAxe), "OnBlockBrokenWith")]
     public static void OnBlockBrokenWith(ItemAxe __instance, IWorldAccessor world, Entity byEntity, ItemSlot itemslot, BlockSelection blockSel, float dropQuantityMultiplier = 1f)
@@ -115,7 +115,9 @@ class OverwriteBlockBreak
 
         // Check if axe breaked is a player
         if (byEntity is EntityPlayer)
+        {
             Experience.IncreaseExperience((byEntity as EntityPlayer).Player, "Axe", "TreeBreak");
+        }
     }
 
     // Overwrite Ores Drop
@@ -129,13 +131,17 @@ class OverwriteBlockBreak
 
         // Increasing ore drop rate
         dropQuantityMultiplier += Configuration.PickaxeGetOreMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
+
+        // Integration
+        dropQuantityMultiplier = OverwriteBlockBreakEvents.GetExternalMiningMultiplier(byPlayer, dropQuantityMultiplier);
+
         Debug.LogDebug($"{byPlayer.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))}");
     }
 
     // Overwrite Crops Drop
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BlockCrop), "GetDrops")]
-    public static ItemStack[] GetDrops(ItemStack[] __result, BlockCrop __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1f)
+    public static ItemStack[] GetDrops(ItemStack[] __result, BlockCrop __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref float dropQuantityMultiplier)
     {
         if (!Configuration.enableLevelFarming) return __result;
         if (world.Side != EnumAppSide.Server) return __result;
@@ -144,7 +150,7 @@ class OverwriteBlockBreak
         if (byPlayer == null) return __result;
 
         // Crop experience if exist
-        int? exp = null;
+        ulong exp = 0;
         // Swipe all items stack drops
         int index = 0;
         foreach (ItemStack itemStack in __result)
@@ -152,7 +158,7 @@ class OverwriteBlockBreak
             // Check if exist the drop crop in configuration
             if (Configuration.expPerHarvestFarming.TryGetValue(itemStack.ToString(), out int _exp))
             {
-                exp = _exp;
+                exp = (ulong)_exp;
                 // Multiply crop drop
                 itemStack.StackSize = (int)Math.Round(itemStack.StackSize * Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
                 // Update item stack result
@@ -161,9 +167,13 @@ class OverwriteBlockBreak
             index++;
         }
 
+        OverwriteBlockBreakEvents.UpdateFromExternalHarvestCrop(byPlayer, ref __result, ref exp, ref dropQuantityMultiplier);
+
         // Add harvest experience
-        if (exp != null)
-            Experience.IncreaseExperience(byPlayer, "Farming", (ulong)exp);
+        if (exp > 0)
+        {
+            Experience.IncreaseExperience(byPlayer, "Farming", exp);
+        }
 
         Debug.LogDebug($"{byPlayer.PlayerName} breaked a crop, multiply drop: {Configuration.FarmingGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))}, experience: {exp}");
 
@@ -171,3 +181,25 @@ class OverwriteBlockBreak
     }
 
 }
+
+#region Compatibility
+public static class OverwriteBlockBreakEvents
+{
+    public delegate void PlayerMiningOre(IPlayer player, ref float dropQuantityMultiplier);
+    public delegate void PlayerHarvestCrop(IPlayer player, ref ItemStack[] itemStack, ref ulong exp, ref float dropQuantityMultiplier);
+
+    public static event PlayerMiningOre OnMiningOre;
+    public static event PlayerHarvestCrop OnHarvestCrop;
+
+    internal static float GetExternalMiningMultiplier(IPlayer player, float multiply)
+    {
+        OnMiningOre?.Invoke(player, ref multiply);
+        return multiply;
+    }
+
+    internal static void UpdateFromExternalHarvestCrop(IPlayer player, ref ItemStack[] itemStack, ref ulong exp, ref float dropQuantityMultiplier)
+    {
+        OnHarvestCrop?.Invoke(player, ref itemStack, ref exp, ref dropQuantityMultiplier);
+    }
+}
+#endregion

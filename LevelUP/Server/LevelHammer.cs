@@ -45,8 +45,7 @@ class LevelHammer
         ulong playerExp = Experience.GetExperience(player, "Hammer");
         if (Configuration.HammerIsMaxLevel(playerExp)) return;
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Hammer", exp);
