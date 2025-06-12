@@ -34,8 +34,7 @@ class LevelFarming
         ulong playerExp = Experience.GetExperience(player, "Farming");
         if (Configuration.FarmingIsMaxLevel(playerExp)) return;
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, farming exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, farming exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Farming", exp);

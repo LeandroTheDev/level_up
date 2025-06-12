@@ -529,67 +529,67 @@ public static class OverwriteDamageInteractionEvents
     public static event DamageModifierHandler OnPlayerShieldReceiveDamageStart;
     public static event DamageModifierHandler OnPlayerShieldReceiveDamageFinish;
 
-    public static float GetExternalMeleeDamageStart(IPlayer player, DamageSource damageSource, float damage)
+    internal static float GetExternalMeleeDamageStart(IPlayer player, DamageSource damageSource, float damage)
     {
         OnPlayerMeleeDoDamageStart?.Invoke(player, damageSource, ref damage);
         return damage;
     }
 
-    public static float GetExternalMeleeDamageFinish(IPlayer player, DamageSource damageSource, float damage)
+    internal static float GetExternalMeleeDamageFinish(IPlayer player, DamageSource damageSource, float damage)
     {
         OnPlayerMeleeDoDamageFinish?.Invoke(player, damageSource, ref damage);
         return damage;
     }
 
-    public static float GetExternalRangedDamageStart(IPlayer player, DamageSource damageSource, float damage)
+    internal static float GetExternalRangedDamageStart(IPlayer player, DamageSource damageSource, float damage)
     {
         OnPlayerRangedDoDamageStart?.Invoke(player, damageSource, ref damage);
         return damage;
     }
 
-    public static float GetExternalRangedDamageFinish(IPlayer player, DamageSource damageSource, float damage)
+    internal static float GetExternalRangedDamageFinish(IPlayer player, DamageSource damageSource, float damage)
     {
         OnPlayerRangedDoDamageFinish?.Invoke(player, damageSource, ref damage);
         return damage;
     }
 
-    public static float GetExternalReceiveDamageStart(IPlayer player, DamageSource damageSource, float damage)
+    internal static float GetExternalReceiveDamageStart(IPlayer player, DamageSource damageSource, float damage)
     {
         OnPlayerReceiveDamageStart?.Invoke(player, damageSource, ref damage);
         return damage;
     }
 
-    public static float GetExternalReceiveDamageFinish(IPlayer player, DamageSource damageSource, List<string> equippedArmors, float damage)
+    internal static float GetExternalReceiveDamageFinish(IPlayer player, DamageSource damageSource, List<string> equippedArmors, float damage)
     {
         OnPlayerReceiveDamageFinish?.Invoke(player, damageSource, equippedArmors, ref damage);
         return damage;
     }
 
-    public static float GetExternalBowDropChance(IPlayer player, float chance)
+    internal static float GetExternalBowDropChance(IPlayer player, float chance)
     {
         OnBowDropChanceRefresh?.Invoke(player, ref chance);
         return chance;
     }
 
-    public static float GetExternalBowAiming(IPlayer player, float chance)
+    internal static float GetExternalBowAiming(IPlayer player, float chance)
     {
         OnBowAimingRefresh?.Invoke(player, ref chance);
         return chance;
     }
 
-    public static float GetExternalSpearAiming(IPlayer player, float chance)
+    internal static float GetExternalSpearAiming(IPlayer player, float chance)
     {
         OnSpearAimingRefresh?.Invoke(player, ref chance);
         return chance;
     }
 
-    public static float GetExternalShieldReceiveDamageStart(IPlayer player, DamageSource damageSource, float damage)
+    internal static float GetExternalShieldReceiveDamageStart(IPlayer player, DamageSource damageSource, float damage)
     {
         OnPlayerShieldReceiveDamageStart?.Invoke(player, damageSource, ref damage);
         return damage;
     }
 
-    public static float GetExternalShieldReceiveDamageFinish(IPlayer player, DamageSource damageSource, float damage)
+    internal static float GetExternalShieldReceiveDamageFinish(IPlayer player, DamageSource damageSource, float damage)
     {
         OnPlayerShieldReceiveDamageFinish?.Invoke(player, damageSource, ref damage);
         return damage;

@@ -45,8 +45,7 @@ class LevelBow
         ulong playerExp = Experience.GetExperience(player, "Bow");
         if (Configuration.BowIsMaxLevel(playerExp)) return;
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Bow", exp);

@@ -51,8 +51,7 @@ class LevelPickaxe
         ulong playerExp = Experience.GetExperience(player, "Pickaxe");
         if (Configuration.PickaxeIsMaxLevel(playerExp)) return;
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Pickaxe", exp);

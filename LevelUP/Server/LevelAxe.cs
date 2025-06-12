@@ -49,8 +49,7 @@ class LevelAxe
         ulong playerExp = Experience.GetExperience(player, "Axe");
         if (Configuration.AxeIsMaxLevel(playerExp)) return;
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} killed: {entity.Code}, axe exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, axe exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Axe", exp);

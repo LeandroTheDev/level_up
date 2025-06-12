@@ -1,4 +1,4 @@
-﻿using LevelUP.Server;
+﻿using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -34,7 +34,7 @@ public class Initialization : ModSystem
 
         Debug.LoadLogger(api.Logger);
         Debug.Log($"Running on Version: {Mod.Info.Version}");
-        Experience.LoadInstance(api);
+        Server.Experience.LoadInstance(api);
         sharedInstance.InstanciateAPI(api);
         sharedInstance.OverwriteFunctions();
     }

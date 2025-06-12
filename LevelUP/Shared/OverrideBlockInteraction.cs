@@ -50,14 +50,17 @@ class OverwriteBlockInteraction
         // Check if is from the server
         if (__instance.entity.World.Side == EnumAppSide.Server)
         {
-            // Earn xp by harvesting the entity
-            Experience.IncreaseExperience(byPlayer, "Knife", "Harvest");
-
             // Get the final droprate
             float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
 
             // Increasing entity drop rate
             dropQuantityMultiplier += dropRate;
+
+            // Integration
+            dropQuantityMultiplier = OverwriteBlockInteractionEvents.GetExternalKnifeHarvest(byPlayer, dropQuantityMultiplier);
+
+            // Earn xp by harvesting the entity
+            Experience.IncreaseExperience(byPlayer, "Knife", "Harvest");
 
             Debug.LogDebug($"{byPlayer.PlayerName} harvested any entity with knife, multiply drop: {dropRate}, values: {Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))}");
         }
@@ -76,9 +79,14 @@ class OverwriteBlockInteraction
         if (byEntity.World.Side == EnumAppSide.Server && secondsUsed >= 1.0f)
         {
             // Check if is a player
-            if (byEntity is EntityPlayer)
+            if (byEntity is EntityPlayer playerEntity)
+            {
+                // Integration
+                OverwriteBlockInteractionEvents.ExecuteHoeTill(playerEntity.Player);
+
                 // Earn xp by tilling the soil
-                Experience.IncreaseExperience((byEntity as EntityPlayer).Player, "Farming", "Till");
+                Experience.IncreaseExperience(playerEntity.Player, "Farming", "Till");
+            }
         }
     }
 
@@ -96,9 +104,16 @@ class OverwriteBlockInteraction
 
             Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.Code}, by breaking");
 
+            ulong exp = 0;
+
             // Check the berry existence
-            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int exp))
-                Experience.IncreaseExperience(byPlayer, "Farming", (ulong)exp);
+            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int intExp))
+                exp = (ulong)intExp;
+
+            OverwriteBlockInteractionEvents.UpdateFromExternalFarmForage(byPlayer, __instance.Code.ToString(), ref exp, ref dropQuantityMultiplier);
+
+            if (exp > 0)
+                Experience.IncreaseExperience(byPlayer, "Farming", exp);
         }
     }
 
@@ -111,20 +126,26 @@ class OverwriteBlockInteraction
         byPlayer.Entity.Stats.Set("forageDropRatePreviously", "forageDropRatePreviously", byPlayer.Entity.Stats.GetBlended("forageDropRate"));
 
         if (!Configuration.enableLevelFarming) return;
+        if (byPlayer != null && world.Side != EnumAppSide.Server) return;
 
-        if (byPlayer != null && world.Side == EnumAppSide.Server)
-        {
-            // This is necessary unfurtunally because the devs forgot to add the "dropQuantityMultiplier" on the function
-            // we are changing the drop rate from entity status, that is very dangerous but is the only way...
-            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")));
+        ulong exp = 0;
+        float multiply = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
 
-            Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.block.Code}, by right clicking");
+        // Check the berry existence
+        if (Configuration.expPerHarvestFarming.TryGetValue(__instance.block.Code.ToString(), out int intExp))
+            exp = (ulong)intExp;
 
-            // Check the berry existence
-            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.block.Code.ToString(), out int exp))
-                Experience.IncreaseExperience(byPlayer, "Farming", (ulong)exp);
+        OverwriteBlockInteractionEvents.UpdateFromExternalFarmForage(byPlayer, __instance.block.Code.ToString(), ref exp, ref multiply);
 
-        }
+        if (exp > 0)
+            Experience.IncreaseExperience(byPlayer, "Farming", exp);
+
+
+        // This is necessary unfurtunally because the devs forgot to add the "dropQuantityMultiplier" on the function
+        // we are changing the drop rate from entity status, that is very dangerous but is the only way...
+        byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", multiply);
+
+        Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.block.Code}, by right clicking");
     }
     [HarmonyPostfix] // This is necessary to back to default value after the function is complete
     [HarmonyPatch(typeof(BlockBehaviorHarvestable), "OnBlockInteractStop")]
@@ -222,6 +243,8 @@ class OverwriteBlockInteraction
                 // For single cooking
                 if (Configuration.expMultiplySingleCooking.TryGetValue(output.Collectible.Code.ToString(), out double expMultiplySingle))
                 {
+                    ulong exp = (ulong)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle));
+
                     if (firstOutput)
                     {
                         // Increase the fresh hours based in player experience
@@ -229,25 +252,26 @@ class OverwriteBlockInteraction
                         FloatArrayAttribute freshHours = attribute.GetAttribute("freshHours") as FloatArrayAttribute;
                         Debug.LogDebug($"Cooking: previously fresh hours: {freshHours.value[0]}");
                         freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"));
+                        OverwriteBlockInteractionEvents.UpdateFromExternalCookingSingle(player, output.Collectible.Code.ToString(), ref exp, ref freshHours.value[0]);
                         Debug.LogDebug($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))}");
                         attribute.SetAttribute("freshHours", freshHours);
                         output.Attributes["transitionstate"] = attribute;
                     }
 
-                    Experience.IncreaseExperience(player, "Cooking", (ulong)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplySingle)));
+                    Experience.IncreaseExperience(player, "Cooking", exp);
                 }
                 // For pots cooking
                 else if (Configuration.expMultiplyPotsCooking.TryGetValue(output.Collectible.Code.ToString(), out double expMultiplyPots))
                 {
+                    ulong exp = (ulong)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots));
+
                     if (firstOutput)
                     {
-                        // Increase the fresh hours based in player experience
-                        {
-                            // For pots the fresh foods is stored as raw in the pot
-                            // by knowing that we need to increase fresh hours foreach inventory slot from this pot
-                            TreeAttribute attribute = output.Attributes["contents"] as TreeAttribute;
+                        List<float> indexFreshHours = [];
 
-                            Debug.LogDebug("Increasing cooking ingredients fresh hours...");
+                        // Getting fresh hours index first, for the integration
+                        {
+                            TreeAttribute attribute = output.Attributes["contents"] as TreeAttribute;
 
                             // Swipe all foods in inventory
                             foreach (var contents in attribute)
@@ -261,17 +285,12 @@ class OverwriteBlockInteraction
 
                                 Debug.LogDebug($"Cooking: previously fresh hours: {freshHours.value[0]}");
 
-                                // Increase fresh hours
+                                // Increase fresh hours by levelup
                                 freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"));
 
-                                Debug.LogDebug($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))}");
-
-                                // Updating
-                                itemAttribute.SetAttribute("freshHours", freshHours);
-                                item.Attributes["transitionstate"] = itemAttribute;
-                                contentAttribute.value = item;
+                                // Integration
+                                indexFreshHours.Add(freshHours.value[0]);
                             }
-                            output.Attributes["contents"] = attribute;
                         }
                         // Increase servings quantity
                         {
@@ -287,13 +306,53 @@ class OverwriteBlockInteraction
 
                             Debug.LogDebug($"Cooking: servings now: {servingsQuantity.value}");
 
-                            // Updating
+                            // Integration
+                            OverwriteBlockInteractionEvents.UpdateFromExternalCookingPot(player, output.Collectible.Code.ToString(), ref exp, ref indexFreshHours, ref servingsQuantity.value);
+
+                            // Updating fresh hours
+                            {
+                                // For pots the fresh foods is stored as raw in the pot
+                                // by knowing that we need to increase fresh hours foreach inventory slot from this pot
+                                TreeAttribute attributeFreshHours = output.Attributes["contents"] as TreeAttribute;
+
+                                Debug.LogDebug("Increasing cooking ingredients fresh hours...");
+
+                                // Swipe all foods in inventory
+                                int i = 0;
+                                foreach (var contents in attributeFreshHours)
+                                {
+                                    ItemstackAttribute contentAttribute = contents.Value as ItemstackAttribute;
+                                    ItemStack item = contentAttribute.value;
+
+                                    // Get food datas
+                                    TreeAttribute itemAttribute = item.Attributes["transitionstate"] as TreeAttribute;
+                                    FloatArrayAttribute freshHours = itemAttribute.GetAttribute("freshHours") as FloatArrayAttribute;
+
+                                    Debug.LogDebug($"Cooking: previously fresh hours: {freshHours.value[0]}");
+
+                                    // Increase fresh hours
+                                    freshHours.value[0] = indexFreshHours[i];
+                                    freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"));
+
+                                    Debug.LogDebug($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))}");
+
+                                    // Updating
+                                    itemAttribute.SetAttribute("freshHours", freshHours);
+                                    item.Attributes["transitionstate"] = itemAttribute;
+                                    contentAttribute.value = item;
+
+                                    i++;
+                                }
+                                output.Attributes["contents"] = attributeFreshHours;
+                            }
+
+                            // Updating servings
                             attribute["quantityServings"] = servingsQuantity;
                             output.Attributes = attribute;
                         }
                     }
 
-                    Experience.IncreaseExperience(player, "Cooking", (ulong)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots)));
+                    Experience.IncreaseExperience(player, "Cooking", exp);
                 }
                 // Unkown
                 else
@@ -353,6 +412,9 @@ class OverwriteBlockInteraction
 
                 if (__instance.SelectedRecipe.Output != null && __instance.SelectedRecipe.Output.ResolvedItemstack != null)
                 {
+                    // Integration
+                    multiply = OverwriteBlockInteractionEvents.GetExternalHammerMultiply(byPlayer, __instance.SelectedRecipe.Output.ResolvedItemstack.Collectible?.Code?.ToString(), multiply);
+
                     // Multiply by the chance
                     __instance.SelectedRecipe.Output.ResolvedItemstack.StackSize = __instance.SelectedRecipe.Output.Quantity * multiply;
 
@@ -383,11 +445,16 @@ class OverwriteBlockInteraction
                 // Check if currently recipe matchs the smith chance
                 if (__instance.SelectedRecipe.Output.Code.ToString().Contains(keyValue.Key))
                 {
+                    bool shouldRetrieve = Configuration.HammerShouldRetrieveSmithByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
+                    ItemStack itemToRetrieve = new(__instance.Api.World.GetItem(new AssetLocation(keyValue.Value)));
+
+                    OverwriteBlockInteractionEvents.UpdateFromExternalHammerSplit(byPlayer, ref shouldRetrieve, ref itemToRetrieve);
+
                     // Alright its match lets get the chance
-                    if (Configuration.HammerShouldRetrieveSmithByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer")))
+                    if (shouldRetrieve)
                     {
                         // The chance returned true so we need to retrieve the player the item
-                        byPlayer.Entity.TryGiveItemStack(new ItemStack(__instance.Api.World.GetItem(new AssetLocation(keyValue.Value))));
+                        byPlayer.Entity.TryGiveItemStack(itemToRetrieve);
                     }
                 }
             }
@@ -477,11 +544,16 @@ class OverwriteBlockInteraction
                 {
                     stack = Resolve(drops[i].Type, drops[i].Code.Path.Replace("{rocktype}", rocktype));
                 }
+                // Clone the stack before
+                stack = stack.Clone();
+
+                // Multiplying drop quantity
+                stack.StackSize += stack.StackSize * Configuration.PanningGetLootQuantityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"));
+
+
+
                 if (num < (double)val && stack != null)
                 {
-                    stack = stack.Clone();
-                    // Multiplying drop quantity
-                    stack.StackSize += stack.StackSize * Configuration.PanningGetLootQuantityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"));
                     if (player == null || !player.InventoryManager.TryGiveItemstack(stack, slotNotifyEffect: true))
                     {
                         byEntity.Api.World.SpawnItemEntity(stack, byEntity.ServerPos.XYZ);
@@ -514,290 +586,7 @@ class OverwriteBlockInteraction
         if (sinkSlot == null || sinkSlot.Itemstack == null) return;
         if (op.ActingPlayer == null) return;
 
-        int? durability = null;
-        int? maxDurability = null;
-        float? attackPower = null;
-        float? miningSpeed = null;
-
-        // Increasing durability based on smithing level
-        if (sinkSlot.Itemstack.Collectible.Durability > 0)
-        {
-            float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(op.ActingPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"));
-
-            durability = (int)Math.Round(sinkSlot.Itemstack.Collectible.Durability * multiply);
-            maxDurability = (int)Math.Round(sinkSlot.Itemstack.Collectible.GetMaxDurability(sinkSlot.Itemstack) * multiply);
-        }
-
-        foreach (KeyValuePair<string, int> kvp in Configuration.expPerCraftSmithing)
-        {
-            string collectableCode = kvp.Key;
-
-            if (collectableCode.EndsWith(sinkSlot.Itemstack.Collectible.Code.ToString()))
-            {
-                string levelType = null;
-                if (collectableCode.Contains('?'))
-                {
-                    int questionMarkIndex = collectableCode.IndexOf('?');
-                    levelType = questionMarkIndex != -1 ? collectableCode[..questionMarkIndex] : "";
-                }
-
-                int exp = kvp.Value;
-                Experience.IncreaseExperience(op.ActingPlayer, "Smithing", (ulong)exp);
-
-                // If the levelType is null, is a tool
-                if (levelType == null)
-                {
-                    void HandleWeapon(IPlayer player, string subLevelType)
-                    {
-                        int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
-                        float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                        if (sinkSlot.Itemstack.Collectible.Durability > 0)
-                        {
-                            durability = (int)Math.Round((int)durability * multiply);
-                            maxDurability = (int)Math.Round((int)maxDurability * multiply);
-                        }
-
-                        attackPower = sinkSlot.Itemstack.Item.AttackPower * Configuration.SmithingGetAttackPowerMultiplyByLevel(level);
-                    }
-
-                    void HandleMiningTool(IPlayer player, string subLevelType)
-                    {
-                        int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
-                        if (sinkSlot.Itemstack.Collectible.Durability > 0)
-                        {
-                            float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                            durability = (int)Math.Round((int)durability * multiply);
-                            maxDurability = (int)Math.Round((int)maxDurability * multiply);
-                        }
-
-                        attackPower = sinkSlot.Itemstack.Item.AttackPower * Configuration.SmithingGetAttackPowerMultiplyByLevel(level);
-                        miningSpeed = Configuration.SmithingGetMiningSpeedMultiplyByLevel(level);
-                    }
-
-                    void HandleTool(IPlayer player, string subLevelType)
-                    {
-                        int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
-                        if (sinkSlot.Itemstack.Collectible.Durability > 0)
-                        {
-                            float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                            durability = (int)Math.Round((int)durability * multiply);
-                            maxDurability = (int)Math.Round((int)maxDurability * multiply);
-                        }
-                    }
-
-                    // Increasing sub tool levels
-                    switch (sinkSlot.Itemstack.Item.Tool)
-                    {
-                        case EnumTool.Knife:
-                            HandleMiningTool(op.ActingPlayer, "Knife");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Knife", (ulong)exp);
-                            break;
-                        case EnumTool.Axe:
-                            HandleMiningTool(op.ActingPlayer, "Axe");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Axe", (ulong)exp);
-                            break;
-                        case EnumTool.Bow:
-                            HandleWeapon(op.ActingPlayer, "Bow");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Bow", (ulong)exp);
-                            break;
-                        case EnumTool.Chisel:
-                            HandleTool(op.ActingPlayer, "Chisel");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Chisel", (ulong)exp);
-                            break;
-                        case EnumTool.Club:
-                            HandleWeapon(op.ActingPlayer, "Club");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Club", (ulong)exp);
-                            break;
-                        case EnumTool.Crossbow:
-                            HandleWeapon(op.ActingPlayer, "Crossbow");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Crossbow", (ulong)exp);
-                            break;
-                        case EnumTool.Drill:
-                            HandleTool(op.ActingPlayer, "Drill");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Drill", (ulong)exp);
-                            break;
-                        case EnumTool.Firearm:
-                            HandleWeapon(op.ActingPlayer, "Firearm");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Firearm", (ulong)exp);
-                            break;
-                        case EnumTool.Halberd:
-                            HandleWeapon(op.ActingPlayer, "Halberd");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Halberd", (ulong)exp);
-                            break;
-                        case EnumTool.Hammer:
-                            HandleWeapon(op.ActingPlayer, "Hammer");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Hammer", (ulong)exp);
-                            break;
-                        case EnumTool.Hoe:
-                            HandleTool(op.ActingPlayer, "Hoe");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Hoe", (ulong)exp);
-                            break;
-                        case EnumTool.Javelin:
-                            HandleWeapon(op.ActingPlayer, "Javelin");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Javelin", (ulong)exp);
-                            break;
-                        case EnumTool.Mace:
-                            HandleTool(op.ActingPlayer, "Mace");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Mace", (ulong)exp);
-                            break;
-                        case EnumTool.Meter:
-                            HandleTool(op.ActingPlayer, "Meter");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Meter", (ulong)exp);
-                            break;
-                        case EnumTool.Pickaxe:
-                            HandleMiningTool(op.ActingPlayer, "Pickaxe");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Pickaxe", (ulong)exp);
-                            break;
-                        case EnumTool.Pike:
-                            HandleTool(op.ActingPlayer, "Pike");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Pike", (ulong)exp);
-                            break;
-                        case EnumTool.Polearm:
-                            HandleTool(op.ActingPlayer, "Polearm");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Polearm", (ulong)exp);
-                            break;
-                        case EnumTool.Poleaxe:
-                            HandleTool(op.ActingPlayer, "Poleaxe");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Poleaxe", (ulong)exp);
-                            break;
-                        case EnumTool.Probe:
-                            HandleTool(op.ActingPlayer, "Probe");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Probe", (ulong)exp);
-                            break;
-                        case EnumTool.Saw:
-                            HandleTool(op.ActingPlayer, "Saw");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Saw", (ulong)exp);
-                            break;
-                        case EnumTool.Scythe:
-                            HandleTool(op.ActingPlayer, "Scythe");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Scythe", (ulong)exp);
-                            break;
-                        case EnumTool.Shears:
-                            HandleTool(op.ActingPlayer, "Shears");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Shears", (ulong)exp);
-                            break;
-                        case EnumTool.Shield:
-                            HandleTool(op.ActingPlayer, "Shield");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Shield", (ulong)exp);
-                            break;
-                        case EnumTool.Shovel:
-                            HandleMiningTool(op.ActingPlayer, "Shovel");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Shovel", (ulong)exp);
-                            break;
-                        case EnumTool.Sickle:
-                            HandleTool(op.ActingPlayer, "Sickle");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Sickle", (ulong)exp);
-                            break;
-                        case EnumTool.Sling:
-                            HandleWeapon(op.ActingPlayer, "Sling");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Sling", (ulong)exp);
-                            break;
-                        case EnumTool.Spear:
-                            HandleWeapon(op.ActingPlayer, "Spear");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Spear", (ulong)exp);
-                            break;
-                        case EnumTool.Staff:
-                            HandleTool(op.ActingPlayer, "Staff");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Staff", (ulong)exp);
-                            break;
-                        case EnumTool.Sword:
-                            HandleWeapon(op.ActingPlayer, "Sword");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Sword", (ulong)exp);
-                            break;
-                        case EnumTool.Warhammer:
-                            HandleWeapon(op.ActingPlayer, "Warhammer");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Warhammer", (ulong)exp);
-                            break;
-                        case EnumTool.Wrench:
-                            HandleTool(op.ActingPlayer, "Wrench");
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Wrench", (ulong)exp);
-                            break;
-                    }
-                }
-                else // Code with custom level type
-                {
-                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", levelType, (ulong)exp);
-
-                    // Check if is a armor with protection properties
-                    if (sinkSlot.Itemstack.Collectible.Attributes.KeyExists("protectionModifiers"))
-                    {
-                        // Now we are converting the attributes to a modifiable json
-
-                        string data = sinkSlot.Itemstack.Collectible.Attributes.Token.ToString();
-                        JObject jsonObject = JObject.Parse(data);
-
-                        // Getting the protectionModifiers
-                        if (jsonObject.TryGetValue("protectionModifiers", out JToken protectionModifiersToken))
-                        {
-                            int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(op.ActingPlayer, "Smithing", levelType));
-                            float multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
-
-                            // Increasing the armor durability
-                            if (sinkSlot.Itemstack.Collectible.Durability > 0)
-                            {
-                                float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                                durability = (int)Math.Round((int)durability * multiplyDurability);
-                                maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
-                            }
-
-                            // Getting the modifiable protectionModifiers
-                            if (protectionModifiersToken is JObject protectionModifiers)
-                            {
-                                // Check if exist, and change it
-                                if (protectionModifiers.TryGetValue("relativeProtection", out _))
-                                {
-                                    sinkSlot.Itemstack.Attributes.SetFloat("relativeProtection", (float)jsonObject["protectionModifiers"]["relativeProtection"] * multiplyProtection);
-                                    Debug.LogDebug($"{op.ActingPlayer.PlayerName} armor relativeProtection: {jsonObject["protectionModifiers"]["relativeProtection"]}/{multiplyProtection}");
-                                }
-                                // Check if exist, and change it
-                                if (protectionModifiers.TryGetValue("flatDamageReduction", out _))
-                                {
-                                    sinkSlot.Itemstack.Attributes.SetFloat("flatDamageReduction", (float)jsonObject["protectionModifiers"]["flatDamageReduction"] * multiplyProtection);
-                                    Debug.LogDebug($"{op.ActingPlayer.PlayerName} armor flatDamageReduction: {jsonObject["protectionModifiers"]["flatDamageReduction"]}/{multiplyProtection}");
-                                }
-                            }
-
-                            // Convert again to JsonObject and replace it in attributes
-                            sinkSlot.Itemstack.Collectible.Attributes = new(JToken.Parse(jsonObject.ToString()));
-
-                            Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted any armor protection increased to: {multiplyProtection}");
-                        }
-                    }
-                }
-
-                Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted: {sinkSlot.Itemstack.Collectible.Code}");
-
-                break;
-            }
-        }
-
-        if (durability != null && maxDurability != null)
-        {
-            sinkSlot.Itemstack.Attributes.SetInt("durability", (int)durability);
-            sinkSlot.Itemstack.Attributes.SetInt("maxdurability", (int)maxDurability);
-
-            Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted any item durability increased to: {maxDurability}");
-        }
-        if (attackPower != null)
-        {
-            sinkSlot.Itemstack.Collectible.AttackPower = (float)attackPower;
-            sinkSlot.Itemstack.Attributes.SetFloat("attackpower", (float)attackPower);
-
-            Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted any item attack increased to: {attackPower}");
-        }
-        if (miningSpeed != null)
-        {
-            List<EnumBlockMaterial> keys = [.. sinkSlot.Itemstack.Item.MiningSpeed.Keys];
-
-            foreach (EnumBlockMaterial key in keys)
-            {
-                sinkSlot.Itemstack.Collectible.MiningSpeed[key] *= (float)miningSpeed;
-                sinkSlot.Itemstack.Attributes.SetFloat($"{key}_miningspeed", sinkSlot.Itemstack.Collectible.MiningSpeed[key]);
-            }
-
-            Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted any item mining speed increased to: {miningSpeed}");
-        }
-
+        sinkSlot.Itemstack = OverwriteBlockInteractionEvents.ExecuteSmithItemCraftedCalculations(op.ActingPlayer, sinkSlot.Itemstack);
         sinkSlot.MarkDirty();
     }
 
@@ -811,365 +600,7 @@ class OverwriteBlockInteraction
         if (sinkSlot == null || sinkSlot.Itemstack == null) return;
         if (op.ActingPlayer == null) return;
 
-        int? durability = null;
-        int? maxDurability = null;
-        float? attackPower = null;
-        float? miningSpeed = null;
-
-        // Increasing durability based on smithing level
-        if (sinkSlot.Itemstack.Collectible.Durability > 0)
-        {
-            float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(op.ActingPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"));
-
-            durability = (int)Math.Round(sinkSlot.Itemstack.Collectible.Durability * multiply);
-            maxDurability = (int)Math.Round(sinkSlot.Itemstack.Collectible.GetMaxDurability(sinkSlot.Itemstack) * multiply);
-        }
-
-        foreach (KeyValuePair<string, int> kvp in Configuration.expPerCraftSmithing)
-        {
-            string collectableCode = kvp.Key;
-
-            if (collectableCode.EndsWith(sinkSlot.Itemstack.Collectible.Code.ToString()))
-            {
-                string levelType = null;
-                if (collectableCode.Contains('?'))
-                {
-                    int questionMarkIndex = collectableCode.IndexOf('?');
-                    levelType = questionMarkIndex != -1 ? collectableCode[..questionMarkIndex] : "";
-                }
-
-                int exp = kvp.Value;
-                { // Getting total experience earned
-                    for (int i = 0; i < sinkSlot.Itemstack.StackSize; i++)
-                    {
-                        Experience.IncreaseExperience(op.ActingPlayer, "Smithing", (ulong)exp);
-
-                        // If the levelType is null, is a tool
-                        if (levelType == null)
-                            // Increasing sub tool levels
-                            switch (sinkSlot.Itemstack.Item.Tool)
-                            {
-                                case EnumTool.Knife:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Knife", (ulong)exp);
-                                    break;
-                                case EnumTool.Axe:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Axe", (ulong)exp);
-                                    break;
-                                case EnumTool.Bow:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Bow", (ulong)exp);
-                                    break;
-                                case EnumTool.Chisel:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Chisel", (ulong)exp);
-                                    break;
-                                case EnumTool.Club:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Club", (ulong)exp);
-                                    break;
-                                case EnumTool.Crossbow:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Crossbow", (ulong)exp);
-                                    break;
-                                case EnumTool.Drill:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Drill", (ulong)exp);
-                                    break;
-                                case EnumTool.Firearm:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Firearm", (ulong)exp);
-                                    break;
-                                case EnumTool.Halberd:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Halberd", (ulong)exp);
-                                    break;
-                                case EnumTool.Hammer:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Hammer", (ulong)exp);
-                                    break;
-                                case EnumTool.Hoe:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Hoe", (ulong)exp);
-                                    break;
-                                case EnumTool.Javelin:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Javelin", (ulong)exp);
-                                    break;
-                                case EnumTool.Mace:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Mace", (ulong)exp);
-                                    break;
-                                case EnumTool.Meter:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Meter", (ulong)exp);
-                                    break;
-                                case EnumTool.Pickaxe:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Pickaxe", (ulong)exp);
-                                    break;
-                                case EnumTool.Pike:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Pike", (ulong)exp);
-                                    break;
-                                case EnumTool.Polearm:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Polearm", (ulong)exp);
-                                    break;
-                                case EnumTool.Poleaxe:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Poleaxe", (ulong)exp);
-                                    break;
-                                case EnumTool.Probe:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Probe", (ulong)exp);
-                                    break;
-                                case EnumTool.Saw:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Saw", (ulong)exp);
-                                    break;
-                                case EnumTool.Scythe:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Scythe", (ulong)exp);
-                                    break;
-                                case EnumTool.Shears:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Shears", (ulong)exp);
-                                    break;
-                                case EnumTool.Shield:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Shield", (ulong)exp);
-                                    break;
-                                case EnumTool.Shovel:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Shovel", (ulong)exp);
-                                    break;
-                                case EnumTool.Sickle:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Sickle", (ulong)exp);
-                                    break;
-                                case EnumTool.Sling:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Sling", (ulong)exp);
-                                    break;
-                                case EnumTool.Spear:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Spear", (ulong)exp);
-                                    break;
-                                case EnumTool.Staff:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Staff", (ulong)exp);
-                                    break;
-                                case EnumTool.Sword:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Sword", (ulong)exp);
-                                    break;
-                                case EnumTool.Warhammer:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Warhammer", (ulong)exp);
-                                    break;
-                                case EnumTool.Wrench:
-                                    Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", "Wrench", (ulong)exp);
-                                    break;
-                            }
-                        else // Code with custom level type
-                            Experience.IncreaseSubExperience(op.ActingPlayer, "Smithing", levelType, (ulong)exp);
-                    }
-                }
-
-                { // Increasing status
-                    // If the levelType is null, is a tool
-                    if (levelType == null)
-                    {
-                        void HandleWeapon(IPlayer player, string subLevelType)
-                        {
-                            int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
-                            float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                            if (sinkSlot.Itemstack.Collectible.Durability > 0)
-                            {
-                                durability = (int)Math.Round((int)durability * multiply);
-                                maxDurability = (int)Math.Round((int)maxDurability * multiply);
-                            }
-
-                            attackPower = sinkSlot.Itemstack.Item.AttackPower * Configuration.SmithingGetAttackPowerMultiplyByLevel(level);
-                        }
-
-                        void HandleMiningTool(IPlayer player, string subLevelType)
-                        {
-                            int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
-                            if (sinkSlot.Itemstack.Collectible.Durability > 0)
-                            {
-                                float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                                durability = (int)Math.Round((int)durability * multiply);
-                                maxDurability = (int)Math.Round((int)maxDurability * multiply);
-                            }
-
-                            attackPower = sinkSlot.Itemstack.Item.AttackPower * Configuration.SmithingGetAttackPowerMultiplyByLevel(level);
-                            miningSpeed = Configuration.SmithingGetMiningSpeedMultiplyByLevel(level);
-                        }
-
-                        void HandleTool(IPlayer player, string subLevelType)
-                        {
-                            int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
-                            if (sinkSlot.Itemstack.Collectible.Durability > 0)
-                            {
-                                float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                                durability = (int)Math.Round((int)durability * multiply);
-                                maxDurability = (int)Math.Round((int)maxDurability * multiply);
-                            }
-                        }
-
-                        // Increasing sub tool levels
-                        switch (sinkSlot.Itemstack.Item.Tool)
-                        {
-                            case EnumTool.Knife:
-                                HandleMiningTool(op.ActingPlayer, "Knife");
-                                break;
-                            case EnumTool.Axe:
-                                HandleMiningTool(op.ActingPlayer, "Axe");
-                                break;
-                            case EnumTool.Bow:
-                                HandleWeapon(op.ActingPlayer, "Bow");
-                                break;
-                            case EnumTool.Chisel:
-                                HandleTool(op.ActingPlayer, "Chisel");
-                                break;
-                            case EnumTool.Club:
-                                HandleWeapon(op.ActingPlayer, "Club");
-                                break;
-                            case EnumTool.Crossbow:
-                                HandleWeapon(op.ActingPlayer, "Crossbow");
-                                break;
-                            case EnumTool.Drill:
-                                HandleTool(op.ActingPlayer, "Drill");
-                                break;
-                            case EnumTool.Firearm:
-                                HandleWeapon(op.ActingPlayer, "Firearm");
-                                break;
-                            case EnumTool.Halberd:
-                                HandleWeapon(op.ActingPlayer, "Halberd");
-                                break;
-                            case EnumTool.Hammer:
-                                HandleWeapon(op.ActingPlayer, "Hammer");
-                                break;
-                            case EnumTool.Hoe:
-                                HandleTool(op.ActingPlayer, "Hoe");
-                                break;
-                            case EnumTool.Javelin:
-                                HandleWeapon(op.ActingPlayer, "Javelin");
-                                break;
-                            case EnumTool.Mace:
-                                HandleTool(op.ActingPlayer, "Mace");
-                                break;
-                            case EnumTool.Meter:
-                                HandleTool(op.ActingPlayer, "Meter");
-                                break;
-                            case EnumTool.Pickaxe:
-                                HandleMiningTool(op.ActingPlayer, "Pickaxe");
-                                break;
-                            case EnumTool.Pike:
-                                HandleTool(op.ActingPlayer, "Pike");
-                                break;
-                            case EnumTool.Polearm:
-                                HandleTool(op.ActingPlayer, "Polearm");
-                                break;
-                            case EnumTool.Poleaxe:
-                                HandleTool(op.ActingPlayer, "Poleaxe");
-                                break;
-                            case EnumTool.Probe:
-                                HandleTool(op.ActingPlayer, "Probe");
-                                break;
-                            case EnumTool.Saw:
-                                HandleTool(op.ActingPlayer, "Saw");
-                                break;
-                            case EnumTool.Scythe:
-                                HandleTool(op.ActingPlayer, "Scythe");
-                                break;
-                            case EnumTool.Shears:
-                                HandleTool(op.ActingPlayer, "Shears");
-                                break;
-                            case EnumTool.Shield:
-                                HandleTool(op.ActingPlayer, "Shield");
-                                break;
-                            case EnumTool.Shovel:
-                                HandleMiningTool(op.ActingPlayer, "Shovel");
-                                break;
-                            case EnumTool.Sickle:
-                                HandleTool(op.ActingPlayer, "Sickle");
-                                break;
-                            case EnumTool.Sling:
-                                HandleWeapon(op.ActingPlayer, "Sling");
-                                break;
-                            case EnumTool.Spear:
-                                HandleWeapon(op.ActingPlayer, "Spear");
-                                break;
-                            case EnumTool.Staff:
-                                HandleTool(op.ActingPlayer, "Staff");
-                                break;
-                            case EnumTool.Sword:
-                                HandleWeapon(op.ActingPlayer, "Sword");
-                                break;
-                            case EnumTool.Warhammer:
-                                HandleWeapon(op.ActingPlayer, "Warhammer");
-                                break;
-                            case EnumTool.Wrench:
-                                HandleTool(op.ActingPlayer, "Wrench");
-                                break;
-                        }
-                    }
-                    else // Code with custom level type
-                    {
-                        // Check if is a armor with protection properties
-                        if (sinkSlot.Itemstack.Collectible.Attributes.KeyExists("protectionModifiers"))
-                        {
-                            // Now we are converting the attributes to a modifiable json
-
-                            string data = sinkSlot.Itemstack.Collectible.Attributes.Token.ToString();
-                            JObject jsonObject = JObject.Parse(data);
-
-                            // Getting the protectionModifiers
-                            if (jsonObject.TryGetValue("protectionModifiers", out JToken protectionModifiersToken))
-                            {
-                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(op.ActingPlayer, "Smithing", levelType));
-                                float multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
-
-                                // Increasing the armor durability
-                                if (sinkSlot.Itemstack.Collectible.Durability > 0)
-                                {
-                                    float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                                    durability = (int)Math.Round((int)durability * multiplyDurability);
-                                    maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
-                                }
-
-                                // Getting the modifiable protectionModifiers
-                                if (protectionModifiersToken is JObject protectionModifiers)
-                                {
-                                    // Check if exist, and change it
-                                    if (protectionModifiers.TryGetValue("relativeProtection", out _))
-                                    {
-                                        sinkSlot.Itemstack.Attributes.SetFloat("relativeProtection", (float)jsonObject["protectionModifiers"]["relativeProtection"] * multiplyProtection);
-                                        Debug.LogDebug($"{op.ActingPlayer} armor relativeProtection: {jsonObject["protectionModifiers"]["relativeProtection"]}/{multiplyProtection}");
-                                    }
-                                    // Check if exist, and change it
-                                    if (protectionModifiers.TryGetValue("flatDamageReduction", out _))
-                                    {
-                                        sinkSlot.Itemstack.Attributes.SetFloat("flatDamageReduction", (float)jsonObject["protectionModifiers"]["flatDamageReduction"] * multiplyProtection);
-                                        Debug.LogDebug($"{op.ActingPlayer} armor flatDamageReduction: {jsonObject["protectionModifiers"]["flatDamageReduction"]}/{multiplyProtection}");
-                                    }
-                                }
-
-                                // Convert again to JsonObject and replace it in attributes
-                                sinkSlot.Itemstack.Collectible.Attributes = new(JToken.Parse(jsonObject.ToString()));
-
-                                Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted any armor protection increased to: {multiplyProtection}");
-                            }
-                        }
-                    }
-                }
-                Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted: {sinkSlot.Itemstack.Collectible.Code}");
-
-                break;
-            }
-        }
-
-        if (durability != null && maxDurability != null)
-        {
-            sinkSlot.Itemstack.Attributes.SetInt("durability", (int)durability);
-            sinkSlot.Itemstack.Attributes.SetInt("maxdurability", (int)maxDurability);
-
-            Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted any item durability increased to: {maxDurability}");
-        }
-        if (attackPower != null)
-        {
-            sinkSlot.Itemstack.Collectible.AttackPower = (float)attackPower;
-            sinkSlot.Itemstack.Attributes.SetFloat("attackpower", (float)attackPower);
-
-            Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted any item attack increased to: {attackPower}");
-        }
-        if (miningSpeed != null)
-        {
-            List<EnumBlockMaterial> keys = [.. sinkSlot.Itemstack.Item.MiningSpeed.Keys];
-
-            foreach (EnumBlockMaterial key in keys)
-            {
-                sinkSlot.Itemstack.Collectible.MiningSpeed[key] *= (float)miningSpeed;
-                sinkSlot.Itemstack.Attributes.SetFloat($"{key}_miningspeed", sinkSlot.Itemstack.Collectible.MiningSpeed[key]);
-            }
-
-            Debug.LogDebug($"{op.ActingPlayer.PlayerName} crafted any item mining speed increased to: {miningSpeed}");
-        }
-
+        sinkSlot.Itemstack = OverwriteBlockInteractionEvents.ExecuteSmithItemCraftedCalculations(op.ActingPlayer, sinkSlot.Itemstack);
         sinkSlot.MarkDirty();
     }
 
@@ -1282,3 +713,487 @@ class OverwriteBlockInteraction
     }
     #endregion
 }
+
+#region Compatibility
+public static class OverwriteBlockInteractionEvents
+{
+    public delegate void PlayerFloatModifierHandler(IPlayer player, ref float number);
+    public delegate void PlayerFarmHandler(IPlayer player, string code, ref ulong exp, ref float multiply);
+    public delegate void PlayerCookingSingleHandler(IPlayer player, string code, ref ulong exp, ref float freshHours);
+    public delegate void PlayerCookingPotHandler(IPlayer player, string code, ref ulong exp, ref List<float> freshHours, ref float servings);
+    public delegate void PlayerHammerItemHandler(IPlayer player, string code, ref int multiply);
+    public delegate void PlayerHammerSplitHandler(IPlayer player, ref bool shouldRetrieve, ref ItemStack itemToRetrieve);
+    public delegate void PlayerPanningHandler(IPlayer player, ref float chance, ref ItemStack itemStack);
+    public delegate void PlayerSmithingItemHandler(IPlayer player, string code, ref int? durability, ref float? attackPower, ref float? miningSpeed);
+    public delegate void PlayerSmithingArmorHandler(IPlayer player, string code, ref int? durability, ref float armorProtectionMultiply);
+    public delegate void PlayerHandler(IPlayer player);
+
+    public static event PlayerFloatModifierHandler OnKnifeHarvested;
+    public static event PlayerHandler OnHoeTill;
+    public static event PlayerFarmHandler OnBerryForage;
+    public static event PlayerCookingSingleHandler OnCookedSingle;
+    public static event PlayerCookingPotHandler OnCookedPot;
+    public static event PlayerHammerItemHandler OnHammerItem;
+    public static event PlayerHammerSplitHandler OnHammerSmith;
+    public static event PlayerPanningHandler OnPanning;
+    public static event PlayerSmithingItemHandler OnSmithingItem;
+    public static event PlayerSmithingArmorHandler OnSmithingArmor;
+    public static ItemStack ExecuteSmithItemCraftedCalculations(IPlayer player, ItemStack item)
+    {
+        if (item.Attributes.GetInt("durability", item.Collectible.GetMaxDurability(item)) != item.Collectible.GetMaxDurability(item))
+        {
+            Debug.LogDebug($"Smith item crafted ignored because durability is different");
+            return item;
+        }
+        else if (item.Attributes.GetBool("repaired", false))
+        {
+            Debug.LogDebug($"Smith item crafted ignored because item is repaired by {item.Attributes.GetString("repaired_by")}");
+            return item;
+        }
+
+        int? durability = null;
+        int? maxDurability = null;
+        float? attackPower = null;
+        float? miningSpeed = null;
+
+        // Increasing durability based on smithing level
+        if (item.Collectible.Durability > 0)
+        {
+            float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"));
+
+            durability = (int)Math.Round(item.Collectible.Durability * multiply);
+            maxDurability = (int)Math.Round(item.Collectible.GetMaxDurability(item) * multiply);
+        }
+
+        foreach (KeyValuePair<string, int> kvp in Configuration.expPerCraftSmithing)
+        {
+            string collectableCode = kvp.Key;
+
+            if (collectableCode.EndsWith(item.Collectible.Code.ToString()))
+            {
+                string levelType = null;
+                if (collectableCode.Contains('?'))
+                {
+                    int questionMarkIndex = collectableCode.IndexOf('?');
+                    levelType = questionMarkIndex != -1 ? collectableCode[..questionMarkIndex] : "";
+                }
+
+                int exp = kvp.Value;
+                { // Getting total experience earned
+                    for (int i = 0; i < item.StackSize; i++)
+                    {
+                        Experience.IncreaseExperience(player, "Smithing", (ulong)exp);
+
+                        // If the levelType is null, is a tool
+                        if (levelType == null)
+                            // Increasing sub tool levels
+                            switch (item.Item.Tool)
+                            {
+                                case EnumTool.Knife:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Knife", (ulong)exp);
+                                    break;
+                                case EnumTool.Axe:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Axe", (ulong)exp);
+                                    break;
+                                case EnumTool.Bow:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Bow", (ulong)exp);
+                                    break;
+                                case EnumTool.Chisel:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Chisel", (ulong)exp);
+                                    break;
+                                case EnumTool.Club:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Club", (ulong)exp);
+                                    break;
+                                case EnumTool.Crossbow:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Crossbow", (ulong)exp);
+                                    break;
+                                case EnumTool.Drill:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Drill", (ulong)exp);
+                                    break;
+                                case EnumTool.Firearm:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Firearm", (ulong)exp);
+                                    break;
+                                case EnumTool.Halberd:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Halberd", (ulong)exp);
+                                    break;
+                                case EnumTool.Hammer:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Hammer", (ulong)exp);
+                                    break;
+                                case EnumTool.Hoe:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Hoe", (ulong)exp);
+                                    break;
+                                case EnumTool.Javelin:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Javelin", (ulong)exp);
+                                    break;
+                                case EnumTool.Mace:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Mace", (ulong)exp);
+                                    break;
+                                case EnumTool.Meter:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Meter", (ulong)exp);
+                                    break;
+                                case EnumTool.Pickaxe:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Pickaxe", (ulong)exp);
+                                    break;
+                                case EnumTool.Pike:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Pike", (ulong)exp);
+                                    break;
+                                case EnumTool.Polearm:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Polearm", (ulong)exp);
+                                    break;
+                                case EnumTool.Poleaxe:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Poleaxe", (ulong)exp);
+                                    break;
+                                case EnumTool.Probe:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Probe", (ulong)exp);
+                                    break;
+                                case EnumTool.Saw:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Saw", (ulong)exp);
+                                    break;
+                                case EnumTool.Scythe:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Scythe", (ulong)exp);
+                                    break;
+                                case EnumTool.Shears:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Shears", (ulong)exp);
+                                    break;
+                                case EnumTool.Shield:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Shield", (ulong)exp);
+                                    break;
+                                case EnumTool.Shovel:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Shovel", (ulong)exp);
+                                    break;
+                                case EnumTool.Sickle:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Sickle", (ulong)exp);
+                                    break;
+                                case EnumTool.Sling:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Sling", (ulong)exp);
+                                    break;
+                                case EnumTool.Spear:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Spear", (ulong)exp);
+                                    break;
+                                case EnumTool.Staff:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Staff", (ulong)exp);
+                                    break;
+                                case EnumTool.Sword:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Sword", (ulong)exp);
+                                    break;
+                                case EnumTool.Warhammer:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Warhammer", (ulong)exp);
+                                    break;
+                                case EnumTool.Wrench:
+                                    Experience.IncreaseSubExperience(player, "Smithing", "Wrench", (ulong)exp);
+                                    break;
+                            }
+                        else // Code with custom level type
+                            Experience.IncreaseSubExperience(player, "Smithing", levelType, (ulong)exp);
+                    }
+                }
+
+                { // Increasing status
+                    // If the levelType is null, is a tool
+                    if (levelType == null)
+                    {
+                        // Do not calculate durability in the handle functions
+                        // we alredy calculate the durability before
+
+                        void HandleWeapon(IPlayer player, string subLevelType)
+                        {
+                            { // Main Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetExperience(player, "Smithing"));
+                                attackPower = item.Item.AttackPower * Configuration.SmithingGetAttackPowerMultiplyByLevel(level);
+                            }
+
+                            { // Sub Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
+                                float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                if (item.Collectible.Durability > 0)
+                                {
+                                    durability = (int)Math.Round((int)durability * multiply);
+                                    maxDurability = (int)Math.Round((int)maxDurability * multiply);
+                                }
+
+                                attackPower *= Configuration.SmithingGetAttackPowerMultiplyByLevel(level);
+                            }
+                        }
+
+                        void HandleMiningTool(IPlayer player, string subLevelType)
+                        {
+                            { // Main Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetExperience(player, "Smithing"));
+                                attackPower = item.Item.AttackPower * Configuration.SmithingGetAttackPowerMultiplyByLevel(level);
+                                miningSpeed = Configuration.SmithingGetMiningSpeedMultiplyByLevel(level);
+                            }
+
+                            { // Sub Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
+                                if (item.Collectible.Durability > 0)
+                                {
+                                    float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                    durability = (int)Math.Round((int)durability * multiply);
+                                    maxDurability = (int)Math.Round((int)maxDurability * multiply);
+                                }
+
+                                attackPower *= Configuration.SmithingGetAttackPowerMultiplyByLevel(level);
+                                miningSpeed *= Configuration.SmithingGetMiningSpeedMultiplyByLevel(level);
+                            }
+                        }
+
+                        void HandleTool(IPlayer player, string subLevelType)
+                        {
+                            { // Sub Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", subLevelType));
+                                if (item.Collectible.Durability > 0)
+                                {
+                                    float multiply = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                    durability = (int)Math.Round((int)durability * multiply);
+                                    maxDurability = (int)Math.Round((int)maxDurability * multiply);
+                                }
+                            }
+                        }
+
+                        // Increasing sub tool levels
+                        switch (item.Item.Tool)
+                        {
+                            case EnumTool.Knife:
+                                HandleMiningTool(player, "Knife");
+                                break;
+                            case EnumTool.Axe:
+                                HandleMiningTool(player, "Axe");
+                                break;
+                            case EnumTool.Bow:
+                                HandleWeapon(player, "Bow");
+                                break;
+                            case EnumTool.Chisel:
+                                HandleTool(player, "Chisel");
+                                break;
+                            case EnumTool.Club:
+                                HandleWeapon(player, "Club");
+                                break;
+                            case EnumTool.Crossbow:
+                                HandleWeapon(player, "Crossbow");
+                                break;
+                            case EnumTool.Drill:
+                                HandleTool(player, "Drill");
+                                break;
+                            case EnumTool.Firearm:
+                                HandleWeapon(player, "Firearm");
+                                break;
+                            case EnumTool.Halberd:
+                                HandleWeapon(player, "Halberd");
+                                break;
+                            case EnumTool.Hammer:
+                                HandleWeapon(player, "Hammer");
+                                break;
+                            case EnumTool.Hoe:
+                                HandleTool(player, "Hoe");
+                                break;
+                            case EnumTool.Javelin:
+                                HandleWeapon(player, "Javelin");
+                                break;
+                            case EnumTool.Mace:
+                                HandleTool(player, "Mace");
+                                break;
+                            case EnumTool.Meter:
+                                HandleTool(player, "Meter");
+                                break;
+                            case EnumTool.Pickaxe:
+                                HandleMiningTool(player, "Pickaxe");
+                                break;
+                            case EnumTool.Pike:
+                                HandleTool(player, "Pike");
+                                break;
+                            case EnumTool.Polearm:
+                                HandleTool(player, "Polearm");
+                                break;
+                            case EnumTool.Poleaxe:
+                                HandleTool(player, "Poleaxe");
+                                break;
+                            case EnumTool.Probe:
+                                HandleTool(player, "Probe");
+                                break;
+                            case EnumTool.Saw:
+                                HandleTool(player, "Saw");
+                                break;
+                            case EnumTool.Scythe:
+                                HandleTool(player, "Scythe");
+                                break;
+                            case EnumTool.Shears:
+                                HandleTool(player, "Shears");
+                                break;
+                            case EnumTool.Shield:
+                                HandleTool(player, "Shield");
+                                break;
+                            case EnumTool.Shovel:
+                                HandleMiningTool(player, "Shovel");
+                                break;
+                            case EnumTool.Sickle:
+                                HandleTool(player, "Sickle");
+                                break;
+                            case EnumTool.Sling:
+                                HandleWeapon(player, "Sling");
+                                break;
+                            case EnumTool.Spear:
+                                HandleWeapon(player, "Spear");
+                                break;
+                            case EnumTool.Staff:
+                                HandleTool(player, "Staff");
+                                break;
+                            case EnumTool.Sword:
+                                HandleWeapon(player, "Sword");
+                                break;
+                            case EnumTool.Warhammer:
+                                HandleWeapon(player, "Warhammer");
+                                break;
+                            case EnumTool.Wrench:
+                                HandleTool(player, "Wrench");
+                                break;
+                        }
+
+                        UpdateFromExternalSmithCraftingItem(player,
+                            item.Collectible.Code.ToString(),
+                            ref durability,
+                            ref attackPower,
+                            ref miningSpeed);
+                    }
+                    else // Code with custom level type
+                    {
+                        // Check if is a armor with protection properties
+                        if (item.Collectible.Attributes.KeyExists("protectionModifiers"))
+                        {
+                            // Now we are converting the attributes to a modifiable json
+
+                            string data = item.Collectible.Attributes.Token.ToString();
+                            JObject jsonObject = JObject.Parse(data);
+
+                            // Getting the protectionModifiers
+                            if (jsonObject.TryGetValue("protectionModifiers", out JToken protectionModifiersToken))
+                            {
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", levelType));
+                                float multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+
+                                // Increasing the armor durability
+                                if (item.Collectible.Durability > 0)
+                                {
+                                    float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                    durability = (int)Math.Round((int)durability * multiplyDurability);
+                                    maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
+                                }
+
+                                OverwriteBlockInteractionEvents.UpdateFromExternalSmithCraftingArmor(player,
+                                    item.Collectible.Code.ToString(),
+                                    ref durability,
+                                    ref multiplyProtection);
+
+                                // Getting the modifiable protectionModifiers
+                                if (protectionModifiersToken is JObject protectionModifiers)
+                                {
+                                    // Check if exist, and change it
+                                    if (protectionModifiers.TryGetValue("relativeProtection", out _))
+                                    {
+                                        item.Attributes.SetFloat("relativeProtection", (float)jsonObject["protectionModifiers"]["relativeProtection"] * multiplyProtection);
+                                        Debug.LogDebug($"{player} armor relativeProtection: {jsonObject["protectionModifiers"]["relativeProtection"]}/{multiplyProtection}");
+                                    }
+                                    // Check if exist, and change it
+                                    if (protectionModifiers.TryGetValue("flatDamageReduction", out _))
+                                    {
+                                        item.Attributes.SetFloat("flatDamageReduction", (float)jsonObject["protectionModifiers"]["flatDamageReduction"] * multiplyProtection);
+                                        Debug.LogDebug($"{player} armor flatDamageReduction: {jsonObject["protectionModifiers"]["flatDamageReduction"]}/{multiplyProtection}");
+                                    }
+                                }
+
+                                // Convert again to JsonObject and replace it in attributes
+                                item.Collectible.Attributes = new(JToken.Parse(jsonObject.ToString()));
+
+                                Debug.LogDebug($"{player.PlayerName} crafted any armor protection increased to: {multiplyProtection}");
+                            }
+                        }
+                    }
+                }
+                Debug.LogDebug($"{player.PlayerName} crafted: {item.Collectible.Code}");
+
+                break;
+            }
+        }
+
+        if (durability != null && maxDurability != null)
+        {
+            item.Attributes.SetInt("durability", (int)durability);
+            item.Attributes.SetInt("maxdurability", (int)maxDurability);
+
+            Debug.LogDebug($"{player.PlayerName} crafted any item durability increased to: {maxDurability}");
+        }
+        if (attackPower != null)
+        {
+            item.Collectible.AttackPower = (float)attackPower;
+            item.Attributes.SetFloat("attackpower", (float)attackPower);
+
+            Debug.LogDebug($"{player.PlayerName} crafted any item attack increased to: {attackPower}");
+        }
+        if (miningSpeed != null)
+        {
+            List<EnumBlockMaterial> keys = [.. item.Item.MiningSpeed.Keys];
+
+            foreach (EnumBlockMaterial key in keys)
+            {
+                item.Collectible.MiningSpeed[key] *= (float)miningSpeed;
+                item.Attributes.SetFloat($"{key}_miningspeed", item.Collectible.MiningSpeed[key]);
+            }
+
+            Debug.LogDebug($"{player.PlayerName} crafted any item mining speed increased to: {miningSpeed}");
+        }
+
+        return item;
+    }
+
+    internal static float GetExternalKnifeHarvest(IPlayer player, float multiply)
+    {
+        OnKnifeHarvested?.Invoke(player, ref multiply);
+        return multiply;
+    }
+
+    internal static void ExecuteHoeTill(IPlayer player)
+    {
+        OnHoeTill?.Invoke(player);
+    }
+
+    internal static void UpdateFromExternalFarmForage(IPlayer player, string code, ref ulong exp, ref float multiply)
+    {
+        OnBerryForage?.Invoke(player, code, ref exp, ref multiply);
+    }
+
+    internal static void UpdateFromExternalCookingSingle(IPlayer player, string code, ref ulong exp, ref float freshHours)
+    {
+        OnCookedSingle?.Invoke(player, code, ref exp, ref freshHours);
+    }
+
+    internal static void UpdateFromExternalCookingPot(IPlayer player, string code, ref ulong exp, ref List<float> freshHours, ref float servings)
+    {
+        OnCookedPot?.Invoke(player, code, ref exp, ref freshHours, ref servings);
+    }
+
+    internal static int GetExternalHammerMultiply(IPlayer player, string code, int multiply)
+    {
+        OnHammerItem?.Invoke(player, code, ref multiply);
+        return multiply;
+    }
+
+    internal static void UpdateFromExternalHammerSplit(IPlayer player, ref bool shouldRetrieve, ref ItemStack itemToRetrieve)
+    {
+        OnHammerSmith?.Invoke(player, ref shouldRetrieve, ref itemToRetrieve);
+    }
+
+    internal static void UpdateFromExternalPanning(IPlayer player, ref float chance, ref ItemStack itemStack)
+    {
+        OnPanning?.Invoke(player, ref chance, ref itemStack);
+    }
+
+    internal static void UpdateFromExternalSmithCraftingItem(IPlayer player, string code, ref int? durability, ref float? attackPower, ref float? miningSpeed)
+    {
+        OnSmithingItem?.Invoke(player, code, ref durability, ref attackPower, ref miningSpeed);
+    }
+
+    internal static void UpdateFromExternalSmithCraftingArmor(IPlayer player, string code, ref int? durability, ref float armorProtectionMultiply)
+    {
+        OnSmithingArmor?.Invoke(player, code, ref durability, ref armorProtectionMultiply);
+    }
+}
+#endregion

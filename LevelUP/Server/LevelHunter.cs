@@ -39,8 +39,7 @@ class LevelHunter
         ulong playerExp = Experience.GetExperience(player, "Hunter");
         if (Configuration.HunterIsMaxLevel(playerExp)) return;
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"{player.PlayerName} killed: {entity.Code}, hunter exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hunter exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Hunter", exp);
