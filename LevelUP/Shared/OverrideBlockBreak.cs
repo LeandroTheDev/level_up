@@ -35,6 +35,7 @@ class OverwriteBlockBreak
     // Overwrite Breaking Speed
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BlockBehavior), "GetMiningSpeedModifier")]
+    [HarmonyPriority(Priority.VeryLow)]
     public static float GetMiningSpeedModifier(float __result, IWorldAccessor world, BlockPos pos, IPlayer byPlayer)
     {
         if (byPlayer == null) return __result;
@@ -72,6 +73,7 @@ class OverwriteBlockBreak
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
+    [HarmonyPriority(Priority.VeryLow)]
     public static float GetMiningSpeed(float __result, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
     {
         if (forPlayer == null) return __result;

@@ -617,38 +617,14 @@ class OverwriteBlockInteraction
         }
     }
 
-    // Overwrite Visual Attack Power
-    // This is necessary so the attack power system is more accurate
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
-    public static void GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
-    {
-        float attackPower = withItemStack.Attributes.GetFloat("attackpower", -1f);
-        if (attackPower != -1f)
-        {
-            __result = attackPower;
-        }
-    }
-
-    // Overwrite Visual Mining Speed
-    // This is necessary so the mining speed system is more accurate
-    [HarmonyPrefix]
-    [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
-    public static void GetHeldItemInfoStart(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
-    {
-        inSlot.Itemstack.Collectible.MiningSpeed?.Foreach(x =>
-        {
-            if (inSlot.Itemstack.Attributes.GetFloat($"{x.Key}_miningspeed", -1f) != -1f)
-                inSlot.Itemstack.Collectible.MiningSpeed[x.Key] = inSlot.Itemstack.Attributes.GetFloat($"{x.Key}_miningspeed");
-        });
-    }
-
     /// In the next part of the code, we will edit the view of the client to show
     /// the modified protection (GetHeldArmorInfoStart), because vintage story share the ProtectionModifiers
     /// between all items of the same type we can't edit and modify a unique item,
     /// so every time a player handle the armor damage we edit the ProtectionModifier
     /// based on the attribute set in craft (HandleDamagedStart), this will refresh
     /// the ProtectionModifiers every time it will be used, making the item "unique"
+    /// 
+    /// The same happens for attackPower and miningSpeed
 
     // Overwrite Visual Protections
     // This is necessary so the protection system is more accurate
@@ -710,6 +686,66 @@ class OverwriteBlockInteraction
                 Debug.LogDebug($"{player.PlayerName} {armorSlot.Itemstack.GetName()} Armor System Handling after R/F: {armorWearable.ProtectionModifiers.RelativeProtection}/{armorWearable.ProtectionModifiers.FlatDamageReduction}");
             }
         }
+    }
+
+    // Overwrite Visual and Interaction Attack Power
+    // This is necessary so the attack power system is more accurate
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
+    public static void GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
+    {
+        float attackPower = withItemStack.Attributes.GetFloat("attackpower", -1f);
+        if (attackPower != -1f)
+        {
+            __result = attackPower;
+        }
+    }
+
+    // Overwrite Visual Mining Speed
+    // This is necessary so the mining speed system is more accurate
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
+    public static void GetHeldItemInfoStart(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    {
+        inSlot.Itemstack.Collectible.MiningSpeed?.Foreach(x =>
+        {
+            if (inSlot.Itemstack.Attributes.GetFloat($"{x.Key}_miningspeed", -1f) != -1f)
+                inSlot.Itemstack.Collectible.MiningSpeed[x.Key] = inSlot.Itemstack.Attributes.GetFloat($"{x.Key}_miningspeed");
+        });
+    }
+
+    // Overwrite Interaction Mining Speed
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(BlockBehavior), "GetMiningSpeedModifier")]
+    [HarmonyPriority(Priority.VeryHigh)]
+    public static float GetMiningSpeedModifier(float __result, IWorldAccessor world, BlockPos pos, IPlayer byPlayer)
+    {
+        if (byPlayer == null) return __result;
+        ItemStack equippedItemStack = byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack;
+        if (equippedItemStack == null) return __result;
+
+        Block blockBreaking = world.GetBlockAccessor(false, false, false).GetBlock(pos);
+        if (blockBreaking == null) return __result;
+
+        float miningSpeed = equippedItemStack.Attributes.GetFloat($"{blockBreaking.BlockMaterial}_miningspeed", -1f);
+        if (miningSpeed == -1f) return __result;
+        else __result = miningSpeed;
+
+        return __result;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
+    [HarmonyPriority(Priority.VeryHigh)]
+    public static float GetMiningSpeed(float __result, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
+    {
+        if (forPlayer == null) return __result;
+
+        float miningSpeed = itemstack.Attributes.GetFloat($"{block.BlockMaterial}_miningspeed", -1f);
+        if (miningSpeed == -1f) return __result;
+        else __result = miningSpeed;
+
+        return __result;
     }
     #endregion
 }
@@ -1123,7 +1159,7 @@ public static class OverwriteBlockInteractionEvents
         }
         if (attackPower != null)
         {
-            item.Collectible.AttackPower = (float)attackPower;
+            // item.Collectible.AttackPower = (float)attackPower; // Never do that, this will change all "tool" damage
             item.Attributes.SetFloat("attackpower", (float)attackPower);
 
             Debug.LogDebug($"{player.PlayerName} crafted any item attack increased to: {attackPower}");
@@ -1134,7 +1170,7 @@ public static class OverwriteBlockInteractionEvents
 
             foreach (EnumBlockMaterial key in keys)
             {
-                item.Collectible.MiningSpeed[key] *= (float)miningSpeed;
+                // item.Collectible.MiningSpeed[key] *= (float)miningSpeed; // Never do that, this will change all "tool" mining speed
                 item.Attributes.SetFloat($"{key}_miningspeed", item.Collectible.MiningSpeed[key]);
             }
 
