@@ -17,12 +17,12 @@ namespace LevelUP.Shared;
 
 #pragma warning disable IDE0060
 [HarmonyPatchCategory("levelup_block_interaction")]
-class OverwriteBlockInteraction
+public class OverwriteBlockInteraction
 {
     private static Instance instance;
-    public Harmony overwriter;
+    internal Harmony overwriter;
 
-    public void OverwriteNativeFunctions(Instance _instance)
+    internal void OverwriteNativeFunctions(Instance _instance)
     {
         instance = _instance;
         instance.ToString(); //Suppress Alerts
@@ -550,7 +550,8 @@ class OverwriteBlockInteraction
                 // Multiplying drop quantity
                 stack.StackSize += stack.StackSize * Configuration.PanningGetLootQuantityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"));
 
-
+                // Integration
+                OverwriteBlockInteractionEvents.UpdateFromExternalPanning(player, ref val, ref stack);
 
                 if (num < (double)val && stack != null)
                 {
@@ -579,28 +580,28 @@ class OverwriteBlockInteraction
     // Overwrite Craft
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ItemSlotCraftingOutput), "CraftSingle")]
-    public static void CraftSingleFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op)
+    internal static void CraftSingleFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op)
     {
         if (!Configuration.enableLevelSmithing) return;
         if (op.World.Api.Side != EnumAppSide.Server) return;
         if (sinkSlot == null || sinkSlot.Itemstack == null) return;
         if (op.ActingPlayer == null) return;
 
-        sinkSlot.Itemstack = OverwriteBlockInteractionEvents.ExecuteSmithItemCraftedCalculations(op.ActingPlayer, sinkSlot.Itemstack);
+        sinkSlot.Itemstack = ExecuteSmithItemCraftedCalculations(op.ActingPlayer, sinkSlot.Itemstack);
         sinkSlot.MarkDirty();
     }
 
     // Overwrite Craft Multiples
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ItemSlotCraftingOutput), "CraftMany")]
-    public static void CraftManyFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op)
+    internal static void CraftManyFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op)
     {
         if (!Configuration.enableLevelSmithing) return;
         if (op.World.Api.Side != EnumAppSide.Server) return;
         if (sinkSlot == null || sinkSlot.Itemstack == null) return;
         if (op.ActingPlayer == null) return;
 
-        sinkSlot.Itemstack = OverwriteBlockInteractionEvents.ExecuteSmithItemCraftedCalculations(op.ActingPlayer, sinkSlot.Itemstack);
+        sinkSlot.Itemstack = ExecuteSmithItemCraftedCalculations(op.ActingPlayer, sinkSlot.Itemstack);
         sinkSlot.MarkDirty();
     }
 
@@ -608,7 +609,7 @@ class OverwriteBlockInteraction
     // This is necessary so the durability system is more accurate
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CollectibleObject), "GetMaxDurability")]
-    public static void GetMaxDurabilityFinish(ItemStack itemstack, ref int __result)
+    internal static void GetMaxDurabilityFinish(ItemStack itemstack, ref int __result)
     {
         int maxDurability = itemstack.Attributes.GetInt("maxdurability", -1);
         if (maxDurability != -1)
@@ -630,7 +631,7 @@ class OverwriteBlockInteraction
     // This is necessary so the protection system is more accurate
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ItemWearable), "GetHeldItemInfo")]
-    public static void GetHeldArmorInfoStart(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    internal static void GetHeldArmorInfoStart(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {
         if (inSlot.Itemstack.Attributes.GetFloat("relativeProtection", -1f) != -1f)
             __instance.ProtectionModifiers.RelativeProtection = inSlot.Itemstack.Attributes.GetFloat("relativeProtection");
@@ -643,7 +644,7 @@ class OverwriteBlockInteraction
     // This is necessary so the protection system is more accurate
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ModSystemWearableStats), "handleDamaged")]
-    public static void HandleDamagedStart(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
+    internal static void HandleDamagedStart(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
     {
         if (!Configuration.enableLevelSmithing) return;
         if (player.Entity.World.Side != EnumAppSide.Server) return;
@@ -692,7 +693,7 @@ class OverwriteBlockInteraction
     // This is necessary so the attack power system is more accurate
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
-    public static void GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
+    internal static void GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
     {
         float attackPower = withItemStack.Attributes.GetFloat("attackpower", -1f);
         if (attackPower != -1f)
@@ -705,7 +706,7 @@ class OverwriteBlockInteraction
     // This is necessary so the mining speed system is more accurate
     [HarmonyPrefix]
     [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
-    public static void GetHeldItemInfoStart(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    internal static void GetHeldItemInfoStart(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {
         inSlot.Itemstack.Collectible.MiningSpeed?.Foreach(x =>
         {
@@ -718,7 +719,7 @@ class OverwriteBlockInteraction
     [HarmonyPostfix]
     [HarmonyPatch(typeof(BlockBehavior), "GetMiningSpeedModifier")]
     [HarmonyPriority(Priority.VeryHigh)]
-    public static float GetMiningSpeedModifier(float __result, IWorldAccessor world, BlockPos pos, IPlayer byPlayer)
+    internal static float GetMiningSpeedModifier(float __result, IWorldAccessor world, BlockPos pos, IPlayer byPlayer)
     {
         if (byPlayer == null) return __result;
         ItemStack equippedItemStack = byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack;
@@ -737,43 +738,24 @@ class OverwriteBlockInteraction
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
     [HarmonyPriority(Priority.VeryHigh)]
-    public static float GetMiningSpeed(float __result, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
+    internal static float GetMiningSpeed(float __result, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
     {
         if (forPlayer == null) return __result;
 
         float miningSpeed = itemstack.Attributes.GetFloat($"{block.BlockMaterial}_miningspeed", -1f);
+
         if (miningSpeed == -1f) return __result;
         else __result = miningSpeed;
 
         return __result;
     }
-    #endregion
-}
 
-#region Compatibility
-public static class OverwriteBlockInteractionEvents
-{
-    public delegate void PlayerFloatModifierHandler(IPlayer player, ref float number);
-    public delegate void PlayerFarmHandler(IPlayer player, string code, ref ulong exp, ref float multiply);
-    public delegate void PlayerCookingSingleHandler(IPlayer player, string code, ref ulong exp, ref float freshHours);
-    public delegate void PlayerCookingPotHandler(IPlayer player, string code, ref ulong exp, ref List<float> freshHours, ref float servings);
-    public delegate void PlayerHammerItemHandler(IPlayer player, string code, ref int multiply);
-    public delegate void PlayerHammerSplitHandler(IPlayer player, ref bool shouldRetrieve, ref ItemStack itemToRetrieve);
-    public delegate void PlayerPanningHandler(IPlayer player, ref float chance, ref ItemStack itemStack);
-    public delegate void PlayerSmithingItemHandler(IPlayer player, string code, ref int? durability, ref float? attackPower, ref float? miningSpeed);
-    public delegate void PlayerSmithingArmorHandler(IPlayer player, string code, ref int? durability, ref float armorProtectionMultiply);
-    public delegate void PlayerHandler(IPlayer player);
-
-    public static event PlayerFloatModifierHandler OnKnifeHarvested;
-    public static event PlayerHandler OnHoeTill;
-    public static event PlayerFarmHandler OnBerryForage;
-    public static event PlayerCookingSingleHandler OnCookedSingle;
-    public static event PlayerCookingPotHandler OnCookedPot;
-    public static event PlayerHammerItemHandler OnHammerItem;
-    public static event PlayerHammerSplitHandler OnHammerSmith;
-    public static event PlayerPanningHandler OnPanning;
-    public static event PlayerSmithingItemHandler OnSmithingItem;
-    public static event PlayerSmithingArmorHandler OnSmithingArmor;
+    /// <summary>
+    /// Execute the crafting calculations for smithing level
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="item"></param>
+    /// <returns></returns>
     public static ItemStack ExecuteSmithItemCraftedCalculations(IPlayer player, ItemStack item)
     {
         if (item.Attributes.GetInt("durability", item.Collectible.GetMaxDurability(item)) != item.Collectible.GetMaxDurability(item))
@@ -1084,7 +1066,7 @@ public static class OverwriteBlockInteractionEvents
                                 break;
                         }
 
-                        UpdateFromExternalSmithCraftingItem(player,
+                        OverwriteBlockInteractionEvents.UpdateFromExternalSmithCraftingItem(player,
                             item.Collectible.Code.ToString(),
                             ref durability,
                             ref attackPower,
@@ -1103,15 +1085,31 @@ public static class OverwriteBlockInteractionEvents
                             // Getting the protectionModifiers
                             if (jsonObject.TryGetValue("protectionModifiers", out JToken protectionModifiersToken))
                             {
-                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", levelType));
-                                float multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+                                float multiplyProtection;
+                                { // Main Level Calculation
+                                    int level = Configuration.SmithingGetLevelByEXP(Experience.GetExperience(player, "Smithing"));
+                                    multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
 
-                                // Increasing the armor durability
-                                if (item.Collectible.Durability > 0)
-                                {
-                                    float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                                    durability = (int)Math.Round((int)durability * multiplyDurability);
-                                    maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
+                                    // Increasing the armor durability
+                                    if (item.Collectible.Durability > 0)
+                                    {
+                                        float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                        durability = (int)Math.Round((int)durability * multiplyDurability);
+                                        maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
+                                    }
+                                }
+
+                                { // Sub Level Calculation
+                                    int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", levelType));
+                                    multiplyProtection *= Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+
+                                    // Increasing the armor durability
+                                    if (item.Collectible.Durability > 0)
+                                    {
+                                        float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                        durability = (int)Math.Round((int)durability * multiplyDurability);
+                                        maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
+                                    }
                                 }
 
                                 OverwriteBlockInteractionEvents.UpdateFromExternalSmithCraftingArmor(player,
@@ -1171,7 +1169,7 @@ public static class OverwriteBlockInteractionEvents
             foreach (EnumBlockMaterial key in keys)
             {
                 // item.Collectible.MiningSpeed[key] *= (float)miningSpeed; // Never do that, this will change all "tool" mining speed
-                item.Attributes.SetFloat($"{key}_miningspeed", item.Collectible.MiningSpeed[key]);
+                item.Attributes.SetFloat($"{key}_miningspeed", item.Collectible.MiningSpeed[key] * (float)miningSpeed);
             }
 
             Debug.LogDebug($"{player.PlayerName} crafted any item mining speed increased to: {miningSpeed}");
@@ -1179,6 +1177,34 @@ public static class OverwriteBlockInteractionEvents
 
         return item;
     }
+
+    #endregion
+}
+
+#region Compatibility
+public static class OverwriteBlockInteractionEvents
+{
+    public delegate void PlayerFloatModifierHandler(IPlayer player, ref float number);
+    public delegate void PlayerFarmHandler(IPlayer player, string code, ref ulong exp, ref float multiply);
+    public delegate void PlayerCookingSingleHandler(IPlayer player, string code, ref ulong exp, ref float freshHours);
+    public delegate void PlayerCookingPotHandler(IPlayer player, string code, ref ulong exp, ref List<float> freshHours, ref float servings);
+    public delegate void PlayerHammerItemHandler(IPlayer player, string code, ref int multiply);
+    public delegate void PlayerHammerSplitHandler(IPlayer player, ref bool shouldRetrieve, ref ItemStack itemToRetrieve);
+    public delegate void PlayerPanningHandler(IPlayer player, ref float chance, ref ItemStack itemStack);
+    public delegate void PlayerSmithingItemHandler(IPlayer player, string code, ref int? durability, ref float? attackPower, ref float? miningSpeed);
+    public delegate void PlayerSmithingArmorHandler(IPlayer player, string code, ref int? durability, ref float armorProtectionMultiply);
+    public delegate void PlayerHandler(IPlayer player);
+
+    public static event PlayerFloatModifierHandler OnKnifeHarvested;
+    public static event PlayerHandler OnHoeTill;
+    public static event PlayerFarmHandler OnBerryForage;
+    public static event PlayerCookingSingleHandler OnCookedSingle;
+    public static event PlayerCookingPotHandler OnCookedPot;
+    public static event PlayerHammerItemHandler OnHammerItem;
+    public static event PlayerHammerSplitHandler OnHammerSmith;
+    public static event PlayerPanningHandler OnPanning;
+    public static event PlayerSmithingItemHandler OnSmithingItem;
+    public static event PlayerSmithingArmorHandler OnSmithingArmor;
 
     internal static float GetExternalKnifeHarvest(IPlayer player, float multiply)
     {

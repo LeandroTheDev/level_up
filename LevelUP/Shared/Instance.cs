@@ -89,4 +89,32 @@ class Instance
             // Set the mining speed for clients
             player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
     }
+
+    public static void UpdateSubLevelAndNotify(ICoreServerAPI _, IPlayer player, string levelType, string subLevelType, ulong exp, bool disableLevelUpNotify = false)
+    {
+        // Previous exp level, before getting the new experience
+        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}_Sub_{subLevelType}", 0));
+        // Actual player level
+        int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
+
+        // Check if player leveled up
+        if (previousLevel < nextLevel)
+        {
+            // Check if we want to notify
+            if (!disableLevelUpNotify)
+            {
+                // Notify player
+                if (Configuration.enableLevelUpChatMessages)
+                    Server.Instance.communicationChannel.SendPacket(new ServerMessage() { message = $"playersublevelup&{nextLevel}&{levelType}&{subLevelType}" }, player as IServerPlayer);
+            }
+            Debug.Log($"{player.PlayerName} reached sub level {nextLevel} in {levelType}/{subLevelType}");
+
+            ExperienceEvents.PlayerLeveledUp(player, levelType + "/" + subLevelType, exp, nextLevel);
+        }
+
+        // Experience
+        player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}_Sub_{subLevelType}", (long)exp);
+        // Level
+        player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}_Sub_{subLevelType}", nextLevel);
+    }
 }
