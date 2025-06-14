@@ -539,12 +539,12 @@ public class Experience
 
         amount = ExperienceEvents.GetExternalAmountSubIncrease(player, type, subType, amount);
 
-        _playerLoadedExperience[player.PlayerUID][type][subType] += amount;
-
         if (Configuration.CheckMaxLevelByLevelTypeEXP(type, _playerLoadedExperience[player.PlayerUID][type][subType] + amount))
             return;
 
-        Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
+        _playerLoadedExperience[player.PlayerUID][type][subType] += amount;
+
+        Shared.Instance.UpdateSubLevelAndNotify(null, player, type, subType, _playerLoadedExperience[player.PlayerUID][type][subType]);
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"[EXPERIENCE] {player.PlayerName}: {amount}, {type}/{subType}");

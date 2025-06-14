@@ -1,6 +1,6 @@
 {
-    "player_levelup_1": "Du erreichst Level ",
-    "player_levelup_2": " in ",
+    "player_levelup": "Du erreichst Level {0} in {1}",
+    "player_sublevelup": "You reached proficiency {0} with {1} in {2}",
 
     "levels_tab": "Levels",
 

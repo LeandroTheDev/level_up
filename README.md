@@ -48,6 +48,7 @@ You are free to fork the project and make your own version of Level UP, as long 
 
 Inspirations: 
 - Valheim Level UP System
+- Runescape Level UP System
 - Minecraft LevelZ mod
 
 # Building

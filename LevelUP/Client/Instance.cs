@@ -50,11 +50,15 @@ class Instance
         switch (messages[0])
         {
             case "playerlevelup": LevelUPMessage(int.Parse(messages[1]), messages[2]); return;
+            case "playersublevelup": SubLevelUPMessage(int.Parse(messages[1]), messages[2], messages[3]); return;
             case "enabledlevels": enabledLevels = JsonSerializer.Deserialize<Dictionary<string, bool>>(messages[1]); return;
         }
     }
 
     private void LevelUPMessage(int level, string levelType)
-    => api.ShowChatMessage($"{Lang.Get("levelup:player_levelup_1")}{level}{Lang.Get("levelup:player_levelup_2")}{Lang.Get($"levelup:{levelType.ToLower()}")}");
+        => api.ShowChatMessage(Lang.Get("levelup:player_levelup", level, Lang.Get($"levelup:{levelType.ToLower()}")));
+
+    private void SubLevelUPMessage(int level, string levelType, string subLevelType)
+        => api.ShowChatMessage(Lang.Get("levelup:player_sublevelup", level, Lang.Get($"levelup:{subLevelType.ToLower()}"), Lang.Get($"levelup:{levelType.ToLower()}")));
 }
 
