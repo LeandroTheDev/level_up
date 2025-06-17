@@ -7,6 +7,7 @@ class LevelShield
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevelTypeEXP("Shield", Configuration.ShieldGetLevelByEXP);
         Debug.Log("Level Shield initialized");
     }
 

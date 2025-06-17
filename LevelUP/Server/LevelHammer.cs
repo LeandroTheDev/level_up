@@ -10,6 +10,7 @@ class LevelHammer
     public void Init()
     {
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Configuration.RegisterNewLevelTypeEXP("Hammer", Configuration.HammerGetLevelByEXP);
         Debug.Log("Level Hammer initialized");
     }
 

@@ -7,6 +7,7 @@ class LevelScaleArmor
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevelTypeEXP("ScaleArmor", Configuration.ScaleArmorGetLevelByEXP);
         Debug.Log("Level Scale Armor initialized");
     }
 

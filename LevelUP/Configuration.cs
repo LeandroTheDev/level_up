@@ -341,34 +341,30 @@ public static class Configuration
     }
 
     #endregion
+
+    private static readonly Dictionary<string, System.Func<ulong, int>> levelsByLevelTypeEXP = [];
+    /// <summary>
+    /// Register a new level type for the function GetLevelByLevelTypeEXP
+    /// </summary>
+    /// <param name="levelType"></param>
+    /// <param name="function"></param>
+    public static void RegisterNewLevelTypeEXP(string levelType, System.Func<ulong, int> function)
+    {
+        if (levelsByLevelTypeEXP.ContainsKey(levelType))
+        {
+            Debug.LogError($"The leveltype {levelType} already exist in levelsByLevelTypeEXP");
+            return;
+        }
+
+        levelsByLevelTypeEXP.Add(levelType, function);
+    }
+
     public static int GetLevelByLevelTypeEXP(string levelType, ulong exp)
     {
-        switch (levelType)
-        {
-            case "Hunter": return HunterGetLevelByEXP(exp);
-            case "Bow": return BowGetLevelByEXP(exp);
-            case "Knife": return KnifeGetLevelByEXP(exp);
-            case "Axe": return AxeGetLevelByEXP(exp);
-            case "Pickaxe": return PickaxeGetLevelByEXP(exp);
-            case "Shovel": return ShovelGetLevelByEXP(exp);
-            case "Spear": return SpearGetLevelByEXP(exp);
-            case "Hammer": return HammerGetLevelByEXP(exp);
-            case "Sword": return SwordGetLevelByEXP(exp);
-            case "Shield": return ShieldGetLevelByEXP(exp);
-            case "Hand": return HandGetLevelByEXP(exp);
-            case "Farming": return FarmingGetLevelByEXP(exp);
-            case "Cooking": return CookingGetLevelByEXP(exp);
-            case "Panning": return PanningGetLevelByEXP(exp);
-            case "Vitality": return VitalityGetLevelByEXP(exp);
-            case "LeatherArmor": return LeatherArmorGetLevelByEXP(exp);
-            case "ChainArmor": return ChainArmorGetLevelByEXP(exp);
-            case "BrigandineArmor": return BrigandineArmorGetLevelByEXP(exp);
-            case "PlateArmor": return PlateArmorGetLevelByEXP(exp);
-            case "ScaleArmor": return ScaleArmorGetLevelByEXP(exp);
-            case "Smithing": return SmithingGetLevelByEXP(exp);
-            default: break;
-        }
-        Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the Configuration.cs");
+        if (levelsByLevelTypeEXP.TryGetValue(levelType, out System.Func<ulong, int> function))
+            return function(exp);
+
+        Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the wiki");
         return 1;
     }
 
