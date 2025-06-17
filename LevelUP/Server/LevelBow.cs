@@ -12,6 +12,7 @@ class LevelBow
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Configuration.RegisterNewLevelTypeEXP("Bow", Configuration.BowGetLevelByEXP);
 
         Debug.Log("Level Bow initialized");
     }

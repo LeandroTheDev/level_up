@@ -1,42 +1,41 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
 namespace LevelUP.Server;
 
-class Instance
+public class Instance
 {
     static internal ICoreServerAPI api;
-    static public IServerNetworkChannel communicationChannel;
+    static public IServerNetworkChannel CommunicationChannel { get; private set; }
     private readonly Commands commands = new();
 
     // Levels
-    public LevelHunter levelHunter = new();
-    public LevelBow levelBow = new();
-    public LevelKnife levelKnife = new();
-    public LevelAxe levelAxe = new();
-    public LevelPickaxe levelPickaxe = new();
-    public LevelShovel levelShovel = new();
-    public LevelSpear levelSpear = new();
-    public LevelHammer levelHammer = new();
-    public LevelSword levelSword = new();
-    public LevelShield levelShield = new();
-    public LevelHand levelHand = new();
-    public LevelFarming levelFarming = new();
-    public LevelVitality levelVitality = new();
-    public LevelCooking levelCooking = new();
-    public LevelPanning levelPanning = new();
-    public LevelLeatherArmor levelLeatherArmor = new();
-    public LevelChainArmor levelChainArmor = new();
-    public LevelBrigandineArmor levelBrigandineArmor = new();
-    public LevelPlateArmor levelPlateArmor = new();
-    public LevelScaleArmor levelScaleArmor = new();
-    public LevelSmithing levelSmithing = new();
+    internal LevelHunter levelHunter = new();
+    internal LevelBow levelBow = new();
+    internal LevelKnife levelKnife = new();
+    internal LevelAxe levelAxe = new();
+    internal LevelPickaxe levelPickaxe = new();
+    internal LevelShovel levelShovel = new();
+    internal LevelSpear levelSpear = new();
+    internal LevelHammer levelHammer = new();
+    internal LevelSword levelSword = new();
+    internal LevelShield levelShield = new();
+    internal LevelHand levelHand = new();
+    internal LevelFarming levelFarming = new();
+    internal LevelVitality levelVitality = new();
+    internal LevelCooking levelCooking = new();
+    internal LevelPanning levelPanning = new();
+    internal LevelLeatherArmor levelLeatherArmor = new();
+    internal LevelChainArmor levelChainArmor = new();
+    internal LevelBrigandineArmor levelBrigandineArmor = new();
+    internal LevelPlateArmor levelPlateArmor = new();
+    internal LevelScaleArmor levelScaleArmor = new();
+    internal LevelSmithing levelSmithing = new();
 
-    public void Init(ICoreServerAPI serverAPI)
+    internal void Init(ICoreServerAPI serverAPI)
     {
         api = serverAPI;
 
@@ -76,8 +75,8 @@ class Instance
 
         // Register commands
         commands.Init();
-        communicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
-        communicationChannel.SetMessageHandler<ServerMessage>(OnChannelMessage);
+        CommunicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
+        CommunicationChannel.SetMessageHandler<ServerMessage>(OnChannelMessage);
         Debug.Log("Server Communication Network registered");
 
         // Enable hardcore death event
@@ -87,7 +86,7 @@ class Instance
             Debug.Log("Hardcore death event instanciated");
         }
     }
-    public void PopulateConfigurations(ICoreAPI coreAPI)
+    internal void PopulateConfigurations(ICoreAPI coreAPI)
     {
         // Base mod Configs
         Configuration.UpdateBaseConfigurations(coreAPI);
@@ -119,7 +118,7 @@ class Instance
         Configuration.PopulateClassConfigurations(coreAPI);
     }
 
-    public void OnChannelMessage(IServerPlayer player, ServerMessage bruteMessage)
+    internal void OnChannelMessage(IServerPlayer player, ServerMessage bruteMessage)
     {
         switch (bruteMessage.message)
         {
@@ -220,10 +219,10 @@ class Instance
         enabledLevels.Add("Smithing", Configuration.enableLevelSmithing);
 
         // Sending the configurations to the player
-        communicationChannel.SendPacket(new ServerMessage() { message = $"enabledlevels&{JsonSerializer.Serialize(enabledLevels)}" }, player);
+        CommunicationChannel.SendPacket(new ServerMessage() { message = $"enabledlevels&{JsonSerializer.Serialize(enabledLevels)}" }, player);
     }
 
-    public static readonly Dictionary<string, long> playersHardcoreDelay = [];
+    internal static readonly Dictionary<string, long> playersHardcoreDelay = [];
     static public void ResetPlayerLevels(IServerPlayer player, ICoreServerAPI api, double overwriteLose = -1)
     {
         // Hardcore delay cleanup
@@ -480,8 +479,7 @@ class Instance
         {
             Debug.LogDebug($"{player.PlayerUID} died and lost {(int)((1.0 - losePercentage) * 100)}% progress to the next level");
             if (Configuration.hardcoreMessageWhenDying)
-                communicationChannel.SendPacket(new ServerMessage() { message = $"playerhardcoredied&{(int)((1.0 - losePercentage) * 100)}" }, player);
+                CommunicationChannel.SendPacket(new ServerMessage() { message = $"playerhardcoredied&{(int)((1.0 - losePercentage) * 100)}" }, player);
         }
     }
-
 }

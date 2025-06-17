@@ -14,6 +14,7 @@ class LevelPickaxe
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        Configuration.RegisterNewLevelTypeEXP("Pickaxe", Configuration.PickaxeGetLevelByEXP);
 
         Debug.Log("Level Pickaxe initialized");
     }

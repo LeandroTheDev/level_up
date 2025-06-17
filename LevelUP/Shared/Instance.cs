@@ -52,7 +52,7 @@ class Instance
             {
                 // Notify player
                 if (Configuration.enableLevelUpChatMessages)
-                    Server.Instance.communicationChannel.SendPacket(new ServerMessage() { message = $"playerlevelup&{nextLevel}&{levelType}" }, player as IServerPlayer);
+                    Server.Instance.CommunicationChannel.SendPacket(new ServerMessage() { message = $"playerlevelup&{nextLevel}&{levelType}" }, player as IServerPlayer);
             }
             Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
 
@@ -105,7 +105,7 @@ class Instance
             {
                 // Notify player
                 if (Configuration.enableLevelUpChatMessages)
-                    Server.Instance.communicationChannel.SendPacket(new ServerMessage() { message = $"playersublevelup&{nextLevel}&{levelType}&{subLevelType}" }, player as IServerPlayer);
+                    Server.Instance.CommunicationChannel.SendPacket(new ServerMessage() { message = $"playersublevelup&{nextLevel}&{levelType}&{subLevelType}" }, player as IServerPlayer);
             }
             Debug.Log($"{player.PlayerName} reached sub level {nextLevel} in {levelType}/{subLevelType}");
 

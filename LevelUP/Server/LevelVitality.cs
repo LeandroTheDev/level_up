@@ -21,6 +21,7 @@ class LevelVitality
 
         // Load player state
         playerState = GetSavedState();
+        Configuration.RegisterNewLevelTypeEXP("Vitality", Configuration.VitalityGetLevelByEXP);
 
         Debug.Log("Level Vitality initialized");
     }
