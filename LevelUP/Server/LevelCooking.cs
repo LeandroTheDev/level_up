@@ -15,6 +15,7 @@ class LevelCooking
     {
         // Populate configuration
         Configuration.PopulateCookingConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Cooking", Configuration.cookingMaxLevel);
     }
 #pragma warning restore CA1822
 }

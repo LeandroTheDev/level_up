@@ -15,6 +15,7 @@ class LevelShield
     {
         // Populate configuration
         Configuration.PopulateShieldConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Shield", Configuration.shieldMaxLevel);
     }
 #pragma warning restore CA1822
 }

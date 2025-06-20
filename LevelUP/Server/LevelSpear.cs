@@ -21,6 +21,7 @@ class LevelSpear
     {
         // Populate configuration
         Configuration.PopulateSpearConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Spear", Configuration.spearMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -61,7 +62,6 @@ class LevelSpear
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Spear");
-        if (Configuration.SpearIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, spear exp earned: {exp}, actual: {playerExp}");
 

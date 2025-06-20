@@ -14,6 +14,7 @@ class LevelLeatherArmor
     {
         // Populate configuration
         Configuration.PopulateLeatherArmorConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("LeatherArmor", Configuration.leatherArmorMaxLevel);
     }
 #pragma warning restore CA1822
 }

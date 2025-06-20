@@ -21,6 +21,7 @@ class LevelHand
     {
         // Populate configuration
         Configuration.PopulateHandConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Hand", Configuration.handMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -45,8 +46,7 @@ class LevelHand
         ulong exp = (ulong)Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString());
 
         // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Hand");
-        if (Configuration.HandIsMaxLevel(playerExp)) return;
+        ulong playerExp = Experience.GetExperience(player, "Hand");        
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hand exp earned: {exp}, actual: {playerExp}");
 

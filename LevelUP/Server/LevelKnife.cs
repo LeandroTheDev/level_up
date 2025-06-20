@@ -24,6 +24,7 @@ class LevelKnife
     {
         // Populate configuration
         Configuration.PopulateKnifeConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Knife", Configuration.knifeMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -50,7 +51,6 @@ class LevelKnife
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Knife");
-        if (Configuration.KnifeIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, knife exp earned: {exp}, actual: {playerExp}");
 
@@ -75,9 +75,8 @@ class LevelKnife
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Knife");
-        if (Configuration.KnifeIsMaxLevel(playerExp)) return;
 
-        Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, knife exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, knife exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Knife", exp);

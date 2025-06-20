@@ -24,6 +24,7 @@ class LevelPickaxe
     {
         // Populate configuration
         Configuration.PopulatePickaxeConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Pickaxe", Configuration.pickaxeMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -50,7 +51,6 @@ class LevelPickaxe
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Pickaxe");
-        if (Configuration.PickaxeIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
 
@@ -69,9 +69,8 @@ class LevelPickaxe
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Pickaxe");
-        if (Configuration.PickaxeIsMaxLevel(playerExp)) return;
 
-        Debug.Log($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
+        Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
         
         // Incrementing
         Experience.IncreaseExperience(player, "Pickaxe", exp);

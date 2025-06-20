@@ -31,6 +31,7 @@ class LevelVitality
     {
         // Populate configuration
         Configuration.PopulateVitalityConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Vitality", Configuration.vitalityMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -106,7 +107,7 @@ class LevelVitality
     private void PlayerDisconnect(IServerPlayer player)
     {
         // Disconnected during the loading
-        if (player == null) return;
+        if (player == null && player.Entity == null) return;
 
         // Get stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();

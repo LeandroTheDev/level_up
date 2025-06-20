@@ -15,6 +15,7 @@ class LevelPanning
     {
         // Populate configuration
         Configuration.PopulatePanningConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Panning", Configuration.panningMaxLevel);
     }
 #pragma warning restore CA1822
 }

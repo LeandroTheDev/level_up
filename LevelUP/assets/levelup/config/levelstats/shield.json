@@ -1,8 +1,8 @@
 {
     "shieldEXPPerHit": 10,
     "shieldEXPPerBreaking": 10,
-    "shieldEXPPerLevelBase": 100,
-    "shieldEXPMultiplyPerLevel": 2.0,
+    "shieldEXPPerLevelBase": 600,
+    "shieldEXPMultiplyPerLevel": 1.5,
     "shieldBaseReduction": 0.0,
     "shieldIncreamentReductionPerLevel": 0.03,
     "shieldMaxLevel": 999

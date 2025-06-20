@@ -17,6 +17,7 @@ class LevelSmithing
     {
         // Populate configuration
         Configuration.PopulateSmithingConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Smithing", Configuration.smithingMaxLevel);
     }
 #pragma warning restore CA1822
 }

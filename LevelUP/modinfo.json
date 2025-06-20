@@ -7,6 +7,7 @@
     ],
     "description": "Add level system to your character",
     "version": "2.0.1",
+    "side": "universal",
     "dependencies": {
         "game": ""
     }

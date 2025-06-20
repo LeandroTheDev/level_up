@@ -15,6 +15,7 @@ class LevelPlateArmor
     {
         // Populate configuration
         Configuration.PopulatePlateArmorConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("PlateArmor", Configuration.plateArmorMaxLevel);
     }
 #pragma warning restore CA1822
 }

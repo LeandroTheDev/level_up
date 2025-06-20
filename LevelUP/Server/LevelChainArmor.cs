@@ -15,6 +15,7 @@ class LevelChainArmor
     {
         // Populate configuration
         Configuration.PopulateChainArmorConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("ChainArmor", Configuration.chainArmorMaxLevel);
     }
 #pragma warning restore CA1822
 }

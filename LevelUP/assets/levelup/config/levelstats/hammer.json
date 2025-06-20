@@ -1,7 +1,7 @@
 {
     "hammerEXPPerHit": 10,
-    "hammerEXPPerLevelBase": 100,
-    "hammerEXPMultiplyPerLevel": 1.5,
+    "hammerEXPPerLevelBase": 500,
+    "hammerEXPMultiplyPerLevel": 1.2,
     "hammerBaseDamage": 1.0,
     "hammerIncrementDamagePerLevel": 0.1,
     "hammerBaseSmithRetrieveChance": 0.0,

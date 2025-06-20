@@ -1,6 +1,6 @@
 {
     "panningBaseExpPerPanning": 30,
-    "panningEXPPerLevelBase": 100,
+    "panningEXPPerLevelBase": 300,
     "panningEXPMultiplyPerLevel": 1.3,
     "panningBaseLootMultiply": 0.0,
     "panningLootMultiplyPerLevel": 0.1,
