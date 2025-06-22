@@ -42,6 +42,13 @@ class LevelVitality
     /// <param name="player"></param>
     private void LoadPlayer(IPlayer player)
     {
+        if (!Utils.ValidatePlayerUID(player))
+        {
+            if (player is IServerPlayer serverPlayer)
+                serverPlayer.Disconnect("[LEVELUP SECURITY] Invalid UID");
+            return;
+        }
+
         string playerDirectory = Path.Combine(_saveDirectory, player.PlayerUID);
         Directory.CreateDirectory(playerDirectory);
 
@@ -53,7 +60,10 @@ class LevelVitality
             if (double.TryParse(lastHealthString, out double lastHealth))
                 _playerLoadedVitality[player.PlayerUID] = lastHealth;
             else
+            {
+                _playerLoadedVitality[player.PlayerUID] = Configuration.BaseHPVitality;
                 Debug.LogError($"[VITALITY] {player.PlayerName} has any invalid vitality health: {lastHealthString}");
+            }
         }
         else
         {
@@ -81,16 +91,20 @@ class LevelVitality
     /// <param name="player"></param>
     private void SavePlayer(IPlayer player)
     {
+        if (!Utils.ValidatePlayerUID(player)) return;
+
         string playerDirectory = Path.Combine(_saveDirectory, player.PlayerUID);
         Directory.CreateDirectory(playerDirectory);
 
         string lastHealthFile = Path.Combine(playerDirectory, "lastHealth.txt");
 
-        if (_playerLoadedVitality.TryGetValue(player.PlayerName, out double lastHealth))
+        if (_playerLoadedVitality.TryGetValue(player.PlayerUID, out double lastHealth))
         {
             File.WriteAllText(lastHealthFile, lastHealth.ToString());
             Debug.LogDebug($"[VITALITY] {player.PlayerName} saved to the path: {playerDirectory}");
         }
+        else
+            Debug.LogError($"[VITALITY] {player.PlayerName} cannot be found in playerLoadedVitality");
     }
 
     private void SaveState()
