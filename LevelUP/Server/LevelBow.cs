@@ -12,6 +12,7 @@ class LevelBow
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Configuration.RegisterNewLevelTypeEXP("Bow", Configuration.BowGetLevelByEXP);
 
         Debug.Log("Level Bow initialized");
     }
@@ -20,6 +21,7 @@ class LevelBow
     {
         // Populate configuration
         Configuration.PopulateBowConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Bow", Configuration.bowMaxLevel);
     }
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
@@ -43,7 +45,6 @@ class LevelBow
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Bow");
-        if (Configuration.BowIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
 

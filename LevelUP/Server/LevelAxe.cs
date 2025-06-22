@@ -14,6 +14,7 @@ class LevelAxe
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        Configuration.RegisterNewLevelTypeEXP("Axe", Configuration.AxeGetLevelByEXP);
         Debug.Log("Level Axe initialized");
     }
 
@@ -22,6 +23,7 @@ class LevelAxe
     {
         // Populate configuration
         Configuration.PopulateAxeConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Axe", Configuration.axeMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -47,7 +49,7 @@ class LevelAxe
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Axe");
-        if (Configuration.AxeIsMaxLevel(playerExp)) return;
+        if (Configuration.CheckMaxLevelByLevelTypeEXP("Axe", playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, axe exp earned: {exp}, actual: {playerExp}");
 
@@ -65,7 +67,6 @@ class LevelAxe
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Axe");
-        if (Configuration.AxeIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, axe exp earned: {exp}, actual: {playerExp}");
 

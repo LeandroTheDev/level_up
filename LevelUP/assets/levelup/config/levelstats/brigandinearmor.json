@@ -2,7 +2,7 @@
     "brigandineArmorEXPPerReceiveHit": 10,
     "brigandineArmorEXPMultiplyByDamage": 0.3,
     "brigandineArmorEXPIncreaseByAmountDamage": 20,
-    "brigandineArmorEXPPerLevelBase": 50,
+    "brigandineArmorEXPPerLevelBase": 500,
     "brigandineArmorEXPMultiplyPerLevel": 1.2,
     "brigandineArmorBaseDamageReduction": 0.0,
     "brigandineArmorDamageReductionPerLevel": 0.05,

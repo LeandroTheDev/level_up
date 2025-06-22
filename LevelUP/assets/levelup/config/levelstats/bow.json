@@ -1,14 +1,14 @@
 {
     "bowEXPPerHit": 10,
-    "bowEXPPerLevelBase": 100,
-    "bowEXPMultiplyPerLevel": 1.3,
+    "bowEXPPerLevelBase": 500,
+    "bowEXPMultiplyPerLevel": 1.1,
     "bowBaseDamage": 1.0,
     "bowIncrementDamagePerLevel": 0.1,
     "bowBaseChanceToNotLoseArrow": 50.0,
     "bowChanceToNotLoseArrowBaseIncreasePerLevel": 2.0,
     "bowChanceToNotLoseArrowReduceIncreaseEveryLevel": 5,
     "bowChanceToNotLoseArrowReduceQuantityEveryLevel": 0.5,
-    "bowBaseAimAccuracy": 0.7,
+    "bowBaseAimAccuracy": 0.8,
     "bowIncreaseAimAccuracyPerLevel": 0.02,
     "bowMaxLevel": 999
 }

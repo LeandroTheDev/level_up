@@ -45,6 +45,7 @@ public static class Configuration
                 // Saving default configurations
                 string defaultJson = JsonConvert.SerializeObject(loadedConfig, Formatting.Indented);
                 File.WriteAllText(configPath, defaultJson);
+                return LoadConfigurationByDirectoryAndName(api, directory, name, defaultDirectory);
             }
             catch (Exception ex)
             {
@@ -64,6 +65,7 @@ public static class Configuration
                 // Saving default configurations
                 string defaultJson = JsonConvert.SerializeObject(loadedConfig, Formatting.Indented);
                 File.WriteAllText(configPath, defaultJson);
+                return LoadConfigurationByDirectoryAndName(api, directory, name, defaultDirectory);
             }
             catch (Exception ex)
             {
@@ -341,34 +343,30 @@ public static class Configuration
     }
 
     #endregion
+
+    private static readonly Dictionary<string, System.Func<ulong, int>> levelsByLevelTypeEXP = [];
+    /// <summary>
+    /// Register a new level type for the function GetLevelByLevelTypeEXP
+    /// </summary>
+    /// <param name="levelType"></param>
+    /// <param name="function"></param>
+    public static void RegisterNewLevelTypeEXP(string levelType, System.Func<ulong, int> function)
+    {
+        if (levelsByLevelTypeEXP.ContainsKey(levelType))
+        {
+            Debug.LogError($"The leveltype {levelType} already exist in levelsByLevelTypeEXP");
+            return;
+        }
+
+        levelsByLevelTypeEXP.Add(levelType, function);
+    }
+
     public static int GetLevelByLevelTypeEXP(string levelType, ulong exp)
     {
-        switch (levelType)
-        {
-            case "Hunter": return HunterGetLevelByEXP(exp);
-            case "Bow": return BowGetLevelByEXP(exp);
-            case "Knife": return KnifeGetLevelByEXP(exp);
-            case "Axe": return AxeGetLevelByEXP(exp);
-            case "Pickaxe": return PickaxeGetLevelByEXP(exp);
-            case "Shovel": return ShovelGetLevelByEXP(exp);
-            case "Spear": return SpearGetLevelByEXP(exp);
-            case "Hammer": return HammerGetLevelByEXP(exp);
-            case "Sword": return SwordGetLevelByEXP(exp);
-            case "Shield": return ShieldGetLevelByEXP(exp);
-            case "Hand": return HandGetLevelByEXP(exp);
-            case "Farming": return FarmingGetLevelByEXP(exp);
-            case "Cooking": return CookingGetLevelByEXP(exp);
-            case "Panning": return PanningGetLevelByEXP(exp);
-            case "Vitality": return VitalityGetLevelByEXP(exp);
-            case "LeatherArmor": return LeatherArmorGetLevelByEXP(exp);
-            case "ChainArmor": return ChainArmorGetLevelByEXP(exp);
-            case "BrigandineArmor": return BrigandineArmorGetLevelByEXP(exp);
-            case "PlateArmor": return PlateArmorGetLevelByEXP(exp);
-            case "ScaleArmor": return ScaleArmorGetLevelByEXP(exp);
-            case "Smithing": return SmithingGetLevelByEXP(exp);
-            default: break;
-        }
-        Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the Configuration.cs");
+        if (levelsByLevelTypeEXP.TryGetValue(levelType, out System.Func<ulong, int> function))
+            return function(exp);
+
+        Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function GetLevelByLevelTypeEXP did you forget to add it? check the wiki");
         return 1;
     }
 
@@ -385,34 +383,28 @@ public static class Configuration
         return -1.0f;
     }
 
+    private static readonly Dictionary<string, int> maxLevels = [];
+    /// <summary>
+    /// Register a new level type for the function CheckMaxLevelByLevelTypeEXP
+    /// </summary>
+    /// <param name="levelType"></param>
+    /// <param name="maxLevel"></param>
+    public static void RegisterNewMaxLevelByLevelTypeEXP(string levelType, int maxLevel)
+    {
+        if (maxLevels.ContainsKey(levelType))
+        {
+            Debug.LogError($"The leveltype {levelType} already exist in maxLevels");
+            return;
+        }
+
+        maxLevels.Add(levelType, maxLevel);
+    }
     public static bool CheckMaxLevelByLevelTypeEXP(string levelType, ulong exp)
     {
-        switch (levelType)
-        {
-            case "Hunter": return HunterIsMaxLevel(exp);
-            case "Bow": return BowIsMaxLevel(exp);
-            case "Knife": return KnifeIsMaxLevel(exp);
-            case "Axe": return AxeIsMaxLevel(exp);
-            case "Pickaxe": return PickaxeIsMaxLevel(exp);
-            case "Shovel": return ShovelIsMaxLevel(exp);
-            case "Spear": return SpearIsMaxLevel(exp);
-            case "Hammer": return HammerIsMaxLevel(exp);
-            case "Sword": return SwordIsMaxLevel(exp);
-            case "Shield": return ShieldIsMaxLevel(exp);
-            case "Hand": return HandIsMaxLevel(exp);
-            case "Farming": return FarmingIsMaxLevel(exp);
-            case "Cooking": return CookingIsMaxLevel(exp);
-            case "Panning": return PanningIsMaxLevel(exp);
-            case "Vitality": return VitalityIsMaxLevel(exp);
-            case "LeatherArmor": return LeatherArmorIsMaxLevel(exp);
-            case "ChainArmor": return ChainArmorIsMaxLevel(exp);
-            case "BrigandineArmor": return BrigandineArmorIsMaxLevel(exp);
-            case "PlateArmor": return PlateArmorIsMaxLevel(exp);
-            case "ScaleArmor": return ScaleArmorIsMaxLevel(exp);
-            case "Smithing": return SmithingIsMaxLevel(exp);
-            default: break;
-        }
-        Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function CheckMaxLevelByLevelTypeEXP did you forget to add it? check the Configuration.cs");
+        if (maxLevels.TryGetValue(levelType, out int maxLevel))
+            return maxLevel >= GetLevelByLevelTypeEXP(levelType, exp);
+
+        Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function CheckMaxLevelByLevelTypeEXP did you forget to add it? check the wiki");
         return false;
     }
 
@@ -422,7 +414,7 @@ public static class Configuration
     private static double hunterEXPMultiplyPerLevel = 1.5;
     private static float hunterBaseDamage = 1.0f;
     private static float hunterIncrementDamagePerLevel = 0.1f;
-    private static int hunterMaxLevel = 999;
+    public static int hunterMaxLevel = 999;
 
     public static void PopulateHunterConfiguration(ICoreAPI api)
     {
@@ -514,9 +506,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool HunterIsMaxLevel(ulong exp)
-        => HunterGetLevelByEXP(exp) >= hunterMaxLevel;
-
     public static float HunterGetDamageMultiplyByLevel(int level)
     {
         return hunterBaseDamage + hunterIncrementDamagePerLevel * level;
@@ -536,7 +525,7 @@ public static class Configuration
     private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.5f;
     private static float bowBaseAimAccuracy = 1.0f;
     private static float bowIncreaseAimAccuracyPerLevel = 0.5f;
-    private static int bowMaxLevel = 999;
+    public static int bowMaxLevel = 999;
 
     public static int ExpPerHitBow => bowEXPPerHit;
 
@@ -681,8 +670,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool BowIsMaxLevel(ulong exp)
-        => BowGetLevelByEXP(exp) >= bowMaxLevel;
     public static float BowGetDamageMultiplyByLevel(int level)
     {
         return bowBaseDamage + bowIncrementDamagePerLevel * level;
@@ -732,7 +719,7 @@ public static class Configuration
     private static float knifeIncrementHarvestMultiplyPerLevel = 0.2f;
     private static float knifeBaseMiningSpeed = 1.0f;
     private static float knifeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
-    private static int knifeMaxLevel = 999;
+    public static int knifeMaxLevel = 999;
 
     public static int ExpPerHitKnife => knifeEXPPerHit;
     public static int ExpPerHarvestKnife => knifeEXPPerHarvest;
@@ -881,9 +868,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool KnifeIsMaxLevel(ulong exp)
-        => KnifeGetLevelByEXP(exp) >= knifeMaxLevel;
-
     public static float KnifeGetDamageMultiplyByLevel(int level)
     {
         return knifeBaseDamage + knifeIncrementDamagePerLevel * level;
@@ -918,7 +902,7 @@ public static class Configuration
     private static float axeIncrementDamagePerLevel = 0.1f;
     private static float axeBaseMiningSpeed = 1.0f;
     private static float axeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
-    private static int axeMaxLevel = 999;
+    public static int axeMaxLevel = 999;
 
 
     public static int ExpPerHitAxe => axeEXPPerHit;
@@ -1054,8 +1038,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool AxeIsMaxLevel(ulong exp)
-        => AxeGetLevelByEXP(exp) >= axeMaxLevel;
 
     public static float AxeGetDamageMultiplyByLevel(int level)
     {
@@ -1081,7 +1063,7 @@ public static class Configuration
     private static float pickaxeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
     private static float pickaxeBaseOreMultiply = 0.5f;
     private static float pickaxeIncrementOreMultiplyPerLevel = 0.2f;
-    private static int pickaxeMaxLevel = 999;
+    public static int pickaxeMaxLevel = 999;
 
 
     public static int ExpPerHitPickaxe => pickaxeEXPPerHit;
@@ -1235,8 +1217,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool PickaxeIsMaxLevel(ulong exp)
-        => PickaxeGetLevelByEXP(exp) >= pickaxeMaxLevel;
 
     public static float PickaxeGetOreMultiplyByLevel(int level)
     {
@@ -1264,7 +1244,7 @@ public static class Configuration
     private static float shovelIncrementDamagePerLevel = 0.1f;
     private static float shovelBaseMiningSpeed = 1.0f;
     private static float shovelIncrementMiningSpeedMultiplyPerLevel = 0.1f;
-    private static int shovelMaxLevel = 999;
+    public static int shovelMaxLevel = 999;
 
 
     public static int ExpPerHitShovel => shovelEXPPerHit;
@@ -1389,8 +1369,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool ShovelIsMaxLevel(ulong exp)
-        => ShovelGetLevelByEXP(exp) >= shovelMaxLevel;
 
     public static float ShovelGetDamageMultiplyByLevel(int level)
     {
@@ -1413,7 +1391,7 @@ public static class Configuration
     private static float spearIncrementDamagePerLevel = 0.1f;
     private static float spearBaseAimAccuracy = 1.0f;
     private static float spearIncreaseAimAccuracyPerLevel = 0.5f;
-    private static int spearMaxLevel = 999;
+    public static int spearMaxLevel = 999;
 
 
     public static int ExpPerHitSpear => spearEXPPerHit;
@@ -1539,8 +1517,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool SpearIsMaxLevel(ulong exp)
-        => SpearGetLevelByEXP(exp) >= spearMaxLevel;
 
     public static float SpearGetDamageMultiplyByLevel(int level)
     {
@@ -1577,7 +1553,7 @@ public static class Configuration
     private static float hammerIncreaseChanceToQuadruplePerLevel = 0.5f;
     private static int hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel = 5;
     private static float hammerIncreaseChanceToQuadruplePerLevelReducer = 0.05f;
-    private static int hammerMaxLevel = 999;
+    public static int hammerMaxLevel = 999;
 
     public static int ExpPerHitHammer => hammerEXPPerHit;
 
@@ -1803,8 +1779,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool HammerIsMaxLevel(ulong exp)
-        => HammerGetLevelByEXP(exp) >= hammerMaxLevel;
 
     public static float HammerGetDamageMultiplyByLevel(int level)
     {
@@ -1905,7 +1879,7 @@ public static class Configuration
     private static double swordEXPMultiplyPerLevel = 2.0;
     private static float swordBaseDamage = 1.0f;
     private static float swordIncrementDamagePerLevel = 0.1f;
-    private static int swordMaxLevel = 999;
+    public static int swordMaxLevel = 999;
 
 
     public static int ExpPerHitSword => swordEXPPerHit;
@@ -2008,8 +1982,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool SwordIsMaxLevel(ulong exp)
-        => SwordGetLevelByEXP(exp) >= swordMaxLevel;
 
     public static float SwordGetDamageMultiplyByLevel(int level)
     {
@@ -2023,7 +1995,7 @@ public static class Configuration
     private static double shieldEXPMultiplyPerLevel = 2.0;
     private static float shieldBaseReduction = 1.0f;
     private static float shieldIncreamentReductionPerLevel = 0.1f;
-    private static int shieldMaxLevel = 999;
+    public static int shieldMaxLevel = 999;
 
 
     public static int ExpPerHitShield => shieldEXPPerHit;
@@ -2113,8 +2085,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool ShieldIsMaxLevel(ulong exp)
-        => ShieldGetLevelByEXP(exp) >= shieldMaxLevel;
 
     public static float ShieldGetReductionMultiplyByLevel(int level)
     {
@@ -2129,7 +2099,7 @@ public static class Configuration
     private static double handEXPMultiplyPerLevel = 2.0;
     private static float handBaseDamage = 1.0f;
     private static float handIncrementDamagePerLevel = 0.1f;
-    private static int handMaxLevel = 999;
+    public static int handMaxLevel = 999;
 
     public static int ExpPerHitHand => handEXPPerHit;
 
@@ -2231,8 +2201,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool HandIsMaxLevel(ulong exp)
-        => HandGetLevelByEXP(exp) >= handMaxLevel;
 
     public static float HandGetDamageMultiplyByLevel(int level)
     {
@@ -2249,7 +2217,7 @@ public static class Configuration
     private static float farmingIncrementHarvestMultiplyPerLevel = 0.2f;
     private static float farmingBaseForageMultiply = 1.0f;
     private static float farmingIncrementForageMultiplyPerLevel = 0.2f;
-    private static int farmingMaxLevel = 999;
+    public static int farmingMaxLevel = 999;
 
     public static int ExpPerTillFarming => farmingEXPPerTill;
 
@@ -2366,8 +2334,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool FarmingIsMaxLevel(ulong exp)
-        => FarmingGetLevelByEXP(exp) >= farmingMaxLevel;
 
     public static float FarmingGetHarvestMultiplyByLevel(int level)
     {
@@ -2395,7 +2361,7 @@ public static class Configuration
     private static int cookingBaseRollsChanceToIncreaseServings = 1;
     private static int cookingEarnRollsChanceToIncreaseServingsEveryLevel = 5;
     private static int cookingEarnRollsChanceToIncreaseServingsQuantity = 1;
-    private static int cookingMaxLevel = 999;
+    public static int cookingMaxLevel = 999;
 
     public static int ExpPerCookingcooking => cookingBaseExpPerCooking;
 
@@ -2558,8 +2524,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool CookingIsMaxLevel(ulong exp)
-        => CookingGetLevelByEXP(exp) >= cookingMaxLevel;
 
     public static float CookingGetFreshHoursMultiplyByLevel(int level)
     {
@@ -2610,7 +2574,7 @@ public static class Configuration
     private static float panningChanceToTripleLootPerLevel = 0.5f;
     private static float panningBaseChanceToQuadrupleLoot = 0.0f;
     private static float panningChanceToQuadrupleLootPerLevel = 0.3f;
-    private static int panningMaxLevel = 999;
+    public static int panningMaxLevel = 999;
 
     public static int ExpPerPanning => panningBaseExpPerPanning;
 
@@ -2740,8 +2704,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool PanningIsMaxLevel(ulong exp)
-        => PanningGetLevelByEXP(exp) >= panningMaxLevel;
 
     public static float PanningGetLootMultiplyByLevel(int level)
     {
@@ -2775,7 +2737,7 @@ public static class Configuration
     private static float smithingIncrementMiningSpeedMultiplyPerLevel = 0.05f;
     private static float smithingBaseArmorProtectionMultiply = 1.0f;
     private static float smithingIncrementArmorProtectionMultiplyPerLevel = 0.05f;
-    private static int smithingMaxLevel = 999;
+    public static int smithingMaxLevel = 999;
 
     public static void PopulateSmithingConfiguration(ICoreAPI api)
     {
@@ -2910,8 +2872,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool SmithingIsMaxLevel(ulong exp)
-        => SmithingGetLevelByEXP(exp) >= smithingMaxLevel;
 
     public static float SmithingGetDurabilityMultiplyByLevel(int level)
     {
@@ -2945,7 +2905,7 @@ public static class Configuration
     private static float vitalityBaseHPRegen = 1.0f;
     private static float vitalityHPRegenIncreasePerLevel = 0.1f;
     private static int vitalityDamageLimit = 100;
-    private static int vitalityMaxLevel = 999;
+    public static int vitalityMaxLevel = 999;
 
     public static int DamageLimitVitality => vitalityDamageLimit;
     public static float BaseHPVitality => vitalityBaseHP;
@@ -3071,8 +3031,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool VitalityIsMaxLevel(ulong exp)
-        => VitalityGetLevelByEXP(exp) >= vitalityMaxLevel;
 
     public static float VitalityGetMaxHealthByLevel(int level)
     {
@@ -3106,7 +3064,7 @@ public static class Configuration
     private static float leatherArmorBaseDamageReduction = 0.0f;
     private static float leatherArmorDamageReductionPerLevel = 0.05f;
     private static int leatherArmorDamageLimit = 1000;
-    private static int leatherArmorMaxLevel = 999;
+    public static int leatherArmorMaxLevel = 999;
 
     public static int DamageLimitLeatherArmor => leatherArmorDamageLimit;
 
@@ -3228,8 +3186,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool LeatherArmorIsMaxLevel(ulong exp)
-        => LeatherArmorGetLevelByEXP(exp) >= leatherArmorMaxLevel;
 
     public static int LeatherArmorBaseEXPEarnedByDAMAGE(float damage)
     {
@@ -3258,7 +3214,7 @@ public static class Configuration
     private static float chainArmorBaseDamageReduction = 0.0f;
     private static float chainArmorDamageReductionPerLevel = 0.05f;
     private static int chainArmorDamageLimit = 1000;
-    private static int chainArmorMaxLevel = 999;
+    public static int chainArmorMaxLevel = 999;
 
     public static int DamageLimitChainArmor => chainArmorDamageLimit;
 
@@ -3380,8 +3336,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool ChainArmorIsMaxLevel(ulong exp)
-        => ChainArmorGetLevelByEXP(exp) >= chainArmorMaxLevel;
 
     public static int ChainArmorBaseEXPEarnedByDAMAGE(float damage)
     {
@@ -3410,7 +3364,7 @@ public static class Configuration
     private static float brigandineArmorBaseDamageReduction = 0.0f;
     private static float brigandineArmorDamageReductionPerLevel = 0.05f;
     private static int brigandineArmorDamageLimit = 1000;
-    private static int brigandineArmorMaxLevel = 999;
+    public static int brigandineArmorMaxLevel = 999;
 
     public static int DamageLimitBrigandineArmor => brigandineArmorDamageLimit;
 
@@ -3531,8 +3485,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool BrigandineArmorIsMaxLevel(ulong exp)
-        => BrigandineArmorGetLevelByEXP(exp) >= brigandineArmorMaxLevel;
 
     public static int BrigandineArmorBaseEXPEarnedByDAMAGE(float damage)
     {
@@ -3561,7 +3513,7 @@ public static class Configuration
     private static float plateArmorBaseDamageReduction = 0.0f;
     private static float plateArmorDamageReductionPerLevel = 0.05f;
     private static int plateArmorDamageLimit = 1000;
-    private static int plateArmorMaxLevel = 999;
+    public static int plateArmorMaxLevel = 999;
 
     public static int DamageLimitPlateArmor => plateArmorDamageLimit;
 
@@ -3682,8 +3634,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool PlateArmorIsMaxLevel(ulong exp)
-        => PlateArmorGetLevelByEXP(exp) >= plateArmorMaxLevel;
 
     public static int PlateArmorBaseEXPEarnedByDAMAGE(float damage)
     {
@@ -3712,7 +3662,7 @@ public static class Configuration
     private static float scaleArmorBaseDamageReduction = 0.0f;
     private static float scaleArmorDamageReductionPerLevel = 0.05f;
     private static int scaleArmorDamageLimit = 1000;
-    private static int scaleArmorMaxLevel = 999;
+    public static int scaleArmorMaxLevel = 999;
 
     public static int DamageLimitScaleArmor => scaleArmorDamageLimit;
 
@@ -3833,8 +3783,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static bool ScaleArmorIsMaxLevel(ulong exp)
-        => ScaleArmorGetLevelByEXP(exp) >= scaleArmorMaxLevel;
 
     public static int ScaleArmorBaseEXPEarnedByDAMAGE(float damage)
     {
@@ -3854,39 +3802,29 @@ public static class Configuration
     #endregion
 
     #region classexp
-    public static Dictionary<string, Dictionary<string, object>> classExperience = [];
+    public static Dictionary<string, Dictionary<string, object>> ClassExperience { get; private set; } = [];
+    public static void RegisterNewClassLevel(string currentClass, string levelType, float multiply)
+    {
+        if (ClassExperience.TryGetValue(currentClass, out Dictionary<string, object> availableLevels))
+            if (!availableLevels.TryGetValue(levelType, out _))
+                availableLevels.Add(levelType, multiply);
+            else
+                Debug.LogWarn($"You are trying to set up {levelType} but that level already exist in {currentClass}, it will be ignored...");
+        else
+            ClassExperience.Add(currentClass, new Dictionary<string, object>
+            {
+                { levelType, multiply }
+            });
+    }
     public static float GetEXPMultiplyByClassAndLevelType(string playerClass, string levelType)
     {
         // Class converssion
         playerClass += "class";
-        if (classExperience.TryGetValue(playerClass, out Dictionary<string, object> classConfigs))
+        if (ClassExperience.TryGetValue(playerClass, out Dictionary<string, object> classConfigs))
         {
             try
             {
-                switch (levelType)
-                {
-                    case "Hunter": return (float)Convert.ToSingle(classConfigs["classHunterLevelMultiply"]);
-                    case "Bow": return (float)Convert.ToSingle(classConfigs["classBowLevelMultiply"]);
-                    case "Knife": return (float)Convert.ToSingle(classConfigs["classKnifeLevelMultiply"]);
-                    case "Axe": return (float)Convert.ToSingle(classConfigs["classAxeLevelMultiply"]);
-                    case "Pickaxe": return (float)Convert.ToSingle(classConfigs["classPickaxeLevelMultiply"]);
-                    case "Shovel": return (float)Convert.ToSingle(classConfigs["classShovelLevelMultiply"]);
-                    case "Spear": return (float)Convert.ToSingle(classConfigs["classSpearLevelMultiply"]);
-                    case "Hammer": return (float)Convert.ToSingle(classConfigs["classHammerLevelMultiply"]);
-                    case "Sword": return (float)Convert.ToSingle(classConfigs["classSwordLevelMultiply"]);
-                    case "Shield": return (float)Convert.ToSingle(classConfigs["classShieldLevelMultiply"]);
-                    case "Hand": return (float)Convert.ToSingle(classConfigs["classHandLevelMultiply"]);
-                    case "Farming": return (float)Convert.ToSingle(classConfigs["classFarmingLevelMultiply"]);
-                    case "Cooking": return (float)Convert.ToSingle(classConfigs["classCookingLevelMultiply"]);
-                    case "Panning": return (float)Convert.ToSingle(classConfigs["classPanningLevelMultiply"]);
-                    case "Vitality": return (float)Convert.ToSingle(classConfigs["classVitalityLevelMultiply"]);
-                    case "LeatherArmor": return (float)Convert.ToSingle(classConfigs["classLeatherArmorLevelMultiply"]);
-                    case "ChainArmor": return (float)Convert.ToSingle(classConfigs["classChainArmorLevelMultiply"]);
-                    case "Smithing": return (float)Convert.ToSingle(classConfigs["classSmithingLevelMultiply"]);
-                    default:
-                        Debug.LogError($"ERROR: The leveltype {levelType} does not exist");
-                        return 1.0f;
-                }
+                return (float)Convert.ToSingle(classConfigs[$"class{levelType}LevelMultiply"]);
             }
             catch (Exception ex)
             {
@@ -3900,7 +3838,7 @@ public static class Configuration
 
     public static void PopulateClassConfigurations(ICoreAPI api)
     {
-        classExperience.Clear();
+        ClassExperience.Clear();
         string directoryPath = Path.Combine(api.DataBasePath, "ModConfig/LevelUP/config/classexp");
         // Classes directory exists
         if (Directory.Exists(directoryPath))
@@ -3915,7 +3853,7 @@ public static class Configuration
                 try
                 {
                     // Null check
-                    if (!classExperience.TryGetValue(configname, out _)) classExperience.Add(configname, []);
+                    if (!ClassExperience.TryGetValue(configname, out _)) ClassExperience.Add(configname, []);
                     else
                     {
                         Debug.LogWarn($"WARNING: {configname} already exist in memory, duplicated class? how?");
@@ -3928,7 +3866,7 @@ public static class Configuration
                     foreach (KeyValuePair<string, object> configuration in configClass)
                     {
                         // Configuration addition
-                        classExperience[configname].Add(configuration.Key, configuration.Value);
+                        RegisterNewClassLevel(configname, configuration.Key, (float)configuration.Value);
                     }
                     Debug.Log($"{configname} configuration set");
                 }
@@ -3938,7 +3876,7 @@ public static class Configuration
                 }
             }
 
-            Debug.Log($"Server classes loaded, total loaded classes: {classExperience.Count}");
+            Debug.Log($"Server classes loaded, total loaded classes: {ClassExperience.Count}");
         }
         // Classes directory doesn't exist
         else
@@ -3946,45 +3884,39 @@ public static class Configuration
             Debug.LogWarn("WARNING: Server configuration classes directory doesn't exist, creating default classes");
 
             Dictionary<string, object> hunterclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "hunterclass", "levelup:config/classexp/hunterclass.json");
-            classExperience.Add("hunterclass", []);
             foreach (KeyValuePair<string, object> pair in hunterclass)
             {
-                classExperience["hunterclass"].Add(pair.Key, pair.Value);
+                RegisterNewClassLevel("hunterclass", pair.Key, (float)pair.Value);
             }
 
             Dictionary<string, object> commonerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "commonerclass", "levelup:config/classexp/commonerclass.json");
-            classExperience.Add("commonerclass", []);
             foreach (KeyValuePair<string, object> pair in commonerclass)
             {
-                classExperience["commonerclass"].Add(pair.Key, pair.Value);
+                RegisterNewClassLevel("commonerclass", pair.Key, (float)pair.Value);
             }
 
             Dictionary<string, object> blackguardclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "blackguardclass", "levelup:config/classexp/blackguardclass.json");
-            classExperience.Add("blackguardclass", []);
             foreach (KeyValuePair<string, object> pair in blackguardclass)
             {
-                classExperience["blackguardclass"].Add(pair.Key, pair.Value);
+                RegisterNewClassLevel("blackguardclass", pair.Key, (float)pair.Value);
             }
 
             Dictionary<string, object> clockmakerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "clockmakerclass", "levelup:config/classexp/clockmakerclass.json");
-            classExperience.Add("clockmakerclass", []);
             foreach (KeyValuePair<string, object> pair in clockmakerclass)
             {
-                classExperience["clockmakerclass"].Add(pair.Key, pair.Value);
+                RegisterNewClassLevel("clockmakerclass", pair.Key, (float)pair.Value);
             }
 
             Dictionary<string, object> malefactorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "malefactorclass", "levelup:config/classexp/malefactorclass.json");
-            classExperience.Add("malefactorclass", []);
             foreach (KeyValuePair<string, object> pair in malefactorclass)
             {
-                classExperience["malefactorclass"].Add(pair.Key, pair.Value);
+                RegisterNewClassLevel("malefactorclass", pair.Key, (float)pair.Value);
             }
 
             Dictionary<string, object> tailorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "tailorclass", "levelup:config/classexp/tailorclass.json");
-            classExperience.Add("tailorclass", []);
             foreach (KeyValuePair<string, object> pair in tailorclass)
             {
-                classExperience["tailorclass"].Add(pair.Key, pair.Value);
+                RegisterNewClassLevel("tailorclass", pair.Key, (float)pair.Value);
             }
         }
     }

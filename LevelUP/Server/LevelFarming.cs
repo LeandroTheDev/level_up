@@ -11,6 +11,7 @@ class LevelFarming
     {
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        Configuration.RegisterNewLevelTypeEXP("Farming", Configuration.FarmingGetLevelByEXP);
 
         Debug.Log("Level Farming initialized");
     }
@@ -20,6 +21,7 @@ class LevelFarming
     {
         // Populate configuration
         Configuration.PopulateFarmingConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Farming", Configuration.farmingMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -32,7 +34,6 @@ class LevelFarming
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Farming");
-        if (Configuration.FarmingIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, farming exp earned: {exp}, actual: {playerExp}");
 

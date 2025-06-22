@@ -1,11 +1,11 @@
 {
     "shovelEXPPerHit": 10,
     "shovelEXPPerBreaking": 10,
-    "shovelEXPPerLevelBase": 100,
-    "shovelEXPMultiplyPerLevel": 2.0,
+    "shovelEXPPerLevelBase": 500,
+    "shovelEXPMultiplyPerLevel": 1.5,
     "shovelBaseDamage": 1.0,
     "shovelIncrementDamagePerLevel": 0.1,
     "shovelBaseMiningSpeed": 1.0,
-    "shovelIncrementMiningSpeedMultiplyPerLevel": 0.1,
+    "shovelIncrementMiningSpeedMultiplyPerLevel": 0.02,
     "shovelMaxLevel": 999
 }

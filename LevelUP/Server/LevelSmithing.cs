@@ -9,6 +9,7 @@ class LevelSmithing
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevelTypeEXP("Smithing", Configuration.SmithingGetLevelByEXP);
         Debug.Log("Level Smithing initialized");
     }
 
@@ -16,6 +17,7 @@ class LevelSmithing
     {
         // Populate configuration
         Configuration.PopulateSmithingConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Smithing", Configuration.smithingMaxLevel);
     }
 #pragma warning restore CA1822
 }
