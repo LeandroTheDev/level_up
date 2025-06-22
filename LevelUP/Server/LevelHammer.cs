@@ -10,6 +10,7 @@ class LevelHammer
     public void Init()
     {
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Configuration.RegisterNewLevelTypeEXP("Hammer", Configuration.HammerGetLevelByEXP);
         Debug.Log("Level Hammer initialized");
     }
 
@@ -18,6 +19,7 @@ class LevelHammer
     {
         // Populate configuration
         Configuration.PopulateHammerConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Hammer", Configuration.hammerMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -43,7 +45,6 @@ class LevelHammer
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Hammer");
-        if (Configuration.HammerIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");
 

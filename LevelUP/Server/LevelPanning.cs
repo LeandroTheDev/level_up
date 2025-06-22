@@ -7,6 +7,7 @@ class LevelPanning
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevelTypeEXP("Panning", Configuration.PanningGetLevelByEXP);
         Debug.Log("Level Panning initialized");
     }
 
@@ -14,6 +15,7 @@ class LevelPanning
     {
         // Populate configuration
         Configuration.PopulatePanningConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Panning", Configuration.panningMaxLevel);
     }
 #pragma warning restore CA1822
 }

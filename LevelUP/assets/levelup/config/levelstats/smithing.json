@@ -6,7 +6,7 @@
     "smithingBaseAttackPowerMultiply": 1.0,
     "smithingIncrementAttackPowerMultiplyPerLevel": 0.05,
     "smithingBaseMiningSpeedMultiply": 1.0,
-    "smithingIncrementMiningSpeedMultiplyPerLevel": 0.05,
+    "smithingIncrementMiningSpeedMultiplyPerLevel": 0.01,
     "smithingBaseArmorProtectionMultiply": 1.0,
     "smithingIncrementArmorProtectionMultiplyPerLevel": 0.05,
     "smithingMaxLevel": 999

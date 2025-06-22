@@ -1,12 +1,12 @@
 {
     "pickaxeEXPPerHit": 10,
     "pickaxeEXPPerBreaking": 10,
-    "pickaxeEXPPerLevelBase": 100,
-    "pickaxeEXPMultiplyPerLevel": 2.0,
+    "pickaxeEXPPerLevelBase": 500,
+    "pickaxeEXPMultiplyPerLevel": 1.5,
     "pickaxeBaseDamage": 1.0,
     "pickaxeIncrementDamagePerLevel": 0.1,
     "pickaxeBaseMiningSpeed": 1.0,
-    "pickaxeIncrementMiningSpeedMultiplyPerLevel": 0.1,
+    "pickaxeIncrementMiningSpeedMultiplyPerLevel": 0.03,
     "pickaxeBaseOreMultiply": 0.0,
     "pickaxeIncrementOreMultiplyPerLevel": 0.2,
     "pickaxeMaxLevel": 999

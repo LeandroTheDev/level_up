@@ -8,7 +8,7 @@ namespace LevelUP.Client;
 class Instance
 {
     public ICoreClientAPI api;
-    public IClientNetworkChannel communicationChannel;
+    public IClientNetworkChannel CommunicationChannel;
     public Dictionary<string, bool> enabledLevels = [];
 
     long temporaryTickListener;
@@ -27,18 +27,18 @@ class Instance
     {
         api = clientAPI;
         characterView.Init(this);
-        communicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
-        communicationChannel.SetMessageHandler<ServerMessage>(OnServerMessage);
+        CommunicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
+        CommunicationChannel.SetMessageHandler<ServerMessage>(OnServerMessage);
         temporaryTickListener = api.Event.RegisterGameTickListener(OnTick, 1000, 1000);
         Debug.Log("Client side fully initialized");
     }
 
     private void OnTick(float obj)
     {
-        if (communicationChannel.Connected)
+        if (CommunicationChannel.Connected)
         {
-            communicationChannel.SendPacket(new ServerMessage() { message = "UpdateLevels" });
-            communicationChannel.SendPacket(new ServerMessage() { message = "GetEnabledLevels" });
+            CommunicationChannel.SendPacket(new ServerMessage() { message = "UpdateLevels" });
+            CommunicationChannel.SendPacket(new ServerMessage() { message = "GetEnabledLevels" });
             api.Event.UnregisterGameTickListener(temporaryTickListener);
             Debug.Log("Channel connected and instances refreshed");
         }

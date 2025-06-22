@@ -10,6 +10,7 @@ class LevelHunter
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Configuration.RegisterNewLevelTypeEXP("Hunter", Configuration.HunterGetLevelByEXP);
 
         Debug.Log("Level Hunter initialized");
     }
@@ -18,6 +19,7 @@ class LevelHunter
     {
         // Populate configuration
         Configuration.PopulateHunterConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Hunter", Configuration.hunterMaxLevel);
     }
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
@@ -37,7 +39,6 @@ class LevelHunter
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Hunter");
-        if (Configuration.HunterIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hunter exp earned: {exp}, actual: {playerExp}");
 

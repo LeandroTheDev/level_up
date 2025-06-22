@@ -11,6 +11,7 @@ class LevelSword
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Configuration.RegisterNewLevelTypeEXP("Sword", Configuration.SwordGetLevelByEXP);
 
         Debug.Log("Level Sword initialized");
     }
@@ -20,6 +21,7 @@ class LevelSword
     {
         // Populate configuration
         Configuration.PopulateSwordConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("Sword", Configuration.swordMaxLevel);
     }
 #pragma warning restore CA1822
 
@@ -46,7 +48,6 @@ class LevelSword
 
         // Get the actual player total exp
         ulong playerExp = Experience.GetExperience(player, "Sword");
-        if (Configuration.SwordIsMaxLevel(playerExp)) return;
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, sword exp earned: {exp}, actual: {playerExp}");
 

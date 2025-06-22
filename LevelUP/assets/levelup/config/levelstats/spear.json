@@ -1,11 +1,11 @@
 {
     "spearEXPPerHit": 10,
     "spearEXPPerThrow": 20,
-    "spearEXPPerLevelBase": 100,
-    "spearEXPMultiplyPerLevel": 1.5,
+    "spearEXPPerLevelBase": 500,
+    "spearEXPMultiplyPerLevel": 1.3,
     "spearBaseDamage": 1.0,
     "spearIncrementDamagePerLevel": 0.1,
-    "spearBaseAimAccuracy": 0.7,
+    "spearBaseAimAccuracy": 0.8,
     "spearIncreaseAimAccuracyPerLevel": 0.03,
     "spearMaxLevel": 999
 }

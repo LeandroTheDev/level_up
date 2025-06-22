@@ -6,6 +6,7 @@ class LevelLeatherArmor
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevelTypeEXP("LeatherArmor", Configuration.LeatherArmorGetLevelByEXP);
         Debug.Log("Level Leather Armor initialized");
     }
 
@@ -13,6 +14,7 @@ class LevelLeatherArmor
     {
         // Populate configuration
         Configuration.PopulateLeatherArmorConfiguration(coreAPI);
+        Configuration.RegisterNewMaxLevelByLevelTypeEXP("LeatherArmor", Configuration.leatherArmorMaxLevel);
     }
 #pragma warning restore CA1822
 }

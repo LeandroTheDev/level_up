@@ -410,7 +410,7 @@ public class Experience
             File.WriteAllText(levelFile, levelJsonString);
         }
 
-        Debug.LogDebug($"{player.PlayerName} saved");
+        Debug.LogDebug($"{player.PlayerName} saved to the path: {playerDirectory}");
     }
 
     /// <summary>
