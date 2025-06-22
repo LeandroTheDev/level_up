@@ -497,26 +497,33 @@ public class Experience
     /// <param name="amount">Amount of experience earned</param>
     static private void IncrementExperience(IPlayer player, string type, ulong amount)
     {
-        if (!_playerLoadedExperience.TryGetValue(player.PlayerUID, out _))
-            _playerLoadedExperience.Add(player.PlayerUID, []);
+        try
+        {
+            if (!_playerLoadedExperience.TryGetValue(player.PlayerUID, out _))
+                _playerLoadedExperience.Add(player.PlayerUID, []);
 
-        if (!_playerLoadedExperience[player.PlayerUID].TryGetValue(type, out _))
-            _playerLoadedExperience[player.PlayerUID].Add(type, []);
+            if (!_playerLoadedExperience[player.PlayerUID].TryGetValue(type, out _))
+                _playerLoadedExperience[player.PlayerUID].Add(type, []);
 
-        if (!_playerLoadedExperience[player.PlayerUID][type].TryGetValue("experience", out _))
-            _playerLoadedExperience[player.PlayerUID][type].Add("experience", 0);
+            if (!_playerLoadedExperience[player.PlayerUID][type].TryGetValue("experience", out _))
+                _playerLoadedExperience[player.PlayerUID][type].Add("experience", 0);
 
-        amount = ExperienceEvents.GetExternalAmountIncrease(player, type, amount);
+            amount = ExperienceEvents.GetExternalAmountIncrease(player, type, amount);
 
-        if (Configuration.CheckMaxLevelByLevelTypeEXP(type, _playerLoadedExperience[player.PlayerUID][type]["experience"] + amount))
-            return;
+            if (Configuration.CheckMaxLevelByLevelTypeEXP(type, _playerLoadedExperience[player.PlayerUID][type]["experience"] + amount))
+                return;
 
-        _playerLoadedExperience[player.PlayerUID][type]["experience"] += amount;
+            _playerLoadedExperience[player.PlayerUID][type]["experience"] += amount;
 
-        Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
+            Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
 
-        if (Configuration.enableLevelUpExperienceServerLog)
-            Debug.Log($"[EXPERIENCE] {player.PlayerName}: {amount}, {type}");
+            if (Configuration.enableLevelUpExperienceServerLog)
+                Debug.Log($"[EXPERIENCE] {player.PlayerName}: {amount}, {type}");
+        }
+        catch (Exception nex)
+        {
+            Debug.LogError(nex.Message);
+        }
     }
 
     /// <summary>

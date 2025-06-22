@@ -402,7 +402,7 @@ public static class Configuration
     public static bool CheckMaxLevelByLevelTypeEXP(string levelType, ulong exp)
     {
         if (maxLevels.TryGetValue(levelType, out int maxLevel))
-            return maxLevel >= GetLevelByLevelTypeEXP(levelType, exp);
+            return maxLevel <= GetLevelByLevelTypeEXP(levelType, exp);
 
         Debug.LogWarn($"WARNING: {levelType} doesn't belong to the function CheckMaxLevelByLevelTypeEXP did you forget to add it? check the wiki");
         return false;
@@ -3866,7 +3866,7 @@ public static class Configuration
                     foreach (KeyValuePair<string, object> configuration in configClass)
                     {
                         // Configuration addition
-                        RegisterNewClassLevel(configname, configuration.Key, (float)configuration.Value);
+                        RegisterNewClassLevel(configname, configuration.Key, Convert.ToSingle(configuration.Value));
                     }
                     Debug.Log($"{configname} configuration set");
                 }
@@ -3886,37 +3886,37 @@ public static class Configuration
             Dictionary<string, object> hunterclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "hunterclass", "levelup:config/classexp/hunterclass.json");
             foreach (KeyValuePair<string, object> pair in hunterclass)
             {
-                RegisterNewClassLevel("hunterclass", pair.Key, (float)pair.Value);
+                RegisterNewClassLevel("hunterclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
             Dictionary<string, object> commonerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "commonerclass", "levelup:config/classexp/commonerclass.json");
             foreach (KeyValuePair<string, object> pair in commonerclass)
             {
-                RegisterNewClassLevel("commonerclass", pair.Key, (float)pair.Value);
+                RegisterNewClassLevel("commonerclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
             Dictionary<string, object> blackguardclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "blackguardclass", "levelup:config/classexp/blackguardclass.json");
             foreach (KeyValuePair<string, object> pair in blackguardclass)
             {
-                RegisterNewClassLevel("blackguardclass", pair.Key, (float)pair.Value);
+                RegisterNewClassLevel("blackguardclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
             Dictionary<string, object> clockmakerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "clockmakerclass", "levelup:config/classexp/clockmakerclass.json");
             foreach (KeyValuePair<string, object> pair in clockmakerclass)
             {
-                RegisterNewClassLevel("clockmakerclass", pair.Key, (float)pair.Value);
+                RegisterNewClassLevel("clockmakerclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
             Dictionary<string, object> malefactorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "malefactorclass", "levelup:config/classexp/malefactorclass.json");
             foreach (KeyValuePair<string, object> pair in malefactorclass)
             {
-                RegisterNewClassLevel("malefactorclass", pair.Key, (float)pair.Value);
+                RegisterNewClassLevel("malefactorclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
             Dictionary<string, object> tailorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "tailorclass", "levelup:config/classexp/tailorclass.json");
             foreach (KeyValuePair<string, object> pair in tailorclass)
             {
-                RegisterNewClassLevel("tailorclass", pair.Key, (float)pair.Value);
+                RegisterNewClassLevel("tailorclass", pair.Key, Convert.ToSingle(pair.Value));
             }
         }
     }
