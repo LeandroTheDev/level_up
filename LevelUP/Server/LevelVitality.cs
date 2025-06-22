@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -57,6 +54,11 @@ class LevelVitality
                 _playerLoadedVitality[player.PlayerUID] = lastHealth;
             else
                 Debug.LogError($"[VITALITY] {player.PlayerName} has any invalid vitality health: {lastHealthString}");
+        }
+        else
+        {
+            _playerLoadedVitality[player.PlayerUID] = Configuration.BaseHPVitality;
+            Debug.LogDebug($"Cannot find the player: {player.PlayerName} previous health, probably is the first login, setting HP to: {Configuration.BaseHPVitality}");
         }
     }
 
@@ -125,13 +127,13 @@ class LevelVitality
         // Get player stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
         // Check if stats is null
-        if (playerStats == null) { Debug.LogError($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
+        if (playerStats == null) { Debug.LogError($"[VITALITY] ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
 
         // Getting health stats
         float playerMaxHealth = Configuration.VitalityGetMaxHealthByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
         if (float.IsInfinity(playerMaxHealth))
         {
-            Debug.LogError($"ERROR: Max health calculation returned any infinity number, please report this issue, base health set to {Configuration.BaseHPVitality}");
+            Debug.LogError($"[VITALITY] ERROR: Max health calculation returned any infinity number, please report this issue, base health set to {Configuration.BaseHPVitality}");
             playerMaxHealth = Configuration.BaseHPVitality;
         }
 
@@ -139,7 +141,7 @@ class LevelVitality
         float playerRegen = Configuration.VitalityGetHealthRegenMultiplyByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
         if (float.IsInfinity(playerRegen))
         {
-            Debug.LogError($"ERROR: Regeneration calculation returned any infinity number, please report this issue, base regen set to {Configuration.BaseHPRegenVitality}");
+            Debug.LogError($"[VITALITY] ERROR: Regeneration calculation returned any infinity number, please report this issue, base regen set to {Configuration.BaseHPRegenVitality}");
             playerRegen = Configuration.BaseHPRegenVitality;
         }
 
@@ -156,7 +158,7 @@ class LevelVitality
         else
         {
             playerStats.Health = playerMaxHealth;
-            Debug.LogDebug($"Cannot find the player: {player.PlayerName} previous health, probably is the first login");
+            Debug.LogError($"[VITALITY] Cannot find the player: {player.PlayerName} health, something goes wrong");
         }
 
         Debug.LogDebug($"[VITALITY] {player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
@@ -166,16 +168,16 @@ class LevelVitality
     private void PlayerDisconnect(IServerPlayer player)
     {
         // Disconnected during the loading
-        if (player == null && player.Entity == null) return;
+        if (player.Entity == null) { Debug.LogDebug($"[VITALITY] {player.PlayerName} entity is null"); return; }
 
         // Get stats
         EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
-        if (playerStats == null) { Debug.LogError($"ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
+        if (playerStats == null) { Debug.LogError($"[VITALITY] ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
 
         // Check error treatment
         if (float.IsInfinity(playerStats.Health))
         {
-            Debug.LogError($"ERROR SAVING PLAYER STATE: Player Health is infinity, caused by {player.PlayerName} setting the health to {Configuration.BaseHPVitality}");
+            Debug.LogError($"[VITALITY] ERROR SAVING PLAYER STATE: Player Health is infinity, caused by {player.PlayerName} setting the health to {Configuration.BaseHPVitality}");
             _playerLoadedVitality[player.PlayerUID] = Configuration.BaseHPVitality;
         }
         // Update it
