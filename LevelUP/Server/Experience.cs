@@ -635,10 +635,13 @@ public class Experience
         if (!_playerLoadedExperience[player.PlayerUID].TryGetValue(type, out _))
             _playerLoadedExperience[player.PlayerUID].Add(type, []);
 
-        if (_playerLoadedExperience[player.PlayerUID][type].TryGetValue("experience", out _))
+        if (!_playerLoadedExperience[player.PlayerUID][type].TryGetValue("experience", out _))
             _playerLoadedExperience[player.PlayerUID][type].Add("experience", 0);
+        else
+            _playerLoadedExperience[player.PlayerUID][type]["experience"] -= amount;
 
-        _playerLoadedExperience[player.PlayerUID][type]["experience"] -= amount;
+        if (_playerLoadedExperience[player.PlayerUID][type]["experience"] < 0)
+            _playerLoadedExperience[player.PlayerUID][type]["experience"] = 0;
 
         Shared.Instance.UpdateLevelAndNotify(null, player, type, amount, true);
     }
