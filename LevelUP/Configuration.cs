@@ -108,9 +108,9 @@ public static class Configuration
     public static bool enableLevelBrigandineArmor = true;
     public static bool enableLevelPlateArmor = true;
     public static bool enableLevelScaleArmor = true;
-    public static bool enableLevelSmithing = true;
-    public static int cookingFirePitOverflow = 10;
+    public static bool enableLevelSmithing = true;    
     public static int minimumEXPEarned = 1;
+    public static bool enableLevelUPUIDSecurity = false;
     public static bool enableLevelUpChatMessages = false;
     public static bool enableLevelUpExperienceServerLog = false;
     public static bool enableExtendedLog = false;
@@ -241,7 +241,6 @@ public static class Configuration
                 else enableLevelFarming = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: enableLevelFarming not set");
         }
-
         { //enableLevelCooking
             if (baseConfigs.TryGetValue("enableLevelCooking", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelCooking is null");
@@ -305,19 +304,19 @@ public static class Configuration
                 else enableLevelSmithing = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: enableLevelSmithing not set");
         }
-        { //cookingFirePitOverflow
-            if (baseConfigs.TryGetValue("cookingFirePitOverflow", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingFirePitOverflow is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingFirePitOverflow is not int is {value.GetType()}");
-                else cookingFirePitOverflow = (int)(long)value;
-            else Debug.LogError("CONFIGURATION ERROR: cookingFirePitOverflow not set");
-        }
         { //minimumEXPEarned
             if (baseConfigs.TryGetValue("minimumEXPEarned", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: minimumEXPEarned is null");
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: minimumEXPEarned is not int is {value.GetType()}");
                 else minimumEXPEarned = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: minimumEXPEarned not set");
+        }
+        { //enableLevelUPUIDSecurity
+            if (baseConfigs.TryGetValue("enableLevelUPUIDSecurity", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelUPUIDSecurity is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelUPUIDSecurity is not boolean is {value.GetType()}");
+                else enableLevelUPUIDSecurity = (bool)value;
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelUPUIDSecurity not set");
         }
         { //enableLevelUpChatMessages
             if (baseConfigs.TryGetValue("enableLevelUpChatMessages", out object value))

@@ -24,8 +24,8 @@
     "enableLevelPlateArmor": true,
     "enableLevelScaleArmor": true,
     "enableLevelSmithing": true,
-    "cookingFirePitOverflow": 10,
     "minimumEXPEarned": 1,
+    "enableLevelUPUIDSecurity": false,
     "enableLevelUpChatMessages": true,
     "enableLevelUpExperienceServerLog": false,
     "enableExtendedLog": false

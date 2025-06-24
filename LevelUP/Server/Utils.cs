@@ -11,7 +11,7 @@ partial class Utils
     // that will throw any exception and disconnect the player
     static public bool ValidatePlayerUID(IPlayer player)
     {
-        if (Instance.api != null)
+        if (Instance.api != null && Configuration.enableLevelUPUIDSecurity)
         {
             if (player.PlayerUID.Length > 24)
             {
@@ -19,15 +19,13 @@ partial class Utils
                 return false;
             }
 
-            // Verifica se contém mais de uma barra
             if (player.PlayerUID.Split('/').Length - 1 > 1)
             {
                 Debug.LogError($"[LEVELUP SECURITY] player.PlayerUID invalid, more than one bar: {player.PlayerUID}, levelup is bloking the user {player.PlayerName} from saving or loading experience, you are probably using a dedicated server with authentication disabled, and the player is using any invalid UID");
                 return false;
             }
 
-            // Verifica se contém apenas letras, números e no máximo uma barra
-            if (!NumbersAndLetters().IsMatch(player.PlayerUID))
+            if (!NumbersAndLetters().IsMatch(player.PlayerUID) || player.PlayerUID.Contains('.'))
             {
                 Debug.LogError($"[LEVELUP SECURITY] player.PlayerUID contains invalid characters: {player.PlayerUID}, levelup is bloking the user {player.PlayerName} from saving or loading experience, you are probably using a dedicated server with authentication disabled, and the player is using any invalid UID");
                 return false;
@@ -36,6 +34,6 @@ partial class Utils
         return true;
     }
 
-    [GeneratedRegex("^[a-zA-Z0-9/]+$")]
+    [GeneratedRegex(@"^[a-zA-Z0-9!@#$%&_+\-/]+$")]
     private static partial Regex NumbersAndLetters();
 }
