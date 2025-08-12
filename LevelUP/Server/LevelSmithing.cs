@@ -4,8 +4,6 @@ namespace LevelUP.Server;
 
 class LevelSmithing
 {
-    public Instance instance;
-
 #pragma warning disable CA1822
     public void Init()
     {

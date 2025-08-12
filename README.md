@@ -1,6 +1,12 @@
 # Level UP
 Add a new mechanic to vintage story, a new level system to make your character stronger and efficient during the gameplay, making your feels you are progressing through the gameplay.
 
+| Mod           | Compatibility                        |
+|----------------|------------------------------------|
+| Item Rarity    | Not compatible with Smithing Level  |
+| XSkills       | Not compatible with Cooking Level   |
+| CombatOverhaul | Not compatible with Bow Level       |
+
 ### IMPORTANT
 This mod drastically changes the player status and its not recoverable in normal ways, PLEASE make a backup of your world, to reset players status you will need to use specific commands, please review the [Wiki-Commands](https://github.com/LeandroTheDev/level_up/wiki/Commands) to get more information to reset player status.
 
@@ -28,7 +34,7 @@ Level UP Stores datas with the player UID, changing the player name will persist
 
 This mod changes a lot of native codes and can break easily throught updates.
 
-Level UP is a mod that adds several types of events to player actions, don't expect the mod to be lightweight.
+Level UP is a mod that adds several types of events to player actions, don't expect the mod to be lightweight (for servers).
 
 Hardcore mode will not reduce the level, only the progress to the next level.
 
