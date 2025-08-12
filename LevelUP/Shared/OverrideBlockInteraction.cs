@@ -61,8 +61,7 @@ public class OverwriteBlockInteraction
         // Earn xp by harvesting the entity
         Experience.IncreaseExperience(byPlayer, "Knife", "Harvest");
 
-        Debug.LogDebug($"{byPlayer.PlayerName} harvested any entity with knife, multiply drop: {dropRate}, values: {Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))}");
-
+        Debug.LogDebug($"{byPlayer.PlayerName} harvested any entity with knife, multiply drop: {dropRate}/{byPlayer.Entity.Stats.GetBlended("animalLootDropRate")}");
     }
     #endregion
 
