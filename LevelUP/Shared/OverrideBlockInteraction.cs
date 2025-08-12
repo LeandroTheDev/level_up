@@ -42,28 +42,27 @@ public class OverwriteBlockInteraction
     #region knife
     // Overwrite Knife Harvesting
     [HarmonyPrefix]
-    [HarmonyPatch(typeof(EntityBehaviorHarvestable), "SetHarvested")]
-    public static void SetHarvestedKnifeStart(EntityBehaviorHarvestable __instance, IPlayer byPlayer, ref float dropQuantityMultiplier)
+    [HarmonyPatch(typeof(EntityBehaviorHarvestable), "GenerateDrops")]
+    public static void GenerateDropsStart(EntityBehaviorHarvestable __instance, IPlayer byPlayer)
     {
         if (!Configuration.enableLevelKnife) return;
+        if (__instance.entity.World.Side != EnumAppSide.Server) return;
 
-        // Check if is from the server
-        if (__instance.entity.World.Side == EnumAppSide.Server)
-        {
-            // Get the final droprate
-            float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
+        // Get the final droprate
+        float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
 
-            // Increasing entity drop rate
-            dropQuantityMultiplier += dropRate;
+        // Integration
+        dropRate = OverwriteBlockInteractionEvents.GetExternalKnifeHarvest(byPlayer, dropRate);
 
-            // Integration
-            dropQuantityMultiplier = OverwriteBlockInteractionEvents.GetExternalKnifeHarvest(byPlayer, dropQuantityMultiplier);
+        // Don't worry, it will be reseted automatically by the game
+        // For some reason the -1 is necessary for this Set function so it will calculated at 0
+        byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate - 1f);
 
-            // Earn xp by harvesting the entity
-            Experience.IncreaseExperience(byPlayer, "Knife", "Harvest");
+        // Earn xp by harvesting the entity
+        Experience.IncreaseExperience(byPlayer, "Knife", "Harvest");
 
-            Debug.LogDebug($"{byPlayer.PlayerName} harvested any entity with knife, multiply drop: {dropRate}, values: {Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))}");
-        }
+        Debug.LogDebug($"{byPlayer.PlayerName} harvested any entity with knife, multiply drop: {dropRate}, values: {Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))}");
+
     }
     #endregion
 
@@ -96,25 +95,28 @@ public class OverwriteBlockInteraction
     public static void GetDropsBerryBushFinish(BlockBerryBush __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref float dropQuantityMultiplier)
     {
         if (!Configuration.enableLevelFarming) return;
+        if (byPlayer == null || world.Side != EnumAppSide.Server) return;
 
-        if (byPlayer != null && world.Side == EnumAppSide.Server)
-        {
-            // Increasing the quantity drop multiply by the farming level
-            dropQuantityMultiplier = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
+        // Increasing the quantity drop multiply by the farming level
+        float multiply = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
 
-            Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.Code}, by breaking");
+        Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.Code}, by breaking multiply of: {multiply}");
 
-            ulong exp = 0;
+        ulong exp = 0;
 
-            // Check the berry existence
-            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int intExp))
-                exp = (ulong)intExp;
+        // Check the berry existence
+        if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int intExp))
+            exp = (ulong)intExp;
 
-            OverwriteBlockInteractionEvents.UpdateFromExternalFarmForage(byPlayer, __instance.Code.ToString(), ref exp, ref dropQuantityMultiplier);
+        OverwriteBlockInteractionEvents.UpdateFromExternalFarmForage(byPlayer, __instance.Code.ToString(), ref exp, ref multiply);
 
-            if (exp > 0)
-                Experience.IncreaseExperience(byPlayer, "Farming", exp);
-        }
+        if (exp > 0)
+            Experience.IncreaseExperience(byPlayer, "Farming", exp);
+
+        // Don't worry, it will be reseted automatically by the game
+        // For some reason the -1 is necessary for this Set function so it will calculated at 0
+        byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", multiply - 1f);
+
     }
 
     // Overwrite Berry Forage while interacting
@@ -122,9 +124,6 @@ public class OverwriteBlockInteraction
     [HarmonyPatch(typeof(BlockBehaviorHarvestable), "OnBlockInteractStop")]
     public static void OnBlockInteractStopStart(BlockBehaviorHarvestable __instance, float secondsUsed, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handled)
     {
-        // We temporary store the droprate to be reseted after the function called
-        byPlayer.Entity.Stats.Set("forageDropRatePreviously", "forageDropRatePreviously", byPlayer.Entity.Stats.GetBlended("forageDropRate"));
-
         if (!Configuration.enableLevelFarming) return;
         if (byPlayer != null && world.Side != EnumAppSide.Server) return;
 
@@ -140,19 +139,11 @@ public class OverwriteBlockInteraction
         if (exp > 0)
             Experience.IncreaseExperience(byPlayer, "Farming", exp);
 
+        // Don't worry, it will be reseted automatically by the game
+        // For some reason the -1 is necessary for this Set function so it will calculated at 0
+        byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", multiply - 1f);
 
-        // This is necessary unfurtunally because the devs forgot to add the "dropQuantityMultiplier" on the function
-        // we are changing the drop rate from entity status, that is very dangerous but is the only way...
-        byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", multiply);
-
-        Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.block.Code}, by right clicking");
-    }
-    [HarmonyPostfix] // This is necessary to back to default value after the function is complete
-    [HarmonyPatch(typeof(BlockBehaviorHarvestable), "OnBlockInteractStop")]
-    public static void OnBlockInteractStopFinish(BlockBehaviorHarvestable __instance, float secondsUsed, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handled)
-    {
-        // After the function called we need to reset the forage if changed
-        byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", byPlayer.Entity.Stats.GetBlended("forageDropRatePreviously"));
+        Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.block.Code}, by right clicking multiply of: {multiply}/{byPlayer.Entity.Stats.GetBlended("forageDropRate")}");
     }
 
     // Overwrite Mushroom Forage
@@ -161,18 +152,26 @@ public class OverwriteBlockInteraction
     public static void GetDropsMushroomFinish(BlockMushroom __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref float dropQuantityMultiplier)
     {
         if (!Configuration.enableLevelFarming) return;
+        if (byPlayer != null && world.Side != EnumAppSide.Server) return;
 
-        if (byPlayer != null && world.Side == EnumAppSide.Server)
-        {
-            // Increasing the quantity drop multiply by the farming level
-            dropQuantityMultiplier = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
+        // Increasing the quantity drop multiply by the farming level
+        ulong exp = 0;
+        float multiply = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
 
-            Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.Code}");
+        // Check the berry existence
+        if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int intExp))
+            exp = (ulong)intExp;
 
-            // Check the berry existence
-            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int exp))
-                Experience.IncreaseExperience(byPlayer, "Farming", (ulong)exp);
-        }
+        OverwriteBlockInteractionEvents.UpdateFromExternalFarmForage(byPlayer, __instance.Code.ToString(), ref exp, ref multiply);
+
+        if (exp > 0)
+            Experience.IncreaseExperience(byPlayer, "Farming", exp);
+
+        // Don't worry, it will be reseted automatically by the game
+        // For some reason the -1 is necessary for this Set function so it will calculated at 0
+        byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", multiply - 1f);
+
+        Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.Code} multiply: {multiply}/{byPlayer.Entity.Stats.GetBlended("forageDropRate")}");
     }
     #endregion
 
