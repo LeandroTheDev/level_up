@@ -108,7 +108,7 @@ public static class Configuration
     public static bool enableLevelBrigandineArmor = true;
     public static bool enableLevelPlateArmor = true;
     public static bool enableLevelScaleArmor = true;
-    public static bool enableLevelSmithing = true;    
+    public static bool enableLevelSmithing = true;
     public static int minimumEXPEarned = 1;
     public static bool enableLevelUPUIDSecurity = false;
     public static bool enableLevelUpChatMessages = false;
@@ -3814,6 +3814,8 @@ public static class Configuration
             {
                 { levelType, multiply }
             });
+
+        Debug.LogDebug($"Class added: {currentClass} levelType: {levelType} multiply: {multiply}");
     }
     public static float GetEXPMultiplyByClassAndLevelType(string playerClass, string levelType)
     {

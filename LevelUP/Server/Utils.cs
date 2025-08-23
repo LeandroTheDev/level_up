@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using LevelUP;
 using LevelUP.Server;
@@ -32,6 +33,41 @@ partial class Utils
             }
         }
         return true;
+    }
+
+    static readonly Dictionary<char, string> map = new()
+    {
+        { '/', "$1" },
+        { '$', "$2" },
+        { '@', "$3" },
+        { '!', "$4" },
+        { '#', "$5" },
+        { '%', "$6" },
+        { '&', "$7" },
+        { '*', "$8" },
+        { '_', "$9" },
+        { '-', "$10" }
+    };
+
+    /// <summary>
+    /// Automatically converts the player uid to a safer folder system
+    /// </summary>
+    static public string ConvertPlayerUID(string uid)
+    {
+        if (string.IsNullOrEmpty(uid))
+            return "INVALID_UID";
+
+        var result = new System.Text.StringBuilder();
+
+        foreach (char c in uid)
+        {
+            if (map.TryGetValue(c, out string replacement))
+                result.Append(replacement);
+            else
+                result.Append(c);
+        }
+
+        return result.ToString();
     }
 
     [GeneratedRegex(@"^[a-zA-Z0-9!@#$%&_+\-/]+$")]
