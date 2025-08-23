@@ -779,6 +779,8 @@ public class OverwriteBlockInteraction
 
             durability = (int)Math.Round(item.Collectible.Durability * multiply);
             maxDurability = (int)Math.Round(item.Collectible.GetMaxDurability(item) * multiply);
+
+            Debug.LogDebug($"[Smithing] Craft new durability: {maxDurability}");
         }
 
         foreach (KeyValuePair<string, int> kvp in Configuration.expPerCraftSmithing)
@@ -799,6 +801,8 @@ public class OverwriteBlockInteraction
                     for (int i = 0; i < item.StackSize; i++)
                     {
                         Experience.IncreaseExperience(player, "Smithing", (ulong)exp);
+
+                        Debug.LogDebug($"[Smithing] Craft levelType: {levelType}");
 
                         // If the levelType is null, is a tool
                         if (levelType == null)
@@ -965,6 +969,8 @@ public class OverwriteBlockInteraction
                                 }
                             }
                         }
+
+                        Debug.LogDebug($"[Smithing] Craft tool: {item.Item.Tool}");
 
                         // Increasing sub tool levels
                         switch (item.Item.Tool)
@@ -1137,6 +1143,10 @@ public class OverwriteBlockInteraction
 
                                 Debug.LogDebug($"{player.PlayerName} crafted any armor protection increased to: {multiplyProtection}");
                             }
+                        }
+                        else
+                        {
+                            Debug.LogWarn($"[Smithing] Not a tool, and not a armor, unhandled item: {item.Collectible.Code}");
                         }
                     }
                 }
