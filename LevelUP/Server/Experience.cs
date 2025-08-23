@@ -50,6 +50,22 @@ public class Experience
     static internal void LoadPlayer(IPlayer player)
     {
         string playerDirectory = Path.Combine(_saveDirectory, player.PlayerUID);
+
+        // Conversion to the safe UID
+        {
+            string correctDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
+            // Wrong directory exists, lets move it
+            if (Directory.Exists(playerDirectory))
+            {
+                Debug.LogWarn($"{player.PlayerUID} is saved on unsafe directory, levelup will move from: {playerDirectory} to {correctDirectory}");
+                Directory.Move(playerDirectory, correctDirectory);
+            }
+        }
+
+        Debug.LogDebug($"Loading {player.PlayerName} experience: {Utils.ConvertPlayerUID(player.PlayerUID)}");
+
+        playerDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
+
         Directory.CreateDirectory(playerDirectory);
 
         if (_playerLoadedExperience.ContainsKey(player.PlayerUID)) _playerLoadedExperience.Remove(player.PlayerUID);
@@ -98,7 +114,7 @@ public class Experience
     /// <param name="player"></param>
     static private void SavePlayer(IPlayer player)
     {
-        string playerDirectory = Path.Combine(_saveDirectory, player.PlayerUID);
+        string playerDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
         Directory.CreateDirectory(playerDirectory);
 
         foreach (string levelName in _playerLoadedExperience[player.PlayerUID].Keys)

@@ -50,6 +50,22 @@ class LevelVitality
         }
 
         string playerDirectory = Path.Combine(_saveDirectory, player.PlayerUID);
+
+        // Conversion to the safe UID
+        {
+            string correctDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
+            // Wrong directory exists, lets move it
+            if (Directory.Exists(playerDirectory))
+            {
+                Debug.LogWarn($"{player.PlayerUID} is saved on unsafe directory, levelup will move from: {playerDirectory} to {correctDirectory}");
+                Directory.Move(playerDirectory, correctDirectory);
+            }
+        }
+
+        Debug.LogDebug($"Loading {player.PlayerName} vitality: {Utils.ConvertPlayerUID(player.PlayerUID)}");
+
+        playerDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
+
         Directory.CreateDirectory(playerDirectory);
 
         string lastHealthFile = Path.Combine(playerDirectory, "lastHealth.txt");
@@ -93,7 +109,7 @@ class LevelVitality
     {
         if (!Utils.ValidatePlayerUID(player)) return;
 
-        string playerDirectory = Path.Combine(_saveDirectory, player.PlayerUID);
+        string playerDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
         Directory.CreateDirectory(playerDirectory);
 
         string lastHealthFile = Path.Combine(playerDirectory, "lastHealth.txt");
