@@ -57,8 +57,11 @@ class LevelVitality
             // Wrong directory exists, lets move it
             if (Directory.Exists(playerDirectory))
             {
-                Debug.LogWarn($"{player.PlayerUID} is saved on unsafe directory, levelup will move from: {playerDirectory} to {correctDirectory}");
-                Directory.Move(playerDirectory, correctDirectory);
+                if (playerDirectory != correctDirectory)
+                {
+                    Debug.LogWarn($"{player.PlayerUID} is saved on unsafe directory, levelup will move from: {playerDirectory} to {correctDirectory}");
+                    Directory.Move(playerDirectory, correctDirectory);
+                }
             }
         }
 
