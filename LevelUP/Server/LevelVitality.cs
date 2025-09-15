@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Vintagestory.API.Common;
@@ -200,22 +201,28 @@ class LevelVitality
 
     private void PlayerDisconnect(IServerPlayer player)
     {
-        // Disconnected during the loading
-        if (player.Entity == null) { Debug.LogDebug($"[VITALITY] {player.PlayerName} entity is null"); return; }
-
-        // Get stats
-        EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
-        if (playerStats == null) { Debug.LogError($"[VITALITY] ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
-
-        // Check error treatment
-        if (float.IsInfinity(playerStats.Health))
+        try
         {
-            Debug.LogError($"[VITALITY] ERROR SAVING PLAYER STATE: Player Health is infinity, caused by {player.PlayerName} setting the health to {Configuration.BaseHPVitality}");
-            _playerLoadedVitality[player.PlayerUID] = Configuration.BaseHPVitality;
-        }
-        // Update it
-        else _playerLoadedVitality[player.PlayerUID] = playerStats.Health;
+            // Disconnected during the loading
+            if (player.Entity == null) { Debug.LogDebug($"[VITALITY] {player.PlayerName} entity is null"); return; }
 
-        UnloadPlayer(player);
+            // Get stats
+            EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
+            if (playerStats == null) { Debug.LogError($"[VITALITY] ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
+
+            // Check error treatment
+            if (float.IsInfinity(playerStats.Health))
+            {
+                Debug.LogError($"[VITALITY] ERROR SAVING PLAYER STATE: Player Health is infinity, caused by {player.PlayerName} setting the health to {Configuration.BaseHPVitality}");
+                _playerLoadedVitality[player.PlayerUID] = Configuration.BaseHPVitality;
+            }
+            // Update it
+            else _playerLoadedVitality[player.PlayerUID] = playerStats.Health;
+        }
+        catch (Exception) { }
+        finally
+        {
+            UnloadPlayer(player);
+        }
     }
 }
