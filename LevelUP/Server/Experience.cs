@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
@@ -151,6 +152,27 @@ public class Experience
     }
 
     /// <summary>
+    /// Calculation of the remaining experience for the next level
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="type">Level type</param>
+    static internal void CalculateRemainingExperience(IPlayer player, string type)
+    {
+        ulong currentExp = GetExperience(player, type);
+        int playerLevel = Configuration.GetLevelByLevelTypeEXP(type, currentExp);
+        ulong minimumExp = Configuration.GetEXPByLevelTypeLevel(playerLevel, type);
+        ulong maximumExp = Configuration.GetEXPByLevelTypeLevel(playerLevel + 1, type);
+
+        ulong range = maximumExp - minimumExp;
+        float progress = range > 0
+            ? (float)(currentExp - minimumExp) / range
+            : 1f;
+        float percent = progress * 100f;
+
+        player.Entity.WatchedAttributes.SetFloat($"LevelUP_Level_{type}_RemainingNextLevelPercentage", percent);
+    }
+
+    /// <summary>
     ///  Increase the experience with a reason
     /// </summary>
     /// <param name="player">Player instance</param>
@@ -174,6 +196,8 @@ public class Experience
         float classMultiply = Configuration.GetEXPMultiplyByClassAndLevelType(playerClass, type);
 
         IncrementExperience(player, type, (ulong)Math.Round(experienceEarned * classMultiply));
+
+        CalculateRemainingExperience(player, type);
     }
 
     /// <summary>
@@ -189,6 +213,8 @@ public class Experience
         float classMultiply = Configuration.GetEXPMultiplyByClassAndLevelType(playerClass, type);
 
         IncrementExperience(player, type, (ulong)Math.Round(experienceEarned * classMultiply));
+
+        CalculateRemainingExperience(player, type);
     }
 
     /// <summary>

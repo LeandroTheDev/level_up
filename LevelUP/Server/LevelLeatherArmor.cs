@@ -7,6 +7,8 @@ class LevelLeatherArmor
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("LeatherArmor", Configuration.LeatherArmorGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("LeatherArmor", Configuration.LeatherArmorGetExpByLevel);
+
         Debug.Log("Level Leather Armor initialized");
     }
 

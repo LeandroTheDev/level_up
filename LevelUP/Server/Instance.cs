@@ -267,7 +267,7 @@ public class Instance
         { // Hunter
             ulong exp = Experience.GetExperience(player, "Hunter");
             int currentLevel = Configuration.HunterGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.HunterGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.HunterGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -277,7 +277,7 @@ public class Instance
         { // Bow
             ulong exp = Experience.GetExperience(player, "Bow");
             int currentLevel = Configuration.BowGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.BowGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.BowGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -287,7 +287,7 @@ public class Instance
         { // Knife
             ulong exp = Experience.GetExperience(player, "Knife");
             int currentLevel = Configuration.KnifeGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.KnifeGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.KnifeGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -297,7 +297,7 @@ public class Instance
         { // Axe
             ulong exp = Experience.GetExperience(player, "Axe");
             int currentLevel = Configuration.AxeGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.AxeGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.AxeGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -307,7 +307,7 @@ public class Instance
         { // Pickaxe
             ulong exp = Experience.GetExperience(player, "Pickaxe");
             int currentLevel = Configuration.PickaxeGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.PickaxeGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.PickaxeGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -317,7 +317,7 @@ public class Instance
         { // Shovel
             ulong exp = Experience.GetExperience(player, "Shovel");
             int currentLevel = Configuration.ShovelGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.ShovelGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.ShovelGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -327,7 +327,7 @@ public class Instance
         { // Spear
             ulong exp = Experience.GetExperience(player, "Spear");
             int currentLevel = Configuration.SpearGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.SpearGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.SpearGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -337,7 +337,7 @@ public class Instance
         { // Hammer
             ulong exp = Experience.GetExperience(player, "Hammer");
             int currentLevel = Configuration.HammerGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.HammerGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.HammerGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -347,7 +347,7 @@ public class Instance
         { // Sword
             ulong exp = Experience.GetExperience(player, "Sword");
             int currentLevel = Configuration.SwordGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.SwordGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.SwordGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -357,7 +357,7 @@ public class Instance
         { // Shield
             ulong exp = Experience.GetExperience(player, "Shield");
             int currentLevel = Configuration.ShieldGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.ShieldGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.ShieldGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -367,7 +367,7 @@ public class Instance
         { // Hand
             ulong exp = Experience.GetExperience(player, "Hand");
             int currentLevel = Configuration.HandGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.HandGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.HandGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -377,7 +377,7 @@ public class Instance
         { // Farming
             ulong exp = Experience.GetExperience(player, "Farming");
             int currentLevel = Configuration.FarmingGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.FarmingGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.FarmingGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -387,7 +387,7 @@ public class Instance
         { // Cooking
             ulong exp = Experience.GetExperience(player, "Cooking");
             int currentLevel = Configuration.CookingGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.CookingGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.CookingGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -397,7 +397,7 @@ public class Instance
         { // Panning
             ulong exp = Experience.GetExperience(player, "Panning");
             int currentLevel = Configuration.PanningGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.PanningGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.PanningGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -407,7 +407,7 @@ public class Instance
         { // Vitality
             ulong exp = Experience.GetExperience(player, "Vitality");
             int currentLevel = Configuration.VitalityGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.VitalityGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.VitalityGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -417,7 +417,7 @@ public class Instance
         { // LeatherArmor
             ulong exp = Experience.GetExperience(player, "LeatherArmor");
             int currentLevel = Configuration.LeatherArmorGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.LeatherArmorGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.LeatherArmorGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -427,7 +427,7 @@ public class Instance
         { // ChainArmor
             ulong exp = Experience.GetExperience(player, "ChainArmor");
             int currentLevel = Configuration.ChainArmorGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.ChainArmorGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.ChainArmorGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -437,7 +437,7 @@ public class Instance
         { // BrigandineArmor
             ulong exp = Experience.GetExperience(player, "BrigandineArmor");
             int currentLevel = Configuration.BrigandineArmorGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.BrigandineArmorGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.BrigandineArmorGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -447,7 +447,7 @@ public class Instance
         { // PlateArmor
             ulong exp = Experience.GetExperience(player, "PlateArmor");
             int currentLevel = Configuration.PlateArmorGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.PlateArmorGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.PlateArmorGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -457,7 +457,7 @@ public class Instance
         { // ScaleArmor
             ulong exp = Experience.GetExperience(player, "ScaleArmor");
             int currentLevel = Configuration.ScaleArmorGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.ScaleArmorGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.ScaleArmorGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 
@@ -467,7 +467,7 @@ public class Instance
         { // Smithing
             ulong exp = Experience.GetExperience(player, "Smithing");
             int currentLevel = Configuration.SmithingGetLevelByEXP(exp);
-            ulong minExpToStayAtThisLevel = Configuration.SmithingGetExpForLevel(currentLevel);
+            ulong minExpToStayAtThisLevel = Configuration.SmithingGetExpByLevel(currentLevel);
 
             ulong maxExpToLose = exp - minExpToStayAtThisLevel;
 

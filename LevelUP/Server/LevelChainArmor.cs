@@ -8,6 +8,8 @@ class LevelChainArmor
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("ChainArmor", Configuration.ChainArmorGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("ChainArmor", Configuration.ChainArmorGetExpByLevel);
+
         Debug.Log("Level Chain Armor initialized");
     }
 

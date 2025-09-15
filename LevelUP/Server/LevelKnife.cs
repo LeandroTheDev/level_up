@@ -15,6 +15,7 @@ class LevelKnife
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
         Configuration.RegisterNewLevelTypeEXP("Knife", Configuration.KnifeGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Knife", Configuration.KnifeGetExpByLevel);
 
         Debug.Log("Level Knife initialized");
     }

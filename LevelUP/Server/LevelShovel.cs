@@ -16,6 +16,7 @@ class LevelShovel
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
         Configuration.RegisterNewLevelTypeEXP("Shovel", Configuration.ShovelGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Shovel", Configuration.ShovelGetExpByLevel);
 
         Debug.Log("Level Shovel initialized");
     }

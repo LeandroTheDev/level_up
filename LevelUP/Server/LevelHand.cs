@@ -12,6 +12,7 @@ class LevelHand
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         Configuration.RegisterNewLevelTypeEXP("Hand", Configuration.HandGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Hand", Configuration.HandGetExpByLevel);
 
         Debug.Log("Level Hand initialized");
     }

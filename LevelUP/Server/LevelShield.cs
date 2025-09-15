@@ -8,6 +8,8 @@ class LevelShield
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("Shield", Configuration.ShieldGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Shield", Configuration.ShieldGetExpByLevel);
+
         Debug.Log("Level Shield initialized");
     }
 

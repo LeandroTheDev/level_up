@@ -8,6 +8,8 @@ class LevelBrigandineArmor
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("BrigandineArmor", Configuration.BrigandineArmorGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("BrigandineArmor", Configuration.BrigandineArmorGetExpByLevel);
+
         Debug.Log("Level Brigandine Armor initialized");
     }
 
