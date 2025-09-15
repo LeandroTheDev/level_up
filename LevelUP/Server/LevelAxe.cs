@@ -15,6 +15,8 @@ class LevelAxe
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
         Configuration.RegisterNewLevelTypeEXP("Axe", Configuration.AxeGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Axe", Configuration.AxeGetExpByLevel);
+        
         Debug.Log("Level Axe initialized");
     }
 

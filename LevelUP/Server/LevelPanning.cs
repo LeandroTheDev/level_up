@@ -8,6 +8,8 @@ class LevelPanning
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("Panning", Configuration.PanningGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Panning", Configuration.PanningGetExpByLevel);
+
         Debug.Log("Level Panning initialized");
     }
 

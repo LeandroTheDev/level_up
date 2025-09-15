@@ -18,6 +18,8 @@ class LevelVitality
         Instance.api.Event.PlayerNowPlaying += PlayerJoin;
         Instance.api.Event.PlayerDisconnect += PlayerDisconnect;
         Instance.api.Event.GameWorldSave += SaveState;
+        Configuration.RegisterNewLevelTypeEXP("Vitality", Configuration.VitalityGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Vitality", Configuration.VitalityGetExpByLevel);
 
         Debug.Log("Level Vitality initialized");
     }
@@ -32,7 +34,6 @@ class LevelVitality
 
         // Populate configuration
         Configuration.PopulateVitalityConfiguration(coreAPI);
-        Configuration.RegisterNewLevelTypeEXP("Vitality", Configuration.VitalityGetLevelByEXP);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Vitality", Configuration.vitalityMaxLevel);
     }
 #pragma warning restore CA1822

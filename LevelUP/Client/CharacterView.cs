@@ -66,6 +66,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds, new AssetLocation("levelup:axe.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:axe")}: {GetLevelByLevelName("Axe")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Axe")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -75,6 +76,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:pickaxe.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:pickaxe")}: {GetLevelByLevelName("Pickaxe")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Pickaxe")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -84,6 +86,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:shovel.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:shovel")}: {GetLevelByLevelName("Shovel")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Shovel")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -93,6 +96,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:knife.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:knife")}: {GetLevelByLevelName("Knife")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Knife")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -102,6 +106,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:bow.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:bow")}: {GetLevelByLevelName("Bow")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Bow")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -111,6 +116,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:spear.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:spear")}: {GetLevelByLevelName("Spear")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Spear")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -120,15 +126,17 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:hammer.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:hammer")}: {GetLevelByLevelName("Hammer")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Hammer")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
-        #region hammer
+        #region smithing
         if (instance.enabledLevels["Smithing"])
         {
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:smithing.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:smithing")}: {GetLevelByLevelName("Smithing")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Smithing")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -138,6 +146,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:sword.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:sword")}: {GetLevelByLevelName("Sword")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Sword")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -147,6 +156,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:shield.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:shield")}: {GetLevelByLevelName("Shield")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Shield")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -156,6 +166,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:hand.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:hand")}: {GetLevelByLevelName("Hand")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Hand")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -165,6 +176,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:hunter.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:hunter")}: {GetLevelByLevelName("Hunter")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Hunter")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -174,6 +186,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:farming.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:farming")}: {GetLevelByLevelName("Farming")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Farming")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -183,6 +196,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:cooking.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:cooking")}: {GetLevelByLevelName("Cooking")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Cooking")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -192,6 +206,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:panning.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:panning")}: {GetLevelByLevelName("Panning")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Panning")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -201,6 +216,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:vitality.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:vitality")}: {GetLevelByLevelName("Vitality")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("Vitality")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -210,6 +226,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:leatherarmor.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:leatherarmor")}: {GetLevelByLevelName("LeatherArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("LeatherArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -219,6 +236,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:chainarmor.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:chainarmor")}: {GetLevelByLevelName("ChainArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("ChainArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -228,6 +246,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:brigandinearmor.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:brigandinearmor")}: {GetLevelByLevelName("BrigandineArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("BrigandineArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -237,6 +256,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:platearmor.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:platearmor")}: {GetLevelByLevelName("PlateArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("PlateArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -246,6 +266,7 @@ class CharacterView
             levelsAdded++;
             levelContainer.Add(new GuiElementImage(instance.api, containerBounds = containerBounds.BelowCopy(), new AssetLocation("levelup:scalearmor.png")));
             levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get("levelup:scalearmor")}: {GetLevelByLevelName("ScaleArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 25, 500, 0), CairoFont.WhiteSmallText()));
+            levelContainer.Add(new GuiElementStaticText(instance.api, $"{GetEXPRemainingByLevelName("ScaleArmor")}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 15, 500, 0), CairoFont.WhiteSmallishText()));
         }
         #endregion
 
@@ -281,4 +302,6 @@ class CharacterView
     }
 
     private int GetLevelByLevelName(string levelName) => instance.api.World.Player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelName}");
+
+    private float GetEXPRemainingByLevelName(string levelName) => instance.api.World.Player.Entity.WatchedAttributes.GetFloat($"LevelUP_Level_{levelName}_RemainingNextLevelPercentage");
 }

@@ -8,6 +8,8 @@ class LevelCooking
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("Cooking", Configuration.CookingGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Cooking", Configuration.CookingGetExpByLevel);
+
         Debug.Log("Level Cooking initialized");
     }
 

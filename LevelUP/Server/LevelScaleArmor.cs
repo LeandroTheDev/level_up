@@ -8,6 +8,8 @@ class LevelScaleArmor
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("ScaleArmor", Configuration.ScaleArmorGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("ScaleArmor", Configuration.ScaleArmorGetExpByLevel);
+
         Debug.Log("Level Scale Armor initialized");
     }
 

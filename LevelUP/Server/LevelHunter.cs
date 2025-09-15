@@ -11,6 +11,7 @@ class LevelHunter
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         Configuration.RegisterNewLevelTypeEXP("Hunter", Configuration.HunterGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Hunter", Configuration.HunterGetExpByLevel);
 
         Debug.Log("Level Hunter initialized");
     }

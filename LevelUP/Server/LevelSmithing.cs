@@ -8,6 +8,8 @@ class LevelSmithing
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("Smithing", Configuration.SmithingGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("Smithing", Configuration.SmithingGetExpByLevel);
+
         Debug.Log("Level Smithing initialized");
     }
 

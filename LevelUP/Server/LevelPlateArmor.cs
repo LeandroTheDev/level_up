@@ -8,6 +8,8 @@ class LevelPlateArmor
     public void Init()
     {
         Configuration.RegisterNewLevelTypeEXP("PlateArmor", Configuration.PlateArmorGetLevelByEXP);
+        Configuration.RegisterNewEXPLevelType("PlateArmor", Configuration.PlateArmorGetExpByLevel);
+
         Debug.Log("Level Plate Armor initialized");
     }
 
