@@ -3,6 +3,7 @@
     "player_sublevelup": "You reached proficiency {0} with {1} in {2}",
 
     "levels_tab": "Levels",
+    "progress": "Progress: {0}",
 
     "axe": "Axe",
     "pickaxe": "Pickaxe",
