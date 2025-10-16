@@ -151,7 +151,7 @@ public class OverwriteBlockInteraction
     public static void GetDropsMushroomFinish(BlockMushroom __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref float dropQuantityMultiplier)
     {
         if (!Configuration.enableLevelFarming) return;
-        if (byPlayer != null && world.Side != EnumAppSide.Server) return;
+        if (byPlayer == null || world.Side != EnumAppSide.Server) return;
 
         // Increasing the quantity drop multiply by the farming level
         ulong exp = 0;
@@ -657,6 +657,12 @@ public class OverwriteBlockInteraction
             ItemSlot armorSlot = inv[i];
             if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
             {
+                if (armorWearable.ProtectionModifiers == null)
+                {
+                    Debug.LogDebug($"{player.PlayerName} {armorSlot.Itemstack.GetName()} Armor System ignored because ProtectionModifiers is null");
+                    return;
+                }
+
                 // If the armor is created from a non player source, and a player can craft
                 // the armor, they will be incosistent, so we need to refresh the default values
                 // too unfurtunally
