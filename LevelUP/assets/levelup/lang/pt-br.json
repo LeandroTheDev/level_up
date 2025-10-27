@@ -2,7 +2,10 @@
     "player_levelup": "Você atingiu o nível {0} em {1}",
     "player_sublevelup": "Você atingiu proficiência {0} com {1} em {2}",
 
+    "hardcore_message": "Você morreu e perdeu {0}% de progresso nos seus níveis",
+
     "levels_tab": "Níveis",
+    "progress": "Progresso: {0}",
 
     "axe": "Machado",
     "pickaxe": "Picareta",
