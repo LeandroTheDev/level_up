@@ -345,6 +345,16 @@ public static class Configuration
 
     private static readonly Dictionary<string, System.Func<ulong, int>> levelsByLevelTypeEXP = [];
     private static readonly Dictionary<string, System.Func<int, ulong>> expByLevelTypeLevel = [];
+
+    /// <summary>
+    /// Resets configurations variables
+    /// </summary>
+    internal static void ClearVariables()
+    {
+        levelsByLevelTypeEXP.Clear();
+        expByLevelTypeLevel.Clear();
+    }
+
     /// <summary>
     /// Register a new level type for the function GetLevelByLevelTypeEXP
     /// </summary>
