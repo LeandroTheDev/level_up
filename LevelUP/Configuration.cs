@@ -87,6 +87,7 @@ public static class Configuration
     public static bool enableHardcore = false;
     public static double hardcoreLosePercentage = 0.8;
     public static int hardcorePenaltyDelayInWorldSeconds = 1000;
+    public static bool hardcoreIgnoreLevelMinimum = false;
     public static bool hardcoreMessageWhenDying = true;
     public static bool enableLevelHunter = true;
     public static bool enableLevelBow = true;
@@ -115,7 +116,10 @@ public static class Configuration
     public static bool enableLevelUpExperienceServerLog = false;
     public static bool enableExtendedLog = false;
 
-    public static void UpdateBaseConfigurations(ICoreAPI api)
+    private static Dictionary<string, bool> enabledLevels = [];
+    public static IReadOnlyDictionary<string, bool> EnabledLevels => enabledLevels;
+
+    internal static void UpdateBaseConfigurations(ICoreAPI api)
     {
         Dictionary<string, object> baseConfigs = LoadConfigurationByDirectoryAndName(
             api,
@@ -341,6 +345,16 @@ public static class Configuration
         }
     }
 
+    /// <summary>
+    /// Register a new level in EnabledLevels variable class
+    /// </summary>
+    public static void RegisterNewLevel(string levelType, bool enabled = true)
+    {
+        if (enabledLevels.ContainsKey(levelType))
+            enabledLevels.Add(levelType, enabled);
+        else
+            Debug.LogError($"The leveltype {levelType} already exist in enabledLevels");
+    }
     #endregion
 
     private static readonly Dictionary<string, System.Func<ulong, int>> levelsByLevelTypeEXP = [];
@@ -353,6 +367,7 @@ public static class Configuration
     {
         levelsByLevelTypeEXP.Clear();
         expByLevelTypeLevel.Clear();
+        enabledLevels.Clear();
     }
 
     /// <summary>
@@ -410,7 +425,7 @@ public static class Configuration
         return -1.0f;
     }
 
-    public static ulong GetEXPByLevelTypeLevel(int level, string levelType)
+    public static ulong GetEXPByLevelTypeLevel(string levelType, int level)
     {
         if (expByLevelTypeLevel.TryGetValue(levelType, out System.Func<int, ulong> function))
             return function(level);

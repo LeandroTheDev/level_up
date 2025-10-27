@@ -52,6 +52,7 @@ class Instance
             case "playerlevelup": LevelUPMessage(int.Parse(messages[1]), messages[2]); return;
             case "playersublevelup": SubLevelUPMessage(int.Parse(messages[1]), messages[2], messages[3]); return;
             case "enabledlevels": enabledLevels = JsonSerializer.Deserialize<Dictionary<string, bool>>(messages[1]); return;
+            case "playerhardcoredied": api.ShowChatMessage(Lang.Get("levelup:hardcore_message", 0)); return;
         }
     }
 
