@@ -31,6 +31,8 @@ public class Initialization : ModSystem
     {
         base.Start(api);
 
+        Configuration.ClearVariables();
+
         Debug.LoadLogger(api.Logger);
         Debug.Log($"Running on Version: {Mod.Info.Version}");
         Server.Experience.LoadInstance(api);
