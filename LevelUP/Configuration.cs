@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using LevelUP.Server;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ProtoBuf;
 using Vintagestory.API.Common;
 
@@ -84,6 +87,65 @@ public static class Configuration
     }
 
     #region baseconfigs
+    /// <summary>
+    /// Generates a class json to send it to the client and sync configurations
+    /// </summary>
+    /// <returns></returns>
+    internal static string GenerateClassJsonParameters()
+    {
+        var type = typeof(Configuration);
+
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+        var dict = fields.ToDictionary(
+            f => f.Name,
+            f => f.GetValue(null)
+        );
+
+        return JsonConvert.SerializeObject(dict);
+    }
+
+    /// <summary>
+    /// Consumes the give json from server GenerateClassJsonParameters
+    /// use this function only in client!
+    /// </summary>
+    /// <param name="json"></param>
+    internal static void ConsumeGeneratedClassJsonParameters(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogWarn($"Empty json on ConsumeGeneratedClassJsonParameters");
+            return;
+        }
+
+        var type = typeof(Configuration);
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+
+        var data = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(json);
+        if (data == null)
+        {
+            Debug.LogError($"Cannot deserialize class parameters");
+            return;
+        }
+
+        foreach (var field in fields)
+        {
+            if (data.TryGetValue(field.Name, out var token))
+            {
+                try
+                {
+                    var value = token.ToObject(field.FieldType);
+                    field.SetValue(null, value);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to convert '{field.Name}': {ex.Message}");
+                }
+            }
+        }
+
+        Debug.LogDebug("Configurations json consumed, now i am in sync with the server!");
+    }
+
     public static bool enableHardcore = false;
     public static double hardcoreLosePercentage = 0.8;
     public static int hardcorePenaltyDelayInWorldSeconds = 1000;
@@ -116,7 +178,7 @@ public static class Configuration
     public static bool enableLevelUpExperienceServerLog = false;
     public static bool enableExtendedLog = false;
 
-    private static Dictionary<string, bool> enabledLevels = [];
+    private static readonly Dictionary<string, bool> enabledLevels = [];
     public static IReadOnlyDictionary<string, bool> EnabledLevels => enabledLevels;
 
     internal static void UpdateBaseConfigurations(ICoreAPI api)
@@ -401,7 +463,6 @@ public static class Configuration
 
         expByLevelTypeLevel.Add(levelType, function);
     }
-
 
     public static int GetLevelByLevelTypeEXP(string levelType, ulong exp)
     {

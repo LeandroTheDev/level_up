@@ -48,6 +48,8 @@ public class Instance
 
         // Update Watched Attributes
         api.Event.PlayerNowPlaying += player => UpdatePlayerLevels(player, api);
+        // Sync server configurations with client
+        api.Event.PlayerNowPlaying += SyncPlayerConfigs;
 
         // Enable levels
         if (Configuration.enableLevelHunter) levelHunter.Init();
@@ -107,6 +109,7 @@ public class Instance
             Debug.Log("Hardcore death event instanciated");
         }
     }
+
     internal void PopulateConfigurations(ICoreAPI coreAPI)
     {
         // Base mod Configs
@@ -213,6 +216,9 @@ public class Instance
         // Smithing Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Smithing", Experience.GetExperience(player, "Smithing"), true);
     }
+
+    private static void SyncPlayerConfigs(IServerPlayer player)
+        => CommunicationChannel.SendPacket(new ServerMessage() { message = $"syncconfig&{Configuration.GenerateClassJsonParameters()}" }, player);
 
     private static void GetEnabledLevels(IServerPlayer player)
         => CommunicationChannel.SendPacket(new ServerMessage() { message = $"enabledlevels&{JsonSerializer.Serialize(Configuration.EnabledLevels)}" }, player);
