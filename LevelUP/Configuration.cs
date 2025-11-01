@@ -178,7 +178,7 @@ public static class Configuration
     public static bool enableLevelUpExperienceServerLog = false;
     public static bool enableExtendedLog = false;
 
-    private static readonly Dictionary<string, bool> enabledLevels = [];
+    private static Dictionary<string, bool> enabledLevels = [];
     public static IReadOnlyDictionary<string, bool> EnabledLevels => enabledLevels;
 
     internal static void UpdateBaseConfigurations(ICoreAPI api)
@@ -419,8 +419,8 @@ public static class Configuration
     }
     #endregion
 
-    private static readonly Dictionary<string, System.Func<ulong, int>> levelsByLevelTypeEXP = [];
-    private static readonly Dictionary<string, System.Func<int, ulong>> expByLevelTypeLevel = [];
+    private static Dictionary<string, System.Func<ulong, int>> levelsByLevelTypeEXP = [];
+    private static Dictionary<string, System.Func<int, ulong>> expByLevelTypeLevel = [];
 
     /// <summary>
     /// Resets configurations variables
@@ -495,7 +495,7 @@ public static class Configuration
         return 0;
     }
 
-    private static readonly Dictionary<string, int> maxLevels = [];
+    private static Dictionary<string, int> maxLevels = [];
     /// <summary>
     /// Register a new level type for the function CheckMaxLevelByLevelTypeEXP
     /// </summary>
@@ -521,7 +521,7 @@ public static class Configuration
     }
 
     #region hunter
-    public static readonly Dictionary<string, int> entityExpHunter = [];
+    public static Dictionary<string, int> entityExpHunter = [];
     private static int hunterEXPPerLevelBase = 10;
     private static double hunterEXPMultiplyPerLevel = 1.5;
     private static float hunterBaseDamage = 1.0f;
@@ -625,7 +625,7 @@ public static class Configuration
     #endregion
 
     #region bow
-    public static readonly Dictionary<string, int> entityExpBow = [];
+    public static Dictionary<string, int> entityExpBow = [];
     private static int bowEXPPerHit = 1;
     private static int bowEXPPerLevelBase = 10;
     private static double bowEXPMultiplyPerLevel = 1.3;
@@ -819,7 +819,7 @@ public static class Configuration
     #endregion
 
     #region knife
-    public static readonly Dictionary<string, int> entityExpKnife = [];
+    public static Dictionary<string, int> entityExpKnife = [];
     private static int knifeEXPPerHit = 1;
     private static int knifeEXPPerHarvest = 5;
     private static int knifeEXPPerBreaking = 1;
@@ -1003,7 +1003,7 @@ public static class Configuration
     #endregion
 
     #region axe
-    public static readonly Dictionary<string, int> entityExpAxe = [];
+    public static Dictionary<string, int> entityExpAxe = [];
     private static int axeEXPPerHit = 1;
     private static int axeEXPPerBreaking = 1;
     private static int axeEXPPerTreeBreaking = 10;
@@ -1163,8 +1163,8 @@ public static class Configuration
     #endregion
 
     #region pickaxe
-    public static readonly Dictionary<string, int> entityExpPickaxe = [];
-    public static readonly Dictionary<string, int> oresExpPickaxe = [];
+    public static Dictionary<string, int> entityExpPickaxe = [];
+    public static Dictionary<string, int> oresExpPickaxe = [];
     private static int pickaxeEXPPerHit = 1;
     private static int pickaxeEXPPerBreaking = 1;
     private static int pickaxeEXPPerLevelBase = 10;
@@ -1347,7 +1347,7 @@ public static class Configuration
     #endregion
 
     #region shovel
-    public static readonly Dictionary<string, int> entityExpShovel = [];
+    public static Dictionary<string, int> entityExpShovel = [];
     private static int shovelEXPPerHit = 1;
     private static int shovelEXPPerBreaking = 1;
     private static int shovelEXPPerLevelBase = 10;
@@ -1494,7 +1494,7 @@ public static class Configuration
     #endregion
 
     #region spear
-    public static readonly Dictionary<string, int> entityExpSpear = [];
+    public static Dictionary<string, int> entityExpSpear = [];
     private static int spearEXPPerHit = 1;
     private static int spearEXPPerThrow = 2;
     private static int spearEXPPerLevelBase = 10;
@@ -1642,8 +1642,8 @@ public static class Configuration
     #endregion
 
     #region hammer
-    public static readonly Dictionary<string, int> entityExpHammer = [];
-    public static readonly Dictionary<string, string> smithChanceHammer = [];
+    public static Dictionary<string, int> entityExpHammer = [];
+    public static Dictionary<string, string> smithChanceHammer = [];
     private static int hammerEXPPerHit = 1;
     private static int hammerEXPPerLevelBase = 10;
     private static double hammerEXPMultiplyPerLevel = 1.5;
@@ -1985,7 +1985,7 @@ public static class Configuration
     #endregion
 
     #region sword
-    public static readonly Dictionary<string, int> entityExpSword = [];
+    public static Dictionary<string, int> entityExpSword = [];
     private static int swordEXPPerHit = 1;
     private static int swordEXPPerLevelBase = 10;
     private static double swordEXPMultiplyPerLevel = 2.0;
@@ -2205,7 +2205,7 @@ public static class Configuration
     #endregion
 
     #region hand
-    public static readonly Dictionary<string, int> entityExpHand = [];
+    public static Dictionary<string, int> entityExpHand = [];
     private static int handEXPPerHit = 1;
     private static int handEXPPerLevelBase = 10;
     private static double handEXPMultiplyPerLevel = 2.0;
@@ -2321,7 +2321,7 @@ public static class Configuration
     #endregion
 
     #region farming
-    public static readonly Dictionary<string, int> expPerHarvestFarming = [];
+    public static Dictionary<string, int> expPerHarvestFarming = [];
     private static int farmingEXPPerTill = 1;
     private static int farmingEXPPerLevelBase = 10;
     private static double farmingEXPMultiplyPerLevel = 2.5;
@@ -2459,8 +2459,8 @@ public static class Configuration
     #endregion
 
     #region cooking
-    public static readonly Dictionary<string, double> expMultiplySingleCooking = [];
-    public static readonly Dictionary<string, double> expMultiplyPotsCooking = [];
+    public static Dictionary<string, double> expMultiplySingleCooking = [];
+    public static Dictionary<string, double> expMultiplyPotsCooking = [];
     private static int cookingBaseExpPerCooking = 3;
     private static int cookingEXPPerLevelBase = 10;
     private static double cookingEXPMultiplyPerLevel = 1.3;
@@ -2838,7 +2838,7 @@ public static class Configuration
     #endregion
 
     #region smithing
-    public static readonly Dictionary<string, int> expPerCraftSmithing = [];
+    public static Dictionary<string, int> expPerCraftSmithing = [];
     private static int smithingEXPPerLevelBase = 10;
     private static double smithingEXPMultiplyPerLevel = 2.5;
     private static float smithingBaseDurabilityMultiply = 1.0f;
@@ -3167,7 +3167,7 @@ public static class Configuration
     #endregion
 
     #region leatherarmor
-    public static readonly Dictionary<string, double> expMultiplyHitLeatherArmor = [];
+    public static Dictionary<string, double> expMultiplyHitLeatherArmor = [];
     private static int leatherArmorEXPPerReceiveHit = 1;
     private static float leatherArmorEXPMultiplyByDamage = 0.5f;
     private static int leatherArmorEXPIncreaseByAmountDamage = 1;
@@ -3317,7 +3317,7 @@ public static class Configuration
     #endregion
 
     #region chainarmor
-    public static readonly Dictionary<string, double> expMultiplyHitChainArmor = [];
+    public static Dictionary<string, double> expMultiplyHitChainArmor = [];
     private static int chainArmorEXPPerReceiveHit = 1;
     private static float chainArmorEXPMultiplyByDamage = 0.5f;
     private static int chainArmorEXPIncreaseByAmountDamage = 1;
@@ -3467,7 +3467,7 @@ public static class Configuration
     #endregion
 
     #region brigandinearmor
-    public static readonly Dictionary<string, double> expMultiplyHitBrigandineArmor = [];
+    public static Dictionary<string, double> expMultiplyHitBrigandineArmor = [];
     private static int brigandineArmorEXPPerReceiveHit = 1;
     private static float brigandineArmorEXPMultiplyByDamage = 0.5f;
     private static int brigandineArmorEXPIncreaseByAmountDamage = 1;
@@ -3616,7 +3616,7 @@ public static class Configuration
     #endregion
 
     #region platearmor
-    public static readonly Dictionary<string, double> expMultiplyHitPlateArmor = [];
+    public static Dictionary<string, double> expMultiplyHitPlateArmor = [];
     private static int plateArmorEXPPerReceiveHit = 1;
     private static float plateArmorEXPMultiplyByDamage = 0.5f;
     private static int plateArmorEXPIncreaseByAmountDamage = 1;
@@ -3765,7 +3765,7 @@ public static class Configuration
     #endregion
 
     #region scalearmor
-    public static readonly Dictionary<string, double> expMultiplyHitScaleArmor = [];
+    public static Dictionary<string, double> expMultiplyHitScaleArmor = [];
     private static int scaleArmorEXPPerReceiveHit = 1;
     private static float scaleArmorEXPMultiplyByDamage = 0.5f;
     private static int scaleArmorEXPIncreaseByAmountDamage = 1;
