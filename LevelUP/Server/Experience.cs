@@ -160,8 +160,8 @@ public class Experience
     {
         ulong currentExp = GetExperience(player, type);
         int playerLevel = Configuration.GetLevelByLevelTypeEXP(type, currentExp);
-        ulong minimumExp = Configuration.GetEXPByLevelTypeLevel(playerLevel, type);
-        ulong maximumExp = Configuration.GetEXPByLevelTypeLevel(playerLevel + 1, type);
+        ulong minimumExp = Configuration.GetEXPByLevelTypeLevel(type, playerLevel);
+        ulong maximumExp = Configuration.GetEXPByLevelTypeLevel(type, playerLevel + 1);
 
         ulong range = maximumExp - minimumExp;
         float progress = range > 0
