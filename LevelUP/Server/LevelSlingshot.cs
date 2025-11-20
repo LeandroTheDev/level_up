@@ -12,6 +12,7 @@
 //     {
 //         // Instanciate death event
 //         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+//         Configuration.RegisterNewLevel("Slingshot");
 //         Configuration.RegisterNewLevelTypeEXP("Slingshot", Configuration.SlingshotGetLevelByEXP);
 //         Configuration.RegisterNewEXPLevelType("Slingshot", Configuration.SlingshotGetExpByLevel);
 

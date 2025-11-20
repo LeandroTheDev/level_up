@@ -413,10 +413,13 @@ public static class Configuration
     /// </summary>
     public static void RegisterNewLevel(string levelType, bool enabled = true)
     {
-        if (enabledLevels.ContainsKey(levelType))
-            enabledLevels.Add(levelType, enabled);
-        else
+        if (levelsByLevelTypeEXP.ContainsKey(levelType))
+        {
             Debug.LogError($"The leveltype {levelType} already exist in enabledLevels");
+            return;
+        }
+
+        enabledLevels.Add(levelType, enabled);
     }
     #endregion
 
@@ -637,7 +640,7 @@ public static class Configuration
     private static float bowBaseChanceToNotLoseArrow = 50.0f;
     private static float bowChanceToNotLoseArrowBaseIncreasePerLevel = 2.0f;
     private static int bowChanceToNotLoseArrowReduceIncreaseEveryLevel = 5;
-    private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.5f;
+    private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.2f;
     private static float bowBaseAimAccuracy = 1.0f;
     private static float bowIncreaseAimAccuracyPerLevel = 0.5f;
     public static int bowMaxLevel = 999;
@@ -792,23 +795,22 @@ public static class Configuration
 
     public static float BowGetChanceToNotLoseArrowByLevel(int level)
     {
-        int totalLevels = level - 1;
         int reduceEvery = bowChanceToNotLoseArrowReduceIncreaseEveryLevel;
+        float baseChance = bowBaseChanceToNotLoseArrow;
         float baseIncrement = bowChanceToNotLoseArrowBaseIncreasePerLevel;
         float reductionPerStep = bowChanceToNotLoseArrowReduceQuantityEveryLevel;
 
-        int numberOfFullBlocks = totalLevels / reduceEvery;
-        int remainingLevels = totalLevels % reduceEvery;
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
 
-        float sumFullBlocks = numberOfFullBlocks * reduceEvery *
-            (2 * baseIncrement - (numberOfFullBlocks - 1) * reductionPerStep) / 2;
+        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        finalChance += baseChance;
 
-        float currentIncrement = baseIncrement - numberOfFullBlocks * reductionPerStep;
-        float sumRemaining = remainingLevels * currentIncrement;
+        int chance = Random.Next(0, 100);
 
-        float finalChance = bowBaseChanceToNotLoseArrow + sumFullBlocks + sumRemaining;
+        if (enableExtendedLog)
+            Debug.LogDebug($"Bow should not lose arrow: {finalChance} : {chance}");
 
-        if (finalChance >= Random.Next(0, 100))
+        if (finalChance >= chance)
             return 1.0f;
         else
             return 0.0f;
@@ -1655,7 +1657,7 @@ public static class Configuration
     private static float hammerBaseSmithRetrieveChance = 0.0f;
     private static float hammerSmithRetrieveChancePerLevel = 2.0f;
     private static int hammerSmithRetrieveEveryLevelReduceChance = 10;
-    private static float hammerSmithRetrieveReduceChanceForEveryLevel = 0.5f;
+    private static float hammerSmithRetrieveReduceChanceForEveryLevel = 0.3f;
     private static float hammerBaseChanceToDouble = 0.0f;
     private static float hammerIncreaseChanceToDoublePerLevel = 2.0f;
     private static int hammerIncreaseChanceToDoublePerLevelReducerPerLevel = 5;
@@ -1902,27 +1904,20 @@ public static class Configuration
 
     public static bool HammerShouldRetrieveSmithByLevel(int level)
     {
-        int totalLevels = level - 1;
         int reduceEvery = hammerSmithRetrieveEveryLevelReduceChance;
         float baseChance = hammerBaseSmithRetrieveChance;
         float baseIncrement = hammerSmithRetrieveChancePerLevel;
         float reductionPerStep = hammerSmithRetrieveReduceChanceForEveryLevel;
 
-        int fullBlocks = totalLevels / reduceEvery;
-        int remainingLevels = totalLevels % reduceEvery;
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
 
-        float sumFullBlocks = fullBlocks * reduceEvery *
-            (2 * baseIncrement - (fullBlocks - 1) * reductionPerStep) / 2;
-
-        float currentIncrement = baseIncrement - fullBlocks * reductionPerStep;
-        float sumRemaining = remainingLevels * currentIncrement;
-
-        float finalChance = baseChance + sumFullBlocks + sumRemaining;
+        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        finalChance += baseChance;
 
         int chance = Random.Next(0, 100);
 
         if (enableExtendedLog)
-            Debug.Log($"Hammer should retrieve smith mechanic check: {finalChance} : {chance}");
+            Debug.LogDebug($"Hammer should retrieve smith mechanic check: {finalChance} : {chance}");
 
         return finalChance >= chance;
     }
@@ -1932,21 +1927,21 @@ public static class Configuration
         static float CalculateChance(
             int level,
             float baseChance,
-            float incrementChancePerLevel,
-            int reducerEveryLevels,
-            float reducerAmountPerStep)
+            float baseIncrement,
+            int reduceEvery,
+            float reductionPerStep)
         {
-            int totalLevels = level - 1;
-            int fullBlocks = totalLevels / reducerEveryLevels;
-            int remainingLevels = totalLevels % reducerEveryLevels;
+            double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
 
-            float sumFullBlocks = fullBlocks * reducerEveryLevels *
-                (2 * incrementChancePerLevel - (fullBlocks - 1) * reducerAmountPerStep) / 2;
+            double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+            finalChance += baseChance;
 
-            float currentIncrement = incrementChancePerLevel - fullBlocks * reducerAmountPerStep;
-            float sumRemaining = remainingLevels * currentIncrement;
+            int chance = Random.Next(0, 100);
 
-            return baseChance + sumFullBlocks + sumRemaining;
+            if (enableExtendedLog)
+                Debug.LogDebug($"Hammer result multiply smith mechanic check: {finalChance} : {chance}");
+
+            return (float)finalChance;
         }
 
         // Quadruple
@@ -2470,8 +2465,8 @@ public static class Configuration
     private static float cookingBaseFreshHoursMultiply = 1.0f;
     private static float cookingFreshHoursMultiplyPerLevel = 0.1f;
     private static float cookingBaseChanceToIncreaseServings = 1.0f;
+    private static int cookingReduceChanceToIncreaseServings = 5;
     private static float cookingIncrementChanceToIncreaseServings = 2.0f;
-    private static float cookingEveryChanceToIncreaseServingsReduceChance = 20.0f;
     private static float cookingChanceToIncreaseServingsReducerTotal = 0.5f;
     private static int cookingBaseRollsChanceToIncreaseServings = 1;
     private static int cookingEarnRollsChanceToIncreaseServingsEveryLevel = 5;
@@ -2537,12 +2532,13 @@ public static class Configuration
                 else cookingIncrementChanceToIncreaseServings = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: cookingIncrementChanceToIncreaseServings not set");
         }
-        { //cookingEveryChanceToIncreaseServingsReduceChance
-            if (cookingLevelStats.TryGetValue("cookingEveryChanceToIncreaseServingsReduceChance", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance is not double is {value.GetType()}");
-                else cookingEveryChanceToIncreaseServingsReduceChance = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: cookingEveryChanceToIncreaseServingsReduceChance not set");
+        { //cookingReduceChanceToIncreaseServings
+            if (cookingLevelStats.TryGetValue("cookingReduceChanceToIncreaseServings", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingReduceChanceToIncreaseServings is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingReduceChanceToIncreaseServings is not int is {value.GetType()}");
+                else cookingReduceChanceToIncreaseServings = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: cookingReduceChanceToIncreaseServings not set");
+            Experience.LoadExperience("Cooking", "Cooking", (ulong)cookingReduceChanceToIncreaseServings);
         }
         { //cookingChanceToIncreaseServingsReducerTotal
             if (cookingLevelStats.TryGetValue("cookingChanceToIncreaseServingsReducerTotal", out object value))
@@ -2647,29 +2643,30 @@ public static class Configuration
 
     public static int CookingGetServingsByLevelAndServings(int level, int quantityServings)
     {
-        float chanceToIncrease = cookingBaseChanceToIncreaseServings;
-        float incrementChance = cookingIncrementChanceToIncreaseServings;
+        int reduceEvery = cookingReduceChanceToIncreaseServings;
+        float baseChance = cookingBaseChanceToIncreaseServings;
+        float baseIncrement = cookingIncrementChanceToIncreaseServings;
+        float reductionPerStep = cookingChanceToIncreaseServingsReducerTotal;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        finalChance += baseChance;
+
         int rolls = cookingBaseRollsChanceToIncreaseServings;
+        rolls += level / cookingEarnRollsChanceToIncreaseServingsEveryLevel * cookingEarnRollsChanceToIncreaseServingsQuantity;
 
-        int levelsToProcess = level - 1;
-
-        float levelsToProcessInt = levelsToProcess;
-        float reduceSteps = levelsToProcessInt / cookingEveryChanceToIncreaseServingsReduceChance;
-        float remainingLevels = levelsToProcessInt % cookingEveryChanceToIncreaseServingsReduceChance;
-
-        float sumReducedIncrements = reduceSteps * cookingEveryChanceToIncreaseServingsReduceChance *
-            (2 * incrementChance - (reduceSteps - 1) * cookingChanceToIncreaseServingsReducerTotal) / 2;
-
-        float currentIncrement = incrementChance - reduceSteps * cookingChanceToIncreaseServingsReducerTotal;
-        float sumRemaining = remainingLevels * currentIncrement;
-
-        chanceToIncrease += sumReducedIncrements + sumRemaining;
-
-        rolls += levelsToProcess / cookingEarnRollsChanceToIncreaseServingsEveryLevel * cookingEarnRollsChanceToIncreaseServingsQuantity;
+        if (enableExtendedLog)
+            Debug.LogDebug($"Cooking serving rolls: {rolls}");
 
         for (int i = 0; i < rolls; i++)
         {
-            if (chanceToIncrease >= Random.Next(0, 100))
+            int servingChance = Random.Next(0, 100);
+
+            if (enableExtendedLog)
+                Debug.LogDebug($"Cooking serving roll: {finalChance} : {servingChance}");
+
+            if (finalChance >= servingChance)
                 quantityServings += 1;
         }
 

@@ -15,6 +15,7 @@ class LevelShovel
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        Configuration.RegisterNewLevel("Shovel");
         Configuration.RegisterNewLevelTypeEXP("Shovel", Configuration.ShovelGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Shovel", Configuration.ShovelGetExpByLevel);
 

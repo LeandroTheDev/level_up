@@ -7,6 +7,7 @@ class LevelCooking
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevel("Cooking");
         Configuration.RegisterNewLevelTypeEXP("Cooking", Configuration.CookingGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Cooking", Configuration.CookingGetExpByLevel);
 

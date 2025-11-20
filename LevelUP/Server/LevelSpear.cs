@@ -11,6 +11,7 @@ class LevelSpear
     {        
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Configuration.RegisterNewLevel("Spear");
         Configuration.RegisterNewLevelTypeEXP("Spear", Configuration.SpearGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Spear", Configuration.SpearGetExpByLevel);
 
