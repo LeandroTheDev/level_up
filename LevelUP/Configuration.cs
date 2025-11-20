@@ -12,6 +12,7 @@ using Vintagestory.API.Common;
 namespace LevelUP;
 
 #pragma warning disable CA2211
+#pragma warning disable IDE0044
 public static class Configuration
 {
     private static readonly Random Random = new();
@@ -429,7 +430,9 @@ public static class Configuration
     {
         levelsByLevelTypeEXP.Clear();
         expByLevelTypeLevel.Clear();
+        maxLevels.Clear();
         enabledLevels.Clear();
+        Debug.Log("Variables cleared");
     }
 
     /// <summary>

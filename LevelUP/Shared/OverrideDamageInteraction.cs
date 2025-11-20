@@ -5,6 +5,7 @@ using LevelUP.Server;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
@@ -506,6 +507,52 @@ class OverwriteDamageInteraction
 
             Experience.IncreaseExperience(player, "Shield", "Hit");
         }
+    }
+    #endregion
+    #region vitality
+    // Overwrite Player Regen
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityBehaviorHealth), "ApplyRegenAndHunger")]
+    public static bool ApplyRegenAndHunger(EntityBehaviorHealth __instance)
+    {
+        if (!Configuration.enableLevelVitality) return true;
+
+        // Protected and Privates variables
+        float secondsSinceLastUpdate = (float)AccessTools.Field(typeof(EntityBehaviorHealth), "secondsSinceLastUpdate").GetValue(__instance);
+        float saturationPerHealthPoint = (float)AccessTools.Property(typeof(EntityBehaviorHealth), "SaturationPerHealthPoint").GetValue(__instance);
+        float autoRegenSaturationThreshold = (float)AccessTools.Property(typeof(EntityBehaviorHealth), "AutoRegenSaturationThreshold").GetValue(__instance);
+
+        #region native
+        float health = __instance.Health;
+        float maxHealth = __instance.MaxHealth;
+        if (health >= maxHealth)
+        {
+            return false;
+        }
+        #endregion
+        // Always use the regenSpeed from WatchedAttributes, because vitality level updates it
+        // Insecure maybe? if client can change watchedattributes they can cheat changing own regen speed
+        float healthRegenSpeed = __instance.entity.WatchedAttributes.GetFloat("regenSpeed", 1f);
+        #region native
+        float healthRegenPerGameSecond = 0.000333333f * healthRegenSpeed;
+        float multiplierPerGameSec = secondsSinceLastUpdate * __instance.entity.Api.World.Calendar.SpeedOfTime * __instance.entity.Api.World.Calendar.CalendarSpeedMul;
+        if (__instance.entity is EntityPlayer player)
+        {
+            EntityBehaviorHunger hungerBehavior = __instance.entity.GetBehavior<EntityBehaviorHunger>();
+            if (hungerBehavior != null && player.Player.WorldData.CurrentGameMode != EnumGameMode.Creative)
+            {
+                healthRegenPerGameSecond = GameMath.Clamp(healthRegenPerGameSecond * hungerBehavior.Saturation / hungerBehavior.MaxSaturation * 1f / autoRegenSaturationThreshold, 0f, healthRegenPerGameSecond);
+                #endregion
+                // Creates a placeholder, so the health regeneration don't consume too much in higher levels
+                float healthRegenPerGameSecondPlaceholder = 0.00013f;
+                hungerBehavior.ConsumeSaturation(saturationPerHealthPoint * multiplierPerGameSec * healthRegenPerGameSecondPlaceholder);
+                #region native
+            }
+        }
+        __instance.Health = Math.Min(health + multiplierPerGameSec * healthRegenPerGameSecond, maxHealth);
+        #endregion
+
+        return false;
     }
     #endregion
 }

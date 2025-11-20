@@ -21,6 +21,7 @@ public class Initialization : ModSystem
     public override void StartServerSide(ICoreServerAPI api)
     {
         base.StartServerSide(api);
+
         // Initializing the server instance
         serverInstance.Init(api);
         // Instancianting the Server api for shared functions
@@ -30,8 +31,6 @@ public class Initialization : ModSystem
     public override void Start(ICoreAPI api)
     {
         base.Start(api);
-
-        Configuration.ClearVariables();
 
         Debug.LoadLogger(api.Logger);
         Debug.Log($"Running on Version: {Mod.Info.Version}");
@@ -49,6 +48,7 @@ public class Initialization : ModSystem
     public override void Dispose()
     {
         base.Dispose();
+        Configuration.ClearVariables();
         sharedInstance.OverwriteDispose();
     }
 
