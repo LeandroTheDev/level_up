@@ -14,6 +14,7 @@ class LevelKnife
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        Configuration.RegisterNewLevel("Knife");
         Configuration.RegisterNewLevelTypeEXP("Knife", Configuration.KnifeGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Knife", Configuration.KnifeGetExpByLevel);
 

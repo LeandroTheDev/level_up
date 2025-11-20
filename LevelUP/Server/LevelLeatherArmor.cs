@@ -6,6 +6,7 @@ class LevelLeatherArmor
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevel("LeatherArmor");
         Configuration.RegisterNewLevelTypeEXP("LeatherArmor", Configuration.LeatherArmorGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("LeatherArmor", Configuration.LeatherArmorGetExpByLevel);
 

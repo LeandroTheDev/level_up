@@ -11,6 +11,7 @@ class LevelFarming
     {
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        Configuration.RegisterNewLevel("Farming");
         Configuration.RegisterNewLevelTypeEXP("Farming", Configuration.FarmingGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Farming", Configuration.FarmingGetExpByLevel);
 

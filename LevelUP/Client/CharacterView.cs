@@ -36,8 +36,6 @@ class CharacterView
 
     private void ComposeLevelTab(GuiComposer composer)
     {
-        // Quantity of levels added to the list
-        int levelsAdded = 0;
         // Bounds instanciation
         ElementBounds insetBounds;
         ElementBounds leftColumn = ElementBounds.Fixed(0.0, 0.0, 300.0, 30.0);
@@ -61,36 +59,48 @@ class CharacterView
         levelContainer = composer.GetContainer("LevelUP_Levels_List");
 
         // Adding the levels images and texts
-        foreach (KeyValuePair<string, bool> keyValuePair in instance.enabledLevels)
+        double offsetY = 0;
+        double itemHeight = 72; // ou sua variável increaser
+
+        foreach (var keyValuePair in instance.enabledLevels)
         {
             if (!keyValuePair.Value) continue;
 
             string levelType = keyValuePair.Key;
-            levelContainer.Add(new GuiElementImage(instance.api, containerBounds, new AssetLocation($"levelup:{levelType.ToLower()}.png")));
-            levelContainer.Add(new GuiElementStaticText(instance.api, $"{Lang.Get($"levelup:{levelType.ToLower()}")}: {GetLevelByLevelName(levelType)}", EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 12, 500, 0), CairoFont.WhiteSmallText()));
-            levelContainer.Add(new GuiElementStaticText(instance.api, Lang.Get("levelup:progress", GetEXPRemainingByLevelName(levelType)), EnumTextOrientation.Left, containerBounds.RightCopy().ForkChildOffseted(0, 28, 500, 0), CairoFont.WhiteSmallishText().WithFontSize(13)));
+
+            // Create bounds for actual line
+            ElementBounds itemBounds = containerBounds.FlatCopy().WithFixedOffset(0, offsetY);
+
+            levelContainer.Add(new GuiElementImage(instance.api, itemBounds, new AssetLocation($"levelup:{levelType.ToLower()}.png")));
+
+            levelContainer.Add(new GuiElementStaticText(
+                instance.api,
+                $"{Lang.Get($"levelup:{levelType.ToLower()}")}: {GetLevelByLevelName(levelType)}",
+                EnumTextOrientation.Left,
+                itemBounds.RightCopy().ForkChildOffseted(0, 12, 500, 0),
+                CairoFont.WhiteSmallText()
+            ));
+
+            levelContainer.Add(new GuiElementStaticText(
+                instance.api,
+                Lang.Get("levelup:progress", GetEXPRemainingByLevelName(levelType)),
+                EnumTextOrientation.Left,
+                itemBounds.RightCopy().ForkChildOffseted(0, 28, 500, 0),
+                CairoFont.WhiteSmallishText().WithFontSize(13)
+            ));
+
+            offsetY += itemHeight;
         }
 
         // Finishing Clip for scrollbar
         composer.EndClip();
 
-        int increaser = 0;
-        if (levelsAdded > 18) increaser = 72;
-        else if (levelsAdded > 16) increaser = 70;
-        else if (levelsAdded > 14) increaser = 68;
-        else if (levelsAdded > 12) increaser = 66;
-        else if (levelsAdded > 10) increaser = 66;
-        else if (levelsAdded > 8) increaser = 64;
-        else if (levelsAdded > 6) increaser = 64;
-        else if (levelsAdded > 4) increaser = 58;
-        else if (levelsAdded > 2) increaser = 58;
-        else increaser = 54;
-
-        // Adding the size of scroll button
-        GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
-        double listHeight = 0;
-        for (int i = 0; i < levelsAdded; i++) listHeight += increaser;
-        scrollBar.SetHeights((float)containerBounds.fixedHeight, (float)listHeight);
+        instance.api.Event.EnqueueMainThreadTask(() =>
+        {
+            // Adding the size of scroll button
+            GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
+            scrollBar.SetHeights((float)clippingBounds.fixedHeight, (float)offsetY);
+        }, "FixScrollInit");
     }
 
     private void OnNewScrollbarValue(float value)

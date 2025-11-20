@@ -7,6 +7,7 @@ class LevelSmithing
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevel("Smithing");
         Configuration.RegisterNewLevelTypeEXP("Smithing", Configuration.SmithingGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Smithing", Configuration.SmithingGetExpByLevel);
 

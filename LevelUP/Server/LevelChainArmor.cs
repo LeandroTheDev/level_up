@@ -7,6 +7,7 @@ class LevelChainArmor
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevel("ChainArmor");
         Configuration.RegisterNewLevelTypeEXP("ChainArmor", Configuration.ChainArmorGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("ChainArmor", Configuration.ChainArmorGetExpByLevel);
 

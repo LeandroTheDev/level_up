@@ -18,6 +18,7 @@
 //         Instance.api.Event.PlayerNowPlaying += PlayerJoin;
 //         Instance.api.Event.PlayerDisconnect += PlayerDisconnect;
 //         Instance.api.Event.GameWorldSave += SaveState;
+//         Configuration.RegisterNewLevel("Metabolism");
 //         Configuration.RegisterNewLevelTypeEXP("Metabolism", Configuration.MetabolismGetLevelByEXP);
 //         Configuration.RegisterNewEXPLevelType("Metabolism", Configuration.MetabolismGetExpByLevel);
 

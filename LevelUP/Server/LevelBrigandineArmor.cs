@@ -7,6 +7,7 @@ class LevelBrigandineArmor
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevel("BrigandineArmor");
         Configuration.RegisterNewLevelTypeEXP("BrigandineArmor", Configuration.BrigandineArmorGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("BrigandineArmor", Configuration.BrigandineArmorGetExpByLevel);
 

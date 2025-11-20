@@ -7,6 +7,7 @@ class LevelPlateArmor
 #pragma warning disable CA1822
     public void Init()
     {
+        Configuration.RegisterNewLevel("PlateArmor");
         Configuration.RegisterNewLevelTypeEXP("PlateArmor", Configuration.PlateArmorGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("PlateArmor", Configuration.PlateArmorGetExpByLevel);
 

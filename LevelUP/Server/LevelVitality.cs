@@ -10,7 +10,7 @@ namespace LevelUP.Server;
 class LevelVitality
 {
     static private string _saveDirectory = "";
-    private Dictionary<string, double> _playerLoadedVitality = [];
+    private readonly Dictionary<string, double> _playerLoadedVitality = [];
 
     public void Init()
     {
@@ -18,6 +18,7 @@ class LevelVitality
         Instance.api.Event.PlayerNowPlaying += PlayerJoin;
         Instance.api.Event.PlayerDisconnect += PlayerDisconnect;
         Instance.api.Event.GameWorldSave += SaveState;
+        Configuration.RegisterNewLevel("Vitality");
         Configuration.RegisterNewLevelTypeEXP("Vitality", Configuration.VitalityGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Vitality", Configuration.VitalityGetExpByLevel);
 

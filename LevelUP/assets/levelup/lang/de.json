@@ -5,7 +5,7 @@
     "hardcore_message": "You died and lost {0}% progress on your levels",
 
     "levels_tab": "Levels",
-    "progress": "Progress: {0}",
+    "progress": "Progress: {0}%",
 
     "axe": "Axt",
     "pickaxe": "Spitzhacke",

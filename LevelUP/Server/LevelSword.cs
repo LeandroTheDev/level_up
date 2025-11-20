@@ -11,6 +11,7 @@ class LevelSword
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Configuration.RegisterNewLevel("Sword");
         Configuration.RegisterNewLevelTypeEXP("Sword", Configuration.SwordGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Sword", Configuration.SwordGetExpByLevel);
 

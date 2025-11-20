@@ -14,6 +14,7 @@ class LevelAxe
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        Configuration.RegisterNewLevel("Axe");
         Configuration.RegisterNewLevelTypeEXP("Axe", Configuration.AxeGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Axe", Configuration.AxeGetExpByLevel);
         

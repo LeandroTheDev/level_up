@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Client;
@@ -57,7 +58,7 @@ class Instance
         }
     }
 
-    private void SyncConfigurations(string json)
+    private static void SyncConfigurations(string json)
         => Configuration.ConsumeGeneratedClassJsonParameters(json);
 
     private void LevelUPMessage(int level, string levelType)
