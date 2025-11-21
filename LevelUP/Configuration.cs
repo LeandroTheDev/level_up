@@ -154,6 +154,7 @@ public static class Configuration
     public static bool hardcoreMessageWhenDying = true;
     public static bool enableLevelHunter = true;
     public static bool enableLevelBow = true;
+    public static bool enableLevelSlingshot = true;
     public static bool enableLevelKnife = true;
     public static bool enableLevelSpear = true;
     public static bool enableLevelHammer = true;
@@ -167,6 +168,7 @@ public static class Configuration
     public static bool enableLevelCooking = true;
     public static bool enableLevelPanning = true;
     public static bool enableLevelVitality = true;
+    public static bool enableLevelMetabolism = true;
     public static bool enableLevelLeatherArmor = true;
     public static bool enableLevelChainArmor = true;
     public static bool enableLevelBrigandineArmor = true;
@@ -230,6 +232,13 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelBow is not boolean is {value.GetType()}");
                 else enableLevelBow = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: enableLevelBow not set");
+        }
+        { //enableLevelSlingshot
+            if (baseConfigs.TryGetValue("enableLevelSlingshot", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelSlingshot is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelSlingshot is not boolean is {value.GetType()}");
+                else enableLevelSlingshot = (bool)value;
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelSlingshot not set");
         }
         { //enableLevelKnife
             if (baseConfigs.TryGetValue("enableLevelKnife", out object value))
@@ -328,6 +337,13 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelVitality is not boolean is {value.GetType()}");
                 else enableLevelVitality = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: enableLevelVitality not set");
+        }
+        { //enableLevelMetabolism
+            if (baseConfigs.TryGetValue("enableLevelMetabolism", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelMetabolism is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelMetabolism is not boolean is {value.GetType()}");
+                else enableLevelMetabolism = (bool)value;
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelMetabolism not set");
         }
         { //enableLevelLeatherArmor
             if (baseConfigs.TryGetValue("enableLevelLeatherArmor", out object value))
@@ -819,6 +835,199 @@ public static class Configuration
     public static float BowGetAimAccuracyByLevel(int level)
     {
         return bowBaseAimAccuracy + bowIncreaseAimAccuracyPerLevel * level;
+    }
+
+    #endregion
+
+    #region slingshot
+    public static Dictionary<string, int> entityExpSlingshot = [];
+    private static int slingshotEXPPerHit = 1;
+    private static int slingshotEXPPerLevelBase = 10;
+    private static double slingshotEXPMultiplyPerLevel = 1.3;
+    private static float slingshotBaseDamage = 1.0f;
+    private static float slingshotIncrementDamagePerLevel = 0.1f;
+    private static float slingshotBaseChanceToNotLoseRock = 50.0f;
+    private static float slingshotChanceToNotLoseRockBaseIncreasePerLevel = 2.0f;
+    private static int slingshotChanceToNotLoseRockReduceIncreaseEveryLevel = 5;
+    private static float slingshotChanceToNotLoseRockReduceQuantityEveryLevel = 0.2f;
+    private static float slingshotBaseAimAccuracy = 1.0f;
+    private static float slingshotIncreaseAimAccuracyPerLevel = 0.5f;
+    public static int slingshotMaxLevel = 999;
+
+    public static int ExpPerHitSlingshot => slingshotEXPPerHit;
+
+    public static void PopulateSlingshotConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> slingshotLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "slingshot",
+            "levelup:config/levelstats/slingshot.json");
+
+        { //slingshotEXPPerLevelBase
+            if (slingshotLevelStats.TryGetValue("slingshotEXPPerLevelBase", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: slingshotEXPPerLevelBase is not int is {value.GetType()}");
+                else slingshotEXPPerLevelBase = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotEXPPerLevelBase not set");
+        }
+        { //slingshotEXPMultiplyPerLevel
+            if (slingshotLevelStats.TryGetValue("slingshotEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: slingshotEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else slingshotEXPMultiplyPerLevel = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotEXPMultiplyPerLevel not set");
+        }
+        { //slingshotBaseDamage
+            if (slingshotLevelStats.TryGetValue("slingshotBaseDamage", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotBaseDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: slingshotBaseDamage is not double is {value.GetType()}");
+                else slingshotBaseDamage = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotBaseDamage not set");
+        }
+        { //slingshotIncrementDamagePerLevel
+            if (slingshotLevelStats.TryGetValue("slingshotIncrementDamagePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotIncrementDamagePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: slingshotIncrementDamagePerLevel is not double is {value.GetType()}");
+                else slingshotIncrementDamagePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotIncrementDamagePerLevel not set");
+        }
+        { //slingshotEXPPerHit
+            if (slingshotLevelStats.TryGetValue("slingshotEXPPerHit", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotEXPPerHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: slingshotEXPPerHit is not int is {value.GetType()}");
+                else slingshotEXPPerHit = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotEXPPerHit not set");
+            Experience.LoadExperience("slingshot", "Hit", (ulong)slingshotEXPPerHit);
+        }
+        { //slingshotBaseChanceToNotLoseRock
+            if (slingshotLevelStats.TryGetValue("slingshotBaseChanceToNotLoseRock", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotBaseChanceToNotLoseRock is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: slingshotBaseChanceToNotLoseRock is not double is {value.GetType()}");
+                else slingshotBaseChanceToNotLoseRock = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotBaseChanceToNotLoseRock not set");
+        }
+        { //slingshotChanceToNotLoseRockBaseIncreasePerLevel
+            if (slingshotLevelStats.TryGetValue("slingshotChanceToNotLoseRockBaseIncreasePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotChanceToNotLoseRockBaseIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: slingshotChanceToNotLoseRockBaseIncreasePerLevel is not double is {value.GetType()}");
+                else slingshotChanceToNotLoseRockBaseIncreasePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotChanceToNotLoseRockBaseIncreasePerLevel not set");
+        }
+        { //slingshotChanceToNotLoseRockReduceIncreaseEveryLevel
+            if (slingshotLevelStats.TryGetValue("slingshotChanceToNotLoseRockReduceIncreaseEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotChanceToNotLoseRockReduceIncreaseEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: slingshotChanceToNotLoseRockReduceIncreaseEveryLevel is not int is {value.GetType()}");
+                else slingshotChanceToNotLoseRockReduceIncreaseEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotChanceToNotLoseRockReduceIncreaseEveryLevel not set");
+        }
+        { //slingshotChanceToNotLoseRockReduceQuantityEveryLevel
+            if (slingshotLevelStats.TryGetValue("slingshotChanceToNotLoseRockReduceQuantityEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotChanceToNotLoseRockReduceQuantityEveryLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: slingshotChanceToNotLoseRockReduceQuantityEveryLevel is not double is {value.GetType()}");
+                else slingshotChanceToNotLoseRockReduceQuantityEveryLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotChanceToNotLoseRockReduceQuantityEveryLevel not set");
+        }
+        { //slingshotBaseAimAccuracy
+            if (slingshotLevelStats.TryGetValue("slingshotBaseAimAccuracy", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotBaseAimAccuracy is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: slingshotBaseAimAccuracy is not double is {value.GetType()}");
+                else slingshotBaseAimAccuracy = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotBaseAimAccuracy not set");
+        }
+        { //slingshotIncreaseAimAccuracyPerLevel
+            if (slingshotLevelStats.TryGetValue("slingshotIncreaseAimAccuracyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotIncreaseAimAccuracyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: slingshotIncreaseAimAccuracyPerLevel is not double is {value.GetType()}");
+                else slingshotIncreaseAimAccuracyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotIncreaseAimAccuracyPerLevel not set");
+        }
+        { //slingshotMaxLevel
+            if (slingshotLevelStats.TryGetValue("slingshotMaxLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: slingshotMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: slingshotMaxLevel is not int is {value.GetType()}");
+                else slingshotMaxLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: slingshotMaxLevel not set");
+        }
+
+        // Get entity exp
+        entityExpSlingshot.Clear();
+        Dictionary<string, object> tmpentityExpSlingshot = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/entityexp",
+            "slingshot",
+            "levelup:config/entityexp/slingshot.json");
+        foreach (KeyValuePair<string, object> pair in tmpentityExpSlingshot)
+        {
+            if (pair.Value is long value) entityExpSlingshot.Add(pair.Key, (int)value);
+            else Debug.Log($"CONFIGURATION ERROR: entityExpSlingshot {pair.Key} is not int");
+        }
+
+        Debug.Log("Slingshot configuration set");
+    }
+
+    public static int SlingshotGetLevelByEXP(ulong exp)
+    {
+        double baseExp = slingshotEXPPerLevelBase;
+        double multiplier = slingshotEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
+        {
+            return (int)(exp / baseExp);
+        }
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong SlingshotGetExpByLevel(int level)
+    {
+        double baseExp = slingshotEXPPerLevelBase;
+        double multiplier = slingshotEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
+    public static float SlingshotGetDamageMultiplyByLevel(int level)
+    {
+        return slingshotBaseDamage + slingshotIncrementDamagePerLevel * level;
+    }
+
+    public static float SlingshotGetChanceToNotLoseRockByLevel(int level)
+    {
+        int reduceEvery = slingshotChanceToNotLoseRockReduceIncreaseEveryLevel;
+        float baseChance = slingshotBaseChanceToNotLoseRock;
+        float baseIncrement = slingshotChanceToNotLoseRockBaseIncreasePerLevel;
+        float reductionPerStep = slingshotChanceToNotLoseRockReduceQuantityEveryLevel;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        finalChance += baseChance;
+
+        int chance = Random.Next(0, 100);
+
+        if (enableExtendedLog)
+            Debug.LogDebug($"Slingshot should not lose rock: {finalChance} : {chance}");
+
+        if (finalChance >= chance)
+            return 1.0f;
+        else
+            return 0.0f;
+    }
+
+    public static float SlingshotGetAimAccuracyByLevel(int level)
+    {
+        return slingshotBaseAimAccuracy + slingshotIncreaseAimAccuracyPerLevel * level;
     }
 
     #endregion
@@ -3163,6 +3372,163 @@ public static class Configuration
         float baseMultiply = vitalityEXPPerReceiveHit * (float)Math.Pow(multiplier, multiplesCount);
 
         return (int)Math.Round(baseMultiply);
+    }
+    #endregion
+
+    #region metabolism
+    private static int metabolismEXPPerReceiveHit = 30;
+    private static int metabolismEXPPerSaturationLost = 2;
+    private static int metabolismEXPIncreaseByAmountDamage = 1;
+    private static int metabolismEXPPerLevelBase = 10;
+    private static double metabolismEXPMultiplyPerLevel = 2.0;
+    private static float metabolismSaturationIncreasePerLevel = 10.0f;
+    private static float metabolismBaseSaturation = 10.0f;
+    private static float metabolismBaseSaturationReceiveMultiply = 1.0f;
+    private static float metabolismSaturationReceiveMultiplyPerLevel = 0.05f;
+    private static int metabolismSaturationReceiveMultiplyReductionEveryLevel = 1;
+    private static float metabolismSaturationReceiveMultiplyReductionPerReduce = 0.05f;
+    public static int metabolismMaxLevel = 999;
+
+    public static int EXPPerHitMetabolism => metabolismEXPPerReceiveHit;
+    public static int EXPPerSaturationLostMetabolism => metabolismEXPPerSaturationLost;
+
+    public static float BaseSaturationMetabolism => metabolismBaseSaturation;
+
+    public static void PopulateMetabolismConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> metabolismLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "metabolism",
+            "levelup:config/levelstats/metabolism.json");
+        { //metabolismEXPPerReceiveHit
+            if (metabolismLevelStats.TryGetValue("metabolismEXPPerReceiveHit", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerReceiveHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPPerReceiveHit is not int is {value.GetType()}");
+                else metabolismEXPPerReceiveHit = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerReceiveHit not set");
+        }
+        { //metabolismEXPPerSaturationLost
+            if (metabolismLevelStats.TryGetValue("metabolismEXPPerSaturationLost", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerSaturationLost is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPPerSaturationLost is not int is {value.GetType()}");
+                else metabolismEXPPerSaturationLost = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerSaturationLost not set");
+        }
+        { //metabolismEXPIncreaseByAmountDamage
+            if (metabolismLevelStats.TryGetValue("metabolismEXPIncreaseByAmountDamage", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismEXPIncreaseByAmountDamage is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPIncreaseByAmountDamage is not int is {value.GetType()}");
+                else metabolismEXPIncreaseByAmountDamage = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismEXPIncreaseByAmountDamage not set");
+            Experience.LoadExperience("metabolism", "Hit", (ulong)metabolismEXPIncreaseByAmountDamage);
+        }
+        { //metabolismEXPPerLevelBase
+            if (metabolismLevelStats.TryGetValue("metabolismEXPPerLevelBase", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPPerLevelBase is not int is {value.GetType()}");
+                else metabolismEXPPerLevelBase = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerLevelBase not set");
+            Experience.LoadExperience("metabolism", "Hit", (ulong)metabolismEXPPerLevelBase);
+        }
+        { //metabolismEXPMultiplyPerLevel
+            if (metabolismLevelStats.TryGetValue("metabolismEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: metabolismEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else metabolismEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismEXPMultiplyPerLevel not set");
+        }
+        { //metabolismSaturationIncreasePerLevel
+            if (metabolismLevelStats.TryGetValue("metabolismSaturationIncreasePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismSaturationIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: metabolismSaturationIncreasePerLevel is not double is {value.GetType()}");
+                else metabolismSaturationIncreasePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismSaturationIncreasePerLevel not set");
+        }
+        { //metabolismBaseSaturation
+            if (metabolismLevelStats.TryGetValue("metabolismBaseSaturation", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismBaseSaturation is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: metabolismBaseSaturation is not double is {value.GetType()}");
+                else metabolismBaseSaturation = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismBaseSaturation not set");
+        }
+        { //metabolismBaseSaturationReceiveMultiply
+            if (metabolismLevelStats.TryGetValue("metabolismBaseSaturationReceiveMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismBaseSaturationReceiveMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: metabolismBaseSaturationReceiveMultiply is not double is {value.GetType()}");
+                else metabolismBaseSaturationReceiveMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismBaseSaturationReceiveMultiply not set");
+        }
+        { //metabolismSaturationReceiveMultiplyPerLevel
+            if (metabolismLevelStats.TryGetValue("metabolismSaturationReceiveMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyPerLevel is not double is {value.GetType()}");
+                else metabolismSaturationReceiveMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyPerLevel not set");
+        }
+        { //metabolismMaxLevel
+            if (metabolismLevelStats.TryGetValue("metabolismMaxLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismMaxLevel is not int is {value.GetType()}");
+                else metabolismMaxLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismMaxLevel not set");
+        }
+
+        Debug.Log("Metabolism configuration set");
+    }
+
+    public static int MetabolismGetLevelByEXP(ulong exp)
+    {
+        double baseExp = metabolismEXPPerLevelBase;
+        double multiplier = metabolismEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
+        {
+            return (int)(exp / baseExp);
+        }
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong MetabolismGetExpByLevel(int level)
+    {
+        double baseExp = metabolismEXPPerLevelBase;
+        double multiplier = metabolismEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
+
+    public static float MetabolismGetMaxSaturationByLevel(int level)
+    {
+        return metabolismBaseSaturation + metabolismSaturationIncreasePerLevel * level;
+    }
+
+    public static float MetabolismGetSaturationReceiveMultiplyByLevel(int level)
+    {
+        int reduceEvery = metabolismSaturationReceiveMultiplyReductionEveryLevel;
+        float baseChance = metabolismBaseSaturationReceiveMultiply;
+        float baseIncrement = metabolismSaturationReceiveMultiplyPerLevel;
+        float reductionPerStep = metabolismSaturationReceiveMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double reducer = baseIncrement * (Math.Pow(r, level) - 1) / (r - 1);
+        reducer = baseChance - reducer;
+
+        Debug.LogDebug($"[MetabolismGetSaturationReceiveMultiplyByLevel] reducer returned: {reducer}");
+
+        return (float)reducer;
     }
     #endregion
 

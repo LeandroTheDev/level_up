@@ -6,6 +6,7 @@ using HarmonyLib;
 using LevelUP.Server;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
@@ -52,10 +53,10 @@ public class OverwriteBlockInteraction
         float dropRate = Configuration.KnifeGetHarvestMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"));
 
         // Integration
-        dropRate = OverwriteBlockInteractionEvents.GetExternalKnifeHarvest(byPlayer, dropRate);
+        dropRate = OverwriteBlockInteractionEvents.GetExternalKnifeHarvest(byPlayer, __instance.entity, dropRate);
 
         // Don't worry, it will be reseted automatically by the game
-        // For some reason the -1 is necessary for this Set function so it will calculated at 0
+        // 1 means 100%, but your formula return 1 by base, so lets put a -1f
         byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate - 1f);
 
         // Earn xp by harvesting the entity
@@ -1198,7 +1199,7 @@ public class OverwriteBlockInteraction
 #region Compatibility
 public static class OverwriteBlockInteractionEvents
 {
-    public delegate void PlayerFloatModifierHandler(IPlayer player, ref float number);
+    public delegate void PlayerFloatModifierHandler(IPlayer player, Entity harvestedEntity, ref float number);
     public delegate void PlayerFarmHandler(IPlayer player, string code, ref ulong exp, ref float multiply);
     public delegate void PlayerCookingSingleHandler(IPlayer player, string code, ref ulong exp, ref float freshHours);
     public delegate void PlayerCookingPotHandler(IPlayer player, string code, ref ulong exp, ref List<float> freshHours, ref float servings);
@@ -1220,9 +1221,9 @@ public static class OverwriteBlockInteractionEvents
     public static event PlayerSmithingItemHandler OnSmithingItem;
     public static event PlayerSmithingArmorHandler OnSmithingArmor;
 
-    internal static float GetExternalKnifeHarvest(IPlayer player, float multiply)
+    internal static float GetExternalKnifeHarvest(IPlayer player, Entity harvestedEntity, float multiply)
     {
-        OnKnifeHarvested?.Invoke(player, ref multiply);
+        OnKnifeHarvested?.Invoke(player, harvestedEntity, ref multiply);
         return multiply;
     }
 

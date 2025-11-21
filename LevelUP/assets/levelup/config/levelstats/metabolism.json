@@ -1,0 +1,14 @@
+{
+    "metabolismEXPPerReceiveHit": 30,
+    "metabolismEXPPerSaturationLost": 2,
+    "metabolismEXPIncreaseByAmountDamage": 1,
+    "metabolismEXPPerLevelBase": 10,
+    "metabolismEXPMultiplyPerLevel": 2.0,
+    "metabolismSaturationIncreasePerLevel": 10.0,
+    "metabolismBaseSaturation": 10.0,
+    "metabolismBaseSaturationReceiveMultiply": 1.0,
+    "metabolismSaturationReceiveMultiplyPerLevel": 0.05,
+    "metabolismSaturationReceiveMultiplyReductionEveryLevel": 1,
+    "metabolismSaturationReceiveMultiplyReductionPerReduce": 0.05,
+    "metabolismMaxLevel": 999
+}

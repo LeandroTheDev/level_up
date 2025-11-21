@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -60,7 +59,7 @@ class CharacterView
 
         // Adding the levels images and texts
         double offsetY = 0;
-        double itemHeight = 72; // ou sua variável increaser
+        double itemHeight = 72;
 
         foreach (var keyValuePair in instance.enabledLevels)
         {
@@ -112,8 +111,9 @@ class CharacterView
         }
     }
 
-    private int GetLevelByLevelName(string levelName) => instance.api.World.Player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelName}");
+    private int GetLevelByLevelName(string levelName)
+        => instance.api.World.Player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelName}");
 
-    private float GetEXPRemainingByLevelName(string levelName) =>
-        MathF.Round(instance.api.World.Player.Entity.WatchedAttributes.GetFloat($"LevelUP_Level_{levelName}_RemainingNextLevelPercentage"), 2);
+    private float GetEXPRemainingByLevelName(string levelName)
+        => MathF.Round(instance.api.World.Player.Entity.WatchedAttributes.GetFloat($"LevelUP_Level_{levelName}_RemainingNextLevelPercentage"), 2);
 }

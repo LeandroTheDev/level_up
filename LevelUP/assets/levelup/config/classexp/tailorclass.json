@@ -14,6 +14,7 @@
     "classCookingLevelMultiply": 2.0,
     "classPanningLevelMultiply": 2.5,
     "classVitalityLevelMultiply": 0.3,
+    "classMetabolismLevelMultiply": 1.5,
     "classLeatherArmorLevelMultiply": 2.0,
     "classChainArmorLevelMultiply": 2.0,
     "classBrigandineArmorLevelMultiply": 1.0,
