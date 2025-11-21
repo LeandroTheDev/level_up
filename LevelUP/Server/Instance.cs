@@ -15,6 +15,7 @@ public class Instance
     // Levels
     internal LevelHunter levelHunter = new();
     internal LevelBow levelBow = new();
+    internal LevelSlingshot levelSlingshot = new();
     internal LevelKnife levelKnife = new();
     internal LevelAxe levelAxe = new();
     internal LevelPickaxe levelPickaxe = new();
@@ -26,6 +27,7 @@ public class Instance
     internal LevelHand levelHand = new();
     internal LevelFarming levelFarming = new();
     internal LevelVitality levelVitality = new();
+    internal LevelMetabolism levelMetabolism = new();
     internal LevelCooking levelCooking = new();
     internal LevelPanning levelPanning = new();
     internal LevelLeatherArmor levelLeatherArmor = new();
@@ -54,6 +56,7 @@ public class Instance
         // Enable levels
         if (Configuration.enableLevelHunter) levelHunter.Init();
         if (Configuration.enableLevelBow) levelBow.Init();
+        if (Configuration.enableLevelSlingshot) levelBow.Init();
         if (Configuration.enableLevelKnife) levelKnife.Init();
         if (Configuration.enableLevelAxe) levelAxe.Init();
         if (Configuration.enableLevelPickaxe) levelPickaxe.Init();
@@ -65,6 +68,7 @@ public class Instance
         if (Configuration.enableLevelHand) levelHand.Init();
         if (Configuration.enableLevelFarming) levelFarming.Init();
         if (Configuration.enableLevelVitality) levelVitality.Init();
+        if (Configuration.enableLevelMetabolism) levelMetabolism.Init();
         if (Configuration.enableLevelCooking) levelCooking.Init();
         if (Configuration.enableLevelPanning) levelPanning.Init();
         if (Configuration.enableLevelLeatherArmor) levelLeatherArmor.Init();
@@ -138,7 +142,10 @@ public class Instance
         // Bow Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Bow", Experience.GetExperience(player, "Bow"), true);
 
-        // Axe Level
+        // Slingshot Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Slingshot", Experience.GetExperience(player, "Slingshot"), true);
+
+        // Knife Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Knife", Experience.GetExperience(player, "Knife"), true);
 
         // Axe Level
@@ -176,6 +183,9 @@ public class Instance
 
         // Vitality Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", Experience.GetExperience(player, "Vitality"), true);
+
+        // Metabolism Level
+        Shared.Instance.UpdateLevelAndNotify(api, player, "Metabolism", Experience.GetExperience(player, "Metabolism"), true);
 
         // Leather Armor Level
         Shared.Instance.UpdateLevelAndNotify(api, player, "LeatherArmor", Experience.GetExperience(player, "LeatherArmor"), true);

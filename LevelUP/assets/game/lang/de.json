@@ -81,5 +81,13 @@
 
     "levelupdocs-smithing": "About the Smithing",
     "levelupdocs-smithing-title": "Level: Smithing",
-    "levelupdocs-smithing-text": "<strong>Smithing</strong><br><i>Smithing: Forger</i><br><br>When you craft tools/armors you will gain experience with smithing, depending on the craft you might earn more experience.<br><br><strong>Upgrades</strong><br>Smithing will garant more durability, attack power, mining speed for your tools and protection for your armors, smithing have sub levels, specific tools and armors will be better than others, depending on how much you craft the specific tool or armor."
+    "levelupdocs-smithing-text": "<strong>Smithing</strong><br><i>Smithing: Forger</i><br><br>When you craft tools/armors you will gain experience with smithing, depending on the craft you might earn more experience.<br><br><strong>Upgrades</strong><br>Smithing will garant more durability, attack power, mining speed for your tools and protection for your armors, smithing have sub levels, specific tools and armors will be better than others, depending on how much you craft the specific tool or armor.",
+
+    "levelupdocs-metabolism": "About the Metabolism",
+    "levelupdocs-metabolism-title": "Level: Metabolism",
+    "levelupdocs-metabolism-text": "<strong>Metabolism</strong><br><i>Metabolism: Survivalist</i><br><br>Been hungry and losing saturation will make you earn experience with metabolism.<br><br><strong>Upgrades</strong><br>Metabolism will garant more saturation and lesse saturation consume.",
+
+    "levelupdocs-slingshot": "About the Slingshot",
+    "levelupdocs-slingshot-title": "Level: Slingshot",
+    "levelupdocs-slingshot-text": "<strong>Slingshot</strong><br><i>Slingshot: Rock and Stone</i><br><br>Using the slingshot or throwing stones into enemies will garant experience in slingshot.<br><br><strong>Upgrades</strong><br>Increase slingshot accuracy and rock throw acurracy, reduce the chance to losing the rock after hit."
 }

@@ -1,16 +1,16 @@
 # Level UP
-Add a new mechanic to vintage story, a new level system to make your character stronger and efficient during the gameplay, making your feels you are progressing through the gameplay.
+Brand new levels for your character in Vintage Story, earn levels by doing actions, become stronger and efficient during the gameplay.
+Makes you feels progress through the gameplay.
 
-| Mod           | Compatibility                        |
-|----------------|------------------------------------|
-| Item Rarity    | Not compatible with Smithing Level  |
-| XSkills       | Not compatible with Cooking Level   |
-| CombatOverhaul | Not compatible with Bow Level       |
+| Mod            | Compatibility                                               |
+|----------------|-------------------------------------------------------------|
+| Item Rarity    | Not compatible with Smithing Level                          |
+| XSkills        | Not compatible with Cooking Level                           |
+| CombatOverhaul | Not compatible with Bow Level and some custom weapons       |
+| Any mod that repair weapons | Requires attetion in this [fix](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#levelupsharedoverwriteblockinteractionexecutesmithitemcraftedcalculations)              |
 
 ### IMPORTANT
-This mod drastically changes the player status and its not recoverable in normal ways, PLEASE make a backup of your world, to reset players status you will need to use specific commands, please review the [Wiki-Commands](https://github.com/LeandroTheDev/level_up/wiki/Commands) to get more information to reset player status.
-
-Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
+### Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
 
 Features:
 - Fully configurable
@@ -25,8 +25,11 @@ Features:
 
 Not all item codes is added to the json configurations files, some armors/items/meats/entities/blocks can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
 
+## Resume
+The mods simple increase your status, use a lot of shovel? then your dig speed will be increased, you love bows and only use them? become a ranged killing machine increasing accuracy/damage and increasing chance to keep arrow after hit, you prefer to be a smithing and only smiths items? well other players will love you because your craftings now will have increased damage and durability.
+
 ### Observations
-To change the configurations go to the vintage story data, for windows in appdata for linux in .config for server is the path you set in serverconfig.json, find the folder ModConfig/LevelUP, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to know what each configuration does, if any update from levelup add new configuration you will need to manually added them to fix logs errors, otherwises will have the default value.
+Configurations will be located in the folder ModConfig/LevelUP, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to know what each configuration does, if any update from levelup add new configuration you will need to manually added them to fix logs errors, otherwises will have the default value.
 
 Level UP Data will be stored in ModData/LevelUP/WorldIdentifier.
 
@@ -36,12 +39,30 @@ This mod changes a lot of native codes and can break easily throught updates.
 
 Level UP is a mod that adds several types of events to player actions, don't expect the mod to be lightweight (for servers).
 
-Hardcore mode will not reduce the level, only the progress to the next level.
-
 The experience data is saved everytime the world is saved or the player disconnect from the server, if the server dies unexpectedly, experiences may be lost for a few minutes since the last save.
+
+English is not my main language, if you encounter any translation problems, please let me know.
+
+# Mods Compatibility
+
+"My custom weapon from my mod does not work with level up!!", check your weapon json, find the "tool" section:
+```json
+{
+    "tool": "axe"
+}
+```
+If the weapon doesn't have this add it to fix the problem, levelup support only: ``shovel,axe,spear,sword,pickaxe,hammer,knife``, "but my weapon uses a custom type that levelup does not support what i need to do?" in that case is more complicated, you need to edit your mod and use the [mod api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#levelupsharedoverwritedamageinteractionevents) to listen for levelup event (OnPlayerMeleeDoDamageStart and OnPlayerRangedDoDamageStart), and make your own handling for the custom type, or alternatively but less recommended fork the project and change the [ReceiveDamageStart](https://github.com/LeandroTheDev/level_up/blob/main/LevelUP/Shared/OverrideDamageInteraction.cs) function, find the ``player.InventoryManager.ActiveTool`` and add the custom ``Enumeration``, my honest recommendation is to edit your mod for that situation.
+
+"But my custom armor also don't work...", if your armor is made of: ``leather/chain/brigandine/plate/scale`` then you are lucky, open the configurations from one of the armor type and put the ``item id`` inside it, or create a [patch](https://wiki.vintagestory.at/Modding:JSON_Patching) to be persistent,  if not..., well you will need to integrate a custom level in your mod, in that case the [api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#custom-level) will help you.
+
+"None of my food mods work with levelup!!!!", is very simple to fix that, the good way for your mod is to create a [patch](https://wiki.vintagestory.at/Modding:JSON_Patching), patch the ``assets/levelup/config/levelstats/cookingsingles.json`` for singular foods and ``assets/levelup/config/levelstats/cookingpots.json`` for custom pots, and the next time you generate the configurations will automatically be patched, alternatively you can manually edit ``ModConfig/LevelUP/config/levelstats/cooking...`` (This is the easist if you don't know how to patch, but is not persistent if you change the world or servers).
+
+"I have custom classes and a lot of warning is called in my console", this is because you need to add your custom classes inside ``ModConfig/LevelUP/config/classexp``, you can edit your class mod to automatically add the configs to prevent users to have this warning without manually adding the classes.
 
 ### Important Configurations
 Vitality will overwrite the health system, you need to change in configuration the base health system in ``levelstats/vitality.json`` changing in default game configuration will have no effects, if you don't want this feature consider disabling in configuration before generating joining the world
+
+Metabolism works as the same as vitality, changing base saturation ingame will have no effect you need to change in ``levelstats/metabolis.json``
 
 Debug logs is by default disabled, if you need to send logs you can send logs in [issues](https://github.com/LeandroTheDev/level_up/issues) case of errors and bugs, you can enable it in base.json: ``enableExtendedLog``, this also can cause some cpu performances problems in low end cpus.
 
@@ -56,6 +77,7 @@ Inspirations:
 - Valheim Level UP System
 - Runescape Level UP System
 - Minecraft LevelZ mod
+- Project Zomboid Level UP System
 
 # Building
 - Install .NET in your system, open terminal type: ``dotnet new install VintageStory.Mod.Templates``
