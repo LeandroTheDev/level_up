@@ -460,9 +460,31 @@ class OverwriteDamageInteraction
     }
     #endregion
     #region slingshot
-    // Overwrite Spear shot start
+    // Overwrite Stone shot
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ItemStone), "OnHeldInteractStop")]
+    public static void OnHeldInteractSlingshotStoneStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
+    {
+        if (!Configuration.enableLevelSlingshot) return;
+        if (byEntity.Api.Side != EnumAppSide.Server) return;
+
+        if (byEntity is EntityPlayer)
+        {
+            float chance = Configuration.SlingshotGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0));
+
+            // Integration
+            chance = OverwriteDamageInteractionEvents.GetExternalSlingshotAiming((byEntity as EntityPlayer).Player, chance);
+
+            // Setting new aim accuracy
+            byEntity.Attributes.SetFloat("aimingAccuracy", chance);
+
+            Debug.LogDebug($"Slingshot Accuracy: {chance}");
+        }
+    }
+
+    // Overwrite Slingshot shot start
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ItemSling), "OnHeldInteractStop")]
     public static void OnHeldInteractSlingshotStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
     {
         if (!Configuration.enableLevelSlingshot) return;

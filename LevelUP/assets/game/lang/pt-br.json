@@ -81,5 +81,13 @@
 
     "levelupdocs-smithing": "Sobre a Ferraria",
     "levelupdocs-smithing-title": "Níveis: Ferraria",
-    "levelupdocs-smithing-text": "<strong>Ferraria</strong><br><i>Ferraria: Forjador</i><br><br>Quando você craftar ferramentas ou armaduras você irá obter experiência, dependendo do craft você recebera mais experiência.<br><br><strong>Melhorias</strong><br>Ferraria irá garantir ferramentas e armadura com durabilidade, dano, velocidade de mineração maior e aumento de proteção nas armaduras, ferraria tem sub níveis, quanto mais você craftar uma ferramenta ou armadura mais forte será, dependerá do quanto você crafta ela."
+    "levelupdocs-smithing-text": "<strong>Ferraria</strong><br><i>Ferraria: Forjador</i><br><br>Quando você craftar ferramentas ou armaduras você irá obter experiência, dependendo do craft você recebera mais experiência.<br><br><strong>Melhorias</strong><br>Ferraria irá garantir ferramentas e armadura com durabilidade, dano, velocidade de mineração maior e aumento de proteção nas armaduras, ferraria tem sub níveis, quanto mais você craftar uma ferramenta ou armadura mais forte será, dependerá do quanto você crafta ela.",
+
+    "levelupdocs-metabolism": "Sobre o Metabolismo",
+    "levelupdocs-metabolism-title": "Níveis: Metabolismo",
+    "levelupdocs-metabolism-text": "<strong>Metabolismo</strong><br><i>Metabolismo: Sobrevivencialista </i><br><br>Estar com fome e perder saturação irão fazer você obter experiência com metabolismo.<br><br><strong>Melhorias</strong><br>Metabolismo irá garantir um aumento de saturação e redução de consumo.",
+
+    "levelupdocs-slingshot": "Sobre o Estilingue",
+    "levelupdocs-slingshot-title": "Níveis: Estilingue",
+    "levelupdocs-slingshot-text": "<strong>Estilingue</strong><br><i>Estilingue: Pedra sobre Pedra</i><br><br>Usar o estilingue ou arremeçar pedras nos inimigos irá garantir experiência com estilingue.<br><br><strong>Melhorias</strong><br>Aumenta a precisão ao utilizar estilingue ou jogar uma pedra, reduz a chance de perder a pedrao ao acertar."
 }
