@@ -1,0 +1,14 @@
+{
+    "slingshotEXPPerHit": 10,
+    "slingshotEXPPerLevelBase": 500,
+    "slingshotEXPMultiplyPerLevel": 1.1,
+    "slingshotBaseDamage": 1.0,
+    "slingshotIncrementDamagePerLevel": 0.1,
+    "slingshotBaseChanceToNotLoseSlingshot": 50.0,
+    "slingshotChanceToNotLoseSlingshotBaseIncreasePerLevel": 2.0,
+    "slingshotChanceToNotLoseSlingshotReduceIncreaseEveryLevel": 5,
+    "slingshotChanceToNotLoseSlingshotReduceQuantityEveryLevel": 0.2,
+    "slingshotBaseAimAccuracy": 0.8,
+    "slingshotIncreaseAimAccuracyPerLevel": 0.02,
+    "slingshotMaxLevel": 999
+}

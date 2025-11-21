@@ -7,7 +7,7 @@ using Vintagestory.API.Common;
 partial class Utils
 {
     // Non authenticated server can let players use whatever ID he wants
-    // if a player set their UID as "../../../../Whatever" he can save their experience]
+    // if a player set their UID as "../../../../Whatever" he can save their experience
     // outside the folder, so in that case we will stop that using this validator
     // that will throw any exception and disconnect the player
     static public bool ValidatePlayerUID(IPlayer player)

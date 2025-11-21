@@ -393,6 +393,18 @@ class OverwriteDamageInteraction
 
             Debug.LogDebug($"{player.PlayerName} received final damage: {damage}");
         }
+        // Metabolism Hunger system
+        else if (__instance is EntityPlayer && damageSource.Type == EnumDamageType.Hunger)
+        {
+            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer)?.GetName()} received hunger damage: {damage}");
+
+            // Get player source
+            EntityPlayer playerEntity = __instance as EntityPlayer;
+            // Get player instance
+            IPlayer player = playerEntity.Player;
+
+            Experience.IncreaseExperience(player, "Metabolism", (ulong)Configuration.EXPPerHitMetabolism);
+        }
 
         // If the armor reduces less than 0, just change to 0
         if (damage < 0) damage = 0;
@@ -444,6 +456,29 @@ class OverwriteDamageInteraction
             byEntity.Attributes.SetFloat("aimingAccuracy", chance);
 
             Debug.LogDebug($"Bow Accuracy: {chance}");
+        }
+    }
+    #endregion
+    #region slingshot
+    // Overwrite Spear shot start
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(ItemStone), "OnHeldInteractStop")]
+    public static void OnHeldInteractSlingshotStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
+    {
+        if (!Configuration.enableLevelSlingshot) return;
+        if (byEntity.Api.Side != EnumAppSide.Server) return;
+
+        if (byEntity is EntityPlayer)
+        {
+            float chance = Configuration.SlingshotGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0));
+
+            // Integration
+            chance = OverwriteDamageInteractionEvents.GetExternalSlingshotAiming((byEntity as EntityPlayer).Player, chance);
+
+            // Setting new aim accuracy
+            byEntity.Attributes.SetFloat("aimingAccuracy", chance);
+
+            Debug.LogDebug($"Slingshot Accuracy: {chance}");
         }
     }
     #endregion
@@ -555,6 +590,28 @@ class OverwriteDamageInteraction
         return false;
     }
     #endregion
+    #region metabolism
+    // Overwrite Player Regen
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
+    public static void ConsumeSaturation(EntityBehaviorHunger __instance, ref float amount)
+    {
+        if (!Configuration.enableLevelMetabolism) return;
+
+        if (__instance.entity is EntityPlayer entityPlayer)
+        {
+            int playerLevel = Configuration.MetabolismGetLevelByEXP(Experience.GetExperience(entityPlayer.Player, "Metabolism"));
+            float reducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(playerLevel);
+
+            amount = OverwriteDamageInteractionEvents.GetExternalHungerConsumeAmount(entityPlayer.Player, amount);
+
+            Debug.LogDebug($"[Metabolism] saturation consume reduced by: {reducer * 100}%, result: {amount} => {amount * reducer}");
+            amount *= reducer;
+
+            Experience.IncreaseExperience(entityPlayer.Player, "Metabolism", (ulong)Configuration.EXPPerSaturationLostMetabolism);
+        }
+    }
+    #endregion
 }
 
 #region Compatibility
@@ -572,9 +629,11 @@ public static class OverwriteDamageInteractionEvents
     public static event DamageArmorModifierHandler OnPlayerReceiveDamageFinish;
     public static event PlayerFloatModifierHandler OnBowDropChanceRefresh;
     public static event PlayerFloatModifierHandler OnBowAimingRefresh;
+    public static event PlayerFloatModifierHandler OnSlingshotAimingRefresh;
     public static event PlayerFloatModifierHandler OnSpearAimingRefresh;
     public static event DamageModifierHandler OnPlayerShieldReceiveDamageStart;
     public static event DamageModifierHandler OnPlayerShieldReceiveDamageFinish;
+    public static event PlayerFloatModifierHandler OnHungerConsumed;
 
     internal static float GetExternalMeleeDamageStart(IPlayer player, DamageSource damageSource, float damage)
     {
@@ -624,6 +683,12 @@ public static class OverwriteDamageInteractionEvents
         return chance;
     }
 
+    internal static float GetExternalSlingshotAiming(IPlayer player, float chance)
+    {
+        OnSlingshotAimingRefresh?.Invoke(player, ref chance);
+        return chance;
+    }
+
     internal static float GetExternalSpearAiming(IPlayer player, float chance)
     {
         OnSpearAimingRefresh?.Invoke(player, ref chance);
@@ -640,6 +705,12 @@ public static class OverwriteDamageInteractionEvents
     {
         OnPlayerShieldReceiveDamageFinish?.Invoke(player, damageSource, ref damage);
         return damage;
+    }
+
+    internal static float GetExternalHungerConsumeAmount(IPlayer player, float amount)
+    {
+        OnHungerConsumed?.Invoke(player, ref amount);
+        return amount;
     }
 }
 #endregion
