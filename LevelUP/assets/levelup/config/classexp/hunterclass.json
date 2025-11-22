@@ -1,6 +1,7 @@
 {
     "classHunterLevelMultiply": 2.0,
     "classBowLevelMultiply": 2.5,
+    "classSlingshotLevelMultiply": 0.9,
     "classKnifeLevelMultiply": 1.5,
     "classAxeLevelMultiply": 0.7,
     "classPickaxeLevelMultiply": 0.5,

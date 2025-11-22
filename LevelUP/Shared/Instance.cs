@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using LevelUP.Server;
 using Vintagestory.API.Common;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -77,17 +79,29 @@ class Instance
             }
         }
 
-        // Experience
-        player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}", (long)exp);
-        // Level
-        player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
+        // This is a heavy formula calculations, we run on task to reduce and prevent lag spikes
+        Task.Run(() =>
+        {
+            // Experience
+            player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}", (long)exp);
+            // Level
+            player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
 
-        // Mining speed
-        float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
-        // Check if this levelType has mining speed
-        if (miningspeed != -1)
-            // Set the mining speed for clients
-            player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
+            // Mining speed
+            float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
+            // Check if this levelType has mining speed
+            if (miningspeed != -1)
+                // Set the mining speed for clients
+                player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
+
+            // Refresh metabolism
+            if (levelType == "Metabolism")
+            {
+                float saturationConsumeReducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(nextLevel);
+                player.Entity.WatchedAttributes.SetFloat($"LevelUP_MetabolismReceiveMultiply", saturationConsumeReducer);
+            }
+
+        });
     }
 
     public static void UpdateSubLevelAndNotify(ICoreServerAPI _, IPlayer player, string levelType, string subLevelType, ulong exp, bool disableLevelUpNotify = false)

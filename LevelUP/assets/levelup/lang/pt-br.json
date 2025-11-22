@@ -11,6 +11,7 @@
     "pickaxe": "Picareta",
     "shovel": "Pá",
     "bow": "Arco",
+    "slingshot": "Estilingue",
     "spear": "Lança",
     "knife": "Faca",
     "hammer": "Martelo",
@@ -29,5 +30,6 @@
     "farming": "Fazendeiro",
     "cooking": "Cozinheiro",
     "panning": "Peneirar",
-    "vitality": "Vitalidade"
+    "vitality": "Vitalidade",
+    "metabolism": "Metabolismo"
 }
