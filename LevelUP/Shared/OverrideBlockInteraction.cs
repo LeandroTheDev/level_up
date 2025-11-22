@@ -720,26 +720,6 @@ public class OverwriteBlockInteraction
         });
     }
 
-    // Overwrite Interaction Mining Speed
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(BlockBehavior), "GetMiningSpeedModifier")]
-    [HarmonyPriority(Priority.VeryHigh)]
-    internal static float GetMiningSpeedModifier(float __result, IWorldAccessor world, BlockPos pos, IPlayer byPlayer)
-    {
-        if (byPlayer == null) return __result;
-        ItemStack equippedItemStack = byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack;
-        if (equippedItemStack == null) return __result;
-
-        Block blockBreaking = world.GetBlockAccessor(false, false, false).GetBlock(pos);
-        if (blockBreaking == null) return __result;
-
-        float miningSpeed = equippedItemStack.Attributes.GetFloat($"{blockBreaking.BlockMaterial}_miningspeed", -1f);
-        if (miningSpeed == -1f) return __result;
-        else __result = miningSpeed;
-
-        return __result;
-    }
-
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
     [HarmonyPriority(Priority.VeryHigh)]
@@ -748,6 +728,7 @@ public class OverwriteBlockInteraction
         if (forPlayer == null) return __result;
 
         float miningSpeed = itemstack.Attributes.GetFloat($"{block.BlockMaterial}_miningspeed", -1f);
+        Debug.LogDebug($"[GetMiningSpeed] {forPlayer.PlayerName} mining speed after break: {miningSpeed}/{__result}");
 
         if (miningSpeed == -1f) return __result;
         else __result = miningSpeed;
