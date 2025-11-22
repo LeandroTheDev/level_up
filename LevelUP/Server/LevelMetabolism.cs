@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Vintagestory.API.Common;
@@ -13,7 +14,7 @@ namespace LevelUP.Server;
 class LevelMetabolism
 {
     static private string _saveDirectory = "";
-    private Dictionary<string, double> _playerLoadedMetabolism = [];
+    private readonly Dictionary<string, double> _playerLoadedMetabolism = [];
 
     public void Init()
     {
@@ -21,11 +22,36 @@ class LevelMetabolism
         Instance.api.Event.PlayerNowPlaying += PlayerJoin;
         Instance.api.Event.PlayerDisconnect += PlayerDisconnect;
         Instance.api.Event.GameWorldSave += SaveState;
+        Instance.api.Event.RegisterGameTickListener(OnGameTick, 1000, 10000);
         Configuration.RegisterNewLevel("Metabolism");
         Configuration.RegisterNewLevelTypeEXP("Metabolism", Configuration.MetabolismGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Metabolism", Configuration.MetabolismGetExpByLevel);
 
         Debug.Log("Level Metabolism initialized");
+    }
+
+    private void OnGameTick(float obj)
+    {
+        Task.Run(() =>
+        {
+            foreach (KeyValuePair<string, double> keyValuePair in _playerLoadedMetabolism)
+            {
+                IPlayer player = Instance.api.World.AllOnlinePlayers.First((player) => player.PlayerUID == keyValuePair.Key);
+                // Should never be null, but just in case...
+                if (player == null) { Debug.LogError($"[METABOLISM] [OnGameTick] Cannot find player when refreshing saturation, caused by {keyValuePair.Key}"); continue; }
+
+                // Get player stats
+                EntityBehaviorHunger playerStats = player.Entity.GetBehavior<EntityBehaviorHunger>();
+                // Check if stats is null
+                if (playerStats == null) { Debug.LogError($"[METABOLISM] [OnGameTick] ERROR GETTING SATURATION: Player Stats is null, caused by {player.PlayerName}"); continue; }
+
+                if (playerStats.Saturation < keyValuePair.Value)
+                {
+                    _playerLoadedMetabolism[keyValuePair.Key] = playerStats.Saturation;
+                    Experience.IncreaseExperience(player, "Metabolism", (ulong)Configuration.EXPPerSaturationLostMetabolism);
+                }
+            }
+        });
     }
 
 #pragma warning disable CA1822

@@ -718,7 +718,10 @@ class OverwriteDamageInteraction
             Debug.LogDebug($"[Metabolism] behavior values: S{__instance.Saturation}, SM: {__instance.MaxSaturation}");
             amount *= reducer;
 
-            Experience.IncreaseExperience(entityPlayer.Player, "Metabolism", (ulong)Configuration.EXPPerSaturationLostMetabolism);
+            // Better not do that, increase experience uses to much cpu and this function is called every real tick
+            // This is the reason to lag some servers
+            // We need other alternative for that
+            // Experience.IncreaseExperience(entityPlayer.Player, "Metabolism", (ulong)Configuration.EXPPerSaturationLostMetabolism);
         }
     }
     #endregion
