@@ -11,6 +11,7 @@
     "pickaxe": "Pickaxe",
     "shovel": "Shovel",
     "bow": "Bow",
+    "slingshot": "Slingshot",
     "spear": "Spear",
     "knife": "Knife",
     "hammer": "Hammer",
@@ -29,5 +30,6 @@
     "farming": "Farming",
     "cooking": "Cooking",
     "panning": "Panning",
-    "vitality": "Vitality"
+    "vitality": "Vitality",
+    "metabolism": "Metabolism"
 }

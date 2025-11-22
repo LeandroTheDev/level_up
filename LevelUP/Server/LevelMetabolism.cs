@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using System.Threading.Tasks;
 using Vintagestory.API.Common;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -184,8 +187,26 @@ class LevelMetabolism
             Debug.LogError($"[METABOLISM] Cannot find the player: {player.PlayerName} saturation, something goes wrong");
         }
 
+        // SyncPlayerMaxSaturation(player, playerStats.MaxSaturation);
+
         Debug.LogDebug($"[METABOLISM] {player.PlayerName} joined the world with max: {playerStats.MaxSaturation} saturation and {playerStats.Saturation} actual saturation");
         Debug.LogDebug($"[METABOLISM] Calculation Variables: {playerMaxSaturation}, Level: {Configuration.MetabolismGetLevelByEXP(playerExp)}");
+
+        // For some magical and astronomical reason, we need to wait a little bit
+        // before updating the watched attribute from hunger, because otherwises a unkown
+        // function will reset your maxsaturation value (only in client for another astronomical reason)
+        Task.Run(async () =>
+        {
+            // Yes we do 10 times, just in case..., a slow client could not have the update in time before reseting
+            for (var i = 0; i < 10; i++)
+            {
+                // The tree for hunger behavior is private, so we need to get it with reflection
+                var field = typeof(EntityBehaviorHunger).GetField("hungerTree", BindingFlags.NonPublic | BindingFlags.Instance);
+                // Now we sync the hunger watched attribute with the client
+                player.Entity.WatchedAttributes.SetAttribute("hunger", field.GetValue(playerStats) as ITreeAttribute);
+                await Task.Delay(500);
+            }
+        });
     }
 
     private void PlayerDisconnect(IServerPlayer player)
@@ -214,4 +235,7 @@ class LevelMetabolism
             UnloadPlayer(player);
         }
     }
+
+    private static void SyncPlayerMaxSaturation(IServerPlayer player, float maxSaturation)
+        => Instance.CommunicationChannel.SendPacket(new ServerMessage() { message = $"syncmaxsaturation&{maxSaturation}" }, player);
 }

@@ -56,7 +56,7 @@ public class Instance
         // Enable levels
         if (Configuration.enableLevelHunter) levelHunter.Init();
         if (Configuration.enableLevelBow) levelBow.Init();
-        if (Configuration.enableLevelSlingshot) levelBow.Init();
+        if (Configuration.enableLevelSlingshot) levelSlingshot.Init();
         if (Configuration.enableLevelKnife) levelKnife.Init();
         if (Configuration.enableLevelAxe) levelAxe.Init();
         if (Configuration.enableLevelPickaxe) levelPickaxe.Init();
@@ -101,6 +101,7 @@ public class Instance
         // Levels Configs
         levelHunter.PopulateConfiguration(coreAPI);
         levelBow.PopulateConfiguration(coreAPI);
+        levelSlingshot.PopulateConfiguration(coreAPI);
         levelKnife.PopulateConfiguration(coreAPI);
         levelAxe.PopulateConfiguration(coreAPI);
         levelPickaxe.PopulateConfiguration(coreAPI);
@@ -112,6 +113,7 @@ public class Instance
         levelHand.PopulateConfiguration(coreAPI);
         levelFarming.PopulateConfiguration(coreAPI);
         levelVitality.PopulateConfiguration(coreAPI);
+        levelMetabolism.PopulateConfiguration(coreAPI);
         levelCooking.PopulateConfiguration(coreAPI);
         levelPanning.PopulateConfiguration(coreAPI);
         levelLeatherArmor.PopulateConfiguration(coreAPI);

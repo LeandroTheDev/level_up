@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using HarmonyLib;
 using LevelUP.Server;
 using Vintagestory.API.Common;
@@ -55,6 +56,7 @@ class OverwriteDamageInteraction
                 return
                 // Native Game
                 damageSource.SourceEntity is EntityProjectile ||
+                damageSource.SourceEntity is EntityThrownStone ||
                 // Combat Overhaul compatibility
                 damageSource.SourceEntity.GetType().ToString() == "CombatOverhaul.RangedSystems.ProjectileEntity";
             }
@@ -176,6 +178,15 @@ class OverwriteDamageInteraction
                 {
                     damage *= Configuration.BowGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
                     Experience.IncreaseExperience(player, "Bow", "Hit");
+                }
+                #endregion
+
+                #region slingshot
+                // Increase the damage if the damage source is from any throw stone
+                if (Configuration.enableLevelSlingshot && damageSource.SourceEntity.GetName().Contains("thrownstone"))
+                {
+                    damage *= Configuration.SlingshotGetDamageMultiplyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot"));
+                    Experience.IncreaseExperience(player, "Slingshot", "Hit");
                 }
                 #endregion
 
@@ -482,7 +493,7 @@ class OverwriteDamageInteraction
         }
     }
 
-    // Overwrite Slingshot shot start
+    // Overwrite Slingshot shot
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ItemSling), "OnHeldInteractStop")]
     public static void OnHeldInteractSlingshotStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
@@ -503,6 +514,83 @@ class OverwriteDamageInteraction
             Debug.LogDebug($"Slingshot Accuracy: {chance}");
         }
     }
+
+    // Disable stone tickrate if damage already done
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(EntityThrownStone), "OnGameTick")]
+    public static bool EntityThrownStoneOnGameTick(EntityThrownStone __instance, float dt)
+    {
+        if (!Configuration.enableLevelSlingshot) return true;
+        if (__instance.Api.Side != EnumAppSide.Server) return true;
+
+        // Disable function if damage was done
+        if (__instance.WatchedAttributes.GetBool("damageDone")) return false;
+        else return true;
+    }
+
+    // Transpiler to remove Die() function from entity hit on rock throw
+    [HarmonyTranspiler]
+    [HarmonyPatch(typeof(EntityThrownStone), "OnGameTick")]
+#pragma warning disable IDE0051
+    static List<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+#pragma warning restore IDE0051
+    {
+        var list = new List<CodeInstruction>(instructions);
+        if (!Configuration.enableLevelSlingshot) return list;
+
+        var dieMethod = AccessTools.Method(typeof(Entity), "Die", [typeof(EnumDespawnReason), typeof(DamageSource)]);
+
+        int lastCallIndex = -1;
+
+        // Try to find last Die() function
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i].Calls(dieMethod))
+            {
+                lastCallIndex = i;
+            }
+        }
+
+        // Can't find the Die() function, probably broken by new update
+        if (lastCallIndex == -1)
+        {
+            Debug.LogError("[EntityThrownStone] Oh no function not found, please report it");
+            return list;
+        }
+
+        // Overwrite the die to your own die function
+        var stubMethod = AccessTools.Method(typeof(DieStubs), "DieSkip");
+
+        list[lastCallIndex].opcode = OpCodes.Call;
+        list[lastCallIndex].operand = stubMethod;
+
+        Debug.LogDebug("[EntityThrownStone] Die() function transpiled");
+
+        return list;
+    }
+
+    // Transpiler class to fake the die function
+    public static class DieStubs
+    {
+        public static void DieSkip(EntityThrownStone self, EnumDespawnReason reason, DamageSource source)
+        {
+            // Add a new boolean to detect if the rock damage was already done
+            self.WatchedAttributes.SetBool("damageDone", true);
+
+            if (self.FiredBy is EntityPlayer entityPlayer)
+            {
+                if (!Configuration.SlingshotGetChanceToNotLoseRockByLevel(entityPlayer.WatchedAttributes.GetInt("LevelUP_Level_Slingshot")))
+                {
+                    self.Die();
+                }
+            }
+            else
+            {
+                self.Die();
+            }
+        }
+    }
+
     #endregion
     #region spear
     // Overwrite Spear shot start
@@ -613,7 +701,7 @@ class OverwriteDamageInteraction
     }
     #endregion
     #region metabolism
-    // Overwrite Player Regen
+    // Overwrite Saturation consume
     [HarmonyPrefix]
     [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
     public static void ConsumeSaturation(EntityBehaviorHunger __instance, ref float amount)
@@ -622,12 +710,12 @@ class OverwriteDamageInteraction
 
         if (__instance.entity is EntityPlayer entityPlayer)
         {
-            int playerLevel = Configuration.MetabolismGetLevelByEXP(Experience.GetExperience(entityPlayer.Player, "Metabolism"));
-            float reducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(playerLevel);
+            float reducer = entityPlayer.WatchedAttributes.GetFloat("LevelUP_MetabolismReceiveMultiply");
 
             amount = OverwriteDamageInteractionEvents.GetExternalHungerConsumeAmount(entityPlayer.Player, amount);
 
             Debug.LogDebug($"[Metabolism] saturation consume reduced by: {reducer * 100}%, result: {amount} => {amount * reducer}");
+            Debug.LogDebug($"[Metabolism] behavior values: S{__instance.Saturation}, SM: {__instance.MaxSaturation}");
             amount *= reducer;
 
             Experience.IncreaseExperience(entityPlayer.Player, "Metabolism", (ulong)Configuration.EXPPerSaturationLostMetabolism);
@@ -635,6 +723,7 @@ class OverwriteDamageInteraction
     }
     #endregion
 }
+
 
 #region Compatibility
 public static class OverwriteDamageInteractionEvents

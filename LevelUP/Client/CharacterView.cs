@@ -67,28 +67,33 @@ class CharacterView
 
             string levelType = keyValuePair.Key;
 
-            // Create bounds for actual line
-            ElementBounds itemBounds = containerBounds.FlatCopy().WithFixedOffset(0, offsetY);
+            AssetLocation imageAsset = new($"levelup:textures/{levelType.ToLower()}.png");
 
-            levelContainer.Add(new GuiElementImage(instance.api, itemBounds, new AssetLocation($"levelup:{levelType.ToLower()}.png")));
+            if (instance.api.Assets.Exists(imageAsset))
+            {
+                // Create bounds for actual line
+                ElementBounds itemBounds = containerBounds.FlatCopy().WithFixedOffset(0, offsetY);
 
-            levelContainer.Add(new GuiElementStaticText(
-                instance.api,
-                $"{Lang.Get($"levelup:{levelType.ToLower()}")}: {GetLevelByLevelName(levelType)}",
-                EnumTextOrientation.Left,
-                itemBounds.RightCopy().ForkChildOffseted(0, 12, 500, 0),
-                CairoFont.WhiteSmallText()
-            ));
+                levelContainer.Add(new GuiElementImage(instance.api, itemBounds, imageAsset));
 
-            levelContainer.Add(new GuiElementStaticText(
-                instance.api,
-                Lang.Get("levelup:progress", GetEXPRemainingByLevelName(levelType)),
-                EnumTextOrientation.Left,
-                itemBounds.RightCopy().ForkChildOffseted(0, 28, 500, 0),
-                CairoFont.WhiteSmallishText().WithFontSize(13)
-            ));
+                levelContainer.Add(new GuiElementStaticText(
+                    instance.api,
+                    $"{Lang.Get($"levelup:{levelType.ToLower()}")}: {GetLevelByLevelName(levelType)}",
+                    EnumTextOrientation.Left,
+                    itemBounds.RightCopy().ForkChildOffseted(0, 12, 500, 0),
+                    CairoFont.WhiteSmallText()
+                ));
 
-            offsetY += itemHeight;
+                levelContainer.Add(new GuiElementStaticText(
+                    instance.api,
+                    Lang.Get("levelup:progress", GetEXPRemainingByLevelName(levelType)),
+                    EnumTextOrientation.Left,
+                    itemBounds.RightCopy().ForkChildOffseted(0, 28, 500, 0),
+                    CairoFont.WhiteSmallishText().WithFontSize(13)
+                ));
+
+                offsetY += itemHeight;
+            }
         }
 
         // Finishing Clip for scrollbar

@@ -898,7 +898,7 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: slingshotEXPPerHit is not int is {value.GetType()}");
                 else slingshotEXPPerHit = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: slingshotEXPPerHit not set");
-            Experience.LoadExperience("slingshot", "Hit", (ulong)slingshotEXPPerHit);
+            Experience.LoadExperience("Slingshot", "Hit", (ulong)slingshotEXPPerHit);
         }
         { //slingshotBaseChanceToNotLoseRock
             if (slingshotLevelStats.TryGetValue("slingshotBaseChanceToNotLoseRock", out object value))
@@ -1002,7 +1002,7 @@ public static class Configuration
         return slingshotBaseDamage + slingshotIncrementDamagePerLevel * level;
     }
 
-    public static float SlingshotGetChanceToNotLoseRockByLevel(int level)
+    public static bool SlingshotGetChanceToNotLoseRockByLevel(int level)
     {
         int reduceEvery = slingshotChanceToNotLoseRockReduceIncreaseEveryLevel;
         float baseChance = slingshotBaseChanceToNotLoseRock;
@@ -1020,9 +1020,9 @@ public static class Configuration
             Debug.LogDebug($"Slingshot should not lose rock: {finalChance} : {chance}");
 
         if (finalChance >= chance)
-            return 1.0f;
+            return true;
         else
-            return 0.0f;
+            return false;
     }
 
     public static float SlingshotGetAimAccuracyByLevel(int level)
@@ -3407,6 +3407,7 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPPerReceiveHit is not int is {value.GetType()}");
                 else metabolismEXPPerReceiveHit = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerReceiveHit not set");
+            Experience.LoadExperience("Metabolism", "Hit", (ulong)metabolismEXPPerReceiveHit);
         }
         { //metabolismEXPPerSaturationLost
             if (metabolismLevelStats.TryGetValue("metabolismEXPPerSaturationLost", out object value))
@@ -3421,7 +3422,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPIncreaseByAmountDamage is not int is {value.GetType()}");
                 else metabolismEXPIncreaseByAmountDamage = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: metabolismEXPIncreaseByAmountDamage not set");
-            Experience.LoadExperience("metabolism", "Hit", (ulong)metabolismEXPIncreaseByAmountDamage);
         }
         { //metabolismEXPPerLevelBase
             if (metabolismLevelStats.TryGetValue("metabolismEXPPerLevelBase", out object value))
@@ -3429,7 +3429,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPPerLevelBase is not int is {value.GetType()}");
                 else metabolismEXPPerLevelBase = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerLevelBase not set");
-            Experience.LoadExperience("metabolism", "Hit", (ulong)metabolismEXPPerLevelBase);
         }
         { //metabolismEXPMultiplyPerLevel
             if (metabolismLevelStats.TryGetValue("metabolismEXPMultiplyPerLevel", out object value))
