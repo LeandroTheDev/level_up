@@ -3378,7 +3378,6 @@ public static class Configuration
     #region metabolism
     private static int metabolismEXPPerReceiveHit = 30;
     private static int metabolismEXPPerSaturationLost = 2;
-    private static int metabolismEXPIncreaseByAmountDamage = 1;
     private static int metabolismEXPPerLevelBase = 10;
     private static double metabolismEXPMultiplyPerLevel = 2.0;
     private static float metabolismSaturationIncreasePerLevel = 10.0f;
@@ -3415,13 +3414,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPPerSaturationLost is not int is {value.GetType()}");
                 else metabolismEXPPerSaturationLost = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerSaturationLost not set");
-        }
-        { //metabolismEXPIncreaseByAmountDamage
-            if (metabolismLevelStats.TryGetValue("metabolismEXPIncreaseByAmountDamage", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismEXPIncreaseByAmountDamage is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPIncreaseByAmountDamage is not int is {value.GetType()}");
-                else metabolismEXPIncreaseByAmountDamage = (int)(long)value;
-            else Debug.LogError("CONFIGURATION ERROR: metabolismEXPIncreaseByAmountDamage not set");
         }
         { //metabolismEXPPerLevelBase
             if (metabolismLevelStats.TryGetValue("metabolismEXPPerLevelBase", out object value))

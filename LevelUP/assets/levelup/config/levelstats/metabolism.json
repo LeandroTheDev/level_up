@@ -1,8 +1,7 @@
 {
-    "metabolismEXPPerReceiveHit": 500,
+    "metabolismEXPPerReceiveHit": 30,
     "metabolismEXPPerSaturationLost": 5,
-    "metabolismEXPIncreaseByAmountDamage": 1,
-    "metabolismEXPPerLevelBase": 1000,
+    "metabolismEXPPerLevelBase": 200,
     "metabolismEXPMultiplyPerLevel": 2.0,
     "metabolismSaturationIncreasePerLevel": 100.0,
     "metabolismBaseSaturation": 1500.0,
