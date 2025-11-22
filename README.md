@@ -12,6 +12,8 @@ Makes you feels progress through the gameplay.
 ### IMPORTANT
 ### Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
 
+### Is not safe to remove levelup after installation, full player wipe is required
+
 Features:
 - Fully configurable
 - GUI Level in character view
