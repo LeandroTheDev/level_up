@@ -59,24 +59,6 @@ class Instance
             Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
 
             ExperienceEvents.PlayerLeveledUp(player, levelType, exp, nextLevel);
-
-            // if vitality leveled we need to update the player max health
-            if (levelType == "Vitality")
-            {
-                // Get player stats
-                EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
-                // Check if stats is null
-                if (playerStats == null) { Debug.LogError($"ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
-
-                // Getting health stats
-                playerStats.BaseMaxHealth = Configuration.VitalityGetMaxHealthByLevel(nextLevel);
-                player.Entity.WatchedAttributes.SetFloat("regenSpeed", Configuration.VitalityGetHealthRegenMultiplyByLevel(nextLevel));
-
-                // Refresh for the player
-                playerStats.UpdateMaxHealth();
-
-                Debug.LogDebug($"{player.PlayerName} updated the max: {playerStats.MaxHealth} health");
-            }
         }
 
         // This is a heavy formula calculations, we run on task to reduce and prevent lag spikes
@@ -99,8 +81,14 @@ class Instance
             {
                 float saturationConsumeReducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(nextLevel);
                 player.Entity.WatchedAttributes.SetFloat($"LevelUP_MetabolismReceiveMultiply", saturationConsumeReducer);
-            }
 
+                LevelMetabolism.RefreshMaxSaturation(player);
+            }
+            // Refresh vitality
+            else if (levelType == "Vitality")
+            {
+                LevelVitality.RefreshMaxHealth(player);
+            }
         });
     }
 

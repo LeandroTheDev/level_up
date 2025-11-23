@@ -10,7 +10,7 @@ namespace LevelUP.Server;
 class LevelVitality
 {
     static private string _saveDirectory = "";
-    private readonly Dictionary<string, double> _playerLoadedVitality = [];
+    private static readonly Dictionary<string, double> _playerLoadedVitality = [];
 
     public void Init()
     {
@@ -43,7 +43,7 @@ class LevelVitality
     /// Loads the player to the memory
     /// </summary>
     /// <param name="player"></param>
-    private void LoadPlayer(IPlayer player)
+    private static void LoadPlayer(IPlayer player)
     {
         if (!Utils.ValidatePlayerUID(player))
         {
@@ -98,7 +98,7 @@ class LevelVitality
     /// Saves the player and unload it from the memory
     /// </summary>
     /// <param name="player"></param>
-    private void UnloadPlayer(IPlayer player)
+    private static void UnloadPlayer(IPlayer player)
     {
         if (!_playerLoadedVitality.ContainsKey(player.PlayerUID)) return;
 
@@ -111,7 +111,7 @@ class LevelVitality
     /// Manually save the player experience and levels
     /// </summary>
     /// <param name="player"></param>
-    private void SavePlayer(IPlayer player)
+    private static void SavePlayer(IPlayer player)
     {
         if (!Utils.ValidatePlayerUID(player)) return;
 
@@ -157,48 +157,16 @@ class LevelVitality
     {
         LoadPlayer(player);
 
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Vitality");
-
-        // Get player stats
-        EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
-        // Check if stats is null
-        if (playerStats == null) { Debug.LogError($"[VITALITY] ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return; }
-
-        // Getting health stats
-        float playerMaxHealth = Configuration.VitalityGetMaxHealthByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
-        if (float.IsInfinity(playerMaxHealth))
-        {
-            Debug.LogError($"[VITALITY] ERROR: Max health calculation returned any infinity number, please report this issue, base health set to {Configuration.BaseHPVitality}");
-            playerMaxHealth = Configuration.BaseHPVitality;
-        }
-
-        // Getting regen stats
-        float playerRegen = Configuration.VitalityGetHealthRegenMultiplyByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
-        if (float.IsInfinity(playerRegen))
-        {
-            Debug.LogError($"[VITALITY] ERROR: Regeneration calculation returned any infinity number, please report this issue, base regen set to {Configuration.BaseHPRegenVitality}");
-            playerRegen = Configuration.BaseHPRegenVitality;
-        }
-
-        playerStats.BaseMaxHealth = playerMaxHealth;
-        playerStats.MaxHealth = playerMaxHealth;
-        player.Entity.WatchedAttributes.SetFloat("regenSpeed", playerRegen);
-
-        // Refresh for the player
-        playerStats.UpdateMaxHealth();
+        EntityBehaviorHealth playerStats = RefreshMaxHealth(player);
 
         // Reload player health
         if (_playerLoadedVitality.TryGetValue(player.PlayerUID, out double value)) playerStats.Health = (float)value;
         // If cannot find player will receive the base max health instead
         else
         {
-            playerStats.Health = playerMaxHealth;
+            playerStats.Health = playerStats.MaxHealth;
             Debug.LogError($"[VITALITY] Cannot find the player: {player.PlayerName} health, something goes wrong");
         }
-
-        Debug.LogDebug($"[VITALITY] {player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
-        Debug.LogDebug($"[VITALITY] Calculation Variables: {playerMaxHealth}:{playerRegen}, Level: {Configuration.VitalityGetLevelByEXP(playerExp)}");
     }
 
     private void PlayerDisconnect(IServerPlayer player)
@@ -226,5 +194,44 @@ class LevelVitality
         {
             UnloadPlayer(player);
         }
+    }
+
+    static public EntityBehaviorHealth RefreshMaxHealth(IPlayer player)
+    {
+        // Get the actual player total exp
+        ulong playerExp = Experience.GetExperience(player, "Vitality");
+
+        // Get player stats
+        EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
+        // Check if stats is null
+        if (playerStats == null) { Debug.LogError($"[VITALITY] ERROR SETTING MAX HEALTH: Player Stats is null, caused by {player.PlayerName}"); return playerStats; }
+
+        // Getting health stats
+        float playerMaxHealth = Configuration.VitalityGetMaxHealthByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
+        if (float.IsInfinity(playerMaxHealth))
+        {
+            Debug.LogError($"[VITALITY] ERROR: Max health calculation returned any infinity number, please report this issue, base health set to {Configuration.BaseHPVitality}");
+            playerMaxHealth = Configuration.BaseHPVitality;
+        }
+
+        // Getting regen stats
+        float playerRegen = Configuration.VitalityGetHealthRegenMultiplyByLevel(Configuration.VitalityGetLevelByEXP(playerExp));
+        if (float.IsInfinity(playerRegen))
+        {
+            Debug.LogError($"[VITALITY] ERROR: Regeneration calculation returned any infinity number, please report this issue, base regen set to {Configuration.BaseHPRegenVitality}");
+            playerRegen = Configuration.BaseHPRegenVitality;
+        }
+
+        playerStats.BaseMaxHealth = playerMaxHealth;
+        playerStats.MaxHealth = playerMaxHealth;
+        player.Entity.WatchedAttributes.SetFloat("regenSpeed", playerRegen);
+
+        // Refresh for the player
+        playerStats.UpdateMaxHealth();
+
+        Debug.LogDebug($"[VITALITY] {player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
+        Debug.LogDebug($"[VITALITY] Calculation Variables: {playerMaxHealth}:{playerRegen}, Level: {Configuration.VitalityGetLevelByEXP(playerExp)}");
+
+        return playerStats;
     }
 }

@@ -14,7 +14,7 @@ namespace LevelUP.Server;
 class LevelMetabolism
 {
     static private string _saveDirectory = "";
-    private readonly Dictionary<string, double> _playerLoadedMetabolism = [];
+    private static readonly Dictionary<string, double> _playerLoadedMetabolism = [];
 
     public void Init()
     {
@@ -72,7 +72,7 @@ class LevelMetabolism
     /// Loads the player to the memory
     /// </summary>
     /// <param name="player"></param>
-    private void LoadPlayer(IPlayer player)
+    private static void LoadPlayer(IPlayer player)
     {
         if (!Utils.ValidatePlayerUID(player))
         {
@@ -127,7 +127,7 @@ class LevelMetabolism
     /// Saves the player and unload it from the memory
     /// </summary>
     /// <param name="player"></param>
-    private void UnloadPlayer(IPlayer player)
+    private static void UnloadPlayer(IPlayer player)
     {
         if (!_playerLoadedMetabolism.ContainsKey(player.PlayerUID)) return;
 
@@ -140,7 +140,7 @@ class LevelMetabolism
     /// Manually save the player experience and levels
     /// </summary>
     /// <param name="player"></param>
-    private void SavePlayer(IPlayer player)
+    private static void SavePlayer(IPlayer player)
     {
         if (!Utils.ValidatePlayerUID(player)) return;
 
@@ -186,53 +186,19 @@ class LevelMetabolism
     {
         LoadPlayer(player);
 
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Metabolism");
+        EntityBehaviorHunger playerStats = RefreshMaxSaturation(player);
 
-        // Get player stats
-        EntityBehaviorHunger playerStats = player.Entity.GetBehavior<EntityBehaviorHunger>();
-        // Check if stats is null
-        if (playerStats == null) { Debug.LogError($"[METABOLISM] ERROR SETTING SATURATION: Player Stats is null, caused by {player.PlayerName}"); return; }
-
-        // Getting saturation stats
-        float playerMaxSaturation = Configuration.MetabolismGetMaxSaturationByLevel(Configuration.MetabolismGetLevelByEXP(playerExp));
-        if (float.IsInfinity(playerMaxSaturation))
+        if (playerStats != null)
         {
-            Debug.LogError($"[METABOLISM] ERROR: Max saturation calculation returned any infinity number, please report this issue, base saturation set to {Configuration.BaseSaturationMetabolism}");
-            playerMaxSaturation = Configuration.BaseSaturationMetabolism;
-        }
-
-        playerStats.MaxSaturation = playerMaxSaturation;
-
-        // Reload player saturation
-        if (_playerLoadedMetabolism.TryGetValue(player.PlayerUID, out double value)) playerStats.Saturation = (float)value;
-        // If cannot find player will receive the base max saturation instead
-        else
-        {
-            playerStats.Saturation = playerMaxSaturation;
-            Debug.LogError($"[METABOLISM] Cannot find the player: {player.PlayerName} saturation, something goes wrong");
-        }
-
-        // SyncPlayerMaxSaturation(player, playerStats.MaxSaturation);
-
-        Debug.LogDebug($"[METABOLISM] {player.PlayerName} joined the world with max: {playerStats.MaxSaturation} saturation and {playerStats.Saturation} actual saturation");
-        Debug.LogDebug($"[METABOLISM] Calculation Variables: {playerMaxSaturation}, Level: {Configuration.MetabolismGetLevelByEXP(playerExp)}");
-
-        // For some magical and astronomical reason, we need to wait a little bit
-        // before updating the watched attribute from hunger, because otherwises a unkown
-        // function will reset your maxsaturation value (only in client for another astronomical reason)
-        Task.Run(async () =>
-        {
-            // Yes we do 10 times, just in case..., a slow client could not have the update in time before reseting
-            for (var i = 0; i < 10; i++)
+            // Reload player saturation
+            if (_playerLoadedMetabolism.TryGetValue(player.PlayerUID, out double value)) playerStats.Saturation = (float)value;
+            // If cannot find player will receive the base max saturation instead
+            else
             {
-                // The tree for hunger behavior is private, so we need to get it with reflection
-                var field = typeof(EntityBehaviorHunger).GetField("hungerTree", BindingFlags.NonPublic | BindingFlags.Instance);
-                // Now we sync the hunger watched attribute with the client
-                player.Entity.WatchedAttributes.SetAttribute("hunger", field.GetValue(playerStats) as ITreeAttribute);
-                await Task.Delay(500);
+                playerStats.Saturation = playerStats.MaxSaturation;
+                Debug.LogError($"[METABOLISM] Cannot find the player: {player.PlayerName} saturation, something goes wrong");
             }
-        });
+        }
     }
 
     private void PlayerDisconnect(IServerPlayer player)
@@ -262,6 +228,32 @@ class LevelMetabolism
         }
     }
 
-    private static void SyncPlayerMaxSaturation(IServerPlayer player, float maxSaturation)
-        => Instance.CommunicationChannel.SendPacket(new ServerMessage() { message = $"syncmaxsaturation&{maxSaturation}" }, player);
+    static public EntityBehaviorHunger RefreshMaxSaturation(IPlayer player)
+    {
+        // Get the actual player total exp
+        ulong playerExp = Experience.GetExperience(player, "Metabolism");
+
+        // Get player stats
+        EntityBehaviorHunger playerStats = player.Entity.GetBehavior<EntityBehaviorHunger>();
+        // Check if stats is null
+        if (playerStats == null) { Debug.LogError($"[METABOLISM] ERROR SETTING SATURATION: Player Stats is null, caused by {player.PlayerName}"); return playerStats; }
+
+        // Getting saturation stats
+        float playerMaxSaturation = Configuration.MetabolismGetMaxSaturationByLevel(Configuration.MetabolismGetLevelByEXP(playerExp));
+        if (float.IsInfinity(playerMaxSaturation))
+        {
+            Debug.LogError($"[METABOLISM] ERROR: Max saturation calculation returned any infinity number, please report this issue, base saturation set to {Configuration.BaseSaturationMetabolism}");
+            playerMaxSaturation = Configuration.BaseSaturationMetabolism;
+        }
+
+        playerStats.MaxSaturation = playerMaxSaturation;
+        player.Entity.WatchedAttributes.SetFloat("maxsaturation", playerStats.MaxSaturation);
+
+        Debug.LogDebug($"[METABOLISM] {player.PlayerName} joined the world with max: {playerStats.MaxSaturation}");
+        Debug.LogDebug($"[METABOLISM] Calculation Variables: {playerMaxSaturation}, Level: {Configuration.MetabolismGetLevelByEXP(playerExp)}");
+
+        playerStats.UpdateNutrientHealthBoost();
+
+        return playerStats;
+    }
 }
