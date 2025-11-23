@@ -712,19 +712,11 @@ class OverwriteDamageInteraction
 
         if (__instance.entity is EntityPlayer entityPlayer)
         {
-            float reducer = entityPlayer.WatchedAttributes.GetFloat("LevelUP_MetabolismReceiveMultiply");
-
-            // This also is too expensive for this function, better not...
-            // amount = OverwriteDamageInteractionEvents.GetExternalHungerConsumeAmount(entityPlayer.Player, amount);
-
-            // Debug.LogDebug($"[Metabolism] saturation consume reduced by: {reducer * 100}%, result: {amount} => {amount * reducer}");
-            // Debug.LogDebug($"[Metabolism] behavior values: S{__instance.Saturation}, SM: {__instance.MaxSaturation}");
+            float reducer = LevelMetabolism.PlayerLoadedMetabolismReceiveMultiply.TryGetValue(entityPlayer.PlayerUID, out float result)
+                ? result
+                : 1f;
+                
             amount *= reducer;
-
-            // Better not do that, increase experience uses to much cpu and this function is called every real tick
-            // This is the reason to lag some servers
-            // We need other alternative for that
-            // Experience.IncreaseExperience(entityPlayer.Player, "Metabolism", (ulong)Configuration.EXPPerSaturationLostMetabolism);
         }
     }
 

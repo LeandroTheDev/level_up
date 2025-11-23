@@ -79,10 +79,8 @@ class Instance
             // Refresh metabolism
             if (levelType == "Metabolism")
             {
-                float saturationConsumeReducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(nextLevel);
-                player.Entity.WatchedAttributes.SetFloat($"LevelUP_MetabolismReceiveMultiply", saturationConsumeReducer);
-
                 LevelMetabolism.RefreshMaxSaturation(player);
+                LevelMetabolism.RefreshSaturationReceiveMultiply(player);
             }
             // Refresh vitality
             else if (levelType == "Vitality")

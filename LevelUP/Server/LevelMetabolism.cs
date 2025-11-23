@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Vintagestory.API.Common;
-using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -15,6 +14,9 @@ class LevelMetabolism
 {
     static private string _saveDirectory = "";
     private static readonly Dictionary<string, double> _playerLoadedMetabolism = [];
+    private static readonly Dictionary<string, float> _playerLoadedMetabolismReceiveMultiply = [];
+    public static readonly IReadOnlyDictionary<string, float> PlayerLoadedMetabolismReceiveMultiply
+        = new ReadOnlyDictionary<string, float>(_playerLoadedMetabolismReceiveMultiply);
 
     public void Init()
     {
@@ -134,6 +136,7 @@ class LevelMetabolism
         SavePlayer(player);
 
         _playerLoadedMetabolism.Remove(player.PlayerUID);
+        _playerLoadedMetabolismReceiveMultiply.Remove(player.PlayerUID);
     }
 
     /// <summary>
@@ -187,6 +190,7 @@ class LevelMetabolism
         LoadPlayer(player);
 
         EntityBehaviorHunger playerStats = RefreshMaxSaturation(player);
+        RefreshSaturationReceiveMultiply(player);
 
         if (playerStats != null)
         {
@@ -199,6 +203,7 @@ class LevelMetabolism
                 Debug.LogError($"[METABOLISM] Cannot find the player: {player.PlayerName} saturation, something goes wrong");
             }
         }
+    
     }
 
     private void PlayerDisconnect(IServerPlayer player)
@@ -255,5 +260,20 @@ class LevelMetabolism
         playerStats.UpdateNutrientHealthBoost();
 
         return playerStats;
+    }
+
+    static public float RefreshSaturationReceiveMultiply(IPlayer player)
+    {
+        ulong playerExp = Experience.GetExperience(player, "Metabolism");
+
+        float saturationConsumeReducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(Configuration.MetabolismGetLevelByEXP(playerExp));
+        player.Entity.WatchedAttributes.SetFloat($"LevelUP_MetabolismReceiveMultiply", saturationConsumeReducer);
+
+        if (_playerLoadedMetabolismReceiveMultiply.TryGetValue(player.PlayerUID, out float _))
+            _playerLoadedMetabolismReceiveMultiply[player.PlayerUID] = saturationConsumeReducer;
+        else
+            _playerLoadedMetabolismReceiveMultiply.Add(player.PlayerUID, saturationConsumeReducer);
+
+        return saturationConsumeReducer;
     }
 }
