@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
 using LevelUP.Server;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
+using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
@@ -712,10 +714,11 @@ class OverwriteDamageInteraction
         {
             float reducer = entityPlayer.WatchedAttributes.GetFloat("LevelUP_MetabolismReceiveMultiply");
 
-            amount = OverwriteDamageInteractionEvents.GetExternalHungerConsumeAmount(entityPlayer.Player, amount);
+            // This also is too expensive for this function, better not...
+            // amount = OverwriteDamageInteractionEvents.GetExternalHungerConsumeAmount(entityPlayer.Player, amount);
 
-            Debug.LogDebug($"[Metabolism] saturation consume reduced by: {reducer * 100}%, result: {amount} => {amount * reducer}");
-            Debug.LogDebug($"[Metabolism] behavior values: S{__instance.Saturation}, SM: {__instance.MaxSaturation}");
+            // Debug.LogDebug($"[Metabolism] saturation consume reduced by: {reducer * 100}%, result: {amount} => {amount * reducer}");
+            // Debug.LogDebug($"[Metabolism] behavior values: S{__instance.Saturation}, SM: {__instance.MaxSaturation}");
             amount *= reducer;
 
             // Better not do that, increase experience uses to much cpu and this function is called every real tick
@@ -723,6 +726,19 @@ class OverwriteDamageInteraction
             // We need other alternative for that
             // Experience.IncreaseExperience(entityPlayer.Player, "Metabolism", (ulong)Configuration.EXPPerSaturationLostMetabolism);
         }
+    }
+
+    // Clientside view
+    // I don't know the reason, but some random function is changing the maxsaturation to default value randomly
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(HudStatbar), "UpdateSaturation")]
+    public static void UpdateSaturation(HudStatbar __instance)
+    {
+        var capiField = AccessTools.Field(typeof(HudStatbar), "capi");
+        ICoreClientAPI capi = capiField.GetValue(__instance) as ICoreClientAPI;
+
+        ITreeAttribute hungerTree = capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("hunger");
+        hungerTree.SetFloat("maxsaturation", capi.World.Player.Entity.WatchedAttributes.GetFloat("maxsaturation"));
     }
     #endregion
 }
