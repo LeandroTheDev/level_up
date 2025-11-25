@@ -62,6 +62,8 @@ If the weapon doesn't have this add it to fix the problem, levelup support only:
 
 "I have custom classes and a lot of warning is called in my console", this is because you need to add your custom classes inside ``ModConfig/LevelUP/config/classexp``, you can create a [patch](https://wiki.vintagestory.at/Modding:JSON_Patching) or manually edit.
 
+### [Examples in the Wiki](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#examples)
+
 ### Warning
 Creating a [patch](https://wiki.vintagestory.at/Modding:JSON_Patching) will not automatically update the ModConfig folder (if generated), after the [patch](https://wiki.vintagestory.at/Modding:JSON_Patching) creation you must manually update ModConfig or delete the LevelUP configs and re-generate.
 
