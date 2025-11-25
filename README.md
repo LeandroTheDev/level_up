@@ -43,7 +43,7 @@ English is not my main language, if you encounter any translation problems, plea
 | Item Rarity    | Not compatible with Smithing Level                          |
 | XSkills        | Not compatible with Cooking Level                           |
 | CombatOverhaul | Not compatible with Bow Level and some custom weapons       |
-| Any mod that repair weapons | Requires attention in this [fix](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#levelupsharedoverwriteblockinteractionexecutesmithitemcraftedcalculations)              |
+| Any mod that repair weapons | Requires attention in this [fix](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#crafting)              |
 
 "My custom weapon from my mod does not work with level up!!", check your weapon json, find the "tool" section:
 ```json
