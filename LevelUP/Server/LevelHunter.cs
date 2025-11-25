@@ -1,4 +1,6 @@
+#pragma warning disable CA1822
 using System.Collections.Generic;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 
@@ -6,16 +8,36 @@ namespace LevelUP.Server;
 
 class LevelHunter
 {
+    public readonly Harmony patch = new("levelup_hunter");
+    public void Patch()
+    {
+        if (!Harmony.HasAnyPatches("levelup_hunter"))
+        {
+            patch.PatchCategory("levelup_hunter");
+        }
+    }
+    public void Unpatch()
+    {
+        if (Harmony.HasAnyPatches("levelup_hunter"))
+        {
+            patch.UnpatchCategory("levelup_hunter");
+        }
+    }
+
     public void Init()
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Hunter");
         Configuration.RegisterNewLevelTypeEXP("Hunter", Configuration.HunterGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Hunter", Configuration.HunterGetExpByLevel);
 
         Debug.Log("Level Hunter initialized");
     }
+
+    private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
+        => damage *= Configuration.HunterGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hunter"));
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
@@ -47,4 +69,8 @@ class LevelHunter
         // Incrementing
         Experience.IncreaseExperience(player, "Hunter", exp);
     }
+
+    [HarmonyPatchCategory("levelup_hunter")]
+    private class LevelHunterPatch
+    { }
 }

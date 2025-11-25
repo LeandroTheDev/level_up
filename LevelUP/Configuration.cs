@@ -544,8 +544,8 @@ public static class Configuration
 
     #region hunter
     public static Dictionary<string, int> entityExpHunter = [];
-    private static int hunterEXPPerLevelBase = 10;
-    private static double hunterEXPMultiplyPerLevel = 1.5;
+    private static int hunterEXPPerLevelBase = 800;
+    private static double hunterEXPMultiplyPerLevel = 1.2;
     private static float hunterBaseDamage = 1.0f;
     private static float hunterIncrementDamagePerLevel = 0.1f;
     public static int hunterMaxLevel = 999;
@@ -648,17 +648,17 @@ public static class Configuration
 
     #region bow
     public static Dictionary<string, int> entityExpBow = [];
-    private static int bowEXPPerHit = 1;
-    private static int bowEXPPerLevelBase = 10;
-    private static double bowEXPMultiplyPerLevel = 1.3;
+    private static int bowEXPPerHit = 10;
+    private static int bowEXPPerLevelBase = 500;
+    private static double bowEXPMultiplyPerLevel = 1.1;
     private static float bowBaseDamage = 1.0f;
     private static float bowIncrementDamagePerLevel = 0.1f;
     private static float bowBaseChanceToNotLoseArrow = 50.0f;
     private static float bowChanceToNotLoseArrowBaseIncreasePerLevel = 2.0f;
     private static int bowChanceToNotLoseArrowReduceIncreaseEveryLevel = 5;
     private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.2f;
-    private static float bowBaseAimAccuracy = 1.0f;
-    private static float bowIncreaseAimAccuracyPerLevel = 0.5f;
+    private static float bowBaseAimAccuracy = 0.8f;
+    private static float bowIncreaseAimAccuracyPerLevel = 0.02f;
     public static int bowMaxLevel = 999;
 
     public static int ExpPerHitBow => bowEXPPerHit;
@@ -841,17 +841,17 @@ public static class Configuration
 
     #region slingshot
     public static Dictionary<string, int> entityExpSlingshot = [];
-    private static int slingshotEXPPerHit = 1;
-    private static int slingshotEXPPerLevelBase = 10;
-    private static double slingshotEXPMultiplyPerLevel = 1.3;
+    private static int slingshotEXPPerHit = 10;
+    private static int slingshotEXPPerLevelBase = 500;
+    private static double slingshotEXPMultiplyPerLevel = 1.1;
     private static float slingshotBaseDamage = 1.0f;
     private static float slingshotIncrementDamagePerLevel = 0.1f;
     private static float slingshotBaseChanceToNotLoseRock = 50.0f;
     private static float slingshotChanceToNotLoseRockBaseIncreasePerLevel = 2.0f;
     private static int slingshotChanceToNotLoseRockReduceIncreaseEveryLevel = 5;
     private static float slingshotChanceToNotLoseRockReduceQuantityEveryLevel = 0.2f;
-    private static float slingshotBaseAimAccuracy = 1.0f;
-    private static float slingshotIncreaseAimAccuracyPerLevel = 0.5f;
+    private static float slingshotBaseAimAccuracy = 0.8f;
+    private static float slingshotIncreaseAimAccuracyPerLevel = 0.02f;
     public static int slingshotMaxLevel = 999;
 
     public static int ExpPerHitSlingshot => slingshotEXPPerHit;
@@ -1034,15 +1034,15 @@ public static class Configuration
 
     #region knife
     public static Dictionary<string, int> entityExpKnife = [];
-    private static int knifeEXPPerHit = 1;
-    private static int knifeEXPPerHarvest = 5;
-    private static int knifeEXPPerBreaking = 1;
-    private static int knifeEXPPerLevelBase = 10;
+    private static int knifeEXPPerHit = 10;
+    private static int knifeEXPPerHarvest = 50;
+    private static int knifeEXPPerBreaking = 10;
+    private static int knifeEXPPerLevelBase = 500;
     private static double knifeEXPMultiplyPerLevel = 1.3;
     private static float knifeBaseDamage = 1.0f;
     private static float knifeIncrementDamagePerLevel = 0.1f;
     private static float knifeBaseHarvestMultiply = 0.5f;
-    private static float knifeIncrementHarvestMultiplyPerLevel = 0.2f;
+    private static float knifeIncrementHarvestMultiplyPerLevel = 0.8f;
     private static float knifeBaseMiningSpeed = 1.0f;
     private static float knifeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
     public static int knifeMaxLevel = 999;
@@ -1218,12 +1218,12 @@ public static class Configuration
 
     #region axe
     public static Dictionary<string, int> entityExpAxe = [];
-    private static int axeEXPPerHit = 1;
-    private static int axeEXPPerBreaking = 1;
-    private static int axeEXPPerTreeBreaking = 10;
+    private static int axeEXPPerHit = 10;
+    private static int axeEXPPerBreaking = 5;
+    private static int axeEXPPerTreeBreaking = 200;
 
-    private static int axeEXPPerLevelBase = 10;
-    private static double axeEXPMultiplyPerLevel = 1.8;
+    private static int axeEXPPerLevelBase = 1000;
+    private static double axeEXPMultiplyPerLevel = 1.2;
     private static float axeBaseDamage = 1.0f;
     private static float axeIncrementDamagePerLevel = 0.1f;
     private static float axeBaseMiningSpeed = 1.0f;
@@ -1379,15 +1379,15 @@ public static class Configuration
     #region pickaxe
     public static Dictionary<string, int> entityExpPickaxe = [];
     public static Dictionary<string, int> oresExpPickaxe = [];
-    private static int pickaxeEXPPerHit = 1;
-    private static int pickaxeEXPPerBreaking = 1;
-    private static int pickaxeEXPPerLevelBase = 10;
-    private static double pickaxeEXPMultiplyPerLevel = 2.0;
+    private static int pickaxeEXPPerHit = 10;
+    private static int pickaxeEXPPerBreaking = 10;
+    private static int pickaxeEXPPerLevelBase = 500;
+    private static double pickaxeEXPMultiplyPerLevel = 1.5;
     private static float pickaxeBaseDamage = 1.0f;
     private static float pickaxeIncrementDamagePerLevel = 0.1f;
     private static float pickaxeBaseMiningSpeed = 1.0f;
-    private static float pickaxeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
-    private static float pickaxeBaseOreMultiply = 0.5f;
+    private static float pickaxeIncrementMiningSpeedMultiplyPerLevel = 0.03f;
+    private static float pickaxeBaseOreMultiply = 0.0f;
     private static float pickaxeIncrementOreMultiplyPerLevel = 0.2f;
     public static int pickaxeMaxLevel = 999;
 
@@ -1562,14 +1562,14 @@ public static class Configuration
 
     #region shovel
     public static Dictionary<string, int> entityExpShovel = [];
-    private static int shovelEXPPerHit = 1;
-    private static int shovelEXPPerBreaking = 1;
-    private static int shovelEXPPerLevelBase = 10;
-    private static double shovelEXPMultiplyPerLevel = 2.0;
+    private static int shovelEXPPerHit = 10;
+    private static int shovelEXPPerBreaking = 10;
+    private static int shovelEXPPerLevelBase = 500;
+    private static double shovelEXPMultiplyPerLevel = 1.5;
     private static float shovelBaseDamage = 1.0f;
     private static float shovelIncrementDamagePerLevel = 0.1f;
     private static float shovelBaseMiningSpeed = 1.0f;
-    private static float shovelIncrementMiningSpeedMultiplyPerLevel = 0.1f;
+    private static float shovelIncrementMiningSpeedMultiplyPerLevel = 0.02f;
     public static int shovelMaxLevel = 999;
 
 
@@ -1709,14 +1709,14 @@ public static class Configuration
 
     #region spear
     public static Dictionary<string, int> entityExpSpear = [];
-    private static int spearEXPPerHit = 1;
-    private static int spearEXPPerThrow = 2;
-    private static int spearEXPPerLevelBase = 10;
-    private static double spearEXPMultiplyPerLevel = 1.5;
+    private static int spearEXPPerHit = 10;
+    private static int spearEXPPerThrow = 20;
+    private static int spearEXPPerLevelBase = 500;
+    private static double spearEXPMultiplyPerLevel = 1.3;
     private static float spearBaseDamage = 1.0f;
     private static float spearIncrementDamagePerLevel = 0.1f;
-    private static float spearBaseAimAccuracy = 1.0f;
-    private static float spearIncreaseAimAccuracyPerLevel = 0.5f;
+    private static float spearBaseAimAccuracy = 0.8f;
+    private static float spearIncreaseAimAccuracyPerLevel = 0.03f;
     public static int spearMaxLevel = 999;
 
 
@@ -1858,9 +1858,9 @@ public static class Configuration
     #region hammer
     public static Dictionary<string, int> entityExpHammer = [];
     public static Dictionary<string, string> smithChanceHammer = [];
-    private static int hammerEXPPerHit = 1;
-    private static int hammerEXPPerLevelBase = 10;
-    private static double hammerEXPMultiplyPerLevel = 1.5;
+    private static int hammerEXPPerHit = 10;
+    private static int hammerEXPPerLevelBase = 500;
+    private static double hammerEXPMultiplyPerLevel = 1.2;
     private static float hammerBaseDamage = 1.0f;
     private static float hammerIncrementDamagePerLevel = 0.1f;
     private static float hammerBaseSmithRetrieveChance = 0.0f;
@@ -2193,9 +2193,9 @@ public static class Configuration
 
     #region sword
     public static Dictionary<string, int> entityExpSword = [];
-    private static int swordEXPPerHit = 1;
-    private static int swordEXPPerLevelBase = 10;
-    private static double swordEXPMultiplyPerLevel = 2.0;
+    private static int swordEXPPerHit = 10;
+    private static int swordEXPPerLevelBase = 500;
+    private static double swordEXPMultiplyPerLevel = 1.3;
     private static float swordBaseDamage = 1.0f;
     private static float swordIncrementDamagePerLevel = 0.1f;
     public static int swordMaxLevel = 999;
@@ -2309,11 +2309,11 @@ public static class Configuration
     #endregion
 
     #region shield
-    private static int shieldEXPPerHit = 1;
-    private static int shieldEXPPerLevelBase = 10;
-    private static double shieldEXPMultiplyPerLevel = 2.0;
-    private static float shieldBaseReduction = 1.0f;
-    private static float shieldIncreamentReductionPerLevel = 0.1f;
+    private static int shieldEXPPerHit = 10;
+    private static int shieldEXPPerLevelBase = 600;
+    private static double shieldEXPMultiplyPerLevel = 1.5;
+    private static float shieldBaseStatsIncrease = 1.0f;
+    private static float shieldStatsIncreasePerLevel = 0.1f;
     public static int shieldMaxLevel = 999;
 
 
@@ -2340,19 +2340,19 @@ public static class Configuration
                 else shieldEXPMultiplyPerLevel = (double)value;
             else Debug.LogError("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel not set");
         }
-        { //shieldBaseReduction
-            if (shieldLevelStats.TryGetValue("shieldBaseReduction", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBaseReduction is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseReduction is not double is {value.GetType()}");
-                else shieldBaseReduction = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: shieldBaseReduction not set");
+        { //shieldBaseStatsIncrease
+            if (shieldLevelStats.TryGetValue("shieldBaseStatsIncrease", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBaseStatsIncrease is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseStatsIncrease is not double is {value.GetType()}");
+                else shieldBaseStatsIncrease = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldBaseStatsIncrease not set");
         }
-        { //shieldIncreamentReductionPerLevel
-            if (shieldLevelStats.TryGetValue("shieldIncreamentReductionPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldIncreamentReductionPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldIncreamentReductionPerLevel is not double is {value.GetType()}");
-                else shieldIncreamentReductionPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: shieldIncreamentReductionPerLevel not set");
+        { //shieldStatsIncreasePerLevel
+            if (shieldLevelStats.TryGetValue("shieldStatsIncreasePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldStatsIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldStatsIncreasePerLevel is not double is {value.GetType()}");
+                else shieldStatsIncreasePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldStatsIncreasePerLevel not set");
         }
         { //shieldEXPPerHit
             if (shieldLevelStats.TryGetValue("shieldEXPPerHit", out object value))
@@ -2404,18 +2404,17 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-
-    public static float ShieldGetReductionMultiplyByLevel(int level)
+    public static float ShieldGetStatsIncreaseByLevel(int level)
     {
-        return shieldBaseReduction + shieldIncreamentReductionPerLevel * Math.Max(0, level - 1);
+        return shieldBaseStatsIncrease + shieldStatsIncreasePerLevel * level;
     }
     #endregion
 
     #region hand
     public static Dictionary<string, int> entityExpHand = [];
-    private static int handEXPPerHit = 1;
-    private static int handEXPPerLevelBase = 10;
-    private static double handEXPMultiplyPerLevel = 2.0;
+    private static int handEXPPerHit = 10;
+    private static int handEXPPerLevelBase = 300;
+    private static double handEXPMultiplyPerLevel = 1.5;
     private static float handBaseDamage = 1.0f;
     private static float handIncrementDamagePerLevel = 0.1f;
     public static int handMaxLevel = 999;
@@ -2529,8 +2528,8 @@ public static class Configuration
 
     #region farming
     public static Dictionary<string, int> expPerHarvestFarming = [];
-    private static int farmingEXPPerTill = 1;
-    private static int farmingEXPPerLevelBase = 10;
+    private static int farmingEXPPerTill = 10;
+    private static int farmingEXPPerLevelBase = 100;
     private static double farmingEXPMultiplyPerLevel = 2.5;
     private static float farmingBaseHarvestMultiply = 0.5f;
     private static float farmingIncrementHarvestMultiplyPerLevel = 0.2f;
@@ -2668,15 +2667,15 @@ public static class Configuration
     #region cooking
     public static Dictionary<string, double> expMultiplySingleCooking = [];
     public static Dictionary<string, double> expMultiplyPotsCooking = [];
-    private static int cookingBaseExpPerCooking = 3;
-    private static int cookingEXPPerLevelBase = 10;
+    private static int cookingBaseExpPerCooking = 30;
+    private static int cookingEXPPerLevelBase = 100;
     private static double cookingEXPMultiplyPerLevel = 1.3;
     private static float cookingBaseFreshHoursMultiply = 1.0f;
-    private static float cookingFreshHoursMultiplyPerLevel = 0.1f;
+    private static float cookingFreshHoursMultiplyPerLevel = 0.04f;
     private static float cookingBaseChanceToIncreaseServings = 1.0f;
     private static int cookingReduceChanceToIncreaseServings = 5;
     private static float cookingIncrementChanceToIncreaseServings = 2.0f;
-    private static float cookingChanceToIncreaseServingsReducerTotal = 0.5f;
+    private static float cookingChanceToIncreaseServingsReducerTotal = 0.2f;
     private static int cookingBaseRollsChanceToIncreaseServings = 1;
     private static int cookingEarnRollsChanceToIncreaseServingsEveryLevel = 5;
     private static int cookingEarnRollsChanceToIncreaseServingsQuantity = 1;
@@ -2884,17 +2883,17 @@ public static class Configuration
     #endregion
 
     #region panning
-    private static int panningBaseExpPerPanning = 3;
-    private static int panningEXPPerLevelBase = 10;
+    private static int panningBaseExpPerPanning = 30;
+    private static int panningEXPPerLevelBase = 300;
     private static double panningEXPMultiplyPerLevel = 1.3;
     private static float panningBaseLootMultiply = 0.0f;
     private static float panningLootMultiplyPerLevel = 0.1f;
     private static float panningBaseChanceToDoubleLoot = 0.0f;
-    private static float panningChanceToDoubleLootPerLevel = 1.0f;
+    private static float panningChanceToDoubleLootPerLevel = 0.05f;
     private static float panningBaseChanceToTripleLoot = 0.0f;
-    private static float panningChanceToTripleLootPerLevel = 0.5f;
+    private static float panningChanceToTripleLootPerLevel = 0.03f;
     private static float panningBaseChanceToQuadrupleLoot = 0.0f;
-    private static float panningChanceToQuadrupleLootPerLevel = 0.3f;
+    private static float panningChanceToQuadrupleLootPerLevel = 0.01f;
     public static int panningMaxLevel = 999;
 
     public static int ExpPerPanning => panningBaseExpPerPanning;
@@ -3048,14 +3047,14 @@ public static class Configuration
 
     #region smithing
     public static Dictionary<string, int> expPerCraftSmithing = [];
-    private static int smithingEXPPerLevelBase = 10;
-    private static double smithingEXPMultiplyPerLevel = 2.5;
+    private static int smithingEXPPerLevelBase = 500;
+    private static double smithingEXPMultiplyPerLevel = 1.1;
     private static float smithingBaseDurabilityMultiply = 1.0f;
     private static float smithingIncrementDurabilityMultiplyPerLevel = 0.05f;
     private static float smithingBaseAttackPowerMultiply = 1.0f;
     private static float smithingIncrementAttackPowerMultiplyPerLevel = 0.05f;
     private static float smithingBaseMiningSpeedMultiply = 1.0f;
-    private static float smithingIncrementMiningSpeedMultiplyPerLevel = 0.05f;
+    private static float smithingIncrementMiningSpeedMultiplyPerLevel = 0.01f;
     private static float smithingBaseArmorProtectionMultiply = 1.0f;
     private static float smithingIncrementArmorProtectionMultiplyPerLevel = 0.05f;
     public static int smithingMaxLevel = 999;
@@ -3216,13 +3215,13 @@ public static class Configuration
     #endregion
 
     #region vitality
-    private static int vitalityEXPPerReceiveHit = 1;
-    private static float vitalityEXPMultiplyByDamage = 0.5f;
-    private static int vitalityEXPIncreaseByAmountDamage = 1;
-    private static int vitalityEXPPerLevelBase = 10;
-    private static double vitalityEXPMultiplyPerLevel = 2.0;
-    private static float vitalityHPIncreasePerLevel = 10.0f;
-    private static float vitalityBaseHP = 10.0f;
+    private static int vitalityEXPPerReceiveHit = 10;
+    private static float vitalityEXPMultiplyByDamage = 0.3f;
+    private static int vitalityEXPIncreaseByAmountDamage = 20;
+    private static int vitalityEXPPerLevelBase = 500;
+    private static double vitalityEXPMultiplyPerLevel = 1.2;
+    private static float vitalityBaseHP = 15.0f;
+    private static float vitalityHPIncreasePerLevel = 0.5f;
     private static float vitalityBaseHPRegen = 1.0f;
     private static float vitalityHPRegenIncreasePerLevel = 0.1f;
     private static int vitalityDamageLimit = 100;
@@ -3377,11 +3376,11 @@ public static class Configuration
 
     #region metabolism
     private static int metabolismEXPPerReceiveHit = 30;
-    private static int metabolismEXPPerSaturationLost = 2;
-    private static int metabolismEXPPerLevelBase = 10;
+    private static int metabolismEXPPerSaturationLost = 5;
+    private static int metabolismEXPPerLevelBase = 200;
     private static double metabolismEXPMultiplyPerLevel = 2.0;
-    private static float metabolismSaturationIncreasePerLevel = 10.0f;
-    private static float metabolismBaseSaturation = 10.0f;
+    private static float metabolismSaturationIncreasePerLevel = 100.0f;
+    private static float metabolismBaseSaturation = 1500.0f;
     private static float metabolismBaseSaturationReceiveMultiply = 1.0f;
     private static float metabolismSaturationReceiveMultiplyPerLevel = 0.05f;
     private static int metabolismSaturationReceiveMultiplyReductionEveryLevel = 1;
@@ -3525,17 +3524,14 @@ public static class Configuration
 
     #region leatherarmor
     public static Dictionary<string, double> expMultiplyHitLeatherArmor = [];
-    private static int leatherArmorEXPPerReceiveHit = 1;
-    private static float leatherArmorEXPMultiplyByDamage = 0.5f;
-    private static int leatherArmorEXPIncreaseByAmountDamage = 1;
-    private static int leatherArmorEXPPerLevelBase = 50;
-    private static double leatherArmorEXPMultiplyPerLevel = 2.0;
-    private static float leatherArmorBaseDamageReduction = 0.0f;
-    private static float leatherArmorDamageReductionPerLevel = 0.05f;
-    private static int leatherArmorDamageLimit = 1000;
+    private static int leatherArmorEXPPerReceiveHit = 10;
+    private static float leatherArmorEXPMultiplyByDamage = 0.3f;
+    private static int leatherArmorEXPIncreaseByAmountDamage = 20;
+    private static int leatherArmorEXPPerLevelBase = 500;
+    private static double leatherArmorEXPMultiplyPerLevel = 1.2;
+    private static float leatherArmorBaseStatsIncrease = 1.0f;
+    private static float leatherArmorStatsIncreasePerLevel = 0.1f;
     public static int leatherArmorMaxLevel = 999;
-
-    public static int DamageLimitLeatherArmor => leatherArmorDamageLimit;
 
     public static void PopulateLeatherArmorConfiguration(ICoreAPI api)
     {
@@ -3580,26 +3576,19 @@ public static class Configuration
                 else leatherArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel not set");
         }
-        { //leatherArmorBaseDamageReduction
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorBaseDamageReduction is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorBaseDamageReduction is not double is {value.GetType()}");
-                else leatherArmorBaseDamageReduction = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: leatherArmorBaseDamageReduction not set");
+        { //leatherArmorEXPMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel not set");
         }
-        { //leatherArmorDamageReductionPerLevel
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel is not double is {value.GetType()}");
-                else leatherArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: leatherArmorDamageReductionPerLevel not set");
-        }
-        { //leatherArmorDamageLimit
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorDamageLimit", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorDamageLimit is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorDamageLimit is not int is {value.GetType()}");
-                else leatherArmorDamageLimit = (int)(long)value;
-            else Debug.LogError("CONFIGURATION ERROR: leatherArmorDamageLimit not set");
+        { //leatherArmorBaseStatsIncrease
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorBaseStatsIncrease", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorBaseStatsIncrease is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorBaseStatsIncrease is not double is {value.GetType()}");
+                else leatherArmorBaseStatsIncrease = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorBaseStatsIncrease not set");
         }
         { //leatherArmorMaxLevel
             if (leatherArmorLevelStats.TryGetValue("leatherArmorMaxLevel", out object value))
@@ -3667,25 +3656,22 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float LeatherArmorDamageReductionByLevel(int level)
+    public static float LeatherArmorStatsIncreaseByLevel(int level)
     {
-        return leatherArmorBaseDamageReduction + leatherArmorDamageReductionPerLevel * level;
+        return leatherArmorBaseStatsIncrease + leatherArmorStatsIncreasePerLevel * level;
     }
     #endregion
 
     #region chainarmor
     public static Dictionary<string, double> expMultiplyHitChainArmor = [];
-    private static int chainArmorEXPPerReceiveHit = 1;
-    private static float chainArmorEXPMultiplyByDamage = 0.5f;
-    private static int chainArmorEXPIncreaseByAmountDamage = 1;
-    private static int chainArmorEXPPerLevelBase = 50;
-    private static double chainArmorEXPMultiplyPerLevel = 2.0;
-    private static float chainArmorBaseDamageReduction = 0.0f;
-    private static float chainArmorDamageReductionPerLevel = 0.05f;
-    private static int chainArmorDamageLimit = 1000;
+    private static int chainArmorEXPPerReceiveHit = 10;
+    private static float chainArmorEXPMultiplyByDamage = 0.3f;
+    private static int chainArmorEXPIncreaseByAmountDamage = 20;
+    private static int chainArmorEXPPerLevelBase = 500;
+    private static double chainArmorEXPMultiplyPerLevel = 1.2;
+    private static float chainArmorBaseStatsIncrease = 1.0f;
+    private static float chainArmorStatsIncreasePerLevel = 0.1f;
     public static int chainArmorMaxLevel = 999;
-
-    public static int DamageLimitChainArmor => chainArmorDamageLimit;
 
     public static void PopulateChainArmorConfiguration(ICoreAPI api)
     {
@@ -3730,26 +3716,19 @@ public static class Configuration
                 else chainArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel not set");
         }
-        { //chainArmorBaseDamageReduction
-            if (chainArmorLevelStats.TryGetValue("chainArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorBaseDamageReduction is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorBaseDamageReduction is not double is {value.GetType()}");
-                else chainArmorBaseDamageReduction = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: chainArmorBaseDamageReduction not set");
+        { //chainArmorBaseStatsIncrease
+            if (chainArmorLevelStats.TryGetValue("chainArmorBaseStatsIncrease", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorBaseStatsIncrease is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorBaseStatsIncrease is not double is {value.GetType()}");
+                else chainArmorBaseStatsIncrease = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorBaseStatsIncrease not set");
         }
-        { //chainArmorDamageReductionPerLevel
-            if (chainArmorLevelStats.TryGetValue("chainArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorDamageReductionPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorDamageReductionPerLevel is not double is {value.GetType()}");
-                else chainArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: chainArmorDamageReductionPerLevel not set");
-        }
-        { //chainArmorDamageLimit
-            if (chainArmorLevelStats.TryGetValue("chainArmorDamageLimit", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorDamageLimit is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorDamageLimit is not int is {value.GetType()}");
-                else chainArmorDamageLimit = (int)(long)value;
-            else Debug.LogError("CONFIGURATION ERROR: chainArmorDamageLimit not set");
+        { //chainArmorStatsIncreasePerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorStatsIncreasePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorStatsIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorStatsIncreasePerLevel is not double is {value.GetType()}");
+                else chainArmorStatsIncreasePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorStatsIncreasePerLevel not set");
         }
         { //chainArmorMaxLevel
             if (chainArmorLevelStats.TryGetValue("chainArmorMaxLevel", out object value))
@@ -3817,25 +3796,22 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float ChainArmorDamageReductionByLevel(int level)
+    public static float ChainArmorStatsIncreaseByLevel(int level)
     {
-        return chainArmorBaseDamageReduction + chainArmorDamageReductionPerLevel * level;
+        return chainArmorBaseStatsIncrease + chainArmorStatsIncreasePerLevel * level;
     }
     #endregion
 
     #region brigandinearmor
     public static Dictionary<string, double> expMultiplyHitBrigandineArmor = [];
-    private static int brigandineArmorEXPPerReceiveHit = 1;
-    private static float brigandineArmorEXPMultiplyByDamage = 0.5f;
-    private static int brigandineArmorEXPIncreaseByAmountDamage = 1;
-    private static int brigandineArmorEXPPerLevelBase = 50;
-    private static double brigandineArmorEXPMultiplyPerLevel = 2.0;
-    private static float brigandineArmorBaseDamageReduction = 0.0f;
-    private static float brigandineArmorDamageReductionPerLevel = 0.05f;
-    private static int brigandineArmorDamageLimit = 1000;
+    private static int brigandineArmorEXPPerReceiveHit = 10;
+    private static float brigandineArmorEXPMultiplyByDamage = 0.3f;
+    private static int brigandineArmorEXPIncreaseByAmountDamage = 20;
+    private static int brigandineArmorEXPPerLevelBase = 500;
+    private static double brigandineArmorEXPMultiplyPerLevel = 1.2;
+    private static float brigandineArmorBaseStatsIncrease = 1.0f;
+    private static float brigandineArmorStatsIncreasePerLevel = 0.1f;
     public static int brigandineArmorMaxLevel = 999;
-
-    public static int DamageLimitBrigandineArmor => brigandineArmorDamageLimit;
 
     public static void PopulateBrigandineArmorConfiguration(ICoreAPI api)
     {
@@ -3880,26 +3856,19 @@ public static class Configuration
                 else brigandineArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel not set");
         }
-        { //brigandineArmorBaseDamageReduction
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorBaseDamageReduction is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorBaseDamageReduction is not double is {value.GetType()}");
-                else brigandineArmorBaseDamageReduction = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorBaseDamageReduction not set");
+        { //brigandineArmorBaseStatsIncrease
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorBaseStatsIncrease", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorBaseStatsIncrease is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorBaseStatsIncrease is not double is {value.GetType()}");
+                else brigandineArmorBaseStatsIncrease = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorBaseStatsIncrease not set");
         }
-        { //brigandineArmorDamageReductionPerLevel
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel is not double is {value.GetType()}");
-                else brigandineArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorDamageReductionPerLevel not set");
-        }
-        { //brigandineArmorDamageLimit
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorDamageLimit", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorDamageLimit is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorDamageLimit is not int is {value.GetType()}");
-                else brigandineArmorDamageLimit = (int)(long)value;
-            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorDamageLimit not set");
+        { //brigandineArmorStatsIncreasePerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorStatsIncreasePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorStatsIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorStatsIncreasePerLevel is not double is {value.GetType()}");
+                else brigandineArmorStatsIncreasePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorStatsIncreasePerLevel not set");
         }
         { //brigandineArmorMaxLevel
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorMaxLevel", out object value))
@@ -3966,25 +3935,22 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float BrigandineArmorDamageReductionByLevel(int level)
+    public static float BrigandineArmorStatsIncreaseByLevel(int level)
     {
-        return brigandineArmorBaseDamageReduction + brigandineArmorDamageReductionPerLevel * level;
+        return brigandineArmorBaseStatsIncrease + brigandineArmorStatsIncreasePerLevel * level;
     }
     #endregion
 
     #region platearmor
     public static Dictionary<string, double> expMultiplyHitPlateArmor = [];
-    private static int plateArmorEXPPerReceiveHit = 1;
-    private static float plateArmorEXPMultiplyByDamage = 0.5f;
-    private static int plateArmorEXPIncreaseByAmountDamage = 1;
-    private static int plateArmorEXPPerLevelBase = 10;
-    private static double plateArmorEXPMultiplyPerLevel = 2.0;
-    private static float plateArmorBaseDamageReduction = 0.0f;
-    private static float plateArmorDamageReductionPerLevel = 0.05f;
-    private static int plateArmorDamageLimit = 1000;
+    private static int plateArmorEXPPerReceiveHit = 10;
+    private static float plateArmorEXPMultiplyByDamage = 0.3f;
+    private static int plateArmorEXPIncreaseByAmountDamage = 20;
+    private static int plateArmorEXPPerLevelBase = 500;
+    private static double plateArmorEXPMultiplyPerLevel = 1.2;
+    private static float plateArmorBaseStatsIncrease = 1.0f;
+    private static float plateArmorStatsIncreasePerLevel = 0.1f;
     public static int plateArmorMaxLevel = 999;
-
-    public static int DamageLimitPlateArmor => plateArmorDamageLimit;
 
     public static void PopulatePlateArmorConfiguration(ICoreAPI api)
     {
@@ -4029,26 +3995,19 @@ public static class Configuration
                 else plateArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel not set");
         }
-        { //plateArmorBaseDamageReduction
-            if (plateArmorLevelStats.TryGetValue("plateArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorBaseDamageReduction is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorBaseDamageReduction is not double is {value.GetType()}");
-                else plateArmorBaseDamageReduction = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: plateArmorBaseDamageReduction not set");
+        { //plateArmorBaseStatsIncrease
+            if (plateArmorLevelStats.TryGetValue("plateArmorBaseStatsIncrease", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorBaseStatsIncrease is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorBaseStatsIncrease is not double is {value.GetType()}");
+                else plateArmorBaseStatsIncrease = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorBaseStatsIncrease not set");
         }
-        { //plateArmorDamageReductionPerLevel
-            if (plateArmorLevelStats.TryGetValue("plateArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorDamageReductionPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorDamageReductionPerLevel is not double is {value.GetType()}");
-                else plateArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: plateArmorDamageReductionPerLevel not set");
-        }
-        { //plateArmorDamageLimit
-            if (plateArmorLevelStats.TryGetValue("plateArmorDamageLimit", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorDamageLimit is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorDamageLimit is not int is {value.GetType()}");
-                else plateArmorDamageLimit = (int)(long)value;
-            else Debug.LogError("CONFIGURATION ERROR: plateArmorDamageLimit not set");
+        { //plateArmorStatsIncreasePerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorStatsIncreasePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorStatsIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorStatsIncreasePerLevel is not double is {value.GetType()}");
+                else plateArmorStatsIncreasePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorStatsIncreasePerLevel not set");
         }
         { //plateArmorMaxLevel
             if (plateArmorLevelStats.TryGetValue("plateArmorMaxLevel", out object value))
@@ -4115,25 +4074,22 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float PlateArmorDamageReductionByLevel(int level)
+    public static float PlateArmorStatsIncreaseByLevel(int level)
     {
-        return plateArmorBaseDamageReduction + plateArmorDamageReductionPerLevel * Math.Max(0, level - 1);
+        return plateArmorBaseStatsIncrease + plateArmorStatsIncreasePerLevel * level;
     }
     #endregion
 
     #region scalearmor
     public static Dictionary<string, double> expMultiplyHitScaleArmor = [];
-    private static int scaleArmorEXPPerReceiveHit = 1;
-    private static float scaleArmorEXPMultiplyByDamage = 0.5f;
-    private static int scaleArmorEXPIncreaseByAmountDamage = 1;
-    private static int scaleArmorEXPPerLevelBase = 50;
-    private static double scaleArmorEXPMultiplyPerLevel = 2.0;
-    private static float scaleArmorBaseDamageReduction = 0.0f;
-    private static float scaleArmorDamageReductionPerLevel = 0.05f;
-    private static int scaleArmorDamageLimit = 1000;
+    private static int scaleArmorEXPPerReceiveHit = 10;
+    private static float scaleArmorEXPMultiplyByDamage = 0.3f;
+    private static int scaleArmorEXPIncreaseByAmountDamage = 20;
+    private static int scaleArmorEXPPerLevelBase = 500;
+    private static double scaleArmorEXPMultiplyPerLevel = 1.2;
+    private static float scaleArmorBaseStatsIncrease = 1.0f;
+    private static float scaleArmorStatsIncreasePerLevel = 0.1f;
     public static int scaleArmorMaxLevel = 999;
-
-    public static int DamageLimitScaleArmor => scaleArmorDamageLimit;
 
     public static void PopulateScaleArmorConfiguration(ICoreAPI api)
     {
@@ -4178,26 +4134,19 @@ public static class Configuration
                 else scaleArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel not set");
         }
-        { //scaleArmorBaseDamageReduction
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorBaseDamageReduction", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorBaseDamageReduction is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorBaseDamageReduction is not double is {value.GetType()}");
-                else scaleArmorBaseDamageReduction = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: scaleArmorBaseDamageReduction not set");
+        { //scaleArmorBaseStatsIncrease
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorBaseStatsIncrease", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorBaseStatsIncrease is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorBaseStatsIncrease is not double is {value.GetType()}");
+                else scaleArmorBaseStatsIncrease = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorBaseStatsIncrease not set");
         }
-        { //scaleArmorDamageReductionPerLevel
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorDamageReductionPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel is not double is {value.GetType()}");
-                else scaleArmorDamageReductionPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: scaleArmorDamageReductionPerLevel not set");
-        }
-        { //scaleArmorDamageLimit
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorDamageLimit", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorDamageLimit is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorDamageLimit is not int is {value.GetType()}");
-                else scaleArmorDamageLimit = (int)(long)value;
-            else Debug.LogError("CONFIGURATION ERROR: scaleArmorDamageLimit not set");
+        { //scaleArmorStatsIncreasePerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorStatsIncreasePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorStatsIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorStatsIncreasePerLevel is not double is {value.GetType()}");
+                else scaleArmorStatsIncreasePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorStatsIncreasePerLevel not set");
         }
         { //scaleArmorMaxLevel
             if (scaleArmorLevelStats.TryGetValue("scaleArmorMaxLevel", out object value))
@@ -4264,9 +4213,9 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float ScaleArmorDamageReductionByLevel(int level)
+    public static float ScaleArmorStatsIncreaseByLevel(int level)
     {
-        return scaleArmorBaseDamageReduction + scaleArmorDamageReductionPerLevel * Math.Max(0, level - 1);
+        return scaleArmorBaseStatsIncrease + scaleArmorStatsIncreasePerLevel * level;
     }
     #endregion
 

@@ -61,23 +61,23 @@
 
     "levelupdocs-leatherarmor": "About the Leather Armor",
     "levelupdocs-leatherarmor-title": "Level: Leather Armor",
-    "levelupdocs-leatherarmor-text": "<strong>Leather Armor</strong><br><i>Leather Armor: Leatherworker</i><br><br>When you receive damage using leather armor you will gain experience with leather armor, the more leather armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Leather armor levels will grant you more flat resistance to damage.",
+    "levelupdocs-leatherarmor-text": "<strong>Leather Armor</strong><br><i>Leather Armor: Leatherworker</i><br><br>When you receive damage using leather armor you will gain experience with leather armor, the more leather armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Leather armor levels will grant you better stats.",
 
     "levelupdocs-chainarmor": "About the Chain Armor",
     "levelupdocs-chainarmor-title": "Level: Chain Armor",
-    "levelupdocs-chainarmor-text": "<strong>Chain Armor</strong><br><i>Chain Armor: Soldier</i><br><br>When you receive damage using chain armor you will gain experience with chain armor, the more chain armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Chain armor levels will grant you more flat resistance to damage.",
+    "levelupdocs-chainarmor-text": "<strong>Chain Armor</strong><br><i>Chain Armor: Soldier</i><br><br>When you receive damage using chain armor you will gain experience with chain armor, the more chain armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Chain armor levels will grant you better stats.",
 
     "levelupdocs-brigandinearmor": "About the Brigandine Armor",
     "levelupdocs-brigandinearmor-title": "Level: Brigandine Armor",
-    "levelupdocs-brigandinearmor-text": "<strong>Brigandine Armor</strong><br><i>Brigandine Armor: King</i><br><br>When you receive damage using brigandine armor you will gain experience with brigandine armor, the more brigandine armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Brigandine armor levels will grant you more flat resistance to damage.",
+    "levelupdocs-brigandinearmor-text": "<strong>Brigandine Armor</strong><br><i>Brigandine Armor: King</i><br><br>When you receive damage using brigandine armor you will gain experience with brigandine armor, the more brigandine armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Brigandine armor levels will grant you better stats.",
 
     "levelupdocs-platearmor": "About the Plate Armor",
     "levelupdocs-platearmor-title": "Level: Plate Armor",
-    "levelupdocs-platearmor-text": "<strong>Plate Armor</strong><br><i>Plate Armor: Knight</i><br><br>When you receive damage using plate armor you will gain experience with plate armor, the more plate armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Plate armor levels will grant you more flat resistance to damage.",
+    "levelupdocs-platearmor-text": "<strong>Plate Armor</strong><br><i>Plate Armor: Knight</i><br><br>When you receive damage using plate armor you will gain experience with plate armor, the more plate armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Plate armor levels will grant you better stats.",
 
     "levelupdocs-scalearmor": "About the Scale Armor",
     "levelupdocs-scalearmor-title": "Level: Scale Armor",
-    "levelupdocs-scalearmor-text": "<strong>Scale Armor</strong><br><i>Scale Armor: Infantry</i><br><br>When you receive damage using scale armor you will gain experience with scale armor, the more scale armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Scale armor levels will grant you more flat resistance to damage.",
+    "levelupdocs-scalearmor-text": "<strong>Scale Armor</strong><br><i>Scale Armor: Infantry</i><br><br>When you receive damage using scale armor you will gain experience with scale armor, the more scale armor you have, the more experience you will obtain.<br><br><strong>Upgrades</strong><br>Scale armor levels will grant you better stats.",
 
     "levelupdocs-smithing": "About the Smithing",
     "levelupdocs-smithing-title": "Level: Smithing",

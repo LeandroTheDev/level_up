@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Client;
@@ -58,8 +57,12 @@ class Instance
         }
     }
 
-    private static void SyncConfigurations(string json)
-        => Configuration.ConsumeGeneratedClassJsonParameters(json);
+    private void SyncConfigurations(string json)
+    {
+        Configuration.ConsumeGeneratedClassJsonParameters(json);
+        Shared.Instance.PatchAll(api);
+        Debug.LogDebug("Client functions patched!");
+    }
 
     private void LevelUPMessage(int level, string levelType)
         => api.ShowChatMessage(Lang.Get("levelup:player_levelup", level, Lang.Get($"levelup:{levelType.ToLower()}")));

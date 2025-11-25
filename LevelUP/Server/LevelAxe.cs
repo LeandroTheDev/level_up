@@ -1,4 +1,6 @@
+#pragma warning disable CA1822
 using System.Collections.Generic;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
@@ -8,27 +10,51 @@ namespace LevelUP.Server;
 
 class LevelAxe
 {
+    public readonly Harmony patch = new("levelup_axe");
+    public void Patch()
+    {
+        if (!Harmony.HasAnyPatches("levelup_axe"))
+        {
+            patch.PatchCategory("levelup_axe");
+        }
+    }
+    public void Unpatch()
+    {
+        if (Harmony.HasAnyPatches("levelup_axe"))
+        {
+            patch.UnpatchCategory("levelup_axe");
+        }
+    }
+
     public void Init()
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Axe");
         Configuration.RegisterNewLevelTypeEXP("Axe", Configuration.AxeGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Axe", Configuration.AxeGetExpByLevel);
-        
+
         Debug.Log("Level Axe initialized");
     }
 
-#pragma warning disable CA1822
+    private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
+    {
+        if (player.InventoryManager.ActiveTool == EnumTool.Axe)
+        {
+            damage *= Configuration.AxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe"));
+            Experience.IncreaseExperience(player, "Axe", "Hit");
+        }
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulateAxeConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Axe", Configuration.axeMaxLevel);
     }
-#pragma warning restore CA1822
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
@@ -75,5 +101,24 @@ class LevelAxe
 
         // Incrementing
         Experience.IncreaseExperience(player, "Axe", exp);
+    }
+
+    [HarmonyPatchCategory("levelup_axe")]
+    private class LevelAxePatch
+    {
+        // Overwrite Wood Axe Tree Breaking
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemAxe), "OnBlockBrokenWith")]
+        public static void OnBlockBrokenWith(ItemAxe __instance, IWorldAccessor world, Entity byEntity, ItemSlot itemslot, BlockSelection blockSel, float dropQuantityMultiplier = 1f)
+        {
+            if (!Configuration.enableLevelAxe) return;
+
+            // Check if axe breaked is a player
+            if (byEntity is EntityPlayer)
+            {
+                Experience.IncreaseExperience((byEntity as EntityPlayer).Player, "Axe", "TreeBreak");
+            }
+        }
+
     }
 }

@@ -4,8 +4,7 @@
     "plateArmorEXPIncreaseByAmountDamage": 20,
     "plateArmorEXPPerLevelBase": 500,
     "plateArmorEXPMultiplyPerLevel": 1.2,
-    "plateArmorBaseDamageReduction": 0.0,
-    "plateArmorDamageReductionPerLevel": 0.05,
-    "plateArmorDamageLimit": 100,
+    "plateArmorBaseStatsIncrease": 1.0,
+    "plateArmorStatsIncreasePerLevel": 0.1,
     "plateArmorMaxLevel": 999
 }

@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using Vintagestory.API.Util;
 
 namespace LevelUP.Server;
 
@@ -259,7 +257,7 @@ public class Experience
 
             _playerLoadedExperience[player.PlayerUID][type]["experience"] += amount;
 
-            Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
+            Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
 
             if (Configuration.enableLevelUpExperienceServerLog)
                 Debug.Log($"[EXPERIENCE] {player.PlayerName}: {amount}, {type}");
@@ -295,7 +293,7 @@ public class Experience
 
         _playerLoadedExperience[player.PlayerUID][type][subType] += amount;
 
-        Shared.Instance.UpdateSubLevelAndNotify(null, player, type, subType, _playerLoadedExperience[player.PlayerUID][type][subType]);
+        Instance.UpdateSubLevelAndNotify(null, player, type, subType, _playerLoadedExperience[player.PlayerUID][type][subType]);
 
         if (Configuration.enableLevelUpExperienceServerLog)
             Debug.Log($"[EXPERIENCE] {player.PlayerName}: {amount}, {type}/{subType}");
@@ -320,7 +318,7 @@ public class Experience
 
         _playerLoadedExperience[player.PlayerUID][type]["experience"] = amount;
 
-        Shared.Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
+        Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
 
         Debug.Log($"[EXPERIENCE] All experience of {player.PlayerName} has changed to: {amount}, {type}");
     }
@@ -387,7 +385,7 @@ public class Experience
         if (_playerLoadedExperience[player.PlayerUID][type]["experience"] < 0)
             _playerLoadedExperience[player.PlayerUID][type]["experience"] = 0;
 
-        Shared.Instance.UpdateLevelAndNotify(null, player, type, amount, true);
+        Instance.UpdateLevelAndNotify(null, player, type, amount, true);
     }
 
     /// <summary>

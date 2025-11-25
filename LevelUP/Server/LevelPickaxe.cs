@@ -1,4 +1,6 @@
+#pragma warning disable CA1822
 using System.Collections.Generic;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
@@ -8,12 +10,29 @@ namespace LevelUP.Server;
 
 class LevelPickaxe
 {
+    public readonly Harmony patch = new("levelup_pickaxe");
+    public void Patch()
+    {
+        if (!Harmony.HasAnyPatches("levelup_pickaxe"))
+        {
+            patch.PatchCategory("levelup_pickaxe");
+        }
+    }
+    public void Unpatch()
+    {
+        if (Harmony.HasAnyPatches("levelup_pickaxe"))
+        {
+            patch.UnpatchCategory("levelup_pickaxe");
+        }
+    }
+
     public void Init()
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Pickaxe");
         Configuration.RegisterNewLevelTypeEXP("Pickaxe", Configuration.PickaxeGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Pickaxe", Configuration.PickaxeGetExpByLevel);
@@ -21,14 +40,21 @@ class LevelPickaxe
         Debug.Log("Level Pickaxe initialized");
     }
 
-#pragma warning disable CA1822
+    private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
+    {
+        if (player.InventoryManager.ActiveTool == EnumTool.Pickaxe)
+        {
+            damage *= Configuration.PickaxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
+            Experience.IncreaseExperience(player, "Pickaxe", "Hit");
+        }
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulatePickaxeConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Pickaxe", Configuration.pickaxeMaxLevel);
     }
-#pragma warning restore CA1822
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
@@ -73,8 +99,44 @@ class LevelPickaxe
         ulong playerExp = Experience.GetExperience(player, "Pickaxe");
 
         Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
-        
+
         // Incrementing
         Experience.IncreaseExperience(player, "Pickaxe", exp);
+    }
+
+    [HarmonyPatchCategory("levelup_pickaxe")]
+    private class LevelPickaxePatch
+    {
+        // Overwrite Ores Drop
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BlockOre), "OnBlockBroken")]
+        public static void OnBlockBroken(BlockOre __instance, IWorldAccessor world, IPlayer byPlayer, ref float dropQuantityMultiplier)
+        {
+            if (!Configuration.enableLevelPickaxe) return;
+            if (world.Side != EnumAppSide.Server) return;
+            if (byPlayer == null) return;
+
+            // Increasing ore drop rate
+            dropQuantityMultiplier += Configuration.PickaxeGetOreMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"));
+
+            // Integration
+            dropQuantityMultiplier = LevelPickaxeEvents.GetExternalMiningMultiplier(byPlayer, dropQuantityMultiplier);
+
+            Debug.LogDebug($"{byPlayer.PlayerName} breaked a ore, multiply drop: {Configuration.PickaxeGetOreMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))}");
+        }
+
+    }
+}
+
+public class LevelPickaxeEvents
+{
+    public delegate void PlayerMiningOre(IPlayer player, ref float dropQuantityMultiplier);
+
+    public static event PlayerMiningOre OnMiningOre;
+
+    internal static float GetExternalMiningMultiplier(IPlayer player, float multiply)
+    {
+        OnMiningOre?.Invoke(player, ref multiply);
+        return multiply;
     }
 }

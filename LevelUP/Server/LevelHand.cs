@@ -1,4 +1,6 @@
+#pragma warning disable CA1822
 using System.Collections.Generic;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.GameContent;
@@ -7,10 +9,27 @@ namespace LevelUP.Server;
 
 class LevelHand
 {
+    public readonly Harmony patch = new("levelup_hand");
+    public void Patch()
+    {
+        if (!Harmony.HasAnyPatches("levelup_hand"))
+        {
+            patch.PatchCategory("levelup_hand");
+        }
+    }
+    public void Unpatch()
+    {
+        if (Harmony.HasAnyPatches("levelup_hand"))
+        {
+            patch.UnpatchCategory("levelup_hand");
+        }
+    }
+
     public void Init()
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Hand");
         Configuration.RegisterNewLevelTypeEXP("Hand", Configuration.HandGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Hand", Configuration.HandGetExpByLevel);
@@ -18,14 +37,25 @@ class LevelHand
         Debug.Log("Level Hand initialized");
     }
 
-#pragma warning disable CA1822
+    private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
+    {
+        if (player.InventoryManager.ActiveHotbarSlot != null)
+        {
+            // Check if the active slot is empty
+            if (player.InventoryManager.ActiveHotbarSlot.Itemstack == null)
+            {
+                damage *= Configuration.HandGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hand"));
+                Experience.IncreaseExperience(player, "Hand", "Hit");
+            }
+        }
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulateHandConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Hand", Configuration.handMaxLevel);
     }
-#pragma warning restore CA1822
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
@@ -48,11 +78,15 @@ class LevelHand
         ulong exp = (ulong)Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString());
 
         // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Hand");        
+        ulong playerExp = Experience.GetExperience(player, "Hand");
 
         Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hand exp earned: {exp}, actual: {playerExp}");
 
         // Incrementing
         Experience.IncreaseExperience(player, "Hand", exp);
     }
+
+    [HarmonyPatchCategory("levelup_hand")]
+    private class LevelHandPatch
+    { }
 }

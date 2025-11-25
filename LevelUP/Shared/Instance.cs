@@ -1,120 +1,186 @@
-using System.Threading.Tasks;
 using LevelUP.Server;
 using Vintagestory.API.Common;
-using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
-using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
 
 class Instance
 {
-    public Client.Instance clientAPI;
-    public Server.Instance serverAPI;
-    public ICoreAPI coreAPI;
-    public EnumAppSide side = EnumAppSide.Universal;
+    internal static LevelHunter levelHunter = new();
+    internal static LevelBow levelBow = new();
+    internal static LevelSlingshot levelSlingshot = new();
+    internal static LevelKnife levelKnife = new();
+    internal static LevelAxe levelAxe = new();
+    internal static LevelPickaxe levelPickaxe = new();
+    internal static LevelShovel levelShovel = new();
+    internal static LevelSpear levelSpear = new();
+    internal static LevelHammer levelHammer = new();
+    internal static LevelSword levelSword = new();
+    internal static LevelShield levelShield = new();
+    internal static LevelHand levelHand = new();
+    internal static LevelFarming levelFarming = new();
+    internal static LevelVitality levelVitality = new();
+    internal static LevelMetabolism levelMetabolism = new();
+    internal static LevelCooking levelCooking = new();
+    internal static LevelPanning levelPanning = new();
+    internal static LevelLeatherArmor levelLeatherArmor = new();
+    internal static LevelChainArmor levelChainArmor = new();
+    internal static LevelBrigandineArmor levelBrigandineArmor = new();
+    internal static LevelPlateArmor levelPlateArmor = new();
+    internal static LevelScaleArmor levelScaleArmor = new();
+    internal static LevelSmithing levelSmithing = new();
 
-    // Overwrite
-    readonly OverwriteDamageInteraction damageInteraction = new();
-    readonly OverwriteBlockBreak blockBreak = new();
-    readonly OverwriteBlockInteraction blockInteraction = new();
+    internal static OverwriteBlockBreak overwriteBlockBreak = new();
+    internal static OverwriteDamageInteraction overwriteDamageInteraction = new();
 
-    public void InstanciateAPI(object api)
+    public static void PatchAll(ICoreAPI api)
     {
-        clientAPI = api is Client.Instance ? api as Client.Instance : null;
-        serverAPI = api is Server.Instance ? api as Server.Instance : null;
-        coreAPI = api is ICoreAPI ? api as ICoreAPI : null;
-    }
+        overwriteBlockBreak.Patch();
+        overwriteDamageInteraction.Patch();
 
-    public void OverwriteFunctions()
-    {
-        damageInteraction.OverwriteNativeFunctions(this);
-        blockBreak.OverwriteNativeFunctions(this);
-        blockInteraction.OverwriteNativeFunctions(this);
-    }
-    public void OverwriteDispose()
-    {
-        damageInteraction.overwriter?.UnpatchAll();
-        blockBreak.overwriter?.UnpatchAll();
-        blockInteraction.overwriter?.UnpatchAll();
-    }
-
-    public static void UpdateLevelAndNotify(ICoreServerAPI _, IPlayer player, string levelType, ulong exp, bool disableLevelUpNotify = false)
-    {
-        // Previous exp level, before getting the new experience
-        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}", 0));
-        // Actual player level
-        int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
-
-        // Check if player leveled up
-        if (previousLevel < nextLevel)
+        if (Configuration.enableLevelHunter)
         {
-            // Check if we want to notify
-            if (!disableLevelUpNotify)
-            {
-                // Notify player
-                if (Configuration.enableLevelUpChatMessages)
-                    Server.Instance.CommunicationChannel.SendPacket(new ServerMessage() { message = $"playerlevelup&{nextLevel}&{levelType}" }, player as IServerPlayer);
-            }
-            Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
-
-            ExperienceEvents.PlayerLeveledUp(player, levelType, exp, nextLevel);
+            if (api.Side == EnumAppSide.Server) levelHunter.Init();
+            levelHunter.Patch();
         }
-
-        // This is a heavy formula calculations, we run on task to reduce and prevent lag spikes
-        Task.Run(() =>
+        if (Configuration.enableLevelBow)
         {
-            // Experience
-            player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}", (long)exp);
-            // Level
-            player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
-
-            // Mining speed
-            float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
-            // Check if this levelType has mining speed
-            if (miningspeed != -1)
-                // Set the mining speed for clients
-                player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
-
-            // Refresh metabolism
-            if (levelType == "Metabolism")
-            {
-                LevelMetabolism.RefreshMaxSaturation(player);
-                LevelMetabolism.RefreshSaturationReceiveMultiply(player);
-            }
-            // Refresh vitality
-            else if (levelType == "Vitality")
-            {
-                LevelVitality.RefreshMaxHealth(player);
-            }
-        });
+            if (api.Side == EnumAppSide.Server) levelBow.Init();
+            levelBow.Patch();
+        }
+        if (Configuration.enableLevelSlingshot)
+        {
+            if (api.Side == EnumAppSide.Server) levelSlingshot.Init();
+            levelSlingshot.Patch();
+        }
+        if (Configuration.enableLevelKnife)
+        {
+            if (api.Side == EnumAppSide.Server) levelKnife.Init();
+            levelKnife.Patch();
+        }
+        if (Configuration.enableLevelAxe)
+        {
+            if (api.Side == EnumAppSide.Server) levelAxe.Init();
+            levelAxe.Patch();
+        }
+        if (Configuration.enableLevelPickaxe)
+        {
+            if (api.Side == EnumAppSide.Server) levelPickaxe.Init();
+            levelPickaxe.Patch();
+        }
+        if (Configuration.enableLevelShovel)
+        {
+            if (api.Side == EnumAppSide.Server) levelShovel.Init();
+            levelShovel.Patch();
+        }
+        if (Configuration.enableLevelSpear)
+        {
+            if (api.Side == EnumAppSide.Server) levelSpear.Init();
+            levelSpear.Patch();
+        }
+        if (Configuration.enableLevelHammer)
+        {
+            if (api.Side == EnumAppSide.Server) levelHammer.Init();
+            levelHammer.Patch();
+        }
+        if (Configuration.enableLevelSword)
+        {
+            if (api.Side == EnumAppSide.Server) levelSword.Init();
+            levelSword.Patch();
+        }
+        if (Configuration.enableLevelShield)
+        {
+            if (api.Side == EnumAppSide.Server) levelShield.Init();
+            levelShield.Patch();
+        }
+        if (Configuration.enableLevelHand)
+        {
+            if (api.Side == EnumAppSide.Server) levelHand.Init();
+            levelHand.Patch();
+        }
+        if (Configuration.enableLevelFarming)
+        {
+            if (api.Side == EnumAppSide.Server) levelFarming.Init();
+            levelFarming.Patch();
+        }
+        if (Configuration.enableLevelVitality)
+        {
+            if (api.Side == EnumAppSide.Server) levelVitality.Init();
+            levelVitality.Patch();
+        }
+        if (Configuration.enableLevelMetabolism)
+        {
+            if (api.Side == EnumAppSide.Server) levelMetabolism.Init();
+            levelMetabolism.Patch();
+        }
+        if (Configuration.enableLevelCooking)
+        {
+            if (api.Side == EnumAppSide.Server) levelCooking.Init();
+            levelCooking.Patch();
+        }
+        if (Configuration.enableLevelPanning)
+        {
+            if (api.Side == EnumAppSide.Server) levelPanning.Init();
+            levelPanning.Patch();
+        }
+        if (Configuration.enableLevelLeatherArmor)
+        {
+            if (api.Side == EnumAppSide.Server) levelLeatherArmor.Init();
+            levelLeatherArmor.Patch();
+        }
+        if (Configuration.enableLevelChainArmor)
+        {
+            if (api.Side == EnumAppSide.Server) levelChainArmor.Init();
+            levelChainArmor.Patch();
+        }
+        if (Configuration.enableLevelBrigandineArmor)
+        {
+            if (api.Side == EnumAppSide.Server) levelBrigandineArmor.Init();
+            levelBrigandineArmor.Patch();
+        }
+        if (Configuration.enableLevelPlateArmor)
+        {
+            if (api.Side == EnumAppSide.Server) levelPlateArmor.Init();
+            levelPlateArmor.Patch();
+        }
+        if (Configuration.enableLevelScaleArmor)
+        {
+            if (api.Side == EnumAppSide.Server) levelScaleArmor.Init();
+            levelScaleArmor.Patch();
+        }
+        if (Configuration.enableLevelSmithing)
+        {
+            if (api.Side == EnumAppSide.Server) levelSmithing.Init();
+            levelSmithing.Patch();
+        }
     }
 
-    public static void UpdateSubLevelAndNotify(ICoreServerAPI _, IPlayer player, string levelType, string subLevelType, ulong exp, bool disableLevelUpNotify = false)
+    public static void UnpatchAll()
     {
-        // Previous exp level, before getting the new experience
-        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}_Sub_{subLevelType}", 0));
-        // Actual player level
-        int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
-
-        // Check if player leveled up
-        if (previousLevel < nextLevel)
-        {
-            // Check if we want to notify
-            if (!disableLevelUpNotify)
-            {
-                // Notify player
-                if (Configuration.enableLevelUpChatMessages)
-                    Server.Instance.CommunicationChannel.SendPacket(new ServerMessage() { message = $"playersublevelup&{nextLevel}&{levelType}&{subLevelType}" }, player as IServerPlayer);
-            }
-            Debug.Log($"{player.PlayerName} reached sub level {nextLevel} in {levelType}/{subLevelType}");
-
-            ExperienceEvents.PlayerLeveledUp(player, levelType + "/" + subLevelType, exp, nextLevel);
-        }
-
-        // Experience
-        player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}_Sub_{subLevelType}", (long)exp);
-        // Level
-        player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}_Sub_{subLevelType}", nextLevel);
+        overwriteBlockBreak.Unpatch();
+        overwriteDamageInteraction.Unpatch();
+        levelHunter.Unpatch();
+        levelBow.Unpatch();
+        levelSlingshot.Unpatch();
+        levelKnife.Unpatch();
+        levelAxe.Unpatch();
+        levelPickaxe.Unpatch();
+        levelShovel.Unpatch();
+        levelSpear.Unpatch();
+        levelHammer.Unpatch();
+        levelSword.Unpatch();
+        levelShield.Unpatch();
+        levelHand.Unpatch();
+        levelFarming.Unpatch();
+        levelVitality.Unpatch();
+        levelMetabolism.Unpatch();
+        levelCooking.Unpatch();
+        levelPanning.Unpatch();
+        levelLeatherArmor.Unpatch();
+        levelChainArmor.Unpatch();
+        levelBrigandineArmor.Unpatch();
+        levelPlateArmor.Unpatch();
+        levelScaleArmor.Unpatch();
+        levelSmithing.Unpatch();
     }
 }
