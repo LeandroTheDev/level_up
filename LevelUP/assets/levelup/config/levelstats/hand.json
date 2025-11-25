@@ -1,6 +1,5 @@
 {
     "handEXPPerHit": 10,
-    "handEXPPerBreaking": 10,
     "handEXPPerLevelBase": 300,
     "handEXPMultiplyPerLevel": 1.5,
     "handBaseDamage": 1.0,

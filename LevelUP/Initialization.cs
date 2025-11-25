@@ -8,24 +8,21 @@ public class Initialization : ModSystem
 {
     private readonly Client.Instance clientInstance = new();
     private readonly Server.Instance serverInstance = new();
-    private readonly Shared.Instance sharedInstance = new();
 
     public override void StartClientSide(ICoreClientAPI api)
     {
         base.StartClientSide(api);
+
         // Initializing the client instance
         clientInstance.Init(api);
-        // Instancianting the Client api for shared functions
-        sharedInstance.InstanciateAPI(clientInstance);
     }
+
     public override void StartServerSide(ICoreServerAPI api)
     {
         base.StartServerSide(api);
 
         // Initializing the server instance
         serverInstance.Init(api);
-        // Instancianting the Server api for shared functions
-        sharedInstance.InstanciateAPI(serverInstance);
     }
 
     public override void Start(ICoreAPI api)
@@ -35,27 +32,19 @@ public class Initialization : ModSystem
         Debug.LoadLogger(api.Logger);
         Debug.Log($"Running on Version: {Mod.Info.Version}");
         Server.Experience.LoadInstance(api);
-        sharedInstance.InstanciateAPI(api);
-        sharedInstance.OverwriteFunctions();
     }
 
     public override void AssetsLoaded(ICoreAPI api)
     {
         if (api.Side == EnumAppSide.Server)
-            serverInstance.PopulateConfigurations(api);
+            Server.Instance.PopulateConfigurations(api);
     }
 
     public override void Dispose()
     {
         base.Dispose();
         Configuration.ClearVariables();
-        sharedInstance.OverwriteDispose();
-    }
-
-    public override bool ShouldLoad(EnumAppSide forSide)
-    {
-        sharedInstance.side = forSide;
-        return base.ShouldLoad(forSide);
+        Shared.Instance.UnpatchAll();
     }
 
     public override double ExecuteOrder()

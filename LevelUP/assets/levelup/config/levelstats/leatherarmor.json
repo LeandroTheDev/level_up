@@ -4,8 +4,7 @@
     "leatherArmorEXPIncreaseByAmountDamage": 20,
     "leatherArmorEXPPerLevelBase": 500,
     "leatherArmorEXPMultiplyPerLevel": 1.2,
-    "leatherArmorBaseDamageReduction": 0.0,
-    "leatherArmorDamageReductionPerLevel": 0.05,
-    "leatherArmorDamageLimit": 100,
+    "leatherArmorBaseStatsIncrease": 1.0,
+    "leatherArmorStatsIncreasePerLevel": 0.1,
     "leatherArmorMaxLevel": 999
 }

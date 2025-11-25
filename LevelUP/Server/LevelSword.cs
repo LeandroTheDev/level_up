@@ -1,4 +1,6 @@
+#pragma warning disable CA1822
 using System.Collections.Generic;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.GameContent;
@@ -7,10 +9,27 @@ namespace LevelUP.Server;
 
 class LevelSword
 {
+    public readonly Harmony patch = new("levelup_sword");
+    public void Patch()
+    {
+        if (!Harmony.HasAnyPatches("levelup_sword"))
+        {
+            patch.PatchCategory("levelup_sword");
+        }
+    }
+    public void Unpatch()
+    {
+        if (Harmony.HasAnyPatches("levelup_sword"))
+        {
+            patch.UnpatchCategory("levelup_sword");
+        }
+    }
+
     public void Init()
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Sword");
         Configuration.RegisterNewLevelTypeEXP("Sword", Configuration.SwordGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Sword", Configuration.SwordGetExpByLevel);
@@ -18,14 +37,21 @@ class LevelSword
         Debug.Log("Level Sword initialized");
     }
 
-#pragma warning disable CA1822
+    private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
+    {
+        if (player.InventoryManager.ActiveTool == EnumTool.Sword)
+        {
+            damage *= Configuration.SwordGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Sword"));
+            Experience.IncreaseExperience(player, "Sword", "Hit");
+        }
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulateSwordConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Sword", Configuration.swordMaxLevel);
     }
-#pragma warning restore CA1822
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
@@ -56,4 +82,8 @@ class LevelSword
         // Incrementing
         Experience.IncreaseExperience(player, "Sword", exp);
     }
+
+    [HarmonyPatchCategory("levelup_sword")]
+    private class LevelSwordPatch
+    { }
 }

@@ -4,8 +4,7 @@
     "brigandineArmorEXPIncreaseByAmountDamage": 20,
     "brigandineArmorEXPPerLevelBase": 500,
     "brigandineArmorEXPMultiplyPerLevel": 1.2,
-    "brigandineArmorBaseDamageReduction": 0.0,
-    "brigandineArmorDamageReductionPerLevel": 0.05,
-    "brigandineArmorDamageLimit": 100,
+    "brigandineArmorBaseStatsIncrease": 1.0,
+    "brigandineArmorStatsIncreasePerLevel": 0.1,
     "brigandineArmorMaxLevel": 999
 }

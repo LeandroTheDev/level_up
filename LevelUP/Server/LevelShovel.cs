@@ -1,5 +1,6 @@
-using System;
+#pragma warning disable CA1822
 using System.Collections.Generic;
+using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
@@ -9,12 +10,29 @@ namespace LevelUP.Server;
 
 class LevelShovel
 {
+    public readonly Harmony patch = new("levelup_shovel");
+    public void Patch()
+    {
+        if (!Harmony.HasAnyPatches("levelup_shovel"))
+        {
+            patch.PatchCategory("levelup_shovel");
+        }
+    }
+    public void Unpatch()
+    {
+        if (Harmony.HasAnyPatches("levelup_shovel"))
+        {
+            patch.UnpatchCategory("levelup_shovel");
+        }
+    }
+
     public void Init()
     {
         // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Shovel");
         Configuration.RegisterNewLevelTypeEXP("Shovel", Configuration.ShovelGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Shovel", Configuration.ShovelGetExpByLevel);
@@ -22,14 +40,21 @@ class LevelShovel
         Debug.Log("Level Shovel initialized");
     }
 
-#pragma warning disable CA1822
+    private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
+    {
+        if (player.InventoryManager.ActiveTool == EnumTool.Shovel)
+        {
+            damage *= Configuration.ShovelGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"));
+            Experience.IncreaseExperience(player, "Shovel", "Hit");
+        }
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
         Configuration.PopulateShovelConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Shovel", Configuration.shovelMaxLevel);
     }
-#pragma warning restore CA1822
 
     public void OnEntityDeath(Entity entity, DamageSource damageSource)
     {
@@ -86,4 +111,8 @@ class LevelShovel
         // Incrementing
         Experience.IncreaseExperience(player, "Shovel", exp);
     }
+
+    [HarmonyPatchCategory("levelup_shovel")]
+    private class LevelShovelPatch
+    { }
 }

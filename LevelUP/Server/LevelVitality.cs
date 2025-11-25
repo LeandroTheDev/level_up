@@ -1,7 +1,13 @@
+#pragma warning disable CA1822
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Emit;
+using System.Threading.Tasks;
+using HarmonyLib;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -9,6 +15,22 @@ namespace LevelUP.Server;
 
 class LevelVitality
 {
+    public readonly Harmony patch = new("levelup_vitality");
+    public void Patch()
+    {
+        if (!Harmony.HasAnyPatches("levelup_vitality"))
+        {
+            patch.PatchCategory("levelup_vitality");
+        }
+    }
+    public void Unpatch()
+    {
+        if (Harmony.HasAnyPatches("levelup_vitality"))
+        {
+            patch.UnpatchCategory("levelup_vitality");
+        }
+    }
+
     static private string _saveDirectory = "";
     private static readonly Dictionary<string, double> _playerLoadedVitality = [];
 
@@ -18,6 +40,7 @@ class LevelVitality
         Instance.api.Event.PlayerNowPlaying += PlayerJoin;
         Instance.api.Event.PlayerDisconnect += PlayerDisconnect;
         Instance.api.Event.GameWorldSave += SaveState;
+        OverwriteDamageInteractionEvents.OnPlayerReceiveDamageStart += HandleReceiveDamage;
         Configuration.RegisterNewLevel("Vitality");
         Configuration.RegisterNewLevelTypeEXP("Vitality", Configuration.VitalityGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Vitality", Configuration.VitalityGetExpByLevel);
@@ -25,7 +48,25 @@ class LevelVitality
         Debug.Log("Level Vitality initialized");
     }
 
-#pragma warning disable CA1822
+    private void HandleReceiveDamage(IPlayer player, DamageSource damageSource, ref float damage)
+    {
+        float receivedDamage = damage;
+        // Running on secondary thread to not suffocate the thread
+        Task.Run(() =>
+        {
+            if (receivedDamage < Configuration.DamageLimitVitality)
+            {
+                // Check if damage is bigger than player max health
+                float damageCalculation = receivedDamage;
+                float playerMaxHealth = player.Entity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) ?? 15f;
+                // If is set the damage experience limit to the player max health
+                if (player.Entity.WatchedAttributes.GetTreeAttribute("health")?.GetFloat("basemaxhealth", 15f) < receivedDamage) damageCalculation = playerMaxHealth;
+
+                Experience.IncreaseExperience(player, "Vitality", (ulong)Configuration.VitalityEXPEarnedByDAMAGE(damageCalculation));
+            }
+        });
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Load player state
@@ -37,7 +78,6 @@ class LevelVitality
         Configuration.PopulateVitalityConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Vitality", Configuration.vitalityMaxLevel);
     }
-#pragma warning restore CA1822
 
     /// <summary>
     /// Loads the player to the memory
@@ -233,5 +273,64 @@ class LevelVitality
         Debug.LogDebug($"[VITALITY] Calculation Variables: {playerMaxHealth}:{playerRegen}, Level: {Configuration.VitalityGetLevelByEXP(playerExp)}");
 
         return playerStats;
+    }
+
+    [HarmonyPatchCategory("levelup_vitality")]
+    private class LevelVitalityPatch
+    {
+        // Transpiler to edit healthRegenSpeed to receive entity.WatchedAttributes.GetFloat("regenSpeed", 1f)
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(EntityBehaviorHealth), "ApplyRegenAndHunger")]
+        internal static List<CodeInstruction> ApplyRegenAndHunger_Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+
+            var entityField = AccessTools.Field(typeof(EntityBehaviorHealth), "entity");
+            var watchedAttrField = AccessTools.Field(typeof(Entity), "WatchedAttributes");
+            var getFloat = AccessTools.Method(typeof(SyncedTreeAttribute), "GetFloat", [typeof(string), typeof(float)]);
+
+            if (entityField == null)
+                Debug.LogError("entityField = NULL (EntityBehaviorHealth.entity not found), report this bug");
+
+            if (watchedAttrField == null)
+                Debug.LogError("watchedAttrProp = NULL (Entity.WatchedAttributes getter not found), report this bug");
+
+            if (getFloat == null)
+                Debug.LogError("getFloat = NULL (SyncedTreeAttribute.GetFloat(string,float) not found), report this bug");
+
+
+            for (int i = 0; i < codes.Count; i++)
+            {
+                // Find where healthRegenSpeed is stored
+                if (codes[i].IsStloc())
+                {
+                    // Go backwards until we find the first ldarg.0, which marks the beginning of the original expression
+                    int start = i;
+                    while (start > 0 && codes[start].opcode != OpCodes.Ldarg_0)
+                        start--;
+
+                    // Remove the original code block that calculates healthRegenSpeed
+                    // ((entity is EntityPlayer) ? entity.Api.World.Config.GetString("playerHealthRegenSpeed", "1").ToFloat() : entity.WatchedAttributes.GetFloat("regenSpeed", 1f));
+                    codes.RemoveRange(start, i - start);
+
+                    // Insert our custom replacement:
+                    // entity.WatchedAttributes.GetFloat("regenSpeed", 1f)
+                    var inject = new List<CodeInstruction>()
+                    {
+                        new(OpCodes.Ldarg_0),
+                        new(OpCodes.Ldfld, entityField),
+                        new(OpCodes.Ldfld, watchedAttrField),
+                        new(OpCodes.Ldstr, "regenSpeed"),
+                        new(OpCodes.Ldc_R4, 1f),
+                        new(OpCodes.Callvirt, getFloat)
+                    };
+
+                    codes.InsertRange(start, inject);
+                    break;
+                }
+            }
+
+            return codes;
+        }
     }
 }

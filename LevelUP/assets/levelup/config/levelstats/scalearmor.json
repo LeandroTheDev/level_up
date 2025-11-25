@@ -4,8 +4,7 @@
     "scaleArmorEXPIncreaseByAmountDamage": 20,
     "scaleArmorEXPPerLevelBase": 500,
     "scaleArmorEXPMultiplyPerLevel": 1.2,
-    "scaleArmorBaseDamageReduction": 0.0,
-    "scaleArmorDamageReductionPerLevel": 0.05,
-    "scaleArmorDamageLimit": 100,
+    "scaleArmorBaseStatsIncrease": 1.0,
+    "scaleArmorStatsIncreasePerLevel": 0.1,
     "scaleArmorMaxLevel": 999
 }

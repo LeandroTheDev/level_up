@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
@@ -12,30 +13,6 @@ public class Instance
     static public IServerNetworkChannel CommunicationChannel { get; private set; }
     private readonly Commands commands = new();
 
-    // Levels
-    internal LevelHunter levelHunter = new();
-    internal LevelBow levelBow = new();
-    internal LevelSlingshot levelSlingshot = new();
-    internal LevelKnife levelKnife = new();
-    internal LevelAxe levelAxe = new();
-    internal LevelPickaxe levelPickaxe = new();
-    internal LevelShovel levelShovel = new();
-    internal LevelSpear levelSpear = new();
-    internal LevelHammer levelHammer = new();
-    internal LevelSword levelSword = new();
-    internal LevelShield levelShield = new();
-    internal LevelHand levelHand = new();
-    internal LevelFarming levelFarming = new();
-    internal LevelVitality levelVitality = new();
-    internal LevelMetabolism levelMetabolism = new();
-    internal LevelCooking levelCooking = new();
-    internal LevelPanning levelPanning = new();
-    internal LevelLeatherArmor levelLeatherArmor = new();
-    internal LevelChainArmor levelChainArmor = new();
-    internal LevelBrigandineArmor levelBrigandineArmor = new();
-    internal LevelPlateArmor levelPlateArmor = new();
-    internal LevelScaleArmor levelScaleArmor = new();
-    internal LevelSmithing levelSmithing = new();
 
     internal void Init(ICoreServerAPI serverAPI)
     {
@@ -53,30 +30,7 @@ public class Instance
         // Sync server configurations with client
         api.Event.PlayerNowPlaying += SyncPlayerConfigs;
 
-        // Enable levels
-        if (Configuration.enableLevelHunter) levelHunter.Init();
-        if (Configuration.enableLevelBow) levelBow.Init();
-        if (Configuration.enableLevelSlingshot) levelSlingshot.Init();
-        if (Configuration.enableLevelKnife) levelKnife.Init();
-        if (Configuration.enableLevelAxe) levelAxe.Init();
-        if (Configuration.enableLevelPickaxe) levelPickaxe.Init();
-        if (Configuration.enableLevelShovel) levelShovel.Init();
-        if (Configuration.enableLevelSpear) levelSpear.Init();
-        if (Configuration.enableLevelHammer) levelHammer.Init();
-        if (Configuration.enableLevelSword) levelSword.Init();
-        if (Configuration.enableLevelShield) levelShield.Init();
-        if (Configuration.enableLevelHand) levelHand.Init();
-        if (Configuration.enableLevelFarming) levelFarming.Init();
-        if (Configuration.enableLevelVitality) levelVitality.Init();
-        if (Configuration.enableLevelMetabolism) levelMetabolism.Init();
-        if (Configuration.enableLevelCooking) levelCooking.Init();
-        if (Configuration.enableLevelPanning) levelPanning.Init();
-        if (Configuration.enableLevelLeatherArmor) levelLeatherArmor.Init();
-        if (Configuration.enableLevelChainArmor) levelChainArmor.Init();
-        if (Configuration.enableLevelBrigandineArmor) levelBrigandineArmor.Init();
-        if (Configuration.enableLevelPlateArmor) levelPlateArmor.Init();
-        if (Configuration.enableLevelScaleArmor) levelScaleArmor.Init();
-        if (Configuration.enableLevelSmithing) levelSmithing.Init();
+        Shared.Instance.PatchAll(api);
         Debug.Log("Server Levels instanciated");
 
         // Register commands
@@ -93,35 +47,35 @@ public class Instance
         }
     }
 
-    internal void PopulateConfigurations(ICoreAPI coreAPI)
+    internal static void PopulateConfigurations(ICoreAPI coreAPI)
     {
         // Base mod Configs
         Configuration.UpdateBaseConfigurations(coreAPI);
 
         // Levels Configs
-        levelHunter.PopulateConfiguration(coreAPI);
-        levelBow.PopulateConfiguration(coreAPI);
-        levelSlingshot.PopulateConfiguration(coreAPI);
-        levelKnife.PopulateConfiguration(coreAPI);
-        levelAxe.PopulateConfiguration(coreAPI);
-        levelPickaxe.PopulateConfiguration(coreAPI);
-        levelShovel.PopulateConfiguration(coreAPI);
-        levelSpear.PopulateConfiguration(coreAPI);
-        levelHammer.PopulateConfiguration(coreAPI);
-        levelSword.PopulateConfiguration(coreAPI);
-        levelShield.PopulateConfiguration(coreAPI);
-        levelHand.PopulateConfiguration(coreAPI);
-        levelFarming.PopulateConfiguration(coreAPI);
-        levelVitality.PopulateConfiguration(coreAPI);
-        levelMetabolism.PopulateConfiguration(coreAPI);
-        levelCooking.PopulateConfiguration(coreAPI);
-        levelPanning.PopulateConfiguration(coreAPI);
-        levelLeatherArmor.PopulateConfiguration(coreAPI);
-        levelChainArmor.PopulateConfiguration(coreAPI);
-        levelBrigandineArmor.PopulateConfiguration(coreAPI);
-        levelPlateArmor.PopulateConfiguration(coreAPI);
-        levelScaleArmor.PopulateConfiguration(coreAPI);
-        levelSmithing.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelHunter.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelBow.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelSlingshot.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelKnife.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelAxe.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelPickaxe.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelShovel.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelSpear.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelHammer.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelSword.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelShield.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelHand.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelFarming.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelVitality.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelMetabolism.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelCooking.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelPanning.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelLeatherArmor.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelChainArmor.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelBrigandineArmor.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelPlateArmor.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelScaleArmor.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelSmithing.PopulateConfiguration(coreAPI);
 
         // Class Configs
         Configuration.PopulateClassConfigurations(coreAPI);
@@ -136,76 +90,118 @@ public class Instance
         }
     }
 
+    /// <summary>
+    /// Refresh all levels
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="api"></param>
     public static void UpdatePlayerLevels(IServerPlayer player, ICoreServerAPI api)
     {
-        // Hunter Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Hunter", Experience.GetExperience(player, "Hunter"), true);
+        foreach (KeyValuePair<string, bool> keyValuePair in Configuration.EnabledLevels)
+        {
+            if (keyValuePair.Value)
+            {
+                string levelType = keyValuePair.Key;
 
-        // Bow Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Bow", Experience.GetExperience(player, "Bow"), true);
+                UpdateLevelAndNotify(api, player, levelType, Experience.GetExperience(player, levelType), true);
+            }
+        }
+    }
 
-        // Slingshot Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Slingshot", Experience.GetExperience(player, "Slingshot"), true);
+    /// <summary>
+    /// Refresh a single level
+    /// </summary>
+    /// <param name="_"></param>
+    /// <param name="player"></param>
+    /// <param name="levelType"></param>
+    /// <param name="exp"></param>
+    /// <param name="disableLevelUpNotify"></param>
+    public static void UpdateLevelAndNotify(ICoreServerAPI _, IPlayer player, string levelType, ulong exp, bool disableLevelUpNotify = false)
+    {
+        // Previous exp level, before getting the new experience
+        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}", 0));
+        // Actual player level
+        int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
 
-        // Knife Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Knife", Experience.GetExperience(player, "Knife"), true);
+        // Check if player leveled up
+        if (previousLevel < nextLevel)
+        {
+            // Check if we want to notify
+            if (!disableLevelUpNotify)
+            {
+                // Notify player
+                if (Configuration.enableLevelUpChatMessages)
+                    CommunicationChannel.SendPacket(new ServerMessage() { message = $"playerlevelup&{nextLevel}&{levelType}" }, player as IServerPlayer);
+            }
+            Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
 
-        // Axe Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Axe", Experience.GetExperience(player, "Axe"), true);
+            ExperienceEvents.PlayerLeveledUp(player, levelType, exp, nextLevel);
+        }
 
-        // Pickaxe Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Pickaxe", Experience.GetExperience(player, "Pickaxe"), true);
+        // This is a heavy formula calculations, we run on task to reduce and prevent lag spikes
+        Task.Run(() =>
+        {
+            // Experience
+            player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}", (long)exp);
+            // Level
+            player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
 
-        // Shovel Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Shovel", Experience.GetExperience(player, "Shovel"), true);
+            // Mining speed
+            float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
+            // Check if this levelType has mining speed
+            if (miningspeed != -1)
+                // Set the mining speed for clients
+                player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
 
-        // Spear Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Spear", Experience.GetExperience(player, "Spear"), true);
+            // Refresh metabolism
+            if (levelType == "Metabolism")
+            {
+                LevelMetabolism.RefreshMaxSaturation(player);
+                LevelMetabolism.RefreshSaturationReceiveMultiply(player);
+            }
+            // Refresh vitality
+            else if (levelType == "Vitality")
+            {
+                LevelVitality.RefreshMaxHealth(player);
+            }
+        });
+    }
 
-        // Hammer Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Hammer", Experience.GetExperience(player, "Hammer"), true);
+    /// <summary>
+    /// Refresh a single sub level
+    /// </summary>
+    /// <param name="_"></param>
+    /// <param name="player"></param>
+    /// <param name="levelType"></param>
+    /// <param name="subLevelType"></param>
+    /// <param name="exp"></param>
+    /// <param name="disableLevelUpNotify"></param>
+    public static void UpdateSubLevelAndNotify(ICoreServerAPI _, IPlayer player, string levelType, string subLevelType, ulong exp, bool disableLevelUpNotify = false)
+    {
+        // Previous exp level, before getting the new experience
+        int previousLevel = Configuration.GetLevelByLevelTypeEXP(levelType, (ulong)player.Entity.WatchedAttributes.GetLong($"LevelUP_{levelType}_Sub_{subLevelType}", 0));
+        // Actual player level
+        int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
 
-        // Sword Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Sword", Experience.GetExperience(player, "Sword"), true);
+        // Check if player leveled up
+        if (previousLevel < nextLevel)
+        {
+            // Check if we want to notify
+            if (!disableLevelUpNotify)
+            {
+                // Notify player
+                if (Configuration.enableLevelUpChatMessages)
+                    CommunicationChannel.SendPacket(new ServerMessage() { message = $"playersublevelup&{nextLevel}&{levelType}&{subLevelType}" }, player as IServerPlayer);
+            }
+            Debug.Log($"{player.PlayerName} reached sub level {nextLevel} in {levelType}/{subLevelType}");
 
-        // Shield Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Shield", Experience.GetExperience(player, "Shield"), true);
+            ExperienceEvents.PlayerLeveledUp(player, levelType + "/" + subLevelType, exp, nextLevel);
+        }
 
-        // Hand Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Hand", Experience.GetExperience(player, "Hand"), true);
-
-        // Farming Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Farming", Experience.GetExperience(player, "Farming"), true);
-
-        // Cooking Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Cooking", Experience.GetExperience(player, "Cooking"), true);
-
-        // Panning Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Panning", Experience.GetExperience(player, "Panning"), true);
-
-        // Vitality Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Vitality", Experience.GetExperience(player, "Vitality"), true);
-
-        // Metabolism Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Metabolism", Experience.GetExperience(player, "Metabolism"), true);
-
-        // Leather Armor Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "LeatherArmor", Experience.GetExperience(player, "LeatherArmor"), true);
-
-        // Chain Armor Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "ChainArmor", Experience.GetExperience(player, "ChainArmor"), true);
-
-        // Brigandine Armor Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "BrigandineArmor", Experience.GetExperience(player, "BrigandineArmor"), true);
-
-        // Plate Armor Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "PlateArmor", Experience.GetExperience(player, "PlateArmor"), true);
-
-        // Scale Armor Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "ScaleArmor", Experience.GetExperience(player, "ScaleArmor"), true);
-
-        // Smithing Level
-        Shared.Instance.UpdateLevelAndNotify(api, player, "Smithing", Experience.GetExperience(player, "Smithing"), true);
+        // Experience
+        player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}_Sub_{subLevelType}", (long)exp);
+        // Level
+        player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}_Sub_{subLevelType}", nextLevel);
     }
 
     private static void SyncPlayerConfigs(IServerPlayer player)

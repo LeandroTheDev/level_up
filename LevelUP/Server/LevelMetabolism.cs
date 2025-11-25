@@ -1,17 +1,38 @@
+#pragma warning disable CA1822
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using HarmonyLib;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
+using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
 
 class LevelMetabolism
 {
+    public readonly Harmony patch = new("levelup_metabolism");
+    public void Patch()
+    {
+        if (!Harmony.HasAnyPatches("levelup_metabolism"))
+        {
+            patch.PatchCategory("levelup_metabolism");
+        }
+    }
+    public void Unpatch()
+    {
+        if (Harmony.HasAnyPatches("levelup_metabolism"))
+        {
+            patch.UnpatchCategory("levelup_metabolism");
+        }
+    }
+
     static private string _saveDirectory = "";
     private static readonly Dictionary<string, double> _playerLoadedMetabolism = [];
     private static readonly Dictionary<string, float> _playerLoadedMetabolismReceiveMultiply = [];
@@ -25,11 +46,20 @@ class LevelMetabolism
         Instance.api.Event.PlayerDisconnect += PlayerDisconnect;
         Instance.api.Event.GameWorldSave += SaveState;
         Instance.api.Event.RegisterGameTickListener(OnGameTick, 1000, 10000);
+        OverwriteDamageInteractionEvents.OnPlayerReceiveDamageUnkown += HandleUnkownDamage;
         Configuration.RegisterNewLevel("Metabolism");
         Configuration.RegisterNewLevelTypeEXP("Metabolism", Configuration.MetabolismGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Metabolism", Configuration.MetabolismGetExpByLevel);
 
         Debug.Log("Level Metabolism initialized");
+    }
+
+    private void HandleUnkownDamage(IPlayer player, DamageSource damageSource, ref float damage)
+    {
+        if (damageSource.Type == EnumDamageType.Hunger)
+        {
+            Experience.IncreaseExperience(player, "Metabolism", (ulong)Configuration.EXPPerHitMetabolism);
+        }
     }
 
     private void OnGameTick(float obj)
@@ -56,7 +86,7 @@ class LevelMetabolism
         });
     }
 
-#pragma warning disable CA1822
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Load player state
@@ -68,7 +98,6 @@ class LevelMetabolism
         Configuration.PopulateMetabolismConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Metabolism", Configuration.metabolismMaxLevel);
     }
-#pragma warning restore CA1822
 
     /// <summary>
     /// Loads the player to the memory
@@ -203,7 +232,7 @@ class LevelMetabolism
                 Debug.LogError($"[METABOLISM] Cannot find the player: {player.PlayerName} saturation, something goes wrong");
             }
         }
-    
+
     }
 
     private void PlayerDisconnect(IServerPlayer player)
@@ -266,8 +295,7 @@ class LevelMetabolism
     {
         ulong playerExp = Experience.GetExperience(player, "Metabolism");
 
-        float saturationConsumeReducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(Configuration.MetabolismGetLevelByEXP(playerExp));
-        player.Entity.WatchedAttributes.SetFloat($"LevelUP_MetabolismReceiveMultiply", saturationConsumeReducer);
+        float saturationConsumeReducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(Configuration.MetabolismGetLevelByEXP(playerExp));        
 
         if (_playerLoadedMetabolismReceiveMultiply.TryGetValue(player.PlayerUID, out float _))
             _playerLoadedMetabolismReceiveMultiply[player.PlayerUID] = saturationConsumeReducer;
@@ -275,5 +303,39 @@ class LevelMetabolism
             _playerLoadedMetabolismReceiveMultiply.Add(player.PlayerUID, saturationConsumeReducer);
 
         return saturationConsumeReducer;
+    }
+
+    [HarmonyPatchCategory("levelup_metabolism")]
+    private class LevelMetabolismPatch
+    {
+        // Overwrite Saturation consume
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
+        internal static void ConsumeSaturation(EntityBehaviorHunger __instance, ref float amount)
+        {
+            if (!Configuration.enableLevelMetabolism) return;
+
+            if (__instance.entity is EntityPlayer entityPlayer)
+            {
+                float reducer = PlayerLoadedMetabolismReceiveMultiply.TryGetValue(entityPlayer.PlayerUID, out float result)
+                    ? result
+                    : 1f;
+
+                amount *= reducer;
+            }
+        }
+
+        // Clientside view
+        // I don't know the reason, but some random function is changing the maxsaturation to default value randomly
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HudStatbar), "UpdateSaturation")]
+        internal static void UpdateSaturation(HudStatbar __instance)
+        {
+            var capiField = AccessTools.Field(typeof(HudStatbar), "capi");
+            ICoreClientAPI capi = capiField.GetValue(__instance) as ICoreClientAPI;
+
+            ITreeAttribute hungerTree = capi.World.Player.Entity.WatchedAttributes.GetTreeAttribute("hunger");
+            hungerTree.SetFloat("maxsaturation", capi.World.Player.Entity.WatchedAttributes.GetFloat("maxsaturation"));
+        }
     }
 }
