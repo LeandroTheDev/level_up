@@ -1,6 +1,7 @@
 using LevelUP.Server;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Common;
-using Vintagestory.API.Server;
+using Vintagestory.API.Datastructures;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
@@ -220,5 +221,47 @@ class Instance
         if (item.Attributes.TryGetFloat("BaseWalkSpeed") == null)
             if (itemWearable.StatModifers != null)
                 item.Attributes.SetFloat("BaseWalkSpeed", itemWearable.StatModifers.walkSpeed);
+    }
+
+    // Generate the base attributes for shield
+    public static void GenerateBaseShieldStatus(ItemStack item)
+    {
+        JsonObject attr = item.ItemAttributes?["shield"];
+        if (attr == null || !attr.Exists) return;
+
+        if (item.Attributes.GetBool("BaseGenerated")) return;
+        item.Attributes.SetBool("BaseGenerated", true);
+
+        JsonObject protection = attr["protectionChance"];
+        if (protection != null && protection.Exists && protection.Token is JObject protectionObj)
+        {
+            float passiveProjectile = protectionObj["passive-projectile"]?.Value<float>() ?? 0f;
+            if (passiveProjectile != 0)
+                item.Attributes.SetFloat("BasePassiveProjectile", passiveProjectile);
+
+            float activeProjectile = protectionObj["active-projectile"]?.Value<float>() ?? 0f;
+            if (activeProjectile != 0)
+                item.Attributes.SetFloat("BaseActiveProjectile", activeProjectile);
+
+            float passive = protectionObj["passive"]?.Value<float>() ?? 0f;
+            if (passive != 0)
+                item.Attributes.SetFloat("BasePassive", passive);
+
+            float active = protectionObj["active"]?.Value<float>() ?? 0f;
+            if (active != 0)
+                item.Attributes.SetFloat("BaseActive", active);
+        }
+
+        JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
+        if (projectileDamageAbsorption?.Token is JValue projectileDamageAbsorptionObj)
+        {
+            item.Attributes.SetFloat("BaseProjectileDamageAbsorption", projectileDamageAbsorptionObj.Value<float>());
+        }
+
+        JsonObject damageAbsorption = attr["damageAbsorption"];
+        if (damageAbsorption?.Token is JValue damageAbsorptionObj)
+        {
+            item.Attributes.SetFloat("BaseDamageAbsorption", damageAbsorptionObj.Value<float>());
+        }
     }
 }

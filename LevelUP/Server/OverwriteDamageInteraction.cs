@@ -150,6 +150,42 @@ class OverwriteDamageInteraction
             ItemSlot armorSlot = inv[i];
             if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
             {
+                if (armorWearable.ProtectionModifiers != null)
+                {
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("FlatDamageReduction") != null)
+                    {
+                        armorWearable.ProtectionModifiers.FlatDamageReduction = armorSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRelativeProtection") != null)
+                    {
+                        armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection");
+                    }
+                }
+
+                if (armorWearable.StatModifers != null)
+                {
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHealingEffectivness") != null)
+                    {
+                        armorWearable.StatModifers.healingeffectivness = armorSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHungerRate") != null)
+                    {
+                        armorWearable.StatModifers.hungerrate = armorSlot.Itemstack.Attributes.GetFloat("BaseHungerRate");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") != null)
+                    {
+                        armorWearable.StatModifers.rangedWeaponsAcc = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") != null)
+                    {
+                        armorWearable.StatModifers.rangedWeaponsSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseWalkSpeed") != null)
+                    {
+                        armorWearable.StatModifers.walkSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed");
+                    }
+                }
+
                 armorSlots.Add(armorSlot);
             }
         }
@@ -176,8 +212,44 @@ class OverwriteDamageInteraction
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item is ItemWearable)
+            if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
             {
+                if (armorWearable.ProtectionModifiers != null)
+                {
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("FlatDamageReduction") != null)
+                    {
+                        armorWearable.ProtectionModifiers.FlatDamageReduction = armorSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRelativeProtection") != null)
+                    {
+                        armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection");
+                    }
+                }
+
+                if (armorWearable.StatModifers != null)
+                {
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHealingEffectivness") != null)
+                    {
+                        armorWearable.StatModifers.healingeffectivness = armorSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHungerRate") != null)
+                    {
+                        armorWearable.StatModifers.hungerrate = armorSlot.Itemstack.Attributes.GetFloat("BaseHungerRate");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") != null)
+                    {
+                        armorWearable.StatModifers.rangedWeaponsAcc = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") != null)
+                    {
+                        armorWearable.StatModifers.rangedWeaponsSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed");
+                    }
+                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseWalkSpeed") != null)
+                    {
+                        armorWearable.StatModifers.walkSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed");
+                    }
+                }
+
                 armorSlots.Add(armorSlot);
             }
         }

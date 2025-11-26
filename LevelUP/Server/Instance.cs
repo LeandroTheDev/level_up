@@ -18,6 +18,10 @@ public class Instance
     {
         api = serverAPI;
 
+        CommunicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
+        CommunicationChannel.SetMessageHandler<ServerMessage>(OnChannelMessage);
+        Debug.Log("Server Communication Network registered");
+
         // Player Experience Load
         api.Event.PlayerJoin += Experience.LoadPlayer;
         api.Event.PlayerDisconnect += Experience.UnloadPlayer;
@@ -35,9 +39,6 @@ public class Instance
 
         // Register commands
         commands.Init();
-        CommunicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
-        CommunicationChannel.SetMessageHandler<ServerMessage>(OnChannelMessage);
-        Debug.Log("Server Communication Network registered");
 
         // Enable hardcore death event
         if (Configuration.enableHardcore)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using LevelUP;
@@ -86,4 +87,62 @@ partial class Utils
 
     [GeneratedRegex(@"^[a-zA-Z0-9!@#$%&_+\-/]+$")]
     private static partial Regex NumbersAndLetters();
+
+    /// <summary>
+    /// Gets the base value, checks the new value returns the difference between then
+    /// </summary>
+    /// <param name="primary"></param>
+    /// <param name="secondary"></param>
+    /// <returns></returns>
+    static public float GetDifferenceBetweenTwoFloats(float primary, float secondary)
+    {
+        // Both positive
+        if (primary > 0 && secondary > 0)
+        {
+            // New value is increasing the base
+            // so difference must be positive
+            if (primary < secondary)
+            {
+                float difference = secondary - primary;
+                return difference;
+            }
+            // New value is decreasing the base
+            // so difference must be negative
+            else if (primary > secondary)
+            {
+                float difference = primary - secondary;
+                return -difference;
+            }
+            // No difference
+            else
+            {
+                return 0f;
+            }
+        }
+        // Negative and positive
+        else if ((primary < 0 && secondary > 0) || (primary > 0 && secondary < 0))
+        {
+            return secondary + primary;
+        }
+        // Both Negative
+        else if (primary < 0 && secondary < 0)
+        {
+            return secondary - primary;
+        }
+        // Only primary is different
+        else if (primary != 0)
+        {
+            return primary;
+        }
+        // Only secondary is different
+        else if (secondary != 0)
+        {
+            return secondary;
+        }
+        // Both is 0
+        else
+        {
+            return 0f;
+        }
+    }
 }
