@@ -1,4 +1,6 @@
 #pragma warning disable CA1822
+using System;
+using System.Text;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Common;
@@ -45,6 +47,14 @@ class LevelShield
     private class LevelShieldPatch
     {
         // Overwrite the Shield function end
+        [HarmonyPrefix] // Client Side
+        [HarmonyPatch(typeof(ItemShield), "GetHeldItemInfo")]
+        internal static void GetHeldItemInfo(ItemShield __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+        {
+
+        }
+
+        // Overwrite the Shield function end
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
         internal static void ApplyShieldProtectionStart(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
@@ -67,8 +77,6 @@ class LevelShield
                 JsonObject protection = attr["protectionChance"];
                 if (protection != null && protection.Exists && protection.Token is JObject protectionObj)
                 {
-                    Debug.LogDebug($"[Shield] ProtectionChance Before: {protection.Token}");
-
                     foreach (var prop in protectionObj.Properties())
                     {
                         float current = prop.Value.Value<float>();
@@ -76,31 +84,23 @@ class LevelShield
 
                         prop.Value = new JValue(updated);
                     }
-
-                    Debug.LogDebug($"[Shield] ProtectionChance After: {protection.Token}");
                 }
 
-                JsonObject projectileAbosrption = attr["projectileDamageAbsorption"];
-                if (projectileAbosrption != null && projectileAbosrption.Exists && projectileAbosrption.Token is JObject projectileAbosrptionObj)
+                JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
+                if (projectileDamageAbsorption != null && projectileDamageAbsorption.Exists && projectileDamageAbsorption.Token is JObject projectileDamageAbsorptionObj)
                 {
-                    Debug.LogDebug($"[Shield] Projectile Absorption Before: {projectileAbosrption.Token}");
-
-                    foreach (var prop in projectileAbosrptionObj.Properties())
+                    foreach (var prop in projectileDamageAbsorptionObj.Properties())
                     {
                         float current = prop.Value.Value<float>();
                         float updated = current * statsIncrease;
 
                         prop.Value = new JValue(updated);
                     }
-
-                    Debug.LogDebug($"[Shield] Projectile Absorption After: {projectileAbosrption.Token}");
                 }
 
                 JsonObject damageAbsorption = attr["damageAbsorption"];
                 if (damageAbsorption != null && damageAbsorption.Exists && damageAbsorption.Token is JObject damageAbsorptionObj)
                 {
-                    Debug.LogDebug($"[Shield] Damage Absorption Before: {damageAbsorption.Token}");
-
                     foreach (var prop in damageAbsorptionObj.Properties())
                     {
                         float current = prop.Value.Value<float>();
@@ -108,8 +108,6 @@ class LevelShield
 
                         prop.Value = new JValue(updated);
                     }
-
-                    Debug.LogDebug($"[Shield] Damage Absorption After: {damageAbsorption.Token}");
                 }
 
                 LevelShieldEvents.ExecuteOnShieldRefreshed(player, shieldSlot);

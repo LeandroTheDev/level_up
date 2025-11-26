@@ -8,6 +8,7 @@ using HarmonyLib;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -289,48 +290,42 @@ class LevelVitality
             var watchedAttrField = AccessTools.Field(typeof(Entity), "WatchedAttributes");
             var getFloat = AccessTools.Method(typeof(SyncedTreeAttribute), "GetFloat", [typeof(string), typeof(float)]);
 
-            if (entityField == null)
-                Debug.LogError("entityField = NULL (EntityBehaviorHealth.entity not found), report this bug");
-
-            if (watchedAttrField == null)
-                Debug.LogError("watchedAttrProp = NULL (Entity.WatchedAttributes getter not found), report this bug");
-
-            if (getFloat == null)
-                Debug.LogError("getFloat = NULL (SyncedTreeAttribute.GetFloat(string,float) not found), report this bug");
-
-
             for (int i = 0; i < codes.Count; i++)
             {
-                // Find where healthRegenSpeed is stored
-                if (codes[i].IsStloc())
+                // Local 2 = healthRegenSpeed
+                if (codes[i].opcode == OpCodes.Stloc_2)
                 {
-                    // Go backwards until we find the first ldarg.0, which marks the beginning of the original expression
-                    int start = i;
-                    while (start > 0 && codes[start].opcode != OpCodes.Ldarg_0)
-                        start--;
-
-                    // Remove the original code block that calculates healthRegenSpeed
-                    // ((entity is EntityPlayer) ? entity.Api.World.Config.GetString("playerHealthRegenSpeed", "1").ToFloat() : entity.WatchedAttributes.GetFloat("regenSpeed", 1f));
-                    codes.RemoveRange(start, i - start);
-
-                    // Insert our custom replacement:
-                    // entity.WatchedAttributes.GetFloat("regenSpeed", 1f)
                     var inject = new List<CodeInstruction>()
                     {
                         new(OpCodes.Ldarg_0),
                         new(OpCodes.Ldfld, entityField),
+
+                        // entity.WatchedAttributes
                         new(OpCodes.Ldfld, watchedAttrField),
+
+                        // "regenSpeed"
                         new(OpCodes.Ldstr, "regenSpeed"),
+
+                        // 1f default value
                         new(OpCodes.Ldc_R4, 1f),
-                        new(OpCodes.Callvirt, getFloat)
+
+                        // callvirt SyncedTreeAttribute.GetFloat
+                        new(OpCodes.Callvirt, getFloat),
+
+                        // Save result into local 2
+                        new(OpCodes.Stloc_2)
                     };
 
-                    codes.InsertRange(start, inject);
+                    // Insert afterstloc.2 original
+                    codes.InsertRange(i + 1, inject);
+
+                    Debug.LogDebug("healthRegenSpeed overwrite by entity.WatchedAttributes.GetFloat(\"regenSpeed\", 1f)");
                     break;
                 }
             }
 
             return codes;
         }
+
     }
 }
