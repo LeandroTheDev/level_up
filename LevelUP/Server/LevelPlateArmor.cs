@@ -37,12 +37,16 @@ class LevelPlateArmor
         Debug.Log("Level Plate Armor initialized");
     }
 
-    private void StatsUpdated(IPlayer player, List<ItemWearable> items)
+    private void StatsUpdated(IPlayer player, List<ItemSlot> items)
     {
         float statusIncrease = Configuration.PlateArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_PlateArmor"));
-        foreach (ItemWearable armor in items)
+        foreach (ItemSlot armorSlot in items)
         {
-            if (!Configuration.expMultiplyHitPlateArmor.ContainsKey(armor.Code)) continue;
+            if (!Configuration.expMultiplyHitPlateArmor.ContainsKey(armorSlot.Itemstack.Collectible.Code)) continue;
+
+            Shared.Instance.GenerateBaseArmorStatus(armorSlot.Itemstack);
+
+            ItemWearable armor = armorSlot.Itemstack.Item as ItemWearable;
 
             if (armor.StatModifers == null)
             {
@@ -50,36 +54,86 @@ class LevelPlateArmor
                 return;
             }
 
-            Debug.LogDebug($"[PlateArmor] #### BEFORE STATS:");
-            Debug.LogDebug($"[PlateArmor] healingeffectivness: {armor.StatModifers.healingeffectivness}");
-            Debug.LogDebug($"[PlateArmor] hungerrate: {armor.StatModifers.hungerrate}");
-            Debug.LogDebug($"[PlateArmor] rangedWeaponsAcc: {armor.StatModifers.rangedWeaponsAcc}");
-            Debug.LogDebug($"[PlateArmor] rangedWeaponsSpeed: {armor.StatModifers.rangedWeaponsSpeed}");
-            Debug.LogDebug($"[PlateArmor] walkSpeed: {armor.StatModifers.walkSpeed}");
-
-            armor.StatModifers.healingeffectivness *= statusIncrease;
-            armor.StatModifers.hungerrate *= statusIncrease;
-            armor.StatModifers.rangedWeaponsAcc *= statusIncrease;
-            armor.StatModifers.rangedWeaponsSpeed *= statusIncrease;
-            armor.StatModifers.walkSpeed *= statusIncrease;
-
-            Debug.LogDebug($"[PlateArmor] #### AFTER STATS:");
-            Debug.LogDebug($"[PlateArmor] healingeffectivness: {armor.StatModifers.healingeffectivness}");
-            Debug.LogDebug($"[PlateArmor] hungerrate: {armor.StatModifers.hungerrate}");
-            Debug.LogDebug($"[PlateArmor] rangedWeaponsAcc: {armor.StatModifers.rangedWeaponsAcc}");
-            Debug.LogDebug($"[PlateArmor] rangedWeaponsSpeed: {armor.StatModifers.rangedWeaponsSpeed}");
-            Debug.LogDebug($"[PlateArmor] walkSpeed: {armor.StatModifers.walkSpeed}");
+            if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHealingEffectivness") != null)
+            {
+                float healingeffectivness = armorSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness");
+                if (healingeffectivness < 0f)
+                {
+                    float positiveValue = Math.Abs(healingeffectivness);
+                    armor.StatModifers.healingeffectivness = positiveValue * statusIncrease;
+                }
+                else
+                {
+                    armor.StatModifers.healingeffectivness = healingeffectivness * statusIncrease;
+                }
+            }
+            if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHungerRate") != null)
+            {
+                float hungerrate = armorSlot.Itemstack.Attributes.GetFloat("BaseHungerRate");
+                if (hungerrate < 0f)
+                {
+                    float positiveValue = Math.Abs(hungerrate);
+                    armor.StatModifers.hungerrate = positiveValue * statusIncrease;
+                }
+                else
+                {
+                    armor.StatModifers.hungerrate = hungerrate * statusIncrease;
+                }
+            }
+            if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") != null)
+            {
+                float rangedWeaponsAcc = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy");
+                if (rangedWeaponsAcc < 0f)
+                {
+                    float positiveValue = Math.Abs(rangedWeaponsAcc);
+                    armor.StatModifers.rangedWeaponsAcc = positiveValue * statusIncrease;
+                }
+                else
+                {
+                    armor.StatModifers.rangedWeaponsAcc = rangedWeaponsAcc * statusIncrease;
+                }
+            }
+            if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") != null)
+            {
+                float rangedWeaponsSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed");
+                if (rangedWeaponsSpeed < 0f)
+                {
+                    float positiveValue = Math.Abs(rangedWeaponsSpeed);
+                    armor.StatModifers.rangedWeaponsSpeed = positiveValue * statusIncrease;
+                }
+                else
+                {
+                    armor.StatModifers.rangedWeaponsSpeed = rangedWeaponsSpeed * statusIncrease;
+                }
+            }
+            if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseWalkSpeed") != null)
+            {
+                float walkSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed");
+                if (walkSpeed < 0f)
+                {
+                    float positiveValue = Math.Abs(walkSpeed);
+                    armor.StatModifers.walkSpeed = positiveValue * statusIncrease;
+                }
+                else
+                {
+                    armor.StatModifers.walkSpeed = walkSpeed * statusIncrease;
+                }
+            }
 
             LevelPlateArmorEvents.ExecuteItemHandledStats(armor, player);
         }
     }
 
-    private void DamageReceived(IPlayer player, List<ItemWearable> items, ref float damage)
+    private void DamageReceived(IPlayer player, List<ItemSlot> items, ref float damage)
     {
         float statusIncrease = Configuration.PlateArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_PlateArmor"));
-        foreach (ItemWearable armor in items)
+        foreach (ItemSlot armorSlot in items)
         {
-            if (!Configuration.expMultiplyHitPlateArmor.ContainsKey(armor.Code)) continue;
+            if (!Configuration.expMultiplyHitPlateArmor.ContainsKey(armorSlot.Itemstack.Collectible.Code)) continue;
+
+            Shared.Instance.GenerateBaseArmorStatus(armorSlot.Itemstack);
+
+            ItemWearable armor = armorSlot.Itemstack.Item as ItemWearable;
 
             double multiply = Configuration.expMultiplyHitPlateArmor[armor.Code];
             ulong exp = (ulong)(Configuration.PlateArmorBaseEXPEarnedByDAMAGE(damage) * multiply);
@@ -93,8 +147,10 @@ class LevelPlateArmor
 
             Debug.LogDebug($"[PlateArmor] {player.PlayerName} {armor.Code} Armor System Handling before R/F: {armor.ProtectionModifiers.RelativeProtection}");
 
-            armor.ProtectionModifiers.RelativeProtection *= statusIncrease;
-            armor.ProtectionModifiers.FlatDamageReduction *= statusIncrease;
+            if (armorSlot.Itemstack.Attributes.TryGetFloat("FlatDamageReduction") != null)
+                armor.ProtectionModifiers.FlatDamageReduction = armorSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction") * statusIncrease;
+            if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRelativeProtection") != null)
+                armor.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection") * statusIncrease;
 
             Debug.LogDebug($"[PlateArmor] {player.PlayerName} {armor.Code} Armor System Handling after R/F: {armor.ProtectionModifiers.RelativeProtection}/{armor.ProtectionModifiers.FlatDamageReduction}");
 
@@ -108,7 +164,7 @@ class LevelPlateArmor
         Configuration.PopulatePlateArmorConfiguration(coreAPI);
         if (Configuration.enableLevelPlateArmor)
         {
-            Configuration.RegisterNewMaxLevelByLevelTypeEXP("PlateArmor", Configuration.leatherArmorMaxLevel);
+            Configuration.RegisterNewMaxLevelByLevelTypeEXP("PlateArmor", Configuration.plateArmorMaxLevel);
         }
     }
 
@@ -127,99 +183,84 @@ class LevelPlateArmor
 
                 float statusIncrease = Configuration.PlateArmorStatsIncreaseByLevel(api.World.Player.Entity.WatchedAttributes.GetInt("LevelUP_Level_PlateArmor"));
 
+                Shared.Instance.GenerateBaseArmorStatus(inSlot.Itemstack);
+
                 if (__instance.ProtectionModifiers != null)
                 {
-                    if (__instance.ProtectionModifiers.FlatDamageReduction != 0f)
-                    {
-                        Debug.LogDebug($"[PlateArmor] FlatDamageReduction Before: {__instance.ProtectionModifiers.FlatDamageReduction}");
-                        __instance.ProtectionModifiers.FlatDamageReduction *= statusIncrease;
-                        Debug.LogDebug($"[PlateArmor] FlatDamageReduction After: {__instance.ProtectionModifiers.FlatDamageReduction}");
-                    }
-                    if (__instance.ProtectionModifiers.RelativeProtection != 0f)
-                    {
-                        Debug.LogDebug($"[PlateArmor] RelativeProtection Before: {__instance.ProtectionModifiers.RelativeProtection}");
-                        __instance.ProtectionModifiers.RelativeProtection *= statusIncrease;
-                        Debug.LogDebug($"[PlateArmor] RelativeProtection After: {__instance.ProtectionModifiers.RelativeProtection}");
-                    }
+                    if (inSlot.Itemstack.Attributes.TryGetFloat("FlatDamageReduction") != null)
+                        __instance.ProtectionModifiers.FlatDamageReduction = inSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction") * statusIncrease;
+                    if (inSlot.Itemstack.Attributes.TryGetFloat("BaseRelativeProtection") != null)
+                        __instance.ProtectionModifiers.RelativeProtection = inSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection") * statusIncrease;
                 }
-
-                Debug.LogDebug($"[PlateArmor] #### BEFORE INFO:");
-                Debug.LogDebug($"[PlateArmor] healingeffectivness: {__instance.StatModifers.healingeffectivness}");
-                Debug.LogDebug($"[PlateArmor] hungerrate: {__instance.StatModifers.hungerrate}");
-                Debug.LogDebug($"[PlateArmor] rangedWeaponsAcc: {__instance.StatModifers.rangedWeaponsAcc}");
-                Debug.LogDebug($"[PlateArmor] rangedWeaponsSpeed: {__instance.StatModifers.rangedWeaponsSpeed}");
-                Debug.LogDebug($"[PlateArmor] walkSpeed: {__instance.StatModifers.walkSpeed}");
 
                 if (__instance.StatModifers != null)
                 {
-                    if (__instance.StatModifers.healingeffectivness != 0f)
+                    if (inSlot.Itemstack.Attributes.TryGetFloat("BaseHealingEffectivness") != null)
                     {
-                        if (__instance.StatModifers.healingeffectivness < 0f)
+                        float healingeffectivness = inSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness");
+                        if (healingeffectivness < 0f)
                         {
-                            float positiveValue = Math.Abs(__instance.StatModifers.healingeffectivness);
-                            __instance.StatModifers.healingeffectivness += positiveValue * statusIncrease;
+                            float positiveValue = Math.Abs(healingeffectivness);
+                            __instance.StatModifers.healingeffectivness = positiveValue * statusIncrease;
                         }
                         else
                         {
-                            __instance.StatModifers.healingeffectivness *= statusIncrease;
+                            __instance.StatModifers.healingeffectivness = healingeffectivness * statusIncrease;
                         }
                     }
-                    if (__instance.StatModifers.hungerrate != 0f)
+                    if (inSlot.Itemstack.Attributes.TryGetFloat("BaseHungerRate") != null)
                     {
-                        if (__instance.StatModifers.hungerrate < 0f)
+                        float hungerrate = inSlot.Itemstack.Attributes.GetFloat("BaseHungerRate");
+                        if (hungerrate < 0f)
                         {
-                            float positiveValue = Math.Abs(__instance.StatModifers.hungerrate);
-                            __instance.StatModifers.hungerrate += positiveValue * statusIncrease;
+                            float positiveValue = Math.Abs(hungerrate);
+                            __instance.StatModifers.hungerrate = positiveValue * statusIncrease;
                         }
                         else
                         {
-                            __instance.StatModifers.hungerrate *= statusIncrease;
+                            __instance.StatModifers.hungerrate = hungerrate * statusIncrease;
                         }
                     }
-                    if (__instance.StatModifers.rangedWeaponsAcc != 0f)
+                    if (inSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") != null)
                     {
-                        if (__instance.StatModifers.rangedWeaponsAcc < 0f)
+                        float rangedWeaponsAcc = inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy");
+                        if (rangedWeaponsAcc < 0f)
                         {
-                            float positiveValue = Math.Abs(__instance.StatModifers.rangedWeaponsAcc);
-                            __instance.StatModifers.rangedWeaponsAcc += positiveValue * statusIncrease;
+                            float positiveValue = Math.Abs(rangedWeaponsAcc);
+                            __instance.StatModifers.rangedWeaponsAcc = positiveValue * statusIncrease;
                         }
                         else
                         {
-                            __instance.StatModifers.rangedWeaponsAcc *= statusIncrease;
+                            __instance.StatModifers.rangedWeaponsAcc = rangedWeaponsAcc * statusIncrease;
                         }
                     }
-                    if (__instance.StatModifers.rangedWeaponsSpeed != 0f)
+                    if (inSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") != null)
                     {
-                        if (__instance.StatModifers.rangedWeaponsSpeed < 0f)
+                        float rangedWeaponsSpeed = inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed");
+                        if (rangedWeaponsSpeed < 0f)
                         {
-                            float positiveValue = Math.Abs(__instance.StatModifers.rangedWeaponsSpeed);
-                            __instance.StatModifers.rangedWeaponsSpeed += positiveValue * statusIncrease;
+                            float positiveValue = Math.Abs(rangedWeaponsSpeed);
+                            __instance.StatModifers.rangedWeaponsSpeed = positiveValue * statusIncrease;
                         }
                         else
                         {
-                            __instance.StatModifers.rangedWeaponsSpeed *= statusIncrease;
+                            __instance.StatModifers.rangedWeaponsSpeed = rangedWeaponsSpeed * statusIncrease;
                         }
                     }
-                    if (__instance.StatModifers.walkSpeed != 0f)
+                    if (inSlot.Itemstack.Attributes.TryGetFloat("BaseWalkSpeed") != null)
                     {
-                        if (__instance.StatModifers.walkSpeed < 0f)
+                        float walkSpeed = inSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed");
+                        if (walkSpeed < 0f)
                         {
-                            float positiveValue = Math.Abs(__instance.StatModifers.walkSpeed);
-                            __instance.StatModifers.walkSpeed += positiveValue * statusIncrease;
+                            float positiveValue = Math.Abs(walkSpeed);
+                            __instance.StatModifers.walkSpeed = positiveValue * statusIncrease;
                         }
                         else
                         {
-                            __instance.StatModifers.walkSpeed *= statusIncrease;
+                            __instance.StatModifers.walkSpeed = walkSpeed * statusIncrease;
                         }
                     }
                 }
-
-                Debug.LogDebug($"[PlateArmor] ### AFTER INFO:");
-                Debug.LogDebug($"[PlateArmor] healingeffectivness: {__instance.StatModifers.healingeffectivness}");
-                Debug.LogDebug($"[PlateArmor] hungerrate: {__instance.StatModifers.hungerrate}");
-                Debug.LogDebug($"[PlateArmor] rangedWeaponsAcc: {__instance.StatModifers.rangedWeaponsAcc}");
-                Debug.LogDebug($"[PlateArmor] rangedWeaponsSpeed: {__instance.StatModifers.rangedWeaponsSpeed}");
-                Debug.LogDebug($"[PlateArmor] walkSpeed: {__instance.StatModifers.walkSpeed}");
 
                 LevelPlateArmorEvents.ExecuteItemInfoUpdated(__instance, api.World.Player);
             }

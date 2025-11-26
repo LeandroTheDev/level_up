@@ -120,7 +120,7 @@ class OverwriteDamageInteraction
             Debug.LogDebug($"{player.PlayerName} received final damage: {damage}");
         }
         // Unkown Type
-        else
+        else if (__instance is EntityPlayer)
         {
             // Get player source
             EntityPlayer playerEntity = __instance as EntityPlayer;
@@ -142,24 +142,21 @@ class OverwriteDamageInteraction
     internal static void HandleDamagedStart(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
     {
         IInventory inv = player.InventoryManager.GetOwnInventory("character");
-        float statusIncrease = Configuration.LeatherArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor"));
 
-        // In the native code, only use the inventory 12,13,14 to calculate the damage protection,
-        // also is random which part of the armor is used to be calculated, but we recalculate everthing
-        // because we don't know what part will be used on the prefix
-        List<ItemWearable> itemWearables = [];
+        // The inventory codes: 12,13,14 is reserved to store armor
+        List<ItemSlot> armorSlots = [];
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
             if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
             {
-                itemWearables.Add(armorWearable);
+                armorSlots.Add(armorSlot);
             }
         }
 
-        if (itemWearables.Count > 0)
+        if (armorSlots.Count > 0)
         {
-            damage = OverwriteDamageInteractionEvents.GetExternalArmorReceiveDamageStat(player, itemWearables, damage);
+            damage = OverwriteDamageInteractionEvents.GetExternalArmorReceiveDamageStat(player, armorSlots, damage);
         }
     }
 
@@ -174,22 +171,20 @@ class OverwriteDamageInteraction
     [HarmonyPriority(Priority.VeryLow)]
     internal static void UpdateWearableStats(ModSystemWearableStats __instance, InventoryBase inv, IServerPlayer player)
     {
-        // In the native code, only use the inventory 12,13,14 to calculate the damage protection,
-        // also is random which part of the armor is used to be calculated, but we recalculate everthing
-        // because we don't know what part will be used on the prefix
-        List<ItemWearable> itemWearables = [];
+        // The inventory codes: 12,13,14 is reserved to store armor
+        List<ItemSlot> armorSlots = [];
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
+            if (armorSlot.Itemstack?.Item is ItemWearable)
             {
-                itemWearables.Add(armorWearable);
+                armorSlots.Add(armorSlot);
             }
         }
 
-        if (itemWearables.Count > 0)
+        if (armorSlots.Count > 0)
         {
-            OverwriteDamageInteractionEvents.ExecuteArmorReceiveHandleStat(player, itemWearables);
+            OverwriteDamageInteractionEvents.ExecuteArmorReceiveHandleStat(player, armorSlots);
         }
     }
 
@@ -200,8 +195,8 @@ class OverwriteDamageInteraction
 public static class OverwriteDamageInteractionEvents
 {
     public delegate void DamageModifierHandler(IPlayer player, DamageSource damageSource, ref float damage);
-    public delegate void ArmorStatusModifierHandler(IPlayer player, List<ItemWearable> item);
-    public delegate void ArmorDamageModifierHandler(IPlayer player, List<ItemWearable> item, ref float damage);
+    public delegate void ArmorStatusModifierHandler(IPlayer player, List<ItemSlot> item);
+    public delegate void ArmorDamageModifierHandler(IPlayer player, List<ItemSlot> item, ref float damage);
 
     public static event DamageModifierHandler OnPlayerMeleeDoDamageStart;
     public static event DamageModifierHandler OnPlayerMeleeDoDamageFinish;
@@ -255,12 +250,12 @@ public static class OverwriteDamageInteractionEvents
         return damage;
     }
 
-    internal static void ExecuteArmorReceiveHandleStat(IPlayer player, List<ItemWearable> item)
+    internal static void ExecuteArmorReceiveHandleStat(IPlayer player, List<ItemSlot> item)
     {
         OnPlayerArmorReceiveHandleStats?.Invoke(player, item);
     }
 
-    internal static float GetExternalArmorReceiveDamageStat(IPlayer player, List<ItemWearable> item, float damage)
+    internal static float GetExternalArmorReceiveDamageStat(IPlayer player, List<ItemSlot> item, float damage)
     {
         OnPlayerArmorReceiveDamageStat?.Invoke(player, item, ref damage);
         return damage;

@@ -1,6 +1,7 @@
 using LevelUP.Server;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
+using Vintagestory.GameContent;
 
 namespace LevelUP.Shared;
 
@@ -182,5 +183,42 @@ class Instance
         levelPlateArmor.Unpatch();
         levelScaleArmor.Unpatch();
         levelSmithing.Unpatch();
+    }
+
+    /// Generate the base attributes for armors
+    public static void GenerateBaseArmorStatus(ItemStack item)
+    {
+        if (item.Item is not ItemWearable itemWearable) return;
+
+        if (item.Attributes.GetBool("BaseGenerated")) return;
+        item.Attributes.SetBool("BaseGenerated", true);
+
+        if (item.Attributes.TryGetFloat("BaseFlatDamageReduction") == null)
+            if (itemWearable.ProtectionModifiers != null)
+                item.Attributes.SetFloat("BaseFlatDamageReduction", itemWearable.ProtectionModifiers.FlatDamageReduction);
+
+        if (item.Attributes.TryGetFloat("BaseRelativeProtection") == null)
+            if (itemWearable.ProtectionModifiers != null)
+                item.Attributes.SetFloat("BaseRelativeProtection", itemWearable.ProtectionModifiers.RelativeProtection);
+
+        if (item.Attributes.TryGetFloat("BaseHealingEffectivness") == null)
+            if (itemWearable.StatModifers != null)
+                item.Attributes.SetFloat("BaseHealingEffectivness", itemWearable.StatModifers.healingeffectivness);
+
+        if (item.Attributes.TryGetFloat("BaseHungerRate") == null)
+            if (itemWearable.StatModifers != null)
+                item.Attributes.SetFloat("BaseHungerRate", itemWearable.StatModifers.hungerrate);
+
+        if (item.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") == null)
+            if (itemWearable.StatModifers != null)
+                item.Attributes.SetFloat("BaseRangedWeaponsAccuracy", itemWearable.StatModifers.rangedWeaponsAcc);
+
+        if (item.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") == null)
+            if (itemWearable.StatModifers != null)
+                item.Attributes.SetFloat("BaseRangedWeaponsSpeed", itemWearable.StatModifers.rangedWeaponsSpeed);
+
+        if (item.Attributes.TryGetFloat("BaseWalkSpeed") == null)
+            if (itemWearable.StatModifers != null)
+                item.Attributes.SetFloat("BaseWalkSpeed", itemWearable.StatModifers.walkSpeed);
     }
 }
