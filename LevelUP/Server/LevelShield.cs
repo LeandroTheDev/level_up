@@ -74,40 +74,41 @@ class LevelShield
                 JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
                 if (attr == null || !attr.Exists) continue;
 
+                Shared.Instance.GenerateBaseShieldStatus(shieldSlot.Itemstack);
+
                 JsonObject protection = attr["protectionChance"];
                 if (protection != null && protection.Exists && protection.Token is JObject protectionObj)
                 {
-                    foreach (var prop in protectionObj.Properties())
                     {
-                        float current = prop.Value.Value<float>();
-                        float updated = current * statsIncrease;
-
-                        prop.Value = new JValue(updated);
+                        float difference = Utils.GetDifferenceBetweenTwoFloats(shieldSlot.Itemstack.Attributes.GetFloat("BasePassiveProjectile"), protectionObj["passive-projectile"].Value<float>());
+                        protectionObj["passive-projectile"] = (shieldSlot.Itemstack.Attributes.GetFloat("BasePassiveProjectile") + difference) * statsIncrease;
+                    }
+                    {
+                        float difference = Utils.GetDifferenceBetweenTwoFloats(shieldSlot.Itemstack.Attributes.GetFloat("BaseActiveProjectile"), protectionObj["active-projectile"].Value<float>());
+                        protectionObj["active-projectile"] = (shieldSlot.Itemstack.Attributes.GetFloat("BaseActiveProjectile") + difference) * statsIncrease;
+                    }
+                    {
+                        float difference = Utils.GetDifferenceBetweenTwoFloats(shieldSlot.Itemstack.Attributes.GetFloat("BasePassive"), protectionObj["passive"].Value<float>());
+                        protectionObj["passive"] = (shieldSlot.Itemstack.Attributes.GetFloat("BasePassive") + difference) * statsIncrease;
+                    }
+                    {
+                        float difference = Utils.GetDifferenceBetweenTwoFloats(shieldSlot.Itemstack.Attributes.GetFloat("BaseActive"), protectionObj["active"].Value<float>());
+                        protectionObj["active"] = (shieldSlot.Itemstack.Attributes.GetFloat("BaseActive") + difference) * statsIncrease;
                     }
                 }
 
                 JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
-                if (projectileDamageAbsorption != null && projectileDamageAbsorption.Exists && projectileDamageAbsorption.Token is JObject projectileDamageAbsorptionObj)
+                if (projectileDamageAbsorption?.Token is JValue projectileDamageAbsorptionObj)
                 {
-                    foreach (var prop in projectileDamageAbsorptionObj.Properties())
-                    {
-                        float current = prop.Value.Value<float>();
-                        float updated = current * statsIncrease;
-
-                        prop.Value = new JValue(updated);
-                    }
+                    float difference = Utils.GetDifferenceBetweenTwoFloats(shieldSlot.Itemstack.Attributes.GetFloat("BaseProjectileDamageAbsorption"), projectileDamageAbsorptionObj.Value<float>());
+                    projectileDamageAbsorptionObj.Value = (shieldSlot.Itemstack.Attributes.GetFloat("BaseProjectileDamageAbsorption") + difference) * statsIncrease;
                 }
 
                 JsonObject damageAbsorption = attr["damageAbsorption"];
-                if (damageAbsorption != null && damageAbsorption.Exists && damageAbsorption.Token is JObject damageAbsorptionObj)
+                if (damageAbsorption?.Token is JValue damageAbsorptionObj)
                 {
-                    foreach (var prop in damageAbsorptionObj.Properties())
-                    {
-                        float current = prop.Value.Value<float>();
-                        float updated = current * statsIncrease;
-
-                        prop.Value = new JValue(updated);
-                    }
+                    float difference = Utils.GetDifferenceBetweenTwoFloats(shieldSlot.Itemstack.Attributes.GetFloat("BaseDamageAbsorption"), damageAbsorptionObj.Value<float>());
+                    damageAbsorptionObj.Value = (shieldSlot.Itemstack.Attributes.GetFloat("BaseDamageAbsorption") + difference) * statsIncrease;
                 }
 
                 LevelShieldEvents.ExecuteOnShieldRefreshed(player, shieldSlot);

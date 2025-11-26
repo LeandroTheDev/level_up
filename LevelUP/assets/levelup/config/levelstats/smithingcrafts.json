@@ -313,5 +313,8 @@
     "ScaleArmor?game:armor-legs-scale-meteoriciron": 600,
     "ScaleArmor?game:armor-head-scale-steel": 1000,
     "ScaleArmor?game:armor-body-scale-steel": 1000,
-    "ScaleArmor?game:armor-legs-scale-steel": 1000
+    "ScaleArmor?game:armor-legs-scale-steel": 1000,
+
+    // Shield generic
+    "Shield?game:shield*": 100
 }

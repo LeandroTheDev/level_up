@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
-using Newtonsoft.Json.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Util;
 using Vintagestory.Common;
@@ -87,7 +86,21 @@ class LevelSmithing
         {
             string collectableCode = kvp.Key;
 
-            if (collectableCode.EndsWith(item.Collectible.Code.ToString()))
+            string codeToDetect = null;
+            if (collectableCode.Contains('*'))
+            {
+                if (collectableCode.Contains('?'))
+                {
+                    codeToDetect = kvp.Key.Split("?")[1].Replace("*", "");
+                }
+                else
+                {
+                    codeToDetect = kvp.Key.Replace("*", "");
+                }
+            }
+
+            if (collectableCode.EndsWith(item.Collectible.Code.ToString()) ||
+                (codeToDetect != null && item.Collectible.Code.ToString().Contains(codeToDetect)))
             {
                 string levelType = null;
                 if (collectableCode.Contains('?'))
@@ -379,74 +392,159 @@ class LevelSmithing
                     else // Code with custom level type
                     {
                         // Check if is a armor with protection properties
-                        if (item.Collectible.Attributes.KeyExists("protectionModifiers"))
+                        if (item.Item is ItemWearable itemWearable)
                         {
-                            // Now we are converting the attributes to a modifiable json
+                            float multiplyProtection;
+                            { // Main Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetExperience(player, "Smithing"));
+                                multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
 
-                            string data = item.Collectible.Attributes.Token.ToString();
-                            JObject jsonObject = JObject.Parse(data);
-
-                            // Getting the protectionModifiers
-                            if (jsonObject.TryGetValue("protectionModifiers", out JToken protectionModifiersToken))
-                            {
-                                float multiplyProtection;
-                                { // Main Level Calculation
-                                    int level = Configuration.SmithingGetLevelByEXP(Experience.GetExperience(player, "Smithing"));
-                                    multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
-
-                                    // Increasing the armor durability
-                                    if (item.Collectible.Durability > 0)
-                                    {
-                                        float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                                        durability = (int)Math.Round((int)durability * multiplyDurability);
-                                        maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
-                                    }
-                                }
-
-                                { // Sub Level Calculation
-                                    int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", levelType));
-                                    multiplyProtection *= Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
-
-                                    // Increasing the armor durability
-                                    if (item.Collectible.Durability > 0)
-                                    {
-                                        float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
-                                        durability = (int)Math.Round((int)durability * multiplyDurability);
-                                        maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
-                                    }
-                                }
-
-                                LevelSmithingEvents.UpdateFromExternalSmithCraftingArmor(player,
-                                    item.Collectible.Code.ToString(),
-                                    ref durability,
-                                    ref multiplyProtection);
-
-                                // Getting the modifiable protectionModifiers
-                                if (protectionModifiersToken is JObject protectionModifiers)
+                                // Increasing the armor durability
+                                if (item.Collectible.Durability > 0)
                                 {
-                                    // Check if exist, and change it
-                                    if (protectionModifiers.TryGetValue("relativeProtection", out _))
-                                    {
-                                        item.Attributes.SetFloat("relativeProtection", (float)jsonObject["protectionModifiers"]["relativeProtection"] * multiplyProtection);
-                                        Debug.LogDebug($"{player} armor relativeProtection: {jsonObject["protectionModifiers"]["relativeProtection"]}/{multiplyProtection}");
-                                    }
-                                    // Check if exist, and change it
-                                    if (protectionModifiers.TryGetValue("flatDamageReduction", out _))
-                                    {
-                                        item.Attributes.SetFloat("flatDamageReduction", (float)jsonObject["protectionModifiers"]["flatDamageReduction"] * multiplyProtection);
-                                        Debug.LogDebug($"{player} armor flatDamageReduction: {jsonObject["protectionModifiers"]["flatDamageReduction"]}/{multiplyProtection}");
-                                    }
+                                    float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                    durability = (int)Math.Round((int)durability * multiplyDurability);
+                                    maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
                                 }
+                            }
 
-                                // Convert again to JsonObject and replace it in attributes
-                                item.Collectible.Attributes = new(JToken.Parse(jsonObject.ToString()));
+                            { // Sub Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", levelType));
+                                multiplyProtection *= Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
 
-                                Debug.LogDebug($"{player.PlayerName} crafted any armor protection increased to: {multiplyProtection}");
+                                // Increasing the armor durability
+                                if (item.Collectible.Durability > 0)
+                                {
+                                    float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                    durability = (int)Math.Round((int)durability * multiplyDurability);
+                                    maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
+                                }
+                            }
+
+                            LevelSmithingEvents.UpdateFromExternalSmithCraftingArmor(player,
+                                item.Collectible.Code.ToString(),
+                                ref durability,
+                                ref multiplyProtection);
+
+                            // Generate Base Stats
+                            Shared.Instance.GenerateBaseArmorStatus(item);
+
+                            if (item.Attributes.TryGetFloat("BaseFlatDamageReduction") != null)
+                            {
+                                item.Attributes.SetFloat("BaseFlatDamageReduction", item.Attributes.GetFloat("BaseFlatDamageReduction") * multiplyProtection);
+                                Debug.LogDebug($"{player} armor BaseFlatDamageReduction: {item.Attributes.GetFloat("BaseFlatDamageReduction")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseRelativeProtection") != null)
+                            {
+                                item.Attributes.SetFloat("BaseRelativeProtection", item.Attributes.GetFloat("BaseRelativeProtection") * multiplyProtection);
+                                Debug.LogDebug($"{player} armor BaseRelativeProtection: {item.Attributes.GetFloat("BaseRelativeProtection")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseHealingEffectivness") != null)
+                            {
+                                item.Attributes.SetFloat("BaseHealingEffectivness", item.Attributes.GetFloat("BaseHealingEffectivness") + (Math.Abs(item.Attributes.GetFloat("BaseHealingEffectivness")) * Math.Min(multiplyProtection - 1, 0)));
+                                Debug.LogDebug($"{player} armor BaseHealingEffectivness: {item.Attributes.GetFloat("BaseHealingEffectivness")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseHungerRate") != null)
+                            {
+                                item.Attributes.SetFloat("BaseHungerRate", item.Attributes.GetFloat("BaseHungerRate") + (Math.Abs(item.Attributes.GetFloat("BaseHungerRate")) * Math.Min(multiplyProtection - 1, 0)));
+                                Debug.LogDebug($"{player} armor BaseHungerRate: {item.Attributes.GetFloat("BaseHungerRate")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") != null)
+                            {
+                                item.Attributes.SetFloat("BaseRangedWeaponsAccuracy", item.Attributes.GetFloat("BaseRangedWeaponsAccuracy") + (Math.Abs(item.Attributes.GetFloat("BaseRangedWeaponsAccuracy")) * Math.Min(multiplyProtection - 1, 0)));
+                                Debug.LogDebug($"{player} armor BaseRangedWeaponsAccuracy: {item.Attributes.GetFloat("BaseRangedWeaponsAccuracy")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") != null)
+                            {
+                                item.Attributes.SetFloat("BaseRangedWeaponsSpeed", item.Attributes.GetFloat("BaseRangedWeaponsSpeed") + (Math.Abs(item.Attributes.GetFloat("BaseRangedWeaponsSpeed")) * Math.Min(multiplyProtection - 1, 0)));
+                                Debug.LogDebug($"{player} armor BaseRangedWeaponsSpeed: {item.Attributes.GetFloat("BaseRangedWeaponsSpeed")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseWalkSpeed") != null)
+                            {
+                                item.Attributes.SetFloat("BaseWalkSpeed", item.Attributes.GetFloat("BaseWalkSpeed") + (Math.Abs(item.Attributes.GetFloat("BaseWalkSpeed")) * Math.Min(multiplyProtection - 1, 0)));
+                                Debug.LogDebug($"{player} armor BaseWalkSpeed: {item.Attributes.GetFloat("BaseWalkSpeed")}/{multiplyProtection}");
+                            }
+
+                            Debug.LogDebug($"{player.PlayerName} crafted any armor protection increased to: {multiplyProtection}");
+                        }
+                        else if (item.Item is ItemShield itemShield)
+                        {
+                            float multiplyProtection;
+                            { // Main Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetExperience(player, "Smithing"));
+                                multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+
+                                // Increasing the armor durability
+                                if (item.Collectible.Durability > 0)
+                                {
+                                    float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                    durability = (int)Math.Round((int)durability * multiplyDurability);
+                                    maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
+                                }
+                            }
+
+                            { // Sub Level Calculation
+                                int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", levelType));
+                                multiplyProtection *= Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+
+                                // Increasing the armor durability
+                                if (item.Collectible.Durability > 0)
+                                {
+                                    float multiplyDurability = Configuration.SmithingGetDurabilityMultiplyByLevel(level);
+                                    durability = (int)Math.Round((int)durability * multiplyDurability);
+                                    maxDurability = (int)Math.Round((int)maxDurability * multiplyDurability);
+                                }
+                            }
+
+                            // Generate Base Stats
+                            Shared.Instance.GenerateBaseShieldStatus(item);
+
+                            if (item.Attributes.TryGetFloat("BasePassiveProjectile") != null)
+                            {
+                                item.Attributes.SetFloat("BasePassiveProjectile", item.Attributes.GetFloat("BasePassiveProjectile") * multiplyProtection);
+                                Debug.LogDebug($"{player} shield BasePassiveProjectile: {item.Attributes.GetFloat("BasePassiveProjectile")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseActiveProjectile") != null)
+                            {
+                                item.Attributes.SetFloat("BaseActiveProjectile", item.Attributes.GetFloat("BaseActiveProjectile") * multiplyProtection);
+                                Debug.LogDebug($"{player} shield BaseActiveProjectile: {item.Attributes.GetFloat("BaseActiveProjectile")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BasePassive") != null)
+                            {
+                                item.Attributes.SetFloat("BasePassive", item.Attributes.GetFloat("BasePassive") * multiplyProtection);
+                                Debug.LogDebug($"{player} shield BasePassive: {item.Attributes.GetFloat("BasePassive")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseActive") != null)
+                            {
+                                item.Attributes.SetFloat("BaseActive", item.Attributes.GetFloat("BaseActive") * multiplyProtection);
+                                Debug.LogDebug($"{player} shield BaseActive: {item.Attributes.GetFloat("BaseActive")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseProjectileDamageAbsorption") != null)
+                            {
+                                item.Attributes.SetFloat("BaseProjectileDamageAbsorption", item.Attributes.GetFloat("BaseProjectileDamageAbsorption") * multiplyProtection);
+                                Debug.LogDebug($"{player} shield BaseProjectileDamageAbsorption: {item.Attributes.GetFloat("BaseProjectileDamageAbsorption")}/{multiplyProtection}");
+                            }
+
+                            if (item.Attributes.TryGetFloat("BaseDamageAbsorption") != null)
+                            {
+                                item.Attributes.SetFloat("BaseDamageAbsorption", item.Attributes.GetFloat("BaseDamageAbsorption") * multiplyProtection);
+                                Debug.LogDebug($"{player} shield BaseDamageAbsorption: {item.Attributes.GetFloat("BaseDamageAbsorption")}/{multiplyProtection}");
                             }
                         }
                         else
                         {
-                            Debug.LogWarn($"[Smithing] Not a tool, and not a armor, unhandled item: {item.Collectible.Code}");
+                            if (Configuration.enableExtendedLog)
+                                Debug.LogWarn($"[Smithing] Not a tool, not a armor, not a shield, unhandled item: {item.Collectible.Code}");
                         }
                     }
                 }
@@ -465,7 +563,6 @@ class LevelSmithing
         }
         if (attackPower != null)
         {
-            // item.Collectible.AttackPower = (float)attackPower; // Never do that, this will change all "tool" damage
             item.Attributes.SetFloat("attackpower", (float)attackPower);
 
             Debug.LogDebug($"{player.PlayerName} crafted any item attack increased to: {attackPower}");
@@ -476,7 +573,6 @@ class LevelSmithing
 
             foreach (EnumBlockMaterial key in keys)
             {
-                // item.Collectible.MiningSpeed[key] *= (float)miningSpeed; // Never do that, this will change all "tool" mining speed
                 item.Attributes.SetFloat($"{key}_miningspeed", item.Collectible.MiningSpeed[key] * (float)miningSpeed);
             }
 
@@ -543,73 +639,39 @@ class LevelSmithing
         /// 
         /// The same happens for attackPower and miningSpeed
 
-        // Overwrite Visual Protections
-        // This is necessary so the protection system is more accurate
+        // Update visual protections and stats
         [HarmonyPrefix] // Client Side
         [HarmonyPatch(typeof(ItemWearable), "GetHeldItemInfo")]
         [HarmonyPriority(Priority.VeryHigh)]
         internal static void GetHeldArmorInfoStart(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
         {
-            if (inSlot.Itemstack.Attributes.GetFloat("relativeProtection", -1f) != -1f)
-                __instance.ProtectionModifiers.RelativeProtection = inSlot.Itemstack.Attributes.GetFloat("relativeProtection");
+            if (inSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection", -1f) != -1f)
+                if (__instance.ProtectionModifiers != null)
+                    __instance.ProtectionModifiers.RelativeProtection = inSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection");
 
-            if (inSlot.Itemstack.Attributes.GetFloat("flatDamageReduction", -1f) != -1f)
-                __instance.ProtectionModifiers.FlatDamageReduction = inSlot.Itemstack.Attributes.GetFloat("flatDamageReduction");
-        }
+            if (inSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction", -1f) != -1f)
+                if (__instance.ProtectionModifiers != null)
+                    __instance.ProtectionModifiers.FlatDamageReduction = inSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction");
 
-        // Overwrite Protection Damage Handle
-        // This is necessary so the protection system is more accurate
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ModSystemWearableStats), "handleDamaged")]
-        internal static void HandleDamagedStart(ModSystemWearableStats __instance, IPlayer player, float damage, DamageSource dmgSource)
-        {
-            if (!Configuration.enableLevelSmithing) return;
-            if (player.Entity.World.Side != EnumAppSide.Server) return;
+            if (inSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness", -1f) != -1f)
+                if (__instance.StatModifers != null)
+                    __instance.StatModifers.healingeffectivness = inSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness");
 
-            IInventory inv = player.InventoryManager.GetOwnInventory("character");
+            if (inSlot.Itemstack.Attributes.GetFloat("BaseHungerRate", -1f) != -1f)
+                if (__instance.StatModifers != null)
+                    __instance.StatModifers.hungerrate = inSlot.Itemstack.Attributes.GetFloat("BaseHungerRate");
 
-            // In the native code, only use the inventory 12,13,14 to calculate the damage protection,
-            // also is random which part of the armor is used to be calculated, but we recalculate everthing
-            // because we don't know what part will be used on the prefix
-            for (int i = 12; i <= 14; i++)
-            {
-                ItemSlot armorSlot = inv[i];
-                if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
-                {
-                    if (armorWearable.ProtectionModifiers == null)
-                    {
-                        Debug.LogDebug($"{player.PlayerName} {armorSlot.Itemstack.GetName()} Armor System ignored because ProtectionModifiers is null");
-                        return;
-                    }
+            if (inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy", -1f) != -1f)
+                if (__instance.StatModifers != null)
+                    __instance.StatModifers.rangedWeaponsAcc = inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy");
 
-                    // If the armor is created from a non player source, and a player can craft
-                    // the armor, they will be incosistent, so we need to refresh the default values
-                    // too unfurtunally
+            if (inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed", -1f) != -1f)
+                if (__instance.StatModifers != null)
+                    __instance.StatModifers.rangedWeaponsSpeed = inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed");
 
-                    Debug.LogDebug($"{player.PlayerName} {armorSlot.Itemstack.GetName()} Armor System Handling before R/F: {armorWearable.ProtectionModifiers.RelativeProtection}");
-
-                    // Only modify the relativeProtection if exist
-                    if (armorSlot.Itemstack.Attributes.GetFloat("relativeProtection", -1f) != -1f)
-                        armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Attributes.GetFloat("relativeProtection");
-                    else // Otherwises we need to refresh from default
-                    {
-                        if (armorSlot.Itemstack.Collectible.Attributes.KeyExists("protectionModifiers"))
-                            if (armorSlot.Itemstack.Collectible.Attributes["protectionModifiers"].KeyExists("relativeProtection"))
-                                armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Collectible.Attributes["protectionModifiers"]["relativeProtection"].AsFloat();
-                    }
-                    // Only modify the relativeProtection if exist
-                    if (armorSlot.Itemstack.Attributes.GetFloat("flatDamageReduction", -1f) != -1f)
-                        armorWearable.ProtectionModifiers.FlatDamageReduction = armorSlot.Itemstack.Attributes.GetFloat("flatDamageReduction");
-                    else // Otherwises we need to refresh from default
-                    {
-                        if (armorSlot.Itemstack.Collectible.Attributes.KeyExists("protectionModifiers"))
-                            if (armorSlot.Itemstack.Collectible.Attributes["protectionModifiers"].KeyExists("relativeProtection"))
-                                armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Collectible.Attributes["protectionModifiers"]["relativeProtection"].AsFloat();
-                    }
-
-                    Debug.LogDebug($"{player.PlayerName} {armorSlot.Itemstack.GetName()} Armor System Handling after R/F: {armorWearable.ProtectionModifiers.RelativeProtection}/{armorWearable.ProtectionModifiers.FlatDamageReduction}");
-                }
-            }
+            if (inSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed", -1f) != -1f)
+                if (__instance.StatModifers != null)
+                    __instance.StatModifers.walkSpeed = inSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed");
         }
 
         // Overwrite Visual and Interaction Attack Power
