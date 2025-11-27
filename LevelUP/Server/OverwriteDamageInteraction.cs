@@ -196,6 +196,31 @@ class OverwriteDamageInteraction
         }
     }
 
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ModSystemWearableStats), "handleDamaged")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void HandleDamagedFinish(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
+    {
+        IInventory inv = player.InventoryManager.GetOwnInventory("character");
+
+        // The inventory codes: 12,13,14 is reserved to store armor
+        List<ItemSlot> armorSlots = [];
+        for (int i = 12; i <= 14; i++)
+        {
+            ItemSlot armorSlot = inv[i];
+            if (armorSlot.Itemstack?.Item is ItemWearable)
+            {
+                armorSlots.Add(armorSlot);
+            }
+        }
+
+        if (armorSlots.Count > 0)
+        {
+            damage = OverwriteDamageInteractionEvents.GetExternalArmorReceiveDamageStatPos(player, armorSlots, damage);
+        }
+    }
+
+
     // Handle Status: 
     // healingeffectivness
     // hungerrate
@@ -205,51 +230,15 @@ class OverwriteDamageInteraction
     [HarmonyPrefix]
     [HarmonyPatch(typeof(ModSystemWearableStats), "updateWearableStats")]
     [HarmonyPriority(Priority.VeryLow)]
-    internal static void UpdateWearableStats(ModSystemWearableStats __instance, InventoryBase inv, IServerPlayer player)
+    internal static void UpdateWearableStatsStart(ModSystemWearableStats __instance, InventoryBase inv, IServerPlayer player)
     {
         // The inventory codes: 12,13,14 is reserved to store armor
         List<ItemSlot> armorSlots = [];
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
+            if (armorSlot.Itemstack?.Item is ItemWearable)
             {
-                if (armorWearable.ProtectionModifiers != null)
-                {
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("FlatDamageReduction") != null)
-                    {
-                        armorWearable.ProtectionModifiers.FlatDamageReduction = armorSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRelativeProtection") != null)
-                    {
-                        armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection");
-                    }
-                }
-
-                if (armorWearable.StatModifers != null)
-                {
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHealingEffectivness") != null)
-                    {
-                        armorWearable.StatModifers.healingeffectivness = armorSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHungerRate") != null)
-                    {
-                        armorWearable.StatModifers.hungerrate = armorSlot.Itemstack.Attributes.GetFloat("BaseHungerRate");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") != null)
-                    {
-                        armorWearable.StatModifers.rangedWeaponsAcc = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") != null)
-                    {
-                        armorWearable.StatModifers.rangedWeaponsSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseWalkSpeed") != null)
-                    {
-                        armorWearable.StatModifers.walkSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed");
-                    }
-                }
-
                 armorSlots.Add(armorSlot);
             }
         }
@@ -257,6 +246,28 @@ class OverwriteDamageInteraction
         if (armorSlots.Count > 0)
         {
             OverwriteDamageInteractionEvents.ExecuteArmorReceiveHandleStat(player, armorSlots);
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ModSystemWearableStats), "updateWearableStats")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void UpdateWearableStatsFinish(ModSystemWearableStats __instance, InventoryBase inv, IServerPlayer player)
+    {
+        // The inventory codes: 12,13,14 is reserved to store armor
+        List<ItemSlot> armorSlots = [];
+        for (int i = 12; i <= 14; i++)
+        {
+            ItemSlot armorSlot = inv[i];
+            if (armorSlot.Itemstack?.Item is ItemWearable)
+            {
+                armorSlots.Add(armorSlot);
+            }
+        }
+
+        if (armorSlots.Count > 0)
+        {
+            OverwriteDamageInteractionEvents.ExecuteArmorReceiveHandleStatPos(player, armorSlots);
         }
     }
 
@@ -279,6 +290,8 @@ public static class OverwriteDamageInteractionEvents
     public static event DamageModifierHandler OnPlayerReceiveDamageUnkown;
     public static event ArmorStatusModifierHandler OnPlayerArmorReceiveHandleStats;
     public static event ArmorDamageModifierHandler OnPlayerArmorReceiveDamageStat;
+    public static event ArmorStatusModifierHandler OnPlayerArmorReceiveHandleStatsPos;
+    public static event ArmorDamageModifierHandler OnPlayerArmorReceiveDamageStatPos;
 
     internal static float GetExternalMeleeDamageStart(IPlayer player, DamageSource damageSource, float damage)
     {
@@ -328,6 +341,17 @@ public static class OverwriteDamageInteractionEvents
     }
 
     internal static float GetExternalArmorReceiveDamageStat(IPlayer player, List<ItemSlot> item, float damage)
+    {
+        OnPlayerArmorReceiveDamageStat?.Invoke(player, item, ref damage);
+        return damage;
+    }
+
+    internal static void ExecuteArmorReceiveHandleStatPos(IPlayer player, List<ItemSlot> item)
+    {
+        OnPlayerArmorReceiveHandleStats?.Invoke(player, item);
+    }
+
+    internal static float GetExternalArmorReceiveDamageStatPos(IPlayer player, List<ItemSlot> item, float damage)
     {
         OnPlayerArmorReceiveDamageStat?.Invoke(player, item, ref damage);
         return damage;
