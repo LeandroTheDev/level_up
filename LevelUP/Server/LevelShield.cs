@@ -46,14 +46,9 @@ class LevelShield
 
     private static void RefreshShieldAttributes(ItemSlot shieldSlot, float statsIncrease)
     {
-        ResetShieldAttributes(shieldSlot);
-
         JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
         if (attr == null || !attr.Exists) return;
         JObject shieldObj = (JObject)attr.Token;
-
-        Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAAA");
-        Console.WriteLine(shieldObj);
 
         JsonObject protection = attr["protectionChance"];
         if (protection != null && protection.Exists && protection.Token is JObject originalProtObj)
@@ -61,13 +56,11 @@ class LevelShield
             JObject protectionObj = (JObject)originalProtObj.DeepClone();
 
             {
-                Debug.Log($"TEST 1 {shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")}");
                 float currentMeasured = protectionObj["passive-projectile"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
                     float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")),
                     currentMeasured
                 );
-                Debug.Log($"{difference}");
 
                 protectionObj["passive-projectile"] =
                     (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")) + difference) * statsIncrease;
@@ -115,12 +108,12 @@ class LevelShield
             float currentMeasured = projectileJVal.Value<float>();
 
             float difference = Utils.GetDifferenceBetweenTwoFloats(
-                shieldSlot.Itemstack.Attributes.GetFloat("BaseProjectileDamageAbsorption"),
+                float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")),
                 currentMeasured
             );
 
             shieldObj["projectileDamageAbsorption"] =
-                (shieldSlot.Itemstack.Attributes.GetFloat("BaseProjectileDamageAbsorption") + difference) * statsIncrease;
+                (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")) + difference) * statsIncrease;
         }
 
         JsonObject damageAbsorption = attr["damageAbsorption"];
@@ -129,38 +122,46 @@ class LevelShield
             float currentMeasured = damageAbsorptionJVal.Value<float>();
 
             float difference = Utils.GetDifferenceBetweenTwoFloats(
-                shieldSlot.Itemstack.Attributes.GetFloat("BaseDamageAbsorption"),
+                float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")),
                 currentMeasured
             );
 
             shieldObj["damageAbsorption"] =
-                (shieldSlot.Itemstack.Attributes.GetFloat("BaseDamageAbsorption") + difference) * statsIncrease;
+                (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")) + difference) * statsIncrease;
         }
-
-        Debug.Log($"TEST 2 {shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")}");
-        Console.WriteLine("BBBBBBBBBBBBBBBBBBBBBBB");
-        Console.WriteLine(shieldObj);
     }
 
     private static void ResetShieldAttributes(ItemSlot shieldSlot)
     {
         JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
         if (attr == null || !attr.Exists) return;
+        JObject shieldObj = (JObject)attr.Token;
 
         Shared.Instance.GenerateBaseShieldStatus(shieldSlot.Itemstack);
 
-        string defaultToken = shieldSlot.Itemstack.Attributes.GetString("BaseProtectionModifiers", null);
-        if (defaultToken != null)
+        JsonObject protection = attr["protectionChance"];
+        if (protection != null && protection.Exists && protection.Token is JObject originalProtObj)
         {
-            Console.WriteLine("VALUE: ");
-            Console.WriteLine(defaultToken);
-            Console.WriteLine("#### RESETED TO: ");
-            shieldSlot.Itemstack.ItemAttributes["shield"].Token = JObject.Parse(defaultToken);
-            Console.WriteLine(shieldSlot.Itemstack.ItemAttributes["shield"].Token);
+            JObject protectionObj = (JObject)originalProtObj.DeepClone();
+
+            protectionObj["passive-projectile"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile"));
+            protectionObj["active-projectile"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile"));
+            protectionObj["passive"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive"));
+            protectionObj["active"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActive"));
+
+            shieldObj["protectionChance"] = protectionObj;
         }
-        else
+
+        JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
+        if (projectileDamageAbsorption?.Token is JValue)
         {
-            Debug.LogError("?");
+            shieldObj["projectileDamageAbsorption"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption"));
+        }
+
+        JsonObject damageAbsorption = attr["damageAbsorption"];
+        if (damageAbsorption?.Token is JValue)
+        {
+            shieldObj["damageAbsorption"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption"));
         }
     }
 
@@ -177,9 +178,12 @@ class LevelShield
 
             float statsIncrease = Configuration.ShieldGetStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
 
+            ResetShieldAttributes(inSlot);
+
             RefreshShieldAttributes(inSlot, statsIncrease);
         }
 
+        // Post function call, reset the shield to default
         [HarmonyPostfix] // Client Side
         [HarmonyPatch(typeof(ItemShield), "GetHeldItemInfo")]
         internal static void GetHeldItemInfoFinish(ItemShield __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
@@ -206,12 +210,15 @@ class LevelShield
                     shieldSlot = player.Entity.RightHandItemSlot;
                 }
 
+                ResetShieldAttributes(shieldSlot);
+
                 RefreshShieldAttributes(shieldSlot, statsIncrease);
 
                 LevelShieldEvents.ExecuteOnShieldRefreshed(player, shieldSlot);
             }
         }
 
+        // Post function call, reset the shield to default
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
         internal static void ApplyShieldProtectionFinish(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
