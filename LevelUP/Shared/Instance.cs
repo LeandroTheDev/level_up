@@ -190,47 +190,67 @@ class Instance
     /// Generate the base attributes for armors
     public static void GenerateBaseArmorStatus(ItemStack item)
     {
-        if (item.Item is not ItemWearable itemWearable) return;
+        if (item.Item is not ItemWearable) return;
 
         if (item.Attributes.GetBool("BaseGenerated")) return;
         item.Attributes.SetBool("BaseGenerated", true);
 
         if (item.Collectible?.Attributes?["protectionModifiers"] != null && item.Collectible.Attributes["protectionModifiers"].Token != null)
         {
-            item.Attributes.SetString("BaseProtectionModifiers", item.Collectible.Attributes["protectionModifiers"].Token.ToString(Formatting.None));
+            // item.Attributes.SetString("BaseProtectionModifiers", item.Collectible.Attributes["protectionModifiers"].Token.ToString(Formatting.None));
 
-            if (item.Attributes.GetString("BaseFlatDamageReduction") == null)
-                if (itemWearable.ProtectionModifiers != null)
-                    item.Attributes.SetString("BaseFlatDamageReduction", itemWearable.ProtectionModifiers.FlatDamageReduction.ToString());
+            JsonObject protectionModifiers = item.Collectible.Attributes["protectionModifiers"];
+            if (protectionModifiers != null && protectionModifiers.Exists && protectionModifiers.Token is JObject protectionModifiersObj)
+            {
+                float passiveProjectile = protectionModifiersObj["relativeProtection"]?.Value<float>() ?? 0f;
+                if (passiveProjectile != 0)
+                    item.Attributes.SetString("BaseRelativeProtection", passiveProjectile.ToString());
 
-            if (item.Attributes.GetString("BaseRelativeProtection") == null)
-                if (itemWearable.ProtectionModifiers != null)
-                    item.Attributes.SetString("BaseRelativeProtection", itemWearable.ProtectionModifiers.RelativeProtection.ToString());
+                float flatDamageReduction = protectionModifiersObj["flatDamageReduction"]?.Value<float>() ?? 0f;
+                if (flatDamageReduction != 0)
+                    item.Attributes.SetString("BaseFlatDamageReduction", flatDamageReduction.ToString());
+
+                float protectionTier = protectionModifiersObj["protectionTier"]?.Value<float>() ?? 0f;
+                if (protectionTier != 0)
+                    item.Attributes.SetString("BaseProtectionTier", protectionTier.ToString());
+
+                float[] perTierRelativeProtectionLoss = protectionModifiersObj["perTierRelativeProtectionLoss"]?.ToObject<float[]>() ?? [];
+                if (perTierRelativeProtectionLoss.Length != 0)
+                    item.Attributes.SetString("BasePerTierRelativeProtectionLoss", $"[{string.Join(",", perTierRelativeProtectionLoss)}]");
+
+                float[] perTierFlatDamageReductionLoss = protectionModifiersObj["perTierFlatDamageReductionLoss"]?.ToObject<float[]>() ?? [];
+                if (perTierFlatDamageReductionLoss.Length != 0)
+                    item.Attributes.SetString("BasePerTierFlatDamageReductionLoss", $"[{string.Join(",", perTierFlatDamageReductionLoss)}]");
+            }
         }
 
         if (item.Collectible?.Attributes?["statModifiers"] != null && item.Collectible.Attributes["statModifiers"].Token != null)
         {
-            item.Attributes.SetString("BaseStatsModifiers", item.Collectible.Attributes["statModifiers"].Token.ToString(Formatting.None));
+            // item.Attributes.SetString("BaseStatsModifiers", item.Collectible.Attributes["statModifiers"].Token.ToString(Formatting.None));
 
-            if (item.Attributes.GetString("BaseHealingEffectivness") == null)
-                if (itemWearable.StatModifers != null)
-                    item.Attributes.SetString("BaseHealingEffectivness", itemWearable.StatModifers.healingeffectivness.ToString());
+            JsonObject statModifiers = item.Collectible.Attributes["statModifiers"];
+            if (statModifiers != null && statModifiers.Exists && statModifiers.Token is JObject statModifiersObj)
+            {
+                float rangedWeaponsAcc = statModifiersObj["rangedWeaponsAcc"]?.Value<float>() ?? 0f;
+                if (rangedWeaponsAcc != 0)
+                    item.Attributes.SetString("BaseRangedWeaponsAccuracy", rangedWeaponsAcc.ToString());
 
-            if (item.Attributes.GetString("BaseHungerRate") == null)
-                if (itemWearable.StatModifers != null)
-                    item.Attributes.SetString("BaseHungerRate", itemWearable.StatModifers.hungerrate.ToString());
+                float rangedWeaponsSpeed = statModifiersObj["rangedWeaponsSpeed"]?.Value<float>() ?? 0f;
+                if (rangedWeaponsSpeed != 0)
+                    item.Attributes.SetString("BaseRangedWeaponsSpeed", rangedWeaponsSpeed.ToString());
 
-            if (item.Attributes.GetString("BaseRangedWeaponsAccuracy") == null)
-                if (itemWearable.StatModifers != null)
-                    item.Attributes.SetString("BaseRangedWeaponsAccuracy", itemWearable.StatModifers.rangedWeaponsAcc.ToString());
+                float walkSpeed = statModifiersObj["walkSpeed"]?.Value<float>() ?? 0f;
+                if (walkSpeed != 0)
+                    item.Attributes.SetString("BaseWalkSpeed", walkSpeed.ToString());
 
-            if (item.Attributes.GetString("BaseRangedWeaponsSpeed") == null)
-                if (itemWearable.StatModifers != null)
-                    item.Attributes.SetString("BaseRangedWeaponsSpeed", itemWearable.StatModifers.rangedWeaponsSpeed.ToString());
+                float healingeffectivness = statModifiersObj["healingeffectivness"]?.Value<float>() ?? 0f;
+                if (healingeffectivness != 0)
+                    item.Attributes.SetString("BaseHealingEffectivness", healingeffectivness.ToString());
 
-            if (item.Attributes.GetString("BaseWalkSpeed") == null)
-                if (itemWearable.StatModifers != null)
-                    item.Attributes.SetString("BaseWalkSpeed", itemWearable.StatModifers.walkSpeed.ToString());
+                float hungerrate = statModifiersObj["hungerrate"]?.Value<float>() ?? 0f;
+                if (hungerrate != 0)
+                    item.Attributes.SetString("BaseHungerRate", hungerrate.ToString());
+            }
         }
     }
 
@@ -243,7 +263,7 @@ class Instance
         if (item.Attributes.GetBool("BaseGenerated")) return;
         item.Attributes.SetBool("BaseGenerated", true);
 
-        item.Attributes.SetString("BaseProtectionModifiers", attr.Token.ToString(Formatting.None));
+        // item.Attributes.SetString("BaseProtectionModifiers", attr.Token.ToString(Formatting.None));
 
         JsonObject protection = attr["protectionChance"];
         if (protection != null && protection.Exists && protection.Token is JObject protectionObj)
