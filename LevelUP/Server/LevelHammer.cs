@@ -38,6 +38,11 @@ class LevelHammer
         Debug.Log("Level Hammer initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Hammer initialized");
+    }
+
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (player.InventoryManager.ActiveTool == EnumTool.Hammer)

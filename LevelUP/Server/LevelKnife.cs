@@ -40,6 +40,11 @@ class LevelKnife
         Debug.Log("Level Knife initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Knife initialized");
+    }
+
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (player.InventoryManager.ActiveTool == EnumTool.Knife)

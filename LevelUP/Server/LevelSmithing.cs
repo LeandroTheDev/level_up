@@ -33,9 +33,50 @@ class LevelSmithing
         Configuration.RegisterNewLevel("Smithing");
         Configuration.RegisterNewLevelTypeEXP("Smithing", Configuration.SmithingGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Smithing", Configuration.SmithingGetExpByLevel);
+        // Update armor stats before functions
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats += StatsUpdated;
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat += DamageReceived;
 
         Debug.Log("Level Smithing initialized");
     }
+
+    public void InitClient()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerArmorViewStats += ViewReceived;
+
+        Debug.Log("Level Smithing initialized");
+    }
+
+    private void ViewReceived(IPlayer player, ItemSlot item)
+    {
+        if (float.TryParse(item.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease))
+        {
+            Shared.Instance.RefreshArmorAttributes(item, statusIncrease);
+        }
+    }
+
+    private void StatsUpdated(IPlayer player, List<ItemSlot> items)
+    {
+        foreach (ItemSlot armorSlot in items)
+        {
+            if (float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease))
+            {
+                Shared.Instance.RefreshArmorAttributes(armorSlot, statusIncrease);
+            }
+        }
+    }
+
+    private void DamageReceived(IPlayer player, List<ItemSlot> items, ref float damage)
+    {
+        foreach (ItemSlot armorSlot in items)
+        {
+            if (float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease))
+            {
+                Shared.Instance.RefreshArmorAttributes(armorSlot, statusIncrease);
+            }
+        }
+    }
+
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
@@ -429,50 +470,11 @@ class LevelSmithing
                             // Generate Base Stats
                             Shared.Instance.GenerateBaseArmorStatus(item);
 
-                            if (item.Attributes.TryGetFloat("BaseFlatDamageReduction") != null)
-                            {
-                                item.Attributes.SetFloat("BaseFlatDamageReduction", item.Attributes.GetFloat("BaseFlatDamageReduction") * multiplyProtection);
-                                Debug.LogDebug($"{player} armor BaseFlatDamageReduction: {item.Attributes.GetFloat("BaseFlatDamageReduction")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseRelativeProtection") != null)
-                            {
-                                item.Attributes.SetFloat("BaseRelativeProtection", item.Attributes.GetFloat("BaseRelativeProtection") * multiplyProtection);
-                                Debug.LogDebug($"{player} armor BaseRelativeProtection: {item.Attributes.GetFloat("BaseRelativeProtection")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseHealingEffectivness") != null)
-                            {
-                                item.Attributes.SetFloat("BaseHealingEffectivness", item.Attributes.GetFloat("BaseHealingEffectivness") + (Math.Abs(item.Attributes.GetFloat("BaseHealingEffectivness")) * Math.Min(multiplyProtection - 1, 0)));
-                                Debug.LogDebug($"{player} armor BaseHealingEffectivness: {item.Attributes.GetFloat("BaseHealingEffectivness")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseHungerRate") != null)
-                            {
-                                item.Attributes.SetFloat("BaseHungerRate", item.Attributes.GetFloat("BaseHungerRate") + (Math.Abs(item.Attributes.GetFloat("BaseHungerRate")) * Math.Min(multiplyProtection - 1, 0)));
-                                Debug.LogDebug($"{player} armor BaseHungerRate: {item.Attributes.GetFloat("BaseHungerRate")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") != null)
-                            {
-                                item.Attributes.SetFloat("BaseRangedWeaponsAccuracy", item.Attributes.GetFloat("BaseRangedWeaponsAccuracy") + (Math.Abs(item.Attributes.GetFloat("BaseRangedWeaponsAccuracy")) * Math.Min(multiplyProtection - 1, 0)));
-                                Debug.LogDebug($"{player} armor BaseRangedWeaponsAccuracy: {item.Attributes.GetFloat("BaseRangedWeaponsAccuracy")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") != null)
-                            {
-                                item.Attributes.SetFloat("BaseRangedWeaponsSpeed", item.Attributes.GetFloat("BaseRangedWeaponsSpeed") + (Math.Abs(item.Attributes.GetFloat("BaseRangedWeaponsSpeed")) * Math.Min(multiplyProtection - 1, 0)));
-                                Debug.LogDebug($"{player} armor BaseRangedWeaponsSpeed: {item.Attributes.GetFloat("BaseRangedWeaponsSpeed")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseWalkSpeed") != null)
-                            {
-                                item.Attributes.SetFloat("BaseWalkSpeed", item.Attributes.GetFloat("BaseWalkSpeed") + (Math.Abs(item.Attributes.GetFloat("BaseWalkSpeed")) * Math.Min(multiplyProtection - 1, 0)));
-                                Debug.LogDebug($"{player} armor BaseWalkSpeed: {item.Attributes.GetFloat("BaseWalkSpeed")}/{multiplyProtection}");
-                            }
+                            item.Attributes.SetString("LevelUP_Smithing_StatsMultiply", multiplyProtection.ToString());
 
                             Debug.LogDebug($"{player.PlayerName} crafted any armor protection increased to: {multiplyProtection}");
                         }
+                        // Check if is a shield with protection properties
                         else if (item.Item is ItemShield itemShield)
                         {
                             float multiplyProtection;
@@ -505,42 +507,11 @@ class LevelSmithing
                             // Generate Base Stats
                             Shared.Instance.GenerateBaseShieldStatus(item);
 
-                            if (item.Attributes.TryGetFloat("BasePassiveProjectile") != null)
-                            {
-                                item.Attributes.SetFloat("BasePassiveProjectile", item.Attributes.GetFloat("BasePassiveProjectile") * multiplyProtection);
-                                Debug.LogDebug($"{player} shield BasePassiveProjectile: {item.Attributes.GetFloat("BasePassiveProjectile")}/{multiplyProtection}");
-                            }
+                            item.Attributes.SetString("LevelUP_Smithing_StatsMultiply", multiplyProtection.ToString());
 
-                            if (item.Attributes.TryGetFloat("BaseActiveProjectile") != null)
-                            {
-                                item.Attributes.SetFloat("BaseActiveProjectile", item.Attributes.GetFloat("BaseActiveProjectile") * multiplyProtection);
-                                Debug.LogDebug($"{player} shield BaseActiveProjectile: {item.Attributes.GetFloat("BaseActiveProjectile")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BasePassive") != null)
-                            {
-                                item.Attributes.SetFloat("BasePassive", item.Attributes.GetFloat("BasePassive") * multiplyProtection);
-                                Debug.LogDebug($"{player} shield BasePassive: {item.Attributes.GetFloat("BasePassive")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseActive") != null)
-                            {
-                                item.Attributes.SetFloat("BaseActive", item.Attributes.GetFloat("BaseActive") * multiplyProtection);
-                                Debug.LogDebug($"{player} shield BaseActive: {item.Attributes.GetFloat("BaseActive")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseProjectileDamageAbsorption") != null)
-                            {
-                                item.Attributes.SetFloat("BaseProjectileDamageAbsorption", item.Attributes.GetFloat("BaseProjectileDamageAbsorption") * multiplyProtection);
-                                Debug.LogDebug($"{player} shield BaseProjectileDamageAbsorption: {item.Attributes.GetFloat("BaseProjectileDamageAbsorption")}/{multiplyProtection}");
-                            }
-
-                            if (item.Attributes.TryGetFloat("BaseDamageAbsorption") != null)
-                            {
-                                item.Attributes.SetFloat("BaseDamageAbsorption", item.Attributes.GetFloat("BaseDamageAbsorption") * multiplyProtection);
-                                Debug.LogDebug($"{player} shield BaseDamageAbsorption: {item.Attributes.GetFloat("BaseDamageAbsorption")}/{multiplyProtection}");
-                            }
+                            Debug.LogDebug($"{player.PlayerName} crafted any shield protection increased to: {multiplyProtection}");
                         }
+                        // Unkown
                         else
                         {
                             if (Configuration.enableExtendedLog)
@@ -619,72 +590,32 @@ class LevelSmithing
 
         // Overwrite Visual Max Durability
         // This is necessary so the durability system is more accurate
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(CollectibleObject), "GetMaxDurability")]
-        internal static void GetMaxDurabilityFinish(ItemStack itemstack, ref int __result)
+        internal static bool GetMaxDurabilityFinish(ItemStack itemstack, ref int __result)
         {
             int maxDurability = itemstack.Attributes.GetInt("maxdurability", -1);
             if (maxDurability != -1)
             {
                 __result = maxDurability;
+                return false;
             }
-        }
-
-        /// In the next part of the code, we will edit the view of the client to show
-        /// the modified protection (GetHeldArmorInfoStart), because vintage story share the ProtectionModifiers
-        /// between all items of the same type we can't edit and modify a unique item,
-        /// so every time a player handle the armor damage we edit the ProtectionModifier
-        /// based on the attribute set in craft (HandleDamagedStart), this will refresh
-        /// the ProtectionModifiers every time it will be used, making the item "unique"
-        /// 
-        /// The same happens for attackPower and miningSpeed
-
-        // Update visual protections and stats
-        [HarmonyPrefix] // Client Side
-        [HarmonyPatch(typeof(ItemWearable), "GetHeldItemInfo")]
-        [HarmonyPriority(Priority.VeryHigh)]
-        internal static void GetHeldArmorInfoStart(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
-        {
-            if (inSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection", -1f) != -1f)
-                if (__instance.ProtectionModifiers != null)
-                    __instance.ProtectionModifiers.RelativeProtection = inSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection");
-
-            if (inSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction", -1f) != -1f)
-                if (__instance.ProtectionModifiers != null)
-                    __instance.ProtectionModifiers.FlatDamageReduction = inSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction");
-
-            if (inSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness", -1f) != -1f)
-                if (__instance.StatModifers != null)
-                    __instance.StatModifers.healingeffectivness = inSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness");
-
-            if (inSlot.Itemstack.Attributes.GetFloat("BaseHungerRate", -1f) != -1f)
-                if (__instance.StatModifers != null)
-                    __instance.StatModifers.hungerrate = inSlot.Itemstack.Attributes.GetFloat("BaseHungerRate");
-
-            if (inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy", -1f) != -1f)
-                if (__instance.StatModifers != null)
-                    __instance.StatModifers.rangedWeaponsAcc = inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy");
-
-            if (inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed", -1f) != -1f)
-                if (__instance.StatModifers != null)
-                    __instance.StatModifers.rangedWeaponsSpeed = inSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed");
-
-            if (inSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed", -1f) != -1f)
-                if (__instance.StatModifers != null)
-                    __instance.StatModifers.walkSpeed = inSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed");
+            return true;
         }
 
         // Overwrite Visual and Interaction Attack Power
         // This is necessary so the attack power system is more accurate
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
-        internal static void GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
+        internal static bool GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
         {
             float attackPower = withItemStack.Attributes.GetFloat("attackpower", -1f);
             if (attackPower != -1f)
             {
                 __result = attackPower;
+                return false;
             }
+            return true;
         }
 
         // Overwrite Visual Mining Speed
@@ -693,7 +624,7 @@ class LevelSmithing
         [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
         internal static void GetHeldItemInfoStart(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
         {
-            inSlot.Itemstack.Collectible.MiningSpeed?.Foreach(x =>
+            inSlot.Itemstack?.Collectible?.MiningSpeed?.Foreach(x =>
             {
                 if (inSlot.Itemstack.Attributes.GetFloat($"{x.Key}_miningspeed", -1f) != -1f)
                     inSlot.Itemstack.Collectible.MiningSpeed[x.Key] = inSlot.Itemstack.Attributes.GetFloat($"{x.Key}_miningspeed");

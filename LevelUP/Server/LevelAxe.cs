@@ -40,6 +40,11 @@ class LevelAxe
         Debug.Log("Level Axe initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Axe initialized");
+    }
+
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (player.InventoryManager.ActiveTool == EnumTool.Axe)

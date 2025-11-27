@@ -40,6 +40,11 @@ class LevelShovel
         Debug.Log("Level Shovel initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Shovel initialized");
+    }
+
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (player.InventoryManager.ActiveTool == EnumTool.Shovel)

@@ -1,3 +1,4 @@
+using System;
 using LevelUP.Server;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -36,6 +37,14 @@ class Instance
     internal static OverwriteBlockBreak overwriteBlockBreak = new();
     internal static OverwriteDamageInteraction overwriteDamageInteraction = new();
 
+    /// <summary>
+    /// Patch all native codes with harmony, will not patch disabled levels.
+    /// Also initialize the level if the api is from Serverside.
+    /// 
+    /// Consider calling this function only after configurations fully loaded
+    /// to prevent patching disabled levels
+    /// </summary>
+    /// <param name="api"></param>
     public static void PatchAll(ICoreAPI api)
     {
         overwriteBlockBreak.Patch();
@@ -44,120 +53,148 @@ class Instance
         if (Configuration.enableLevelHunter)
         {
             if (api.Side == EnumAppSide.Server) levelHunter.Init();
+            else if (api.Side == EnumAppSide.Client) levelHunter.InitClient();
             levelHunter.Patch();
         }
         if (Configuration.enableLevelBow)
         {
             if (api.Side == EnumAppSide.Server) levelBow.Init();
+            else if (api.Side == EnumAppSide.Client) levelBow.InitClient();
             levelBow.Patch();
         }
         if (Configuration.enableLevelSlingshot)
         {
             if (api.Side == EnumAppSide.Server) levelSlingshot.Init();
+            else if (api.Side == EnumAppSide.Client) levelSlingshot.InitClient();
             levelSlingshot.Patch();
         }
         if (Configuration.enableLevelKnife)
         {
             if (api.Side == EnumAppSide.Server) levelKnife.Init();
+            else if (api.Side == EnumAppSide.Client) levelKnife.InitClient();
             levelKnife.Patch();
         }
         if (Configuration.enableLevelAxe)
         {
             if (api.Side == EnumAppSide.Server) levelAxe.Init();
+            else if (api.Side == EnumAppSide.Client) levelAxe.InitClient();
             levelAxe.Patch();
         }
         if (Configuration.enableLevelPickaxe)
         {
             if (api.Side == EnumAppSide.Server) levelPickaxe.Init();
+            else if (api.Side == EnumAppSide.Client) levelPickaxe.InitClient();
             levelPickaxe.Patch();
         }
         if (Configuration.enableLevelShovel)
         {
             if (api.Side == EnumAppSide.Server) levelShovel.Init();
+            else if (api.Side == EnumAppSide.Client) levelShovel.InitClient();
             levelShovel.Patch();
         }
         if (Configuration.enableLevelSpear)
         {
             if (api.Side == EnumAppSide.Server) levelSpear.Init();
+            else if (api.Side == EnumAppSide.Client) levelSpear.InitClient();
             levelSpear.Patch();
         }
         if (Configuration.enableLevelHammer)
         {
             if (api.Side == EnumAppSide.Server) levelHammer.Init();
+            else if (api.Side == EnumAppSide.Client) levelHammer.InitClient();
             levelHammer.Patch();
         }
         if (Configuration.enableLevelSword)
         {
             if (api.Side == EnumAppSide.Server) levelSword.Init();
+            else if (api.Side == EnumAppSide.Client) levelSword.InitClient();
             levelSword.Patch();
         }
         if (Configuration.enableLevelShield)
         {
             if (api.Side == EnumAppSide.Server) levelShield.Init();
+            else if (api.Side == EnumAppSide.Client) levelShield.InitClient();
             levelShield.Patch();
         }
         if (Configuration.enableLevelHand)
         {
             if (api.Side == EnumAppSide.Server) levelHand.Init();
+            else if (api.Side == EnumAppSide.Client) levelHand.InitClient();
             levelHand.Patch();
         }
         if (Configuration.enableLevelFarming)
         {
             if (api.Side == EnumAppSide.Server) levelFarming.Init();
+            else if (api.Side == EnumAppSide.Client) levelFarming.InitClient();
             levelFarming.Patch();
         }
         if (Configuration.enableLevelVitality)
         {
             if (api.Side == EnumAppSide.Server) levelVitality.Init();
+            else if (api.Side == EnumAppSide.Client) levelVitality.InitClient();
             levelVitality.Patch();
         }
         if (Configuration.enableLevelMetabolism)
         {
             if (api.Side == EnumAppSide.Server) levelMetabolism.Init();
+            else if (api.Side == EnumAppSide.Client) levelMetabolism.InitClient();
             levelMetabolism.Patch();
         }
         if (Configuration.enableLevelCooking)
         {
             if (api.Side == EnumAppSide.Server) levelCooking.Init();
+            else if (api.Side == EnumAppSide.Client) levelCooking.InitClient();
             levelCooking.Patch();
         }
         if (Configuration.enableLevelPanning)
         {
             if (api.Side == EnumAppSide.Server) levelPanning.Init();
+            else if (api.Side == EnumAppSide.Client) levelPanning.InitClient();
             levelPanning.Patch();
+        }
+        // Smithing should be loaded before any armor or level that add
+        // custom attributes
+        if (Configuration.enableLevelSmithing)
+        {
+            if (api.Side == EnumAppSide.Server) levelSmithing.Init();
+            else if (api.Side == EnumAppSide.Client) levelSmithing.InitClient();
+            levelSmithing.Patch();
         }
         if (Configuration.enableLevelLeatherArmor)
         {
             if (api.Side == EnumAppSide.Server) levelLeatherArmor.Init();
+            else if (api.Side == EnumAppSide.Client) levelLeatherArmor.InitClient();
             levelLeatherArmor.Patch();
         }
         if (Configuration.enableLevelChainArmor)
         {
             if (api.Side == EnumAppSide.Server) levelChainArmor.Init();
+            else if (api.Side == EnumAppSide.Client) levelChainArmor.InitClient();
             levelChainArmor.Patch();
         }
         if (Configuration.enableLevelBrigandineArmor)
         {
             if (api.Side == EnumAppSide.Server) levelBrigandineArmor.Init();
+            else if (api.Side == EnumAppSide.Client) levelBrigandineArmor.InitClient();
             levelBrigandineArmor.Patch();
         }
         if (Configuration.enableLevelPlateArmor)
         {
             if (api.Side == EnumAppSide.Server) levelPlateArmor.Init();
+            else if (api.Side == EnumAppSide.Client) levelPlateArmor.InitClient();
             levelPlateArmor.Patch();
         }
         if (Configuration.enableLevelScaleArmor)
         {
             if (api.Side == EnumAppSide.Server) levelScaleArmor.Init();
+            else if (api.Side == EnumAppSide.Client) levelScaleArmor.InitClient();
             levelScaleArmor.Patch();
-        }
-        if (Configuration.enableLevelSmithing)
-        {
-            if (api.Side == EnumAppSide.Server) levelSmithing.Init();
-            levelSmithing.Patch();
         }
     }
 
+    /// <summary>
+    /// Unpatch all patched native codes
+    /// </summary>
     public static void UnpatchAll()
     {
         overwriteBlockBreak.Unpatch();
@@ -187,7 +224,10 @@ class Instance
         levelSmithing.Unpatch();
     }
 
+    /// <summary>
     /// Generate the base attributes for armors
+    /// </summary>
+    /// <param name="item"></param>
     public static void GenerateBaseArmorStatus(ItemStack item)
     {
         if (item.Item is not ItemWearable) return;
@@ -254,7 +294,10 @@ class Instance
         }
     }
 
-    // Generate the base attributes for shield
+    /// <summary>
+    /// Generate the base attributes for shield
+    /// </summary>
+    /// <param name="item"></param>
     public static void GenerateBaseShieldStatus(ItemStack item)
     {
         JsonObject attr = item.ItemAttributes?["shield"];
@@ -297,4 +340,201 @@ class Instance
             item.Attributes.SetString("BaseDamageAbsorption", damageAbsorptionObj.Value<float>().ToString());
         }
     }
+
+    /// <summary>
+    /// Increases armor currently status, 1.0 = same, 1.5 = 50% increase.
+    /// Compatible with multi calls
+    /// </summary>
+    /// <param name="armorSlot"></param>
+    /// <param name="statsIncrease"></param>
+    public static void RefreshArmorAttributes(ItemSlot armorSlot, float statsIncrease)
+    {
+        if (armorSlot.Itemstack?.Item is not ItemWearable itemWearable) return;
+        JsonObject attr = armorSlot.Itemstack.Item?.Attributes;
+        if (attr == null || !attr.Exists) return;
+        JObject armorObj = (JObject)attr.Token;
+
+        JsonObject protectionModifiers = attr["protectionModifiers"];
+        if (protectionModifiers != null && protectionModifiers.Exists && protectionModifiers.Token is JObject protectionModifiersObj)
+        {
+            JObject protectionObj = (JObject)protectionModifiersObj.DeepClone();
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection") != null)
+            {
+                float currentMeasured = protectionObj["relativeProtection"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(
+                    float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")),
+                    currentMeasured
+                );
+
+                float result = (float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")) + difference) * statsIncrease;
+                protectionObj["relativeProtection"] = result;
+                itemWearable.ProtectionModifiers.RelativeProtection = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction") != null)
+            {
+                float currentMeasured = protectionObj["flatDamageReduction"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(
+                    float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")),
+                    currentMeasured
+                );
+
+                float result = (float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")) + difference) * statsIncrease;
+                protectionObj["flatDamageReduction"] = result;
+                itemWearable.ProtectionModifiers.FlatDamageReduction = result;
+            }
+
+            armorObj["protectionModifiers"] = protectionObj;
+        }
+
+        JsonObject statModifiers = attr["statModifiers"];
+        if (statModifiers != null && statModifiers.Exists && statModifiers.Token is JObject statModifiersObj)
+        {
+            JObject statsObj = (JObject)statModifiersObj.DeepClone();
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness") != null)
+            {
+                float currentMeasured = statsObj["healingeffectivness"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness")), currentMeasured);
+                float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness")) + difference;
+                float positiveValue = Math.Abs(baseValue);
+
+                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                statsObj["healingeffectivness"] = result;
+                itemWearable.StatModifers.healingeffectivness = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseHungerRate") != null)
+            {
+                float currentMeasured = statsObj["hungerrate"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate")), currentMeasured);
+                float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate")) + difference;
+                float positiveValue = Math.Abs(baseValue);
+
+                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                statsObj["hungerrate"] = result;
+                itemWearable.StatModifers.hungerrate = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy") != null)
+            {
+                float currentMeasured = statsObj["rangedWeaponsAcc"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy")), currentMeasured);
+                float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy")) + difference;
+                float positiveValue = Math.Abs(baseValue);
+
+                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                statsObj["rangedWeaponsAcc"] = result;
+                itemWearable.StatModifers.rangedWeaponsAcc = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed") != null)
+            {
+                float currentMeasured = statsObj["rangedWeaponsSpeed"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed")), currentMeasured);
+                float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed")) + difference;
+                float positiveValue = Math.Abs(baseValue);
+
+                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                statsObj["rangedWeaponsSpeed"] = result;
+                itemWearable.StatModifers.rangedWeaponsSpeed = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed") != null)
+            {
+                float currentMeasured = statsObj["walkSpeed"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed")), currentMeasured);
+                float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed")) + difference;
+                float positiveValue = Math.Abs(baseValue);
+
+                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                statsObj["walkSpeed"] = result;
+                itemWearable.StatModifers.walkSpeed = result;
+            }
+
+            armorObj["statModifiers"] = statsObj;
+        }
+    }
+
+    /// <summary>
+    /// Reset armor status increase to default, should be called after armor calculations.
+    /// Refer to wiki to know why
+    /// </summary>
+    /// <param name="armorSlot"></param>
+    public static void ResetArmorAttributes(ItemSlot armorSlot)
+    {
+        if (armorSlot.Itemstack?.Item is not ItemWearable itemWearable) return;
+        JsonObject attr = armorSlot.Itemstack.Item?.Attributes;
+        if (attr == null || !attr.Exists) return;
+        JObject armorObj = (JObject)attr.Token;
+
+        Shared.Instance.GenerateBaseArmorStatus(armorSlot.Itemstack);
+
+        JsonObject protectionModifiers = attr["protectionModifiers"];
+        if (protectionModifiers != null && protectionModifiers.Exists && protectionModifiers.Token is JObject protectionModifiersObj)
+        {
+            JObject protectionObj = (JObject)protectionModifiersObj.DeepClone();
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection") != null)
+            {
+                float result = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection"));
+                protectionObj["relativeProtection"] = result;
+                itemWearable.ProtectionModifiers.RelativeProtection = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction") != null)
+            {
+                float result = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction"));
+                protectionObj["flatDamageReduction"] = result;
+                itemWearable.ProtectionModifiers.FlatDamageReduction = result;
+            }
+
+            armorObj["protectionModifiers"] = protectionObj;
+        }
+
+        JsonObject statModifiers = attr["statModifiers"];
+        if (statModifiers != null && statModifiers.Exists && statModifiers.Token is JObject statModifiersObj)
+        {
+            JObject statsObj = (JObject)statModifiersObj.DeepClone();
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness") != null)
+            {
+                float result = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness"));
+                statsObj["healingeffectivness"] = result;
+                itemWearable.StatModifers.healingeffectivness = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseHungerRate") != null)
+            {
+                float result = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate"));
+                statsObj["hungerrate"] = result;
+                itemWearable.StatModifers.hungerrate = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy") != null)
+            {
+                float result = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy"));
+                statsObj["rangedWeaponsAcc"] = result;
+                itemWearable.StatModifers.rangedWeaponsAcc = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed") != null)
+            {
+                float result = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed"));
+                statsObj["rangedWeaponsSpeed"] = result;
+                itemWearable.StatModifers.rangedWeaponsSpeed = result;
+            }
+
+            if (armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed") != null)
+            {
+                float result = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed"));
+                statsObj["walkSpeed"] = result;
+                itemWearable.StatModifers.walkSpeed = result;
+            }
+
+            armorObj["statModifiers"] = statsObj;
+        }
+    }
+
 }

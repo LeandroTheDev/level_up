@@ -38,6 +38,11 @@ class LevelSlingshot
         Debug.Log("Level Slingshot initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Slingshot initialized");
+    }
+
     private void HandleRangedDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (damageSource.SourceEntity.GetName().Contains("thrownstone"))

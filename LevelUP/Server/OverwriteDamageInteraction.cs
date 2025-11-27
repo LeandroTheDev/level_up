@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
@@ -148,44 +150,9 @@ class OverwriteDamageInteraction
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item is ItemWearable armorWearable)
+            if (armorSlot.Itemstack?.Item is ItemWearable)
             {
-                if (armorWearable.ProtectionModifiers != null)
-                {
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("FlatDamageReduction") != null)
-                    {
-                        armorWearable.ProtectionModifiers.FlatDamageReduction = armorSlot.Itemstack.Attributes.GetFloat("BaseFlatDamageReduction");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRelativeProtection") != null)
-                    {
-                        armorWearable.ProtectionModifiers.RelativeProtection = armorSlot.Itemstack.Attributes.GetFloat("BaseRelativeProtection");
-                    }
-                }
-
-                if (armorWearable.StatModifers != null)
-                {
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHealingEffectivness") != null)
-                    {
-                        armorWearable.StatModifers.healingeffectivness = armorSlot.Itemstack.Attributes.GetFloat("BaseHealingEffectivness");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseHungerRate") != null)
-                    {
-                        armorWearable.StatModifers.hungerrate = armorSlot.Itemstack.Attributes.GetFloat("BaseHungerRate");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsAccuracy") != null)
-                    {
-                        armorWearable.StatModifers.rangedWeaponsAcc = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsAccuracy");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseRangedWeaponsSpeed") != null)
-                    {
-                        armorWearable.StatModifers.rangedWeaponsSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseRangedWeaponsSpeed");
-                    }
-                    if (armorSlot.Itemstack.Attributes.TryGetFloat("BaseWalkSpeed") != null)
-                    {
-                        armorWearable.StatModifers.walkSpeed = armorSlot.Itemstack.Attributes.GetFloat("BaseWalkSpeed");
-                    }
-                }
-
+                Shared.Instance.ResetArmorAttributes(armorSlot);
                 armorSlots.Add(armorSlot);
             }
         }
@@ -210,6 +177,7 @@ class OverwriteDamageInteraction
             ItemSlot armorSlot = inv[i];
             if (armorSlot.Itemstack?.Item is ItemWearable)
             {
+                Shared.Instance.ResetArmorAttributes(armorSlot);
                 armorSlots.Add(armorSlot);
             }
         }
@@ -239,6 +207,7 @@ class OverwriteDamageInteraction
             ItemSlot armorSlot = inv[i];
             if (armorSlot.Itemstack?.Item is ItemWearable)
             {
+                Shared.Instance.ResetArmorAttributes(armorSlot);
                 armorSlots.Add(armorSlot);
             }
         }
@@ -261,6 +230,7 @@ class OverwriteDamageInteraction
             ItemSlot armorSlot = inv[i];
             if (armorSlot.Itemstack?.Item is ItemWearable)
             {
+                Shared.Instance.ResetArmorAttributes(armorSlot);
                 armorSlots.Add(armorSlot);
             }
         }
@@ -271,13 +241,38 @@ class OverwriteDamageInteraction
         }
     }
 
+
+    // Update visual protections and stats
+    [HarmonyPrefix] // Client Side
+    [HarmonyPatch(typeof(ItemWearable), "GetHeldItemInfo")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void GetHeldItemInfoStart(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    {
+        if (world.Api is ICoreClientAPI api)
+        {
+            Shared.Instance.ResetArmorAttributes(inSlot);
+            OverwriteDamageInteractionEvents.ExecuteArmorViewStats(api.World.Player, inSlot);
+        }
+    }
+
+    // Update visual protections and stats
+    [HarmonyPostfix] // Client Side
+    [HarmonyPatch(typeof(ItemWearable), "GetHeldItemInfo")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void GetHeldItemInfoFinish(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    {
+        if (world.Api is ICoreClientAPI api)
+        {
+            Shared.Instance.ResetArmorAttributes(inSlot);
+            OverwriteDamageInteractionEvents.ExecuteArmorViewStats(api.World.Player, inSlot);
+        }
+    }
 }
 
-
-#region Compatibility
 public static class OverwriteDamageInteractionEvents
 {
     public delegate void DamageModifierHandler(IPlayer player, DamageSource damageSource, ref float damage);
+    public delegate void ArmorViewModifierHandler(IPlayer player, ItemSlot item);
     public delegate void ArmorStatusModifierHandler(IPlayer player, List<ItemSlot> item);
     public delegate void ArmorDamageModifierHandler(IPlayer player, List<ItemSlot> item, ref float damage);
 
@@ -288,8 +283,10 @@ public static class OverwriteDamageInteractionEvents
     public static event DamageModifierHandler OnPlayerReceiveDamageStart;
     public static event DamageModifierHandler OnPlayerReceiveDamageFinish;
     public static event DamageModifierHandler OnPlayerReceiveDamageUnkown;
+    public static event ArmorViewModifierHandler OnPlayerArmorViewStats;
     public static event ArmorStatusModifierHandler OnPlayerArmorReceiveHandleStats;
     public static event ArmorDamageModifierHandler OnPlayerArmorReceiveDamageStat;
+    public static event ArmorViewModifierHandler OnPlayerArmorViewStatsPos;
     public static event ArmorStatusModifierHandler OnPlayerArmorReceiveHandleStatsPos;
     public static event ArmorDamageModifierHandler OnPlayerArmorReceiveDamageStatPos;
 
@@ -335,6 +332,11 @@ public static class OverwriteDamageInteractionEvents
         return damage;
     }
 
+    internal static void ExecuteArmorViewStats(IPlayer player, ItemSlot item)
+    {
+        OnPlayerArmorViewStats?.Invoke(player, item);
+    }
+
     internal static void ExecuteArmorReceiveHandleStat(IPlayer player, List<ItemSlot> item)
     {
         OnPlayerArmorReceiveHandleStats?.Invoke(player, item);
@@ -346,15 +348,19 @@ public static class OverwriteDamageInteractionEvents
         return damage;
     }
 
+    internal static void ExecuteArmorReceiveHandleStatPos(IPlayer player, ItemSlot item)
+    {
+        OnPlayerArmorViewStatsPos?.Invoke(player, item);
+    }
+
     internal static void ExecuteArmorReceiveHandleStatPos(IPlayer player, List<ItemSlot> item)
     {
-        OnPlayerArmorReceiveHandleStats?.Invoke(player, item);
+        OnPlayerArmorReceiveHandleStatsPos?.Invoke(player, item);
     }
 
     internal static float GetExternalArmorReceiveDamageStatPos(IPlayer player, List<ItemSlot> item, float damage)
     {
-        OnPlayerArmorReceiveDamageStat?.Invoke(player, item, ref damage);
+        OnPlayerArmorReceiveDamageStatPos?.Invoke(player, item, ref damage);
         return damage;
     }
 }
-#endregion

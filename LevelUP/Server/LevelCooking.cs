@@ -36,6 +36,11 @@ class LevelCooking
         Debug.Log("Level Cooking initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Cooking initialized");
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration

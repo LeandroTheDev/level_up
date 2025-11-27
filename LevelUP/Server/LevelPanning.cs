@@ -34,6 +34,11 @@ class LevelPanning
         Debug.Log("Level Panning initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Panning initialized");
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration

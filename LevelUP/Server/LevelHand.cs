@@ -37,6 +37,11 @@ class LevelHand
         Debug.Log("Level Hand initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Hand initialized");
+    }
+
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (player.InventoryManager.ActiveHotbarSlot != null)
