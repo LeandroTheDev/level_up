@@ -283,9 +283,6 @@ class LevelMetabolism
         playerStats.MaxSaturation = playerMaxSaturation;
         player.Entity.WatchedAttributes.SetFloat("maxsaturation", playerStats.MaxSaturation);
 
-        Debug.LogDebug($"[METABOLISM] {player.PlayerName} joined the world with max: {playerStats.MaxSaturation}");
-        Debug.LogDebug($"[METABOLISM] Calculation Variables: {playerMaxSaturation}, Level: {Configuration.MetabolismGetLevelByEXP(playerExp)}");
-
         playerStats.UpdateNutrientHealthBoost();
 
         return playerStats;

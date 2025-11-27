@@ -2,18 +2,6 @@
     "game:armor-head-sewn-leather": 0.2,
     "game:armor-body-sewn-leather": 0.5,
     "game:armor-legs-sewn-leather": 0.2,
-    "game:clothes-shoulder-stained-leather-poncho": 0.1,
-    "game:clothes-hand-heavy-leather-gloves": 0.1,
-    "game:clothes-upperbodyover-malefactor-tunic": 0.1,
     "game:armor-body-jerkin-leather": 0.4,
-    "game:armor-legs-jerkin-leather": 0.2,
-    "game:clothes-foot-high-leather-boots": 0.1,
-    "game:clothes-upperbody-raw-hide-mantle": 0.2,
-    "game:clothes-lowerbody-raw-hide-trousers": 0.2,
-    "game:clothes-foot-knee-high-fur-boots": 0.2,
-    "game:clothes-hand-fur-gloves": 0.1,
-    "game:clothes-upperbodyover-fur-coat": 0.5,
-    "game:clothes-upperbodyover-warm-robe": 0.5,
-    "game:clothes-upperbodyover-reindeer-herder-fur-coat": 0.5,
-    "game:clothes-foot-fur-lined-reindeer-herder-shoes": 0.2
+    "game:armor-legs-jerkin-leather": 0.2
 }
