@@ -42,8 +42,16 @@ class LevelBrigandineArmor
         Debug.Log("Level Brigandine Armor initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats -= StatsUpdated;
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat -= DamageReceived;
+        OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
+    }
+
     private void ViewReceived(IPlayer player, ItemSlot item)
     {
+        if (!Configuration.expMultiplyHitBrigandineArmor.ContainsKey(item.Itemstack.Collectible.Code)) return;
         float statusIncrease = Configuration.BrigandineArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_BrigandineArmor"));
         Shared.Instance.RefreshArmorAttributes(item, statusIncrease);
         LevelBrigandineArmorEvents.ExecuteItemInfoUpdated(item.Itemstack.Item as ItemWearable, player);

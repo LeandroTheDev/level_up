@@ -41,6 +41,9 @@ class LevelCooking
         Debug.Log("Level Cooking initialized");
     }
 
+    public void Dispose()
+    { }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration

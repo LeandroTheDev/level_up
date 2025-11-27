@@ -54,6 +54,11 @@ class LevelVitality
         Debug.Log("Level Vitality initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerReceiveDamageStart -= HandleReceiveDamage;
+    }
+
     private void HandleReceiveDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         float receivedDamage = damage;

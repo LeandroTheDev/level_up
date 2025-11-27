@@ -39,6 +39,9 @@ class LevelPanning
         Debug.Log("Level Panning initialized");
     }
 
+    public void Dispose()
+    { }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration

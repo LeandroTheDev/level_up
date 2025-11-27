@@ -42,8 +42,16 @@ class LevelPlateArmor
         Debug.Log("Level Plate Armor initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats -= StatsUpdated;
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat -= DamageReceived;
+        OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
+    }
+
     private void ViewReceived(IPlayer player, ItemSlot item)
     {
+        if (!Configuration.expMultiplyHitPlateArmor.ContainsKey(item.Itemstack.Collectible.Code)) return;
         float statusIncrease = Configuration.PlateArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_PlateArmor"));
         Shared.Instance.RefreshArmorAttributes(item, statusIncrease);
         LevelPlateArmorEvents.ExecuteItemInfoUpdated(item.Itemstack.Item as ItemWearable, player);

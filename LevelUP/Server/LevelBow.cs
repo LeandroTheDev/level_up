@@ -43,6 +43,11 @@ class LevelBow
         Debug.Log("Level Bow initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart -= HandleRangedDamage;
+    }
+
     private void HandleRangedDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (damageSource.SourceEntity.GetName().Contains("arrow"))

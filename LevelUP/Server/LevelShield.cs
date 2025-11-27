@@ -42,6 +42,9 @@ class LevelShield
         Debug.Log("Level Shield initialized");
     }
 
+    public void Dispose()
+    { }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
