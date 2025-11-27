@@ -43,6 +43,12 @@ class LevelSpear
         Debug.Log("Level Spear initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
+        OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart -= HandleRangedDamage;
+    }
+
     private void HandleRangedDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (damageSource.SourceEntity.GetName().Contains("spear"))

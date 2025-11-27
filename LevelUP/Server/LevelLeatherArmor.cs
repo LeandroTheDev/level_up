@@ -42,8 +42,16 @@ class LevelLeatherArmor
         Debug.Log("Level Leather Armor initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats -= StatsUpdated;
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat -= DamageReceived;
+        OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
+    }
+
     private void ViewReceived(IPlayer player, ItemSlot item)
     {
+        if (!Configuration.expMultiplyHitLeatherArmor.ContainsKey(item.Itemstack.Collectible.Code)) return;
         float statusIncrease = Configuration.LeatherArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor"));
         Shared.Instance.RefreshArmorAttributes(item, statusIncrease);
         LevelLeatherArmorEvents.ExecuteItemInfoUpdated(item.Itemstack.Item as ItemWearable, player);

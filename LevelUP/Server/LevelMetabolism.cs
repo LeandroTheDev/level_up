@@ -59,6 +59,11 @@ class LevelMetabolism
         Debug.Log("Level Metabolism initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerReceiveDamageUnkown -= HandleUnkownDamage;
+    }
+
     private void HandleUnkownDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (damageSource.Type == EnumDamageType.Hunger)
@@ -297,7 +302,7 @@ class LevelMetabolism
     {
         ulong playerExp = Experience.GetExperience(player, "Metabolism");
 
-        float saturationConsumeReducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(Configuration.MetabolismGetLevelByEXP(playerExp));        
+        float saturationConsumeReducer = Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(Configuration.MetabolismGetLevelByEXP(playerExp));
 
         if (_playerLoadedMetabolismReceiveMultiply.TryGetValue(player.PlayerUID, out float _))
             _playerLoadedMetabolismReceiveMultiply[player.PlayerUID] = saturationConsumeReducer;

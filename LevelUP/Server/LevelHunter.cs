@@ -41,6 +41,11 @@ class LevelHunter
         Debug.Log("Level Hunter initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
+    }
+
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
         => damage *= Configuration.HunterGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hunter"));
 

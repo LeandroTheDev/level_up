@@ -42,8 +42,16 @@ class LevelChainArmor
         Debug.Log("Level Chain Armor initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats -= StatsUpdated;
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat -= DamageReceived;
+        OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
+    }
+
     private void ViewReceived(IPlayer player, ItemSlot item)
     {
+        if (!Configuration.expMultiplyHitChainArmor.ContainsKey(item.Itemstack.Collectible.Code)) return;
         float statusIncrease = Configuration.ChainArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor"));
         Shared.Instance.RefreshArmorAttributes(item, statusIncrease);
         LevelChainArmorEvents.ExecuteItemInfoUpdated(item.Itemstack.Item as ItemWearable, player);

@@ -188,7 +188,6 @@ class OverwriteDamageInteraction
         }
     }
 
-
     // Handle Status: 
     // healingeffectivness
     // hungerrate
@@ -240,7 +239,6 @@ class OverwriteDamageInteraction
             OverwriteDamageInteractionEvents.ExecuteArmorReceiveHandleStatPos(player, armorSlots);
         }
     }
-
 
     // Update visual protections and stats
     [HarmonyPrefix] // Client Side

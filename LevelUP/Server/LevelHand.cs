@@ -42,6 +42,11 @@ class LevelHand
         Debug.Log("Level Hand initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
+    }
+
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (player.InventoryManager.ActiveHotbarSlot != null)

@@ -1,6 +1,5 @@
 using System;
 using LevelUP.Server;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
@@ -50,6 +49,14 @@ class Instance
         overwriteBlockBreak.Patch();
         overwriteDamageInteraction.Patch();
 
+        // Smithing should be loaded before any armor or tool level that
+        // listen to attributes refresh
+        if (Configuration.enableLevelSmithing)
+        {
+            if (api.Side == EnumAppSide.Server) levelSmithing.Init();
+            else if (api.Side == EnumAppSide.Client) levelSmithing.InitClient();
+            levelSmithing.Patch();
+        }
         if (Configuration.enableLevelHunter)
         {
             if (api.Side == EnumAppSide.Server) levelHunter.Init();
@@ -152,14 +159,6 @@ class Instance
             else if (api.Side == EnumAppSide.Client) levelPanning.InitClient();
             levelPanning.Patch();
         }
-        // Smithing should be loaded before any armor or level that add
-        // custom attributes
-        if (Configuration.enableLevelSmithing)
-        {
-            if (api.Side == EnumAppSide.Server) levelSmithing.Init();
-            else if (api.Side == EnumAppSide.Client) levelSmithing.InitClient();
-            levelSmithing.Patch();
-        }
         if (Configuration.enableLevelLeatherArmor)
         {
             if (api.Side == EnumAppSide.Server) levelLeatherArmor.Init();
@@ -200,28 +199,51 @@ class Instance
         overwriteBlockBreak.Unpatch();
         overwriteDamageInteraction.Unpatch();
         levelHunter.Unpatch();
+        levelHunter.Dispose();
         levelBow.Unpatch();
+        levelBow.Dispose();
         levelSlingshot.Unpatch();
+        levelSlingshot.Dispose();
         levelKnife.Unpatch();
+        levelKnife.Dispose();
         levelAxe.Unpatch();
+        levelAxe.Dispose();
         levelPickaxe.Unpatch();
+        levelPickaxe.Dispose();
         levelShovel.Unpatch();
+        levelShovel.Dispose();
         levelSpear.Unpatch();
+        levelSpear.Dispose();
         levelHammer.Unpatch();
+        levelHammer.Dispose();
         levelSword.Unpatch();
+        levelSword.Dispose();
         levelShield.Unpatch();
+        levelShield.Dispose();
         levelHand.Unpatch();
+        levelHand.Dispose();
         levelFarming.Unpatch();
+        levelFarming.Dispose();
         levelVitality.Unpatch();
+        levelVitality.Dispose();
         levelMetabolism.Unpatch();
+        levelMetabolism.Dispose();
         levelCooking.Unpatch();
+        levelCooking.Dispose();
         levelPanning.Unpatch();
+        levelPanning.Dispose();
         levelLeatherArmor.Unpatch();
+        levelLeatherArmor.Dispose();
         levelChainArmor.Unpatch();
+        levelChainArmor.Dispose();
         levelBrigandineArmor.Unpatch();
+        levelBrigandineArmor.Dispose();
         levelPlateArmor.Unpatch();
+        levelPlateArmor.Dispose();
         levelScaleArmor.Unpatch();
+        levelScaleArmor.Dispose();
         levelSmithing.Unpatch();
+        levelSmithing.Dispose();
     }
 
     /// <summary>

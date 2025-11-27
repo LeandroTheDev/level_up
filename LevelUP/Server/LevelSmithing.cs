@@ -47,6 +47,13 @@ class LevelSmithing
         Debug.Log("Level Smithing initialized");
     }
 
+    public void Dispose()
+    {
+        OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats -= StatsUpdated;
+        OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat -= DamageReceived;
+    }
+
     private void ViewReceived(IPlayer player, ItemSlot item)
     {
         if (float.TryParse(item.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease))
