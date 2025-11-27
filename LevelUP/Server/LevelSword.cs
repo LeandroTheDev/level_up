@@ -37,6 +37,11 @@ class LevelSword
         Debug.Log("Level Sword initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Sword initialized");
+    }
+
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (player.InventoryManager.ActiveTool == EnumTool.Sword)

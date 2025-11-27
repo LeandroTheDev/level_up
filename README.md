@@ -20,7 +20,7 @@ Features:
 Not all item codes is added to the json configurations files, some armors/items/meats/entities/blocks can be missing, if you think something is missing from vanilla you can contact me or make a pull request in the github.
 
 ## Resume
-The mods simple increase your status, use a lot of shovel? then your dig speed will be increased, you love bows and only use them? become a ranged killing machine increasing accuracy/damage and increasing chance to keep arrow after hit, you prefer to be a smithing and only smiths items? well other players will love you because your craftings now will have increased damage and durability.
+The mods simple increase your status, use a lot of shovel? then your dig speed will be increased, you love bows and only use them? become a ranged killing machine increasing accuracy/damage and increasing chance to keep arrow after hit, you prefer to be a smithing and only smiths items? well other players will love you because your craftings now will have increased damage/durability and stats.
 
 ### Observations
 Configurations will be located in the folder ModConfig/LevelUP, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to know what each configuration does, if any update from levelup add new configuration you will need to manually added them to fix logs errors, otherwises will have the default value.
@@ -70,11 +70,39 @@ Creating a [patch](https://wiki.vintagestory.at/Modding:JSON_Patching) will not 
 # Important Configurations
 Vitality will overwrite the health system, you need manually change configurations in ``levelstats/vitality.json`` changing in default game configuration will have no effects, if you don't want this feature consider disabling in configuration before generating or joining in the world
 
-Metabolism works as the same as vitality, changing base saturation ingame will have no effect you need to change in ``levelstats/metabolis.json``
+Metabolism works as the same as vitality, changing base saturation ingame will have no effect you need to change in ``levelstats/metabolism.json``
 
-Debug logs is by default disabled, if you need to send logs you can send logs to [issues](https://github.com/LeandroTheDev/level_up/issues) in case of errors and bugs, you can enable it in base.json: ``enableExtendedLog``, this also can cause some cpu performances problems in low end cpus.
+Debug logs is by default disabled, if you need to send logs you can send logs to [issues](https://github.com/LeandroTheDev/level_up/issues), you can enable it in base.json: ``enableExtendedLog``.
 
 I strongly recommend to send game breaking bugs to [issues](https://github.com/LeandroTheDev/level_up/issues), i don't receive notifications in vsmoddb
+
+# Performance
+This is just an estimate of what can affect a server's performance, if you are having lag problems try disabling what consumes more cpu first.
+
+| Level            | CPU Consume   |
+|------------------|---------------|
+| Axe              | Medium        |
+| Bow              | Medium        |
+| Pickaxe          | Medium        |
+| Brigandine Armor | High          |
+| Chain Armor      | High          |
+| Farming          | Low           |
+| Hammer           | Low           |
+| Hunter           | Low           |
+| Knife            | Medium        |
+| Leather Armor    | High          |
+| Metabolism       | High          |
+| Panning          | Low           |
+| Pickaxe          | Medium        |
+| Plate Armor      | High          |
+| Scale Armor      | High          |
+| Shield           | High          |
+| Shovel           | Medium        |
+| Slingshot        | High          |
+| Smithing         | High          |
+| Spear            | Medium        |
+| Sword            | Medium        |
+| Vitality         | Medium        |
 
 # About Level UP
 Level UP is open source project and can easily be accessed on the github, all contents from this mod is completly free.

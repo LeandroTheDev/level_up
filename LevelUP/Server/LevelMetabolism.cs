@@ -54,6 +54,11 @@ class LevelMetabolism
         Debug.Log("Level Metabolism initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Metabolism initialized");
+    }
+
     private void HandleUnkownDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         if (damageSource.Type == EnumDamageType.Hunger)

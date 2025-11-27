@@ -49,6 +49,11 @@ class LevelVitality
         Debug.Log("Level Vitality initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Vitality initialized");
+    }
+
     private void HandleReceiveDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {
         float receivedDamage = damage;

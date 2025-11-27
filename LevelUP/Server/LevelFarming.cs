@@ -38,6 +38,11 @@ class LevelFarming
         Debug.Log("Level Farming initialized");
     }
 
+    public void InitClient()
+    {
+        Debug.Log("Level Farming initialized");
+    }
+
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
         // Populate configuration
