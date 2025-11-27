@@ -270,9 +270,6 @@ class LevelVitality
         // Refresh for the player
         playerStats.UpdateMaxHealth();
 
-        Debug.LogDebug($"[VITALITY] {player.PlayerName} joined the world with max: {playerStats.MaxHealth} health and {playerStats.Health} actual health");
-        Debug.LogDebug($"[VITALITY] Calculation Variables: {playerMaxHealth}:{playerRegen}, Level: {Configuration.VitalityGetLevelByEXP(playerExp)}");
-
         return playerStats;
     }
 

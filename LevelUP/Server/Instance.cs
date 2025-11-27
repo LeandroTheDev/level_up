@@ -124,9 +124,17 @@ public class Instance
         // Actual player level
         int nextLevel = Configuration.GetLevelByLevelTypeEXP(levelType, exp);
 
+        // Experience
+        player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}", (long)exp);
+        // Level
+        player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
+
         // Check if player leveled up
         if (previousLevel < nextLevel)
         {
+            // Update Watched attributes and necessary level data
+            RefreshStatus(player, levelType);
+
             // Check if we want to notify
             if (!disableLevelUpNotify)
             {
@@ -134,38 +142,11 @@ public class Instance
                 if (Configuration.enableLevelUpChatMessages)
                     CommunicationChannel.SendPacket(new ServerMessage() { message = $"playerlevelup&{nextLevel}&{levelType}" }, player as IServerPlayer);
             }
+
             Debug.Log($"{player.PlayerName} reached level {nextLevel} in {levelType}");
 
             ExperienceEvents.PlayerLeveledUp(player, levelType, exp, nextLevel);
         }
-
-        // This is a heavy formula calculations, we run on task to reduce and prevent lag spikes
-        Task.Run(() =>
-        {
-            // Experience
-            player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}", (long)exp);
-            // Level
-            player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}", nextLevel);
-
-            // Mining speed
-            float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
-            // Check if this levelType has mining speed
-            if (miningspeed != -1)
-                // Set the mining speed for clients
-                player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
-
-            // Refresh metabolism
-            if (levelType == "Metabolism")
-            {
-                LevelMetabolism.RefreshMaxSaturation(player);
-                LevelMetabolism.RefreshSaturationReceiveMultiply(player);
-            }
-            // Refresh vitality
-            else if (levelType == "Vitality")
-            {
-                LevelVitality.RefreshMaxHealth(player);
-            }
-        });
     }
 
     /// <summary>
@@ -203,6 +184,34 @@ public class Instance
         player.Entity.WatchedAttributes.SetLong($"LevelUP_{levelType}_Sub_{subLevelType}", (long)exp);
         // Level
         player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}_Sub_{subLevelType}", nextLevel);
+    }
+
+    private static void RefreshStatus(IPlayer player, string levelType)
+    {
+        // This is a heavy formula calculations, we run on task to reduce and prevent lag spikes
+        Task.Run(() =>
+        {
+            int nextLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelType}");
+
+            // Mining speed
+            float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
+            // Check if this levelType has mining speed
+            if (miningspeed != -1)
+                // Set the mining speed for clients
+                player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
+
+            // Refresh metabolism
+            if (levelType == "Metabolism")
+            {
+                LevelMetabolism.RefreshMaxSaturation(player);
+                LevelMetabolism.RefreshSaturationReceiveMultiply(player);
+            }
+            // Refresh vitality
+            else if (levelType == "Vitality")
+            {
+                LevelVitality.RefreshMaxHealth(player);
+            }
+        });
     }
 
     private static void SyncPlayerConfigs(IServerPlayer player)

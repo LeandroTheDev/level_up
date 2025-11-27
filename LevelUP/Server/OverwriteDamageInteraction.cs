@@ -104,7 +104,7 @@ class OverwriteDamageInteraction
         // Player Receive Damage
         if (__instance is EntityPlayer && ValidPlayerReceivedDamage())
         {
-            Debug.LogDebug($"{(damageSource.SourceEntity as EntityPlayer)?.GetName()} received damage: {damage} from: {damageSource.Type}");
+            Debug.LogDebug($"{(__instance as EntityPlayer)?.GetName()} received damage: {damage} from: {damageSource.Type}");
 
             // Get player source
             EntityPlayer playerEntity = __instance as EntityPlayer;
