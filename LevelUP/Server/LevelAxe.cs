@@ -1,8 +1,12 @@
 #pragma warning disable CA1822
+using System;
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -42,11 +46,32 @@ class LevelAxe
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Axe initialized");
     }
 
     public void Dispose()
-    { }
+    {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Axe") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_miningspeed",
+                Configuration.AxeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damage",
+                Configuration.AxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe"))
+            )
+        );
+    }
 
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
     {

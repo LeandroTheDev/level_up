@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
 using Vintagestory.Client.NoObf;
@@ -56,12 +59,32 @@ class LevelMetabolism
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Metabolism initialized");
     }
 
     public void Dispose()
     {
         OverwriteDamageInteractionEvents.OnPlayerReceiveDamageUnkown -= HandleUnkownDamage;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Metabolism") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_saturationreducer",
+                Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Metabolism"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_additionalsaturation",
+                Configuration.MetabolismGetMaxSaturationByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Metabolism")) - Configuration.BaseSaturationMetabolism
+            )
+        );
     }
 
     private void HandleUnkownDamage(IPlayer player, DamageSource damageSource, ref float damage)

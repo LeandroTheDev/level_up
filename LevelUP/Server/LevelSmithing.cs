@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Util;
 using Vintagestory.Common;
 using Vintagestory.GameContent;
@@ -43,6 +45,7 @@ class LevelSmithing
     public void InitClient()
     {
         OverwriteDamageInteractionEvents.OnPlayerArmorViewStats += ViewReceived;
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
 
         Debug.Log("Level Smithing initialized");
     }
@@ -52,6 +55,36 @@ class LevelSmithing
         OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
         OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats -= StatsUpdated;
         OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat -= DamageReceived;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Smithing") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_protectionmultiply",
+                Configuration.SmithingGetArmorProtectionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damage",
+                Configuration.SmithingGetAttackPowerMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_durability",
+                Configuration.SmithingGetDurabilityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_mining",
+                Configuration.SmithingGetMiningSpeedMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"))
+            )
+        );
     }
 
     private void ViewReceived(IPlayer player, ItemSlot item)

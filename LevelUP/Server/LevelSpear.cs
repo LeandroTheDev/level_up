@@ -1,8 +1,11 @@
 #pragma warning disable CA1822
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -40,6 +43,8 @@ class LevelSpear
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Spear initialized");
     }
 
@@ -47,6 +52,24 @@ class LevelSpear
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart -= HandleRangedDamage;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Spear") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damage",
+                Configuration.SpearGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_accuracy",
+                Configuration.SpearGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear"))
+            )
+        );
     }
 
     private void HandleRangedDamage(IPlayer player, DamageSource damageSource, ref float damage)

@@ -1,14 +1,12 @@
+using System.Text;
 using Vintagestory.API.Client;
+using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 
-public class DialogLevelInfo : GuiDialog
+namespace LevelUP.Client;
+
+public class StatusViewDialog(ICoreClientAPI capi, string levelType) : GuiDialog(capi)
 {
-    private string message;
-
-    public DialogLevelInfo(ICoreClientAPI capi, string message) : base(capi)
-    {
-        this.message = message;
-    }
-
     public override string ToggleKeyCombinationCode => "levelinfo";
 
     public override void OnGuiOpened()
@@ -19,16 +17,31 @@ public class DialogLevelInfo : GuiDialog
 
         ElementBounds textBounds = ElementBounds.Fixed(10, 30, 280, 100);
 
+        StringBuilder stringBuilder = StatusViewEvents.GetExternalStringBuilder(capi.World.Player, new(), levelType);
+
         SingleComposer = capi.Gui
             .CreateCompo("levelinfo", bg)
             .AddShadedDialogBG(bg)
-            .AddDialogTitleBar("Level Info", OnClose)
-            .AddStaticText(message, CairoFont.WhiteSmallText(), textBounds)
+            .AddDialogTitleBar(Lang.Get("levelup:status_tab", Lang.Get($"levelup:{levelType.ToLower()}")), OnClose)
+            .AddStaticText(stringBuilder.ToString(), CairoFont.WhiteSmallText(), textBounds)
         .Compose();
     }
 
     private void OnClose()
     {
         TryClose();
+    }
+}
+
+public class StatusViewEvents
+{
+    public delegate void PlayerStringBuilder(IPlayer player, ref StringBuilder stringBuilder, string levelType);
+
+    public static event PlayerStringBuilder OnStatusRequested;
+
+    internal static StringBuilder GetExternalStringBuilder(IPlayer player, StringBuilder stringBuilder, string levelType)
+    {
+        OnStatusRequested?.Invoke(player, ref stringBuilder, levelType);
+        return stringBuilder;
     }
 }

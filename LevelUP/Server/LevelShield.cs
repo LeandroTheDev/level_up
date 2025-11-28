@@ -2,9 +2,11 @@
 using System;
 using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.GameContent;
 
@@ -39,11 +41,26 @@ class LevelShield
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Shield initialized");
     }
 
     public void Dispose()
-    { }
+    {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Shield") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_statsincreaser",
+                Configuration.ShieldGetStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"))
+            )
+        );
+    }
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {

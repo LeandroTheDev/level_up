@@ -1,8 +1,11 @@
 #pragma warning disable CA1822
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -39,12 +42,26 @@ class LevelHand
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Hand initialized");
     }
 
     public void Dispose()
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Hand") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damage",
+                Configuration.HandGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hand"))
+            )
+        );
     }
 
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)

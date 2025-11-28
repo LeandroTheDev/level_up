@@ -1,8 +1,11 @@
 #pragma warning disable CA1822
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -42,12 +45,38 @@ class LevelPickaxe
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Pickaxe initialized");
     }
 
     public void Dispose()
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Pickaxe") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damage",
+                Configuration.PickaxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_mining",
+                Configuration.PickaxeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_ore",
+                Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))
+            )
+        );
     }
 
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)

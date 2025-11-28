@@ -1,7 +1,10 @@
 #pragma warning disable CA1822
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 namespace LevelUP.Server;
 
@@ -38,6 +41,7 @@ class LevelChainArmor
     public void InitClient()
     {
         OverwriteDamageInteractionEvents.OnPlayerArmorViewStats += ViewReceived;
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
 
         Debug.Log("Level Chain Armor initialized");
     }
@@ -47,6 +51,18 @@ class LevelChainArmor
         OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats -= StatsUpdated;
         OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat -= DamageReceived;
         OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "ChainArmor") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_statsincreaser",
+                Configuration.ChainArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor"))
+            )
+        );
     }
 
     private void ViewReceived(IPlayer player, ItemSlot item)

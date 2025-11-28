@@ -1,9 +1,12 @@
 #pragma warning disable CA1822
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.GameContent;
 
@@ -38,11 +41,38 @@ class LevelCooking
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Cooking initialized");
     }
 
     public void Dispose()
-    { }
+    {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Cooking") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_freshhours",
+                Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_servingsrolls",
+                Configuration.CookingGetRollsByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_servingchanceroll",
+                Configuration.CookingGetRollChanceByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))
+            )
+        );
+    }
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {

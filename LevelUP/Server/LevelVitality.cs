@@ -3,10 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection.Emit;
+using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
@@ -51,12 +54,32 @@ class LevelVitality
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Vitality initialized");
     }
 
     public void Dispose()
     {
         OverwriteDamageInteractionEvents.OnPlayerReceiveDamageStart -= HandleReceiveDamage;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Vitality") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_regen",
+                Configuration.VitalityGetHealthRegenMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Vitality"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_additionalhealth",
+                Configuration.VitalityGetMaxHealthByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Vitality")) - Configuration.BaseHPVitality
+            )
+        );
     }
 
     private void HandleReceiveDamage(IPlayer player, DamageSource damageSource, ref float damage)

@@ -1,9 +1,11 @@
 #pragma warning disable CA1822
-using System;
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -40,12 +42,39 @@ class LevelBow
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Bow initialized");
     }
 
     public void Dispose()
     {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart -= HandleRangedDamage;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Bow") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_accuracy",
+                Configuration.BowGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_arrowchance",
+                Configuration.BowGetRawChanceToNotLoseArrowByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damage",
+                Configuration.BowGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow"))
+            )
+        );
     }
 
     private void HandleRangedDamage(IPlayer player, DamageSource damageSource, ref float damage)

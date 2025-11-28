@@ -1,8 +1,11 @@
 #pragma warning disable CA1822
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 
 namespace LevelUP.Server;
 
@@ -38,12 +41,27 @@ class LevelHunter
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Hunter initialized");
     }
 
     public void Dispose()
     {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Hunter") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damage",
+                Configuration.HunterGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hunter"))
+            )
+        );
     }
 
     private void HandleDamage(IPlayer player, DamageSource damageSource, ref float damage)
