@@ -57,7 +57,8 @@ class Commands
         Experience.ChangeExperience(player, args[1], ulong.Parse(args[3]));
 
         // Refresh player levels
-        Instance.UpdatePlayerLevels(player, Instance.api);
+        Instance.UpdatePlayerLevels(player, Instance.api);        
+        Instance.RefreshStatus(player, args[1]);
 
         return TextCommandResult.Success($"Changed experience from {player.PlayerName} to {args[3]} on level {args[1]}", "10");
     }
@@ -81,6 +82,7 @@ class Commands
 
         // Refresh player levels
         Instance.UpdatePlayerLevels(player, Instance.api);
+        Instance.RefreshStatus(player, args[1]);
 
         return TextCommandResult.Success($"Added {args[3]} experience to {player.PlayerName} on level {args[1]}", "11");
     }
@@ -104,6 +106,7 @@ class Commands
 
         // Refresh player levels
         Instance.UpdatePlayerLevels(player, Instance.api);
+        Instance.RefreshStatus(player, args[1]);
 
         return TextCommandResult.Success($"Reduced {args[3]} experience to {player.PlayerName} on level {args[1]}", "12");
     }
@@ -162,6 +165,7 @@ class Commands
 
         // Refresh player levels
         Instance.UpdatePlayerLevels(player, Instance.api);
+        Instance.RefreshStatus(player, args[1]);
 
         return TextCommandResult.Success($"{args[1]} status has been reseted to vanilla default", "13");
     }
@@ -182,6 +186,7 @@ class Commands
 
         // Refresh player levels
         Instance.UpdatePlayerLevels(player, Instance.api);
+        Instance.RefreshStatus(player, args[1]);
 
         return TextCommandResult.Success($"{args[1]} levels has been reseted to 0", "13");
     }

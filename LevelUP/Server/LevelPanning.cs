@@ -1,7 +1,10 @@
 #pragma warning disable CA1822
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
@@ -36,11 +39,44 @@ class LevelPanning
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Panning initialized");
     }
 
     public void Dispose()
-    { }
+    {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Panning") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_loot",
+                Configuration.PanningGetLootMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_double",
+                Configuration.PanningGetChanceToDouble(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_triple",
+                Configuration.PanningGetChanceToTriple(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_quadruple",
+                Configuration.PanningGetChanceToQuadruple(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"))
+            )
+        );
+    }
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {

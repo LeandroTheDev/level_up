@@ -1,9 +1,12 @@
 #pragma warning disable CA1822
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -40,12 +43,38 @@ class LevelSlingshot
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Slingshot initialized");
     }
 
     public void Dispose()
     {
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart -= HandleRangedDamage;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Slingshot") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damage",
+                Configuration.SlingshotGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_accuracy",
+                Configuration.SlingshotGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_stonechance",
+                Configuration.SlingshotGetRawChanceToNotLoseRockByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot"))
+            )
+        );
     }
 
     private void HandleRangedDamage(IPlayer player, DamageSource damageSource, ref float damage)

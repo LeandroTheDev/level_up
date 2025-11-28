@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -71,10 +72,15 @@ class LevelsView
 
             if (instance.api.Assets.Exists(imageAsset))
             {
-                // Create bounds for actual line
-                ElementBounds itemBounds = containerBounds.FlatCopy().WithFixedOffset(0, offsetY);
+                ElementBounds itemBounds = listBounds
+                    .ForkChild()
+                    .WithFixedPosition(0, offsetY)
+                    .WithFixedSize(82, 82);
 
-                levelContainer.Add(new GuiElementImage(instance.api, itemBounds, imageAsset));
+                levelContainer.Add(new GuiElementImage(
+                    instance.api,
+                    itemBounds,
+                    imageAsset));
 
                 levelContainer.Add(new GuiElementStaticText(
                     instance.api,
@@ -92,15 +98,15 @@ class LevelsView
                     CairoFont.WhiteSmallishText().WithFontSize(13)
                 ));
 
-                // levelContainer.Add(new GuiElementTextButton(
-                //     instance.api,
-                //     ">",
-                //     CairoFont.ButtonText(),
-                //     CairoFont.ButtonPressedText(),
-                //     () => OnButtonClick(levelType),
-                //     ElementBounds.FixedSize(60.0, 30.0).WithFixedPadding(10.0, 2.0),
-                //     EnumButtonStyle.Small
-                // ));
+                levelContainer.Add(new GuiElementTextButton(
+                    instance.api,
+                    ">",
+                    CairoFont.ButtonText(),
+                    CairoFont.ButtonPressedText(),
+                    () => OnButtonClick(levelType),
+                    itemBounds.RightCopy().ForkChildOffseted(210, 30, 50, 50).WithFixedSize(50, 50),
+                    EnumButtonStyle.Small
+                ));
 
                 offsetY += itemHeight;
             }
@@ -117,12 +123,17 @@ class LevelsView
         }, "FixScrollInit");
     }
 
+    private StatusViewDialog loadedDialog = null;
     private bool OnButtonClick(string levelType)
     {
-        Console.WriteLine("FKSMIOAPFJKMSAOPFK");
-        string msg = $"Informações sobre o nível {levelType}\n\nSeu nível atual: {GetLevelByLevelName(levelType)}";
-        var dialog = new DialogLevelInfo(instance.api, msg);
-        dialog.TryOpen();
+        if (loadedDialog != null)
+        {
+            loadedDialog.TryClose();
+            loadedDialog.Dispose();
+        }
+
+        loadedDialog = new StatusViewDialog(instance.api, levelType);
+        loadedDialog.TryOpen();
         return true;
     }
 

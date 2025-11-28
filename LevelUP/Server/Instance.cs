@@ -186,7 +186,7 @@ public class Instance
         player.Entity.WatchedAttributes.SetInt($"LevelUP_Level_{levelType}_Sub_{subLevelType}", nextLevel);
     }
 
-    private static void RefreshStatus(IPlayer player, string levelType)
+    public static void RefreshStatus(IPlayer player, string levelType)
     {
         // This is a heavy formula calculations, we run on task to reduce and prevent lag spikes
         Task.Run(() =>

@@ -832,6 +832,21 @@ public static class Configuration
             return 0.0f;
     }
 
+    public static double BowGetRawChanceToNotLoseArrowByLevel(int level)
+    {
+        int reduceEvery = bowChanceToNotLoseArrowReduceIncreaseEveryLevel;
+        float baseChance = bowBaseChanceToNotLoseArrow;
+        float baseIncrement = bowChanceToNotLoseArrowBaseIncreasePerLevel;
+        float reductionPerStep = bowChanceToNotLoseArrowReduceQuantityEveryLevel;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        finalChance += baseChance;
+
+        return finalChance;
+    }
+
     public static float BowGetAimAccuracyByLevel(int level)
     {
         return bowBaseAimAccuracy + bowIncreaseAimAccuracyPerLevel * level;
@@ -1023,6 +1038,21 @@ public static class Configuration
             return true;
         else
             return false;
+    }
+
+    public static double SlingshotGetRawChanceToNotLoseRockByLevel(int level)
+    {
+        int reduceEvery = slingshotChanceToNotLoseRockReduceIncreaseEveryLevel;
+        float baseChance = slingshotBaseChanceToNotLoseRock;
+        float baseIncrement = slingshotChanceToNotLoseRockBaseIncreasePerLevel;
+        float reductionPerStep = slingshotChanceToNotLoseRockReduceQuantityEveryLevel;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        finalChance += baseChance;
+
+        return finalChance;
     }
 
     public static float SlingshotGetAimAccuracyByLevel(int level)
@@ -2131,57 +2161,72 @@ public static class Configuration
         return finalChance >= chance;
     }
 
-    public static int HammerGetResultMultiplyByLevel(int level)
-    {
-        static float CalculateChance(
+    private static float HammerCalculateChance(
             int level,
             float baseChance,
             float baseIncrement,
             int reduceEvery,
             float reductionPerStep)
-        {
-            double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+    {
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
 
-            double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
-            finalChance += baseChance;
+        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        finalChance += baseChance;
 
-            int chance = Random.Next(0, 100);
+        int chance = Random.Next(0, 100);
 
-            if (enableExtendedLog)
-                Debug.LogDebug($"Hammer result multiply smith mechanic check: {finalChance} : {chance}");
+        if (enableExtendedLog)
+            Debug.LogDebug($"Hammer result multiply smith mechanic check: {finalChance} : {chance}");
 
-            return (float)finalChance;
-        }
+        return (float)finalChance;
+    }
 
-        // Quadruple
-        float quadChance = CalculateChance(
-            level,
-            hammerBaseChanceToQuadruple,
-            hammerIncreaseChanceToQuadruplePerLevel,
-            hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel,
-            hammerIncreaseChanceToQuadruplePerLevelReducer);
-
-        if (enableExtendedLog) Debug.Log($"Quadruple chance: {quadChance}");
-        if (quadChance >= Random.Next(0, 100)) return 4;
-
-        // Triple
-        float tripleChance = CalculateChance(
-            level,
-            hammerBaseChanceToTriple,
-            hammerIncreaseChanceToTriplePerLevel,
-            hammerIncreaseChanceToTriplePerLevelReducerPerLevel,
-            hammerIncreaseChanceToTriplePerLevelReducer);
-
-        if (enableExtendedLog) Debug.Log($"Triple chance: {tripleChance}");
-        if (tripleChance >= Random.Next(0, 100)) return 3;
-
-        // Double
-        float doubleChance = CalculateChance(
+    public static float HammerGetChanceToDouble(int level)
+    {
+        return HammerCalculateChance(
             level,
             hammerBaseChanceToDouble,
             hammerIncreaseChanceToDoublePerLevel,
             hammerIncreaseChanceToDoublePerLevelReducerPerLevel,
             hammerIncreaseChanceToDoublePerLevelReducer);
+    }
+
+    public static float HammerGetChanceToTriple(int level)
+    {
+        return HammerCalculateChance(
+            level,
+            hammerBaseChanceToTriple,
+            hammerIncreaseChanceToTriplePerLevel,
+            hammerIncreaseChanceToTriplePerLevelReducerPerLevel,
+            hammerIncreaseChanceToTriplePerLevelReducer);
+    }
+
+    public static float HammerGetChanceToQuadruple(int level)
+    {
+        return HammerCalculateChance(
+            level,
+            hammerBaseChanceToQuadruple,
+            hammerIncreaseChanceToQuadruplePerLevel,
+            hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel,
+            hammerIncreaseChanceToQuadruplePerLevelReducer);
+    }
+
+    public static int HammerGetResultMultiplyByLevel(int level)
+    {
+        // Quadruple
+        float quadChance = HammerGetChanceToQuadruple(level);
+
+        if (enableExtendedLog) Debug.Log($"Quadruple chance: {quadChance}");
+        if (quadChance >= Random.Next(0, 100)) return 4;
+
+        // Triple
+        float tripleChance = HammerGetChanceToTriple(level);
+
+        if (enableExtendedLog) Debug.Log($"Triple chance: {tripleChance}");
+        if (tripleChance >= Random.Next(0, 100)) return 3;
+
+        // Double
+        float doubleChance = HammerGetChanceToDouble(level);
 
         if (enableExtendedLog) Debug.Log($"Double chance: {doubleChance}");
         if (doubleChance >= Random.Next(0, 100)) return 2;
@@ -2851,18 +2896,9 @@ public static class Configuration
 
     public static int CookingGetServingsByLevelAndServings(int level, int quantityServings)
     {
-        int reduceEvery = cookingReduceChanceToIncreaseServings;
-        float baseChance = cookingBaseChanceToIncreaseServings;
-        float baseIncrement = cookingIncrementChanceToIncreaseServings;
-        float reductionPerStep = cookingChanceToIncreaseServingsReducerTotal;
+        double finalChance = CookingGetRollChanceByLevel(level);
 
-        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
-
-        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
-        finalChance += baseChance;
-
-        int rolls = cookingBaseRollsChanceToIncreaseServings;
-        rolls += level / cookingEarnRollsChanceToIncreaseServingsEveryLevel * cookingEarnRollsChanceToIncreaseServingsQuantity;
+        int rolls = CookingGetRollsByLevel(level);
 
         if (enableExtendedLog)
             Debug.LogDebug($"Cooking serving rolls: {rolls}");
@@ -2879,6 +2915,27 @@ public static class Configuration
         }
 
         return quantityServings;
+    }
+
+    public static int CookingGetRollsByLevel(int level)
+    {
+        int rolls = cookingBaseRollsChanceToIncreaseServings;
+        rolls += level / cookingEarnRollsChanceToIncreaseServingsEveryLevel * cookingEarnRollsChanceToIncreaseServingsQuantity;
+        return rolls;
+    }
+
+    public static double CookingGetRollChanceByLevel(int level)
+    {
+        int reduceEvery = cookingReduceChanceToIncreaseServings;
+        float baseChance = cookingBaseChanceToIncreaseServings;
+        float baseIncrement = cookingIncrementChanceToIncreaseServings;
+        float reductionPerStep = cookingChanceToIncreaseServingsReducerTotal;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        finalChance += baseChance;
+        return finalChance;
     }
     #endregion
 
@@ -3030,11 +3087,26 @@ public static class Configuration
         return panningBaseLootMultiply * (1 + panningLootMultiplyPerLevel * level);
     }
 
+    public static double PanningGetChanceToDouble(int level)
+    {
+        return panningBaseChanceToDoubleLoot + panningChanceToDoubleLootPerLevel * level;
+    }
+
+    public static double PanningGetChanceToTriple(int level)
+    {
+        return panningBaseChanceToTripleLoot + panningChanceToTripleLootPerLevel * level;
+    }
+
+    public static double PanningGetChanceToQuadruple(int level)
+    {
+        return panningBaseChanceToQuadrupleLoot + panningChanceToQuadrupleLootPerLevel * level;
+    }
+
     public static int PanningGetLootQuantityMultiplyByLevel(int level)
     {
-        double chanceToDouble = panningBaseChanceToDoubleLoot + panningChanceToDoubleLootPerLevel * level;
-        double chanceToTriple = panningBaseChanceToTripleLoot + panningChanceToTripleLootPerLevel * level;
-        double chanceToQuadruple = panningBaseChanceToQuadrupleLoot + panningChanceToQuadrupleLootPerLevel * level;
+        double chanceToDouble = PanningGetChanceToDouble(level);
+        double chanceToTriple = PanningGetChanceToTriple(level);
+        double chanceToQuadruple = PanningGetChanceToQuadruple(level);
 
         double roll = Random.NextDouble();
 

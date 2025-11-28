@@ -1,8 +1,11 @@
 #pragma warning disable CA1822
 using System;
 using System.Collections.Generic;
+using System.Text;
 using HarmonyLib;
+using LevelUP.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
@@ -40,11 +43,32 @@ class LevelFarming
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested += StatusViewRequested;
+
         Debug.Log("Level Farming initialized");
     }
 
     public void Dispose()
-    { }
+    {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
+    {
+        if (levelType != "Farming") return;
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_forage",
+                Configuration.FarmingGetForageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_harvest",
+                Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))
+            )
+        );
+    }
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
