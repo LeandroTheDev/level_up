@@ -259,8 +259,6 @@ class Instance
 
         if (item.Collectible?.Attributes?["protectionModifiers"] != null && item.Collectible.Attributes["protectionModifiers"].Token != null)
         {
-            // item.Attributes.SetString("BaseProtectionModifiers", item.Collectible.Attributes["protectionModifiers"].Token.ToString(Formatting.None));
-
             JsonObject protectionModifiers = item.Collectible.Attributes["protectionModifiers"];
             if (protectionModifiers != null && protectionModifiers.Exists && protectionModifiers.Token is JObject protectionModifiersObj)
             {
@@ -288,8 +286,6 @@ class Instance
 
         if (item.Collectible?.Attributes?["statModifiers"] != null && item.Collectible.Attributes["statModifiers"].Token != null)
         {
-            // item.Attributes.SetString("BaseStatsModifiers", item.Collectible.Attributes["statModifiers"].Token.ToString(Formatting.None));
-
             JsonObject statModifiers = item.Collectible.Attributes["statModifiers"];
             if (statModifiers != null && statModifiers.Exists && statModifiers.Token is JObject statModifiersObj)
             {
@@ -327,8 +323,6 @@ class Instance
 
         if (item.Attributes.GetBool("BaseGenerated")) return;
         item.Attributes.SetBool("BaseGenerated", true);
-
-        // item.Attributes.SetString("BaseProtectionModifiers", attr.Token.ToString(Formatting.None));
 
         JsonObject protection = attr["protectionChance"];
         if (protection != null && protection.Exists && protection.Token is JObject protectionObj)
@@ -422,7 +416,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
                 statsObj["healingeffectivness"] = result;
                 itemWearable.StatModifers.healingeffectivness = result;
             }
@@ -434,7 +428,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
                 statsObj["hungerrate"] = result;
                 itemWearable.StatModifers.hungerrate = result;
             }
@@ -446,7 +440,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
                 statsObj["rangedWeaponsAcc"] = result;
                 itemWearable.StatModifers.rangedWeaponsAcc = result;
             }
@@ -458,7 +452,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
                 statsObj["rangedWeaponsSpeed"] = result;
                 itemWearable.StatModifers.rangedWeaponsSpeed = result;
             }
@@ -470,7 +464,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Min(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
                 statsObj["walkSpeed"] = result;
                 itemWearable.StatModifers.walkSpeed = result;
             }
@@ -491,7 +485,7 @@ class Instance
         if (attr == null || !attr.Exists) return;
         JObject armorObj = (JObject)attr.Token;
 
-        Shared.Instance.GenerateBaseArmorStatus(armorSlot.Itemstack);
+        GenerateBaseArmorStatus(armorSlot.Itemstack);
 
         JsonObject protectionModifiers = attr["protectionModifiers"];
         if (protectionModifiers != null && protectionModifiers.Exists && protectionModifiers.Token is JObject protectionModifiersObj)
@@ -558,5 +552,4 @@ class Instance
             armorObj["statModifiers"] = statsObj;
         }
     }
-
 }
