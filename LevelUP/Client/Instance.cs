@@ -14,7 +14,7 @@ class Instance
     long temporaryTickListener;
 
     // Store the view for character menu
-    private readonly CharacterView characterView = new();
+    private readonly LevelsView levelsView = new();
 
     public static void PreInit()
     {
@@ -26,7 +26,7 @@ class Instance
     public void Init(ICoreClientAPI clientAPI)
     {
         api = clientAPI;
-        characterView.Init(this);
+        levelsView.Init(this);
         CommunicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
         CommunicationChannel.SetMessageHandler<ServerMessage>(OnServerMessage);
         temporaryTickListener = api.Event.RegisterGameTickListener(OnTick, 1000, 1000);

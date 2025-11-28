@@ -6,7 +6,7 @@ using Vintagestory.API.Config;
 
 namespace LevelUP.Client;
 
-class CharacterView
+class LevelsView
 {
     Instance instance;
 
@@ -22,7 +22,7 @@ class CharacterView
         Task.Delay(1000).ContinueWith((_) =>
         {
             // Creating Level Table
-            characterView = instance.api.Gui.LoadedGuis.Find((GuiDialog dlg) => dlg is GuiDialogCharacterBase) as GuiDialogCharacterBase;
+            characterView = instance.api.Gui.LoadedGuis.Find(dlg => dlg is GuiDialogCharacterBase) as GuiDialogCharacterBase;
             characterView.Tabs.Add(new GuiTab
             {
                 Name = Lang.Get("levelup:levels_tab"),
@@ -88,9 +88,19 @@ class CharacterView
                     instance.api,
                     Lang.Get("levelup:progress", GetEXPRemainingByLevelName(levelType)),
                     EnumTextOrientation.Left,
-                    itemBounds.RightCopy().ForkChildOffseted(0, 28, 500, 0),
+                    itemBounds.RightCopy().ForkChildOffseted(0, 30, 500, 0),
                     CairoFont.WhiteSmallishText().WithFontSize(13)
                 ));
+
+                // levelContainer.Add(new GuiElementTextButton(
+                //     instance.api,
+                //     ">",
+                //     CairoFont.ButtonText(),
+                //     CairoFont.ButtonPressedText(),
+                //     () => OnButtonClick(levelType),
+                //     ElementBounds.FixedSize(60.0, 30.0).WithFixedPadding(10.0, 2.0),
+                //     EnumButtonStyle.Small
+                // ));
 
                 offsetY += itemHeight;
             }
@@ -105,6 +115,15 @@ class CharacterView
             GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
             scrollBar.SetHeights((float)clippingBounds.fixedHeight, (float)offsetY);
         }, "FixScrollInit");
+    }
+
+    private bool OnButtonClick(string levelType)
+    {
+        Console.WriteLine("FKSMIOAPFJKMSAOPFK");
+        string msg = $"Informações sobre o nível {levelType}\n\nSeu nível atual: {GetLevelByLevelName(levelType)}";
+        var dialog = new DialogLevelInfo(instance.api, msg);
+        dialog.TryOpen();
+        return true;
     }
 
     private void OnNewScrollbarValue(float value)
