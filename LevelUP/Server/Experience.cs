@@ -425,6 +425,8 @@ public class Experience
     {
         foreach (IPlayer player in api.World.AllOnlinePlayers)
             SavePlayer(player);
+
+        Debug.Log("All Experiences Saved!");
     }
 }
 
