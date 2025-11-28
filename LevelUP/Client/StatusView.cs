@@ -24,7 +24,7 @@ public class StatusViewDialog(ICoreClientAPI capi, string levelType) : GuiDialog
             .AddShadedDialogBG(bg)
             .AddDialogTitleBar(Lang.Get("levelup:status_tab", Lang.Get($"levelup:{levelType.ToLower()}")), OnClose)
             .AddStaticText(stringBuilder.ToString(), CairoFont.WhiteSmallText(), textBounds)
-        .Compose();
+            .Compose();
     }
 
     private void OnClose()

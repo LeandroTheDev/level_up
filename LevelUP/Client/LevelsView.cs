@@ -59,7 +59,7 @@ class LevelsView
         levelContainer = composer.GetContainer("LevelUP_Levels_List");
 
         // Adding the levels images and texts
-        double offsetY = 0;
+        double offsetY = 20;
         double itemHeight = 72;
 
         foreach (var keyValuePair in instance.enabledLevels)
@@ -77,35 +77,39 @@ class LevelsView
                     .WithFixedPosition(0, offsetY)
                     .WithFixedSize(82, 82);
 
-                levelContainer.Add(new GuiElementImage(
-                    instance.api,
-                    itemBounds,
-                    imageAsset));
-
-                levelContainer.Add(new GuiElementStaticText(
-                    instance.api,
-                    $"{Lang.Get($"levelup:{levelType.ToLower()}")}: {GetLevelByLevelName(levelType)}",
-                    EnumTextOrientation.Left,
-                    itemBounds.RightCopy().ForkChildOffseted(0, 12, 500, 0),
-                    CairoFont.WhiteSmallText()
-                ));
-
-                levelContainer.Add(new GuiElementStaticText(
-                    instance.api,
-                    Lang.Get("levelup:progress", GetEXPRemainingByLevelName(levelType)),
-                    EnumTextOrientation.Left,
-                    itemBounds.RightCopy().ForkChildOffseted(0, 30, 500, 0),
-                    CairoFont.WhiteSmallishText().WithFontSize(13)
-                ));
-
+                // Right side button
                 levelContainer.Add(new GuiElementTextButton(
                     instance.api,
                     ">",
                     CairoFont.ButtonText(),
                     CairoFont.ButtonPressedText(),
                     () => OnButtonClick(levelType),
-                    itemBounds.RightCopy().ForkChildOffseted(210, 30, 50, 50).WithFixedSize(50, 50),
+                    itemBounds.RightCopy().ForkChildOffseted(190, 0, 50, 50).WithFixedSize(50, 50),
                     EnumButtonStyle.Small
+                ));
+
+                // Left side image
+                levelContainer.Add(new GuiElementImage(
+                    instance.api,
+                    itemBounds,
+                    imageAsset));
+
+                // Currently level and name
+                levelContainer.Add(new GuiElementStaticText(
+                    instance.api,
+                    $"{Lang.Get($"levelup:{levelType.ToLower()}")}: {GetLevelByLevelName(levelType)}",
+                    EnumTextOrientation.Left,
+                    itemBounds.RightCopy().ForkChildOffseted(5, 12, 500, 0),
+                    CairoFont.WhiteSmallText()
+                ));
+
+                // Level progress
+                levelContainer.Add(new GuiElementStaticText(
+                    instance.api,
+                    Lang.Get("levelup:progress", GetEXPRemainingByLevelName(levelType)),
+                    EnumTextOrientation.Left,
+                    itemBounds.RightCopy().ForkChildOffseted(5, 30, 500, 0),
+                    CairoFont.WhiteSmallishText().WithFontSize(13)
                 ));
 
                 offsetY += itemHeight;
