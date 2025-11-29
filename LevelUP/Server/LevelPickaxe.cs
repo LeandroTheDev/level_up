@@ -62,19 +62,19 @@ class LevelPickaxe
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.PickaxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.PickaxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe")))
             )
         );
 
         stringBuilder.AppendLine(
-            Lang.Get("levelup:status_mining",
-                Configuration.PickaxeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))
+            Lang.Get("levelup:status_miningspeed",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.PickaxeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_ore",
-                Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe"))
+                Utils.GetPorcentageFromFloatsStart0(Configuration.PickaxeGetOreMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe")))
             )
         );
     }

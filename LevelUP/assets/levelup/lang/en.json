@@ -28,7 +28,7 @@
     "status_protectionmultiply": "Protection Multiply: {0}%",
     "status_durability": "Durability: {0}%",
     "status_regen": "Regeneration: {0}%",
-    "status_additionalhealth": "Additional Health: {0}%",
+    "status_additionalhealth": "Additional Health: {0}",
 
     "axe": "Axe",
     "pickaxe": "Pickaxe",

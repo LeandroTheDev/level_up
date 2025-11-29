@@ -59,7 +59,7 @@ class LevelHand
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.HandGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hand"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.HandGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hand")))
             )
         );
     }

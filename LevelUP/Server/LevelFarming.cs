@@ -59,13 +59,13 @@ class LevelFarming
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_forage",
-                Configuration.FarmingGetForageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.FarmingGetForageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_harvest",
-                Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"))
+                Utils.GetPorcentageFromFloatsStart0(Configuration.FarmingGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming")) - Configuration.BaseHarvestMultiplyFarming)
             )
         );
     }

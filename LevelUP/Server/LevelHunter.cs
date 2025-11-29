@@ -59,7 +59,7 @@ class LevelHunter
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.HunterGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hunter"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.HunterGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hunter")))
             )
         );
     }

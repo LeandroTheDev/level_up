@@ -60,7 +60,7 @@ class LevelLeatherArmor
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_statsincreaser",
-                Configuration.LeatherArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.LeatherArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_LeatherArmor")))
             )
         );
     }

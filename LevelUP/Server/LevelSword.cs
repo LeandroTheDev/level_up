@@ -59,7 +59,7 @@ class LevelSword
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.SwordGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Sword"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SwordGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Sword")))
             )
         );
     }

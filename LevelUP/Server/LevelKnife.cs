@@ -62,19 +62,19 @@ class LevelKnife
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.KnifeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.KnifeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_harvest",
-                Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))
+                Utils.GetPorcentageFromFloatsStart0(Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) - Configuration.BaseHarvestMultiplyKnife)
             )
         );
 
         stringBuilder.AppendLine(
-            Lang.Get("levelup:status_mining",
-                Configuration.KnifeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife"))
+            Lang.Get("levelup:status_miningspeed",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.KnifeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")))
             )
         );
     }

@@ -60,7 +60,7 @@ class LevelHammer
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.HammerGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.HammerGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer")))
             )
         );
 

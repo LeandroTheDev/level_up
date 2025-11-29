@@ -64,25 +64,25 @@ class LevelSmithing
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_protectionmultiply",
-                Configuration.SmithingGetArmorProtectionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SmithingGetArmorProtectionMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.SmithingGetAttackPowerMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SmithingGetAttackPowerMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_durability",
-                Configuration.SmithingGetDurabilityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SmithingGetDurabilityMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing")))
             )
         );
 
         stringBuilder.AppendLine(
-            Lang.Get("levelup:status_mining",
-                Configuration.SmithingGetMiningSpeedMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing"))
+            Lang.Get("levelup:status_miningspeed",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SmithingGetMiningSpeedMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing")))
             )
         );
     }

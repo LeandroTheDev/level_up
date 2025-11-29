@@ -62,13 +62,13 @@ class LevelAxe
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_miningspeed",
-                Configuration.AxeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.AxeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.AxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.AxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe")))
             )
         );
     }
