@@ -3,8 +3,8 @@
     "farmingEXPPerLevelBase": 100,
     "farmingEXPMultiplyPerLevel": 2.5,
     "farmingBaseHarvestMultiply": 0.5,
-    "farmingIncrementHarvestMultiplyPerLevel": 0.2,
+    "farmingIncrementHarvestMultiplyPerLevel": 0.1,
     "farmingBaseForageMultiply": 1.0,
-    "farmingIncrementForageMultiplyPerLevel": 0.2,
+    "farmingIncrementForageMultiplyPerLevel": 0.08,
     "farmingMaxLevel": 999
 }

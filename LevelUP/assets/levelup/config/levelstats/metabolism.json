@@ -3,7 +3,7 @@
     "metabolismEXPPerSaturationLost": 5,
     "metabolismEXPPerLevelBase": 200,
     "metabolismEXPMultiplyPerLevel": 2.0,
-    "metabolismSaturationIncreasePerLevel": 100.0,
+    "metabolismSaturationIncreasePerLevel": 50.0,
     "metabolismBaseSaturation": 1500.0,
     "metabolismBaseSaturationReceiveMultiply": 1.0,
     "metabolismSaturationReceiveMultiplyPerLevel": 0.05,

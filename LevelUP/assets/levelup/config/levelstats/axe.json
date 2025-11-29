@@ -5,8 +5,8 @@
     "axeEXPPerLevelBase": 1000,
     "axeEXPMultiplyPerLevel": 1.2,
     "axeBaseDamage": 1.0,
-    "axeIncrementDamagePerLevel": 0.1,
+    "axeIncrementDamagePerLevel": 0.05,
     "axeBaseMiningSpeed": 1.0,
-    "axeIncrementMiningSpeedMultiplyPerLevel": 0.1,
+    "axeIncrementMiningSpeedMultiplyPerLevel": 0.05,
     "axeMaxLevel": 999
 }
