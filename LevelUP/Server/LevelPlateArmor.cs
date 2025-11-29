@@ -60,7 +60,7 @@ class LevelPlateArmor
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_statsincreaser",
-                Configuration.PlateArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_PlateArmor"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.PlateArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_PlateArmor")))
             )
         );
     }

@@ -61,13 +61,13 @@ class LevelSpear
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.SpearGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SpearGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_accuracy",
-                Configuration.SpearGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear"))
+                Utils.GetPorcentageFromFloatsStart0(Configuration.SpearGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear")) - Configuration.BaseAimAccuracySpear)
             )
         );
     }

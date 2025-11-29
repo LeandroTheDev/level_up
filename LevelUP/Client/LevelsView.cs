@@ -78,13 +78,14 @@ class LevelsView
                     .WithFixedSize(82, 82);
 
                 // Right side button
+                var buttonBounds = itemBounds.RightCopy().ForkChildOffseted(190, 0, 50, 50).WithFixedSize(50, 50);
                 levelContainer.Add(new GuiElementTextButton(
                     instance.api,
                     ">",
                     CairoFont.ButtonText(),
                     CairoFont.ButtonPressedText(),
-                    () => OnButtonClick(levelType),
-                    itemBounds.RightCopy().ForkChildOffseted(190, 0, 50, 50).WithFixedSize(50, 50),
+                    () => OnButtonClick(levelType, buttonBounds),
+                    buttonBounds,
                     EnumButtonStyle.Small
                 ));
 
@@ -128,15 +129,25 @@ class LevelsView
     }
 
     private StatusViewDialog loadedDialog = null;
-    private bool OnButtonClick(string levelType)
+    private bool OnButtonClick(string levelType, ElementBounds buttonBounds)
     {
         if (loadedDialog != null)
         {
-            loadedDialog.TryClose();
-            loadedDialog.Dispose();
+            if (loadedDialog.levelType == levelType && loadedDialog.IsOpened())
+            {
+                loadedDialog.TryClose();
+                loadedDialog.Dispose();
+                loadedDialog = null;
+                return true;
+            }
+            else
+            {
+                loadedDialog.TryClose();
+                loadedDialog.Dispose();
+            }
         }
 
-        loadedDialog = new StatusViewDialog(instance.api, levelType);
+        loadedDialog = new StatusViewDialog(instance.api, levelType, buttonBounds);
         loadedDialog.TryOpen();
         return true;
     }

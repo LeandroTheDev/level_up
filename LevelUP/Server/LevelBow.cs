@@ -60,7 +60,7 @@ class LevelBow
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_accuracy",
-                Configuration.BowGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow"))
+                Utils.GetPorcentageFromFloatsStart0(Configuration.BowGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow")) - Configuration.BaseAimAccuracyBow)
             )
         );
 
@@ -72,7 +72,7 @@ class LevelBow
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.BowGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.BowGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow")))
             )
         );
     }

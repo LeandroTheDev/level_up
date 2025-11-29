@@ -60,7 +60,7 @@ class LevelScaleArmor
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_statsincreaser",
-                Configuration.ScaleArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_ScaleArmor"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ScaleArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_ScaleArmor")))
             )
         );
     }

@@ -60,7 +60,7 @@ class LevelBrigandineArmor
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_statsincreaser",
-                Configuration.BrigandineArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_BrigandineArmor"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.BrigandineArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_BrigandineArmor")))
             )
         );
     }

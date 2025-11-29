@@ -662,6 +662,7 @@ public static class Configuration
     public static int bowMaxLevel = 999;
 
     public static int ExpPerHitBow => bowEXPPerHit;
+    public static float BaseAimAccuracyBow => bowBaseAimAccuracy;
 
     public static void PopulateBowConfiguration(ICoreAPI api)
     {
@@ -870,6 +871,7 @@ public static class Configuration
     public static int slingshotMaxLevel = 999;
 
     public static int ExpPerHitSlingshot => slingshotEXPPerHit;
+    public static float BaseAimAccuracySlingshot => slingshotBaseAimAccuracy;
 
     public static void PopulateSlingshotConfiguration(ICoreAPI api)
     {
@@ -1080,6 +1082,7 @@ public static class Configuration
     public static int ExpPerHitKnife => knifeEXPPerHit;
     public static int ExpPerHarvestKnife => knifeEXPPerHarvest;
     public static int ExpPerBreakingKnife => knifeEXPPerBreaking;
+    public static float BaseHarvestMultiplyKnife = knifeBaseHarvestMultiply;
 
     public static void PopulateKnifeConfiguration(ICoreAPI api)
     {
@@ -1752,6 +1755,7 @@ public static class Configuration
 
     public static int ExpPerHitSpear => spearEXPPerHit;
     public static int ExpPerThrowSpear => spearEXPPerThrow;
+    public static float BaseAimAccuracySpear => spearBaseAimAccuracy;
 
     public static void PopulateSpearConfiguration(ICoreAPI api)
     {
@@ -2583,6 +2587,7 @@ public static class Configuration
     public static int farmingMaxLevel = 999;
 
     public static int ExpPerTillFarming => farmingEXPPerTill;
+    public static float BaseHarvestMultiplyFarming => farmingBaseHarvestMultiply;
 
     public static void PopulateFarmingConfiguration(ICoreAPI api)
     {

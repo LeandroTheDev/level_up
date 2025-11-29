@@ -60,13 +60,13 @@ class LevelSlingshot
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.SlingshotGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SlingshotGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_accuracy",
-                Configuration.SlingshotGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot"))
+                Utils.GetPorcentageFromFloatsStart0(Configuration.SlingshotGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot")) - Configuration.BaseAimAccuracySlingshot)
             )
         );
 

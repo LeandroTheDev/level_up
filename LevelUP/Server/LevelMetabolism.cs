@@ -76,7 +76,7 @@ class LevelMetabolism
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_saturationreducer",
-                Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Metabolism"))
+                Utils.GetPorcentageFromDecrementalFloat(Configuration.MetabolismGetSaturationReceiveMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Metabolism")))
             )
         );
 

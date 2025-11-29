@@ -145,4 +145,34 @@ partial class Utils
             return 0f;
         }
     }
+
+    /// <summary>
+    /// 1.0 == 0%, 2.0 == 100%...
+    /// </summary>
+    /// <param name="number"></param>
+    /// <returns></returns>
+    static public float GetPorcentageFromFloatsStart1(float number)
+    {
+        return (float)Math.Round((number - 1f) * 100f, 2);
+    }
+
+    /// <summary>
+    /// 0.0 == 0%, 1.0 == 100%...
+    /// </summary>
+    /// <param name="number"></param>
+    /// <returns></returns>
+    static public float GetPorcentageFromFloatsStart0(float number)
+    {
+        return (float)Math.Round(number * 100f, 2);
+    }
+
+    /// <summary>
+    /// 0.0 == 100%, 1.0 == 0%...
+    /// </summary>
+    /// <param name="number"></param>
+    /// <returns></returns>
+    static public float GetPorcentageFromDecrementalFloat(float number)
+    {
+        return (float)Math.Round((1f - number) * 100f, 2);
+    }
 }

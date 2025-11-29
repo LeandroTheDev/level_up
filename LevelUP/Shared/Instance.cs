@@ -49,14 +49,6 @@ class Instance
         overwriteBlockBreak.Patch();
         overwriteDamageInteraction.Patch();
 
-        // Smithing should be loaded before any armor or tool level that
-        // listen to attributes refresh
-        if (Configuration.enableLevelSmithing)
-        {
-            if (api.Side == EnumAppSide.Server) levelSmithing.Init();
-            else if (api.Side == EnumAppSide.Client) levelSmithing.InitClient();
-            levelSmithing.Patch();
-        }
         if (Configuration.enableLevelHunter)
         {
             if (api.Side == EnumAppSide.Server) levelHunter.Init();
@@ -117,12 +109,6 @@ class Instance
             else if (api.Side == EnumAppSide.Client) levelSword.InitClient();
             levelSword.Patch();
         }
-        if (Configuration.enableLevelShield)
-        {
-            if (api.Side == EnumAppSide.Server) levelShield.Init();
-            else if (api.Side == EnumAppSide.Client) levelShield.InitClient();
-            levelShield.Patch();
-        }
         if (Configuration.enableLevelHand)
         {
             if (api.Side == EnumAppSide.Server) levelHand.Init();
@@ -158,6 +144,20 @@ class Instance
             if (api.Side == EnumAppSide.Server) levelPanning.Init();
             else if (api.Side == EnumAppSide.Client) levelPanning.InitClient();
             levelPanning.Patch();
+        }
+        // Smithing should be loaded before any armor or tool level that
+        // listen to attributes refresh
+        if (Configuration.enableLevelSmithing)
+        {
+            if (api.Side == EnumAppSide.Server) levelSmithing.Init();
+            else if (api.Side == EnumAppSide.Client) levelSmithing.InitClient();
+            levelSmithing.Patch();
+        }
+        if (Configuration.enableLevelShield)
+        {
+            if (api.Side == EnumAppSide.Server) levelShield.Init();
+            else if (api.Side == EnumAppSide.Client) levelShield.InitClient();
+            levelShield.Patch();
         }
         if (Configuration.enableLevelLeatherArmor)
         {

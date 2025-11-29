@@ -62,13 +62,13 @@ class LevelShovel
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Configuration.ShovelGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShovelGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel")))
             )
         );
 
         stringBuilder.AppendLine(
-            Lang.Get("levelup:status_mining",
-                Configuration.ShovelGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"))
+            Lang.Get("levelup:status_miningspeed",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShovelGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel")))
             )
         );
     }

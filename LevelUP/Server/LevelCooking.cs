@@ -57,7 +57,7 @@ class LevelCooking
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_freshhours",
-                Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking")))
             )
         );
 
@@ -69,7 +69,7 @@ class LevelCooking
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_servingchanceroll",
-                Configuration.CookingGetRollChanceByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))
+                Utils.GetPorcentageFromFloatsStart1((float)Configuration.CookingGetRollChanceByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking")))
             )
         );
     }

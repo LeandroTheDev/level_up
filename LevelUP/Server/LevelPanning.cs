@@ -55,7 +55,7 @@ class LevelPanning
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_loot",
-                Configuration.PanningGetLootMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning"))
+                Utils.GetPorcentageFromFloatsStart0(Configuration.PanningGetLootMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Panning")))
             )
         );
 

@@ -60,7 +60,7 @@ class LevelChainArmor
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_statsincreaser",
-                Configuration.ChainArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ChainArmorStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_ChainArmor")))
             )
         );
     }

@@ -71,7 +71,7 @@ class LevelVitality
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_regen",
-                Configuration.VitalityGetHealthRegenMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Vitality"))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.VitalityGetHealthRegenMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Vitality")))
             )
         );
 
