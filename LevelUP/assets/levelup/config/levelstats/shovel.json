@@ -4,7 +4,7 @@
     "shovelEXPPerLevelBase": 500,
     "shovelEXPMultiplyPerLevel": 1.5,
     "shovelBaseDamage": 1.0,
-    "shovelIncrementDamagePerLevel": 0.1,
+    "shovelIncrementDamagePerLevel": 0.03,
     "shovelBaseMiningSpeed": 1.0,
     "shovelIncrementMiningSpeedMultiplyPerLevel": 0.02,
     "shovelMaxLevel": 999

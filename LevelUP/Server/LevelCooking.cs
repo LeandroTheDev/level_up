@@ -69,7 +69,7 @@ class LevelCooking
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_servingchanceroll",
-                Utils.GetPorcentageFromFloatsStart1((float)Configuration.CookingGetRollChanceByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking")))
+                Math.Round(Configuration.CookingGetRollChanceByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking")), 2)
             )
         );
     }

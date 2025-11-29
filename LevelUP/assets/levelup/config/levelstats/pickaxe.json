@@ -4,10 +4,10 @@
     "pickaxeEXPPerLevelBase": 500,
     "pickaxeEXPMultiplyPerLevel": 1.5,
     "pickaxeBaseDamage": 1.0,
-    "pickaxeIncrementDamagePerLevel": 0.1,
+    "pickaxeIncrementDamagePerLevel": 0.03,
     "pickaxeBaseMiningSpeed": 1.0,
     "pickaxeIncrementMiningSpeedMultiplyPerLevel": 0.03,
     "pickaxeBaseOreMultiply": 0.0,
-    "pickaxeIncrementOreMultiplyPerLevel": 0.2,
+    "pickaxeIncrementOreMultiplyPerLevel": 0.1,
     "pickaxeMaxLevel": 999
 }

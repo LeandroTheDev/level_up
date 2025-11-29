@@ -5,6 +5,7 @@ Makes you feels progress through the gameplay.
 ### IMPORTANT
 - Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
 - Is not safe to remove levelup after installation, full player wipe is required
+- Strongly recommended to backup your world on level up major updates
 
 Features:
 - Fully configurable
@@ -51,10 +52,10 @@ English is not my main language, if you encounter any translation problems, plea
     "tool": "axe"
 }
 ```
-If the weapon doesn't have this add it to fix the problem, levelup support only: ``shovel,axe,spear,sword,pickaxe,hammer,knife``, "but my weapon uses a custom type that levelup does not support what i need to do?" in that case is more complicated, you need to edit your mod and use the [mod api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#levelupserveroverwritedamageinteractionevents) to listen for levelup event (OnPlayerMeleeDoDamageStart and OnPlayerRangedDoDamageStart), and make your own handling for the custom type, or alternatively but less recommended fork the project and change the [ReceiveDamageStart](https://github.com/LeandroTheDev/level_up/blob/main/LevelUP/Server/OverwriteDamageInteraction.cs) function, find the ``player.InventoryManager.ActiveTool`` and add the custom ``Enumeration``, my honest recommendation is to edit your mod for that situation.
+If the weapon doesn't have "tool", add it to fix the problem, levelup support only: ``shovel,axe,spear,sword,pickaxe,hammer,knife``, "but my weapon uses a custom type that levelup does not support what i need to do?" in that case is more complicated, you need to edit your mod and use the [mod api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#levelupserveroverwritedamageinteractionevents) to listen for levelup event (OnPlayerMeleeDoDamageStart and OnPlayerRangedDoDamageStart). full example can be found in [Sword Level Source Code](https://github.com/LeandroTheDev/level_up/blob/main/LevelUP/Server/LevelSword.cs)
 
 
-"But my custom armor also don't work...", if your armor is made of: ``leather/chain/brigandine/plate/scale`` then you are lucky, open the configurations from one of the armor type and put the ``item id`` inside it, or create a [patch](https://wiki.vintagestory.at/Modding:JSON_Patching) to be persistent,  if not..., well you will need to integrate a custom level in your mod, in that case the [api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#custom-level) will help you.
+"But my custom armor also don't work...", if your armor is made of: ``leather/chain/brigandine/plate/scale`` then you are lucky, open the configurations from one of the armor type and put the ``item id`` inside it, or create a [patch](https://wiki.vintagestory.at/Modding:JSON_Patching) to be persistent,  if not..., well you will need to integrate a custom level in your mod, in that case the [api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#custom-level) will help you. full example can be found in [Leather Armor Level Source Code](https://github.com/LeandroTheDev/level_up/blob/main/LevelUP/Server/LevelLeatherArmor.cs)
 
 
 "None of my food mods work with levelup!!!!", is very simple to fix that, the good way for your mod is to create a [patch](https://wiki.vintagestory.at/Modding:JSON_Patching), patch the ``assets/levelup/config/levelstats/cookingsingles.json`` for singular foods and ``assets/levelup/config/levelstats/cookingpots.json`` for custom pots, and the next time you generate the configurations will automatically be patched, alternatively you can manually edit ``ModConfig/LevelUP/config/levelstats/cooking...`` (This is the easist if you don't know how to patch, but is not persistent if you change the world or servers).

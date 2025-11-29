@@ -5,10 +5,10 @@
     "knifeEXPPerLevelBase": 500,
     "knifeEXPMultiplyPerLevel": 1.3,
     "knifeBaseDamage": 1.0,
-    "knifeIncrementDamagePerLevel": 0.1,
+    "knifeIncrementDamagePerLevel": 0.03,
     "knifeBaseHarvestMultiply": 0.5,
     "knifeIncrementHarvestMultiplyPerLevel": 0.08,
     "knifeBaseMiningSpeed": 1.0,
-    "knifeIncrementMiningSpeedMultiplyPerLevel": 0.1,
+    "knifeIncrementMiningSpeedMultiplyPerLevel": 0.05,
     "knifeMaxLevel": 999
 }
