@@ -3,5 +3,17 @@
     "game:armor-body-sewn-leather": 0.5,
     "game:armor-legs-sewn-leather": 0.2,
     "game:armor-body-jerkin-leather": 0.4,
-    "game:armor-legs-jerkin-leather": 0.2
+    "game:armor-legs-jerkin-leather": 0.2,
+    "game:armor-head-hide-bear-black": 0.3,
+    "game:armor-body-hide-bear-black": 0.5,
+    "game:armor-legs-hide-bear-black": 0.2,
+    "game:armor-head-hide-bear-brown": 0.3,
+    "game:armor-body-hide-bear-brown": 0.5,
+    "game:armor-legs-hide-bear-brown": 0.2,
+    "game:armor-head-hide-bear-polar": 0.3,
+    "game:armor-body-hide-bear-polar": 0.5,
+    "game:armor-legs-hide-bear-polar": 0.2,
+    "game:armor-head-hide-bear-sun": 0.3,
+    "game:armor-body-hide-bear-sun": 0.5,
+    "game:armor-legs-hide-bear-sun": 0.2
 }

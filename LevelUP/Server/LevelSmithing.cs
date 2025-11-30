@@ -136,12 +136,7 @@ class LevelSmithing
     /// <returns></returns>
     public static ItemStack ExecuteSmithItemCraftedCalculations(IPlayer player, ItemStack item)
     {
-        if (item.Attributes.GetInt("durability", item.Collectible.GetMaxDurability(item)) != item.Collectible.GetMaxDurability(item))
-        {
-            Debug.LogDebug($"Smith item crafted ignored because durability is different");
-            return item;
-        }
-        else if (item.Attributes.GetBool("repaired", false))
+        if (item.Attributes.GetBool("repaired", false))
         {
             Debug.LogDebug($"Smith item crafted ignored because item is repaired by {item.Attributes.GetString("repaired_by")}");
             return item;
@@ -597,32 +592,93 @@ class LevelSmithing
     [HarmonyPatchCategory("levelup_smithing")]
     private class SmithingPatch
     {
-        // Luckly the durability, miningspeed and attackpower is unique by the item
-        // so we just save the attribute and change it to be shared with the client and update the viewbox
+        // Collect recipe items before consumption
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemSlotCraftingOutput), "CraftSingle")]
+        internal static void CraftSingleStart(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op, out List<string> __state)
+        {
+            __state = null;
+
+            if (!Configuration.enableLevelSmithing) return;
+            if (op.World.Api.Side != EnumAppSide.Server) return;
+            if (op.ActingPlayer == null) return;
+
+            IPlayer player = op.ActingPlayer;
+            IInventory craftingGrid = player.InventoryManager.GetOwnInventory("craftinggrid");
+
+            if (craftingGrid == null) return;
+
+            List<string> recipeItems = [];
+            for (int i = 0; i < craftingGrid.Count; i++)
+            {
+                ItemSlot slot = craftingGrid[i];
+                if (slot?.Itemstack != null)
+                {
+                    recipeItems.Add(slot.Itemstack.Collectible.Code);
+                }
+            }
+
+            if (recipeItems.Count > 0)
+                __state = recipeItems;
+        }
 
         // Overwrite Craft
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ItemSlotCraftingOutput), "CraftSingle")]
-        internal static void CraftSingleFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op)
+        internal static void CraftSingleFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op, List<string> __state)
         {
             if (!Configuration.enableLevelSmithing) return;
             if (op.World.Api.Side != EnumAppSide.Server) return;
             if (sinkSlot == null || sinkSlot.Itemstack == null) return;
             if (op.ActingPlayer == null) return;
+            // If the recipe contains the currently item code, them ignore the smith mechanic
+            if (__state != null && __state.Contains(sinkSlot.Itemstack.Collectible.Code)) return;
 
             sinkSlot.Itemstack = ExecuteSmithItemCraftedCalculations(op.ActingPlayer, sinkSlot.Itemstack);
             sinkSlot.MarkDirty();
         }
 
+        // Collect recipe items before consumption
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemSlotCraftingOutput), "CraftMany")]
+        internal static void CraftManyStart(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op, out List<string> __state)
+        {
+            __state = null;
+
+            if (!Configuration.enableLevelSmithing) return;
+            if (op.World.Api.Side != EnumAppSide.Server) return;
+            if (op.ActingPlayer == null) return;
+
+            IPlayer player = op.ActingPlayer;
+            IInventory craftingGrid = player.InventoryManager.GetOwnInventory("craftinggrid");
+
+            if (craftingGrid == null) return;
+
+            List<string> recipeItems = [];
+            for (int i = 0; i < craftingGrid.Count; i++)
+            {
+                ItemSlot slot = craftingGrid[i];
+                if (slot?.Itemstack != null)
+                {
+                    recipeItems.Add(slot.Itemstack.Collectible.Code);
+                }
+            }
+
+            if (recipeItems.Count > 0)
+                __state = recipeItems;
+        }
+
         // Overwrite Craft Multiples
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ItemSlotCraftingOutput), "CraftMany")]
-        internal static void CraftManyFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op)
+        internal static void CraftManyFinish(ItemSlotCraftingOutput __instance, ItemSlot sinkSlot, ref ItemStackMoveOperation op, List<string> __state)
         {
             if (!Configuration.enableLevelSmithing) return;
             if (op.World.Api.Side != EnumAppSide.Server) return;
             if (sinkSlot == null || sinkSlot.Itemstack == null) return;
             if (op.ActingPlayer == null) return;
+            // If the recipe contains the currently item code, them ignore the smith mechanic
+            if (__state != null && __state.Contains(sinkSlot.Itemstack.Collectible.Code)) return;
 
             sinkSlot.Itemstack = ExecuteSmithItemCraftedCalculations(op.ActingPlayer, sinkSlot.Itemstack);
             sinkSlot.MarkDirty();
@@ -644,7 +700,7 @@ class LevelSmithing
         }
 
         // Overwrite Visual and Interaction Attack Power
-        // This is necessary so the attack power system is more accurate
+        // This is necessary so the attack attack system is more accurate
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
         internal static bool GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
@@ -680,12 +736,9 @@ class LevelSmithing
             if (forPlayer == null) return __result;
 
             float miningSpeed = itemstack.Attributes.GetFloat($"{block.BlockMaterial}_miningspeed", -1f);
-            Debug.LogDebug($"[GetMiningSpeed] {forPlayer.PlayerName} mining speed after break: {miningSpeed}/{__result}");
 
             if (miningSpeed == -1f) return __result;
-            else __result = miningSpeed;
-
-            return __result;
+            else return miningSpeed;
         }
     }
 }

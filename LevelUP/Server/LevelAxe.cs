@@ -1,6 +1,7 @@
 #pragma warning disable CA1822
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
@@ -47,6 +48,7 @@ class LevelAxe
     public void InitClient()
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
 
         Debug.Log("Level Axe initialized");
     }
@@ -54,6 +56,15 @@ class LevelAxe
     public void Dispose()
     {
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+    }
+
+    private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
+    {
+        if (block.BlockMaterial == EnumBlockMaterial.Wood)
+        {
+            // multiply += 20f;
+        }
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)

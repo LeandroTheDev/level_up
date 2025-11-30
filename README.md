@@ -28,7 +28,7 @@ Configurations will be located in the folder ModConfig/LevelUP, if you want more
 
 Level UP Stores datas with the player UID, changing the player name will persist all levels.
 
-This mod changes a lot of native codes and can break easily throught updates.
+This mod changes a lot of native codes and usage of transpilers and can break easily throught updates.
 
 Level UP is a mod that adds several types of events to player actions, don't expect the mod to be lightweight (for big servers).
 
