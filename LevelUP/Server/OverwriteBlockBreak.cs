@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 using HarmonyLib;
 using Vintagestory.API.Common;
 
@@ -83,37 +84,41 @@ class OverwriteBlockBreak
         return list;
     }
 
-    // [HarmonyTranspiler]
-    // [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
-    // internal static List<CodeInstruction> RemoveWalkBehaviors_GetMiningSpeed_Transpiler(IEnumerable<CodeInstruction> instructions)
-    // {
-    //     MethodInfo walkBehaviorsMethod = AccessTools.Method(
-    //         typeof(CollectibleObject),
-    //         "WalkBehaviors"
-    //     );
+    [HarmonyPrefix] // Client Side
+    [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void GetMiningSpeedStart(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
+    {
+        Shared.Instance.ResetToolAttributes(itemstack);
+        OverwriteBlockBreakEvents.ExecuteMiningSpeedAttribute(itemstack);
+    }
 
-    //     var codes = new List<CodeInstruction>(instructions);
+    [HarmonyPostfix] // Client Side
+    [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void GetMiningSpeedFinish(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
+    {
+        Shared.Instance.ResetToolAttributes(itemstack);
+    }
 
-    //     for (int i = 0; i < codes.Count; i++)
-    //     {
-    //         if (codes[i].opcode == OpCodes.Call && codes[i].operand as MethodInfo == walkBehaviorsMethod)
-    //         {
-    //             int callIndex = i;
+    [HarmonyPrefix] // Client Side
+    [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
+    internal static void GetHeldItemInfoStart(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    {
+        if (inSlot.Itemstack.Collectible is not Item) return;
 
-    //             int start = callIndex;
-    //             while (start > 0 && codes[start].opcode != OpCodes.Ldarg_0)
-    //                 start--;
+        Shared.Instance.ResetToolAttributes(inSlot.Itemstack);
+        OverwriteBlockBreakEvents.ExecuteMiningSpeedAttribute(inSlot.Itemstack);
+    }
 
-    //             int count = callIndex - start + 1;
+    [HarmonyPostfix] // Client Side
+    [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
+    internal static void GetHeldItemInfoFinish(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    {
+        if (inSlot.Itemstack.Collectible is not Item) return;
 
-    //             codes.RemoveRange(start, count);
-
-    //             break;
-    //         }
-    //     }
-
-    //     return codes;
-    // }
+        Shared.Instance.ResetToolAttributes(inSlot.Itemstack);
+    }
 
     // [HarmonyPostfix] // Client Side
     // [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
@@ -155,12 +160,23 @@ class OverwriteBlockBreak
 
 public static class OverwriteBlockBreakEvents
 {
-    public delegate void BlockBreakHandler(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply);
-    public static event BlockBreakHandler OnMiningSpeedRefreshed;
+    public delegate void MiningSpeedModifier(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply);
+    public delegate void MiningSpeedHandle(IItemStack collectible);
+    /// After all attributes and behaviors calculation this is called.
+    /// Use when you need only to change the speed
+    public static event MiningSpeedModifier OnMiningSpeedRefreshed;
+    /// Called before OnMiningSpeedRefreshed, used to change attributes before calculations.
+    /// Use when you need to show the mining difference in player view
+    public static event MiningSpeedHandle OnMiningSpeedAttributeRefreshed;
 
     internal static float GetExternalMiningSpeedMultiply(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, float multiply)
     {
         OnMiningSpeedRefreshed?.Invoke(collectible, itemstack, blockSel, block, player, ref multiply);
         return multiply;
+    }
+
+    internal static void ExecuteMiningSpeedAttribute(IItemStack itemstack)
+    {
+        OnMiningSpeedAttributeRefreshed?.Invoke(itemstack);
     }
 }

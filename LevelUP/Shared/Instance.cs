@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LevelUP.Server;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Common;
@@ -358,6 +359,30 @@ class Instance
     }
 
     /// <summary>
+    /// Generate the base attributes for tools
+    /// </summary>
+    /// <param name="item"></param>
+    public static void GenerateBaseToolStatus(IItemStack item)
+    {
+        if (item.Attributes.GetBool("BaseGenerated")) return;
+        item.Attributes.SetBool("BaseGenerated", true);
+
+        if (item.Collectible.AttackPower > 0.0f)
+        {
+            item.Attributes.SetString("BaseAttack", item.Collectible.AttackPower.ToString());
+        }
+
+        if (item.Collectible.MiningSpeed != null)
+        {
+            List<EnumBlockMaterial> keys = [.. item.Item.MiningSpeed.Keys];
+            foreach (EnumBlockMaterial key in keys)
+            {
+                item.Attributes.SetString($"BaseMiningSpeed_{key}", item.Collectible.MiningSpeed[key].ToString());
+            }
+        }
+    }
+
+    /// <summary>
     /// Increases armor currently status, 1.0 = same, 1.5 = 50% increase.
     /// Compatible with multi calls
     /// </summary>
@@ -474,8 +499,126 @@ class Instance
     }
 
     /// <summary>
-    /// Reset armor status increase to default, should be called after armor calculations.
-    /// Refer to wiki to know why
+    /// Increases shield currently status, 1.0 = same, 1.5 = 50% increase.
+    /// Compatible with multi calls
+    /// </summary>
+    /// <param name="shieldSlot"></param>
+    /// <param name="statsIncrease"></param>
+    public static void RefreshShieldAttributes(ItemSlot shieldSlot, float statsIncrease)
+    {
+        JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
+        if (attr == null || !attr.Exists) return;
+        JObject shieldObj = (JObject)attr.Token;
+
+        JsonObject protection = attr["protectionChance"];
+        if (protection != null && protection.Exists && protection.Token is JObject originalProtObj)
+        {
+            JObject protectionObj = (JObject)originalProtObj.DeepClone();
+
+            {
+                float currentMeasured = protectionObj["passive-projectile"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(
+                    float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")),
+                    currentMeasured
+                );
+
+                protectionObj["passive-projectile"] =
+                    (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")) + difference) * statsIncrease;
+            }
+
+            {
+                float currentMeasured = protectionObj["active-projectile"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(
+                    float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")),
+                    currentMeasured
+                );
+
+                protectionObj["active-projectile"] =
+                    (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")) + difference) * statsIncrease;
+            }
+
+            {
+                float currentMeasured = protectionObj["passive"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(
+                    float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive")),
+                    currentMeasured
+                );
+
+                protectionObj["passive"] =
+                    (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive")) + difference) * statsIncrease;
+            }
+
+            {
+                float currentMeasured = protectionObj["active"].Value<float>();
+                float difference = Utils.GetDifferenceBetweenTwoFloats(
+                    float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActive")),
+                    currentMeasured
+                );
+
+                protectionObj["active"] =
+                    (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActive")) + difference) * statsIncrease;
+            }
+
+            shieldObj["protectionChance"] = protectionObj;
+        }
+
+        JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
+        if (projectileDamageAbsorption?.Token is JValue projectileJVal)
+        {
+            float currentMeasured = projectileJVal.Value<float>();
+
+            float difference = Utils.GetDifferenceBetweenTwoFloats(
+                float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")),
+                currentMeasured
+            );
+
+            shieldObj["projectileDamageAbsorption"] =
+                (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")) + difference) * statsIncrease;
+        }
+
+        JsonObject damageAbsorption = attr["damageAbsorption"];
+        if (damageAbsorption?.Token is JValue damageAbsorptionJVal)
+        {
+            float currentMeasured = damageAbsorptionJVal.Value<float>();
+
+            float difference = Utils.GetDifferenceBetweenTwoFloats(
+                float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")),
+                currentMeasured
+            );
+
+            shieldObj["damageAbsorption"] =
+                (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")) + difference) * statsIncrease;
+        }
+    }
+
+    /// <summary>
+    /// Increases tool currently status, 1.0 = same, 1.5 = 50% increase.
+    /// </summary>
+    /// <param name="item"></param>
+    public static void RefreshToolAttributes(IItemStack item, float statsIncrease)
+    {
+        if (item.Attributes.GetString("BaseAttack") != null)
+        {
+            float result = float.Parse(item.Attributes.GetString("BaseAttack")) * statsIncrease;
+            item.Collectible.AttackPower = result;
+        }
+
+        if (item.Collectible.MiningSpeed != null)
+        {
+            List<EnumBlockMaterial> keys = [.. item.Collectible.MiningSpeed.Keys];
+            foreach (EnumBlockMaterial key in keys)
+            {
+                if (item.Attributes.GetString($"BaseMiningSpeed_{key}") != null)
+                {
+                    float result = float.Parse(item.Attributes.GetString($"BaseMiningSpeed_{key}")) * statsIncrease;
+                    item.Collectible.MiningSpeed[key] = result;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Reset armor status increase to default, should be called before and after armor refresh
     /// </summary>
     /// <param name="armorSlot"></param>
     public static void ResetArmorAttributes(ItemSlot armorSlot)
@@ -550,6 +693,75 @@ class Instance
             }
 
             armorObj["statModifiers"] = statsObj;
+        }
+    }
+
+    /// <summary>
+    /// Reset shield status increase to default, should be called before and after tool refresh
+    /// </summary>
+    /// <param name="shieldSlot"></param>
+    public static void ResetShieldAttributes(ItemSlot shieldSlot)
+    {
+        JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
+        if (attr == null || !attr.Exists) return;
+        JObject shieldObj = (JObject)attr.Token;
+
+        GenerateBaseShieldStatus(shieldSlot.Itemstack);
+
+        JsonObject protection = attr["protectionChance"];
+        if (protection != null && protection.Exists && protection.Token is JObject originalProtObj)
+        {
+            JObject protectionObj = (JObject)originalProtObj.DeepClone();
+
+            protectionObj["passive-projectile"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile"));
+            protectionObj["active-projectile"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile"));
+            protectionObj["passive"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive"));
+            protectionObj["active"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActive"));
+
+            shieldObj["protectionChance"] = protectionObj;
+        }
+
+        JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
+        if (projectileDamageAbsorption?.Token is JValue)
+        {
+            shieldObj["projectileDamageAbsorption"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption"));
+        }
+
+        JsonObject damageAbsorption = attr["damageAbsorption"];
+        if (damageAbsorption?.Token is JValue)
+        {
+            shieldObj["damageAbsorption"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption"));
+        }
+    }
+
+    /// <summary>
+    /// Reset tool status increase to default, should be called before and after tool refresh
+    /// </summary>
+    /// <param name="item"></param>
+    public static void ResetToolAttributes(IItemStack item)
+    {
+        GenerateBaseToolStatus(item);
+
+        if (item.Collectible.AttackPower > 0.0f)
+        {
+            if (item.Attributes.GetString("BaseAttack") != null)
+            {
+                float result = float.Parse(item.Attributes.GetString("BaseAttack"));
+                item.Collectible.AttackPower = result;
+            }
+        }
+
+        if (item.Collectible.MiningSpeed != null)
+        {
+            List<EnumBlockMaterial> keys = [.. item.Item.MiningSpeed.Keys];
+            foreach (EnumBlockMaterial key in keys)
+            {
+                if (item.Attributes.GetString($"BaseMiningSpeed_{key}") != null)
+                {
+                    float result = float.Parse(item.Attributes.GetString($"BaseMiningSpeed_{key}"));
+                    item.Collectible.MiningSpeed[key] = result;
+                }
+            }
         }
     }
 }
