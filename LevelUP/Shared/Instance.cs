@@ -10,6 +10,7 @@ namespace LevelUP.Shared;
 
 class Instance
 {
+    internal static ICoreAPI api = null;
     internal static LevelHunter levelHunter = new();
     internal static LevelBow levelBow = new();
     internal static LevelSlingshot levelSlingshot = new();
@@ -30,6 +31,7 @@ class Instance
     internal static LevelLeatherArmor levelLeatherArmor = new();
     internal static LevelChainArmor levelChainArmor = new();
     internal static LevelBrigandineArmor levelBrigandineArmor = new();
+    internal static LevelLamellarArmor levelLamellarArmor = new();
     internal static LevelPlateArmor levelPlateArmor = new();
     internal static LevelScaleArmor levelScaleArmor = new();
     internal static LevelSmithing levelSmithing = new();
@@ -45,7 +47,7 @@ class Instance
     /// to prevent patching disabled levels
     /// </summary>
     /// <param name="api"></param>
-    public static void PatchAll(ICoreAPI api)
+    public static void PatchAll()
     {
         overwriteBlockBreak.Patch();
         overwriteDamageInteraction.Patch();
@@ -177,6 +179,12 @@ class Instance
             if (api.Side == EnumAppSide.Server) levelBrigandineArmor.Init();
             else if (api.Side == EnumAppSide.Client) levelBrigandineArmor.InitClient();
             levelBrigandineArmor.Patch();
+        }
+        if (Configuration.enableLevelLamellarArmor)
+        {
+            if (api.Side == EnumAppSide.Server) levelLamellarArmor.Init();
+            else if (api.Side == EnumAppSide.Client) levelLamellarArmor.InitClient();
+            levelLamellarArmor.Patch();
         }
         if (Configuration.enableLevelPlateArmor)
         {

@@ -1,3 +1,5 @@
+#pragma warning disable CA1822
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Vintagestory.API.Client;
@@ -13,15 +15,7 @@ class Instance
 
     long temporaryTickListener;
 
-    // Store the view for character menu
     private readonly LevelsView levelsView = new();
-
-    public static void PreInit()
-    {
-    }
-    public static void Dispose()
-    {
-    }
 
     public void Init(ICoreClientAPI clientAPI)
     {
@@ -44,13 +38,15 @@ class Instance
         }
     }
 
+    public static event Action RefreshWatchedAttributes;
+
     private void OnServerMessage(ServerMessage bruteMessage)
     {
         string[] messages = bruteMessage.message.Split('&');
         switch (messages[0])
         {
-            case "playerlevelup": LevelUPMessage(int.Parse(messages[1]), messages[2]); return;
-            case "playersublevelup": SubLevelUPMessage(int.Parse(messages[1]), messages[2], messages[3]); return;
+            case "playerlevelup": LevelUPMessage(int.Parse(messages[1]), messages[2]); RefreshWatchedAttributes?.Invoke(); return;
+            case "playersublevelup": SubLevelUPMessage(int.Parse(messages[1]), messages[2], messages[3]); RefreshWatchedAttributes?.Invoke(); return;
             case "enabledlevels": enabledLevels = JsonSerializer.Deserialize<Dictionary<string, bool>>(messages[1]); return;
             case "playerhardcoredied": api.ShowChatMessage(Lang.Get("levelup:hardcore_message", 0)); return;
             case "syncconfig": SyncConfigurations(messages[1]); return;
@@ -60,7 +56,7 @@ class Instance
     private void SyncConfigurations(string json)
     {
         Configuration.ConsumeGeneratedClassJsonParameters(json);
-        Shared.Instance.PatchAll(api);
+        Shared.Instance.PatchAll();
         Debug.LogDebug("Client functions patched!");
     }
 

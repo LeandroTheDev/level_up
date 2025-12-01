@@ -172,6 +172,7 @@ public static class Configuration
     public static bool enableLevelLeatherArmor = true;
     public static bool enableLevelChainArmor = true;
     public static bool enableLevelBrigandineArmor = true;
+    public static bool enableLevelLamellarArmor = true;
     public static bool enableLevelPlateArmor = true;
     public static bool enableLevelScaleArmor = true;
     public static bool enableLevelSmithing = true;
@@ -365,6 +366,13 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelBrigandineArmor is not boolean is {value.GetType()}");
                 else enableLevelBrigandineArmor = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: enableLevelBrigandineArmor not set");
+        }
+        { //enableLevelLamellarArmor
+            if (baseConfigs.TryGetValue("enableLevelLamellarArmor", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelLamellarArmor is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelLamellarArmor is not boolean is {value.GetType()}");
+                else enableLevelLamellarArmor = (bool)value;
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelLamellarArmor not set");
         }
         { //enableLevelPlateArmor
             if (baseConfigs.TryGetValue("enableLevelPlateArmor", out object value))
@@ -4015,6 +4023,145 @@ public static class Configuration
     public static float BrigandineArmorStatsIncreaseByLevel(int level)
     {
         return brigandineArmorBaseStatsIncrease + brigandineArmorStatsIncreasePerLevel * level;
+    }
+    #endregion
+
+    #region lamellararmor
+    public static Dictionary<string, double> expMultiplyHitLamellarArmor = [];
+    private static int lamellarArmorEXPPerReceiveHit = 10;
+    private static float lamellarArmorEXPMultiplyByDamage = 0.3f;
+    private static int lamellarArmorEXPIncreaseByAmountDamage = 20;
+    private static int lamellarArmorEXPPerLevelBase = 500;
+    private static double lamellarArmorEXPMultiplyPerLevel = 1.2;
+    private static float lamellarArmorBaseStatsIncrease = 1.0f;
+    private static float lamellarArmorStatsIncreasePerLevel = 0.1f;
+    public static int lamellarArmorMaxLevel = 999;
+
+    public static void PopulateLamellarArmorConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> lamellarArmorLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "lamellararmor",
+            "levelup:config/levelstats/lamellararmor.json");
+        { //lamellarArmorEXPPerReceiveHit
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPPerReceiveHit", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPPerReceiveHit is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPPerReceiveHit is not int is {value.GetType()}");
+                else lamellarArmorEXPPerReceiveHit = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPPerReceiveHit not set");
+            Experience.LoadExperience("lamellarArmor", "Hit", (ulong)lamellarArmorEXPPerReceiveHit);
+        }
+        { //lamellarArmorEXPMultiplyByDamage
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPMultiplyByDamage", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyByDamage is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPMultiplyByDamage is not double is {value.GetType()}");
+                else lamellarArmorEXPMultiplyByDamage = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyByDamage not set");
+        }
+        { //lamellarArmorEXPIncreaseByAmountDamage
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPIncreaseByAmountDamage", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPIncreaseByAmountDamage is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPIncreaseByAmountDamage is not int is {value.GetType()}");
+                else lamellarArmorEXPIncreaseByAmountDamage = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPIncreaseByAmountDamage not set");
+        }
+        { //lamellarArmorEXPPerLevelBase
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPPerLevelBase", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPPerLevelBase is not int is {value.GetType()}");
+                else lamellarArmorEXPPerLevelBase = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPPerLevelBase not set");
+        }
+        { //lamellarArmorEXPMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel not set");
+        }
+        { //lamellarArmorBaseStatsIncrease
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorBaseStatsIncrease", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorBaseStatsIncrease is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorBaseStatsIncrease is not double is {value.GetType()}");
+                else lamellarArmorBaseStatsIncrease = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorBaseStatsIncrease not set");
+        }
+        { //lamellarArmorStatsIncreasePerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorStatsIncreasePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorStatsIncreasePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorStatsIncreasePerLevel is not double is {value.GetType()}");
+                else lamellarArmorStatsIncreasePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorStatsIncreasePerLevel not set");
+        }
+        { //lamellarArmorMaxLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorMaxLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorMaxLevel is not int is {value.GetType()}");
+                else lamellarArmorMaxLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorMaxLevel not set");
+        }
+
+        // Get leather armor multiply exp
+        expMultiplyHitLamellarArmor.Clear();
+        Dictionary<string, object> tmpexpMultiplyHitLamellarArmor = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "lamellararmoritems",
+            "levelup:config/levelstats/lamellararmoritems.json");
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitLamellarArmor)
+        {
+            if (pair.Value is double value) expMultiplyHitLamellarArmor.Add(pair.Key, (double)value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplyHitLamellarArmor {pair.Key} is not double");
+        }
+        Debug.Log("Lamellar Armor configuration set");
+    }
+
+    public static int LamellarArmorGetLevelByEXP(ulong exp)
+    {
+        double baseExp = lamellarArmorEXPPerLevelBase;
+        double multiplier = lamellarArmorEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
+        {
+            return (int)(exp / baseExp);
+        }
+
+        double expDouble = exp;
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong LamellarArmorGetExpByLevel(int level)
+    {
+        double baseExp = lamellarArmorEXPPerLevelBase;
+        double multiplier = lamellarArmorEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
+
+    public static int LamellarArmorBaseEXPEarnedByDAMAGE(float damage)
+    {
+        int calcDamage = (int)Math.Round(damage);
+        int multiplesCount = calcDamage / lamellarArmorEXPIncreaseByAmountDamage;
+        float multiplier = 1 + lamellarArmorEXPMultiplyByDamage;
+
+        float baseMultiply = lamellarArmorEXPPerReceiveHit * (float)Math.Pow(multiplier, multiplesCount);
+
+        return (int)Math.Round(baseMultiply);
+    }
+
+    public static float LamellarArmorStatsIncreaseByLevel(int level)
+    {
+        return lamellarArmorBaseStatsIncrease + lamellarArmorStatsIncreasePerLevel * level;
     }
     #endregion
 

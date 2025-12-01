@@ -13,7 +13,7 @@ public class Initialization : ModSystem
     {
         base.StartClientSide(api);
 
-        // Initializing the client instance
+        Shared.Instance.api = api;
         clientInstance.Init(api);
     }
 
@@ -21,7 +21,7 @@ public class Initialization : ModSystem
     {
         base.StartServerSide(api);
 
-        // Initializing the server instance
+        Shared.Instance.api = api;
         serverInstance.Init(api);
     }
 

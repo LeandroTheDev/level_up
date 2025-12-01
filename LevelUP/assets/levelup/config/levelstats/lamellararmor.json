@@ -1,0 +1,10 @@
+{
+    "lamellarArmorEXPPerReceiveHit": 10,
+    "lamellarArmorEXPMultiplyByDamage": 0.3,
+    "lamellarArmorEXPIncreaseByAmountDamage": 20,
+    "lamellarArmorEXPPerLevelBase": 500,
+    "lamellarArmorEXPMultiplyPerLevel": 1.2,
+    "lamellarArmorBaseStatsIncrease": 1.0,
+    "lamellarArmorStatsIncreasePerLevel": 0.1,
+    "lamellarArmorMaxLevel": 999
+}

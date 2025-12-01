@@ -98,15 +98,7 @@ class LevelSword
         // Check if player is using a Sword
         if (player.InventoryManager.ActiveTool != EnumTool.Sword) return;
 
-        // Get the exp received
         ulong exp = (ulong)Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString());
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Sword");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, sword exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Sword", exp);
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -46,6 +47,8 @@ class LevelShovel
     public void InitClient()
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        Client.Instance.RefreshWatchedAttributes += RefreshWatchedAttributes;
 
         Debug.Log("Level Shovel initialized");
     }
@@ -54,6 +57,23 @@ class LevelShovel
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        Client.Instance.RefreshWatchedAttributes -= RefreshWatchedAttributes;
+    }
+
+    static private float currentShovelMiningSpeed = 1.0f;
+    private void RefreshWatchedAttributes()
+    {
+        var api = Shared.Instance.api as ICoreClientAPI;
+        currentShovelMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed");
+    }
+    private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
+    {
+        if (block.BlockMaterial == EnumBlockMaterial.Soil ||
+            block.BlockMaterial == EnumBlockMaterial.Gravel ||
+            block.BlockMaterial == EnumBlockMaterial.Sand ||
+            block.BlockMaterial == EnumBlockMaterial.Snow)
+            multiply *= currentShovelMiningSpeed;
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
@@ -107,15 +127,7 @@ class LevelShovel
         // Check if player is using a Shovel
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
 
-        // Get the exp received
         ulong exp = (ulong)Configuration.entityExpShovel.GetValueOrDefault(entity.Code.ToString(), 0);
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Shovel");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, shovel exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Shovel", exp);
     }
 

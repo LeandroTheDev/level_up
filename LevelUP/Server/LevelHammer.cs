@@ -117,14 +117,9 @@ class LevelHammer
         // Check if player is using a Hammer
         if (player.InventoryManager.ActiveTool != EnumTool.Hammer) return;
 
-        ulong exp = (ulong)Configuration.entityExpHammer.GetValueOrDefault(entity.Code.ToString());
+        ulong exp = (ulong)Configuration.entityExpHammer.GetValueOrDefault(entity.Code.ToString(), 0);
+        if (exp <= 0) return;
 
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Hammer");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hammer exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Hammer", exp);
     }
 

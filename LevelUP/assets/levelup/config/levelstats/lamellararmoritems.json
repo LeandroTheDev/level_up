@@ -1,0 +1,17 @@
+{
+    "game:armor-head-lamellar-wood": 0.3,
+    "game:armor-body-lamellar-wood": 0.5,
+    "game:armor-legs-lamellar-wood": 0.2,
+    "game:armor-head-lamellar-copper": 0.3,
+    "game:armor-body-lamellar-copper": 0.5,
+    "game:armor-legs-lamellar-copper": 0.2,
+    "game:armor-head-lamellar-tinbronze": 0.3,
+    "game:armor-body-lamellar-tinbronze": 0.5,
+    "game:armor-legs-lamellar-tinbronze": 0.2,
+    "game:armor-head-lamellar-blackbronze": 0.3,
+    "game:armor-body-lamellar-blackbronze": 0.5,
+    "game:armor-legs-lamellar-blackbronze": 0.2,
+    "game:armor-head-lamellar-bismuthbronze": 0.3,
+    "game:armor-body-lamellar-bismuthbronze": 0.5,
+    "game:armor-legs-lamellar-bismuthbronze": 0.2
+}
