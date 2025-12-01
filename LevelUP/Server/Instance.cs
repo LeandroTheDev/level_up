@@ -34,7 +34,7 @@ public class Instance
         // Sync server configurations with client
         api.Event.PlayerNowPlaying += SyncPlayerConfigs;
 
-        Shared.Instance.PatchAll(api);
+        Shared.Instance.PatchAll();
         Debug.Log("Server Levels instanciated");
 
         // Register commands

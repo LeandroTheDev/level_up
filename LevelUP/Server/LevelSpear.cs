@@ -131,13 +131,6 @@ class LevelSpear
         }
 
         ulong exp = (ulong)Configuration.entityExpSpear.GetValueOrDefault(entity.Code.ToString(), 0);
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Spear");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, spear exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Spear", exp);
     }
 

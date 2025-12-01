@@ -103,13 +103,6 @@ class LevelHand
         if (player.InventoryManager.ActiveHotbarSlot.Itemstack != null) return;
 
         ulong exp = (ulong)Configuration.entityExpSword.GetValueOrDefault(entity.Code.ToString());
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Hand");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, hand exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Hand", exp);
     }
 

@@ -109,15 +109,8 @@ class LevelBow
         // Get player instance
         IPlayer player = playerEntity.Player;
 
-        // Get the exp received
         ulong exp = (ulong)Configuration.entityExpBow.GetValueOrDefault(entity.Code.ToString(), 0);
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Bow");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, bow exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
+        if (exp <= 0) return;
         Experience.IncreaseExperience(player, "Bow", exp);
     }
 
@@ -161,7 +154,7 @@ class LevelBow
 
             if (byEntity is EntityPlayer)
             {
-                float chance = Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow", 0));
+                float chance = Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
 
                 // Integration
                 chance = LevelBowEvents.GetExternalBowAiming((byEntity as EntityPlayer).Player, chance);

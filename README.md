@@ -91,6 +91,7 @@ This is just an estimate of what can affect a server's performance, if you are h
 | Hammer           | Low           |
 | Hunter           | Low           |
 | Knife            | Medium        |
+| Lamellar Armor   | High          |
 | Leather Armor    | High          |
 | Metabolism       | High          |
 | Panning          | Low           |

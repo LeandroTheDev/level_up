@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -46,6 +47,8 @@ class LevelPickaxe
     public void InitClient()
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        Client.Instance.RefreshWatchedAttributes += RefreshWatchedAttributes;
 
         Debug.Log("Level Pickaxe initialized");
     }
@@ -54,6 +57,24 @@ class LevelPickaxe
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        Client.Instance.RefreshWatchedAttributes -= RefreshWatchedAttributes;
+    }
+
+    static private float currentPickaxeMiningSpeed = 1.0f;
+    private void RefreshWatchedAttributes()
+    {
+        var api = Shared.Instance.api as ICoreClientAPI;
+        currentPickaxeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed");
+    }
+    private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
+    {
+        if (block.BlockMaterial == EnumBlockMaterial.Brick ||
+            block.BlockMaterial == EnumBlockMaterial.Ceramic ||
+            block.BlockMaterial == EnumBlockMaterial.Metal ||
+            block.BlockMaterial == EnumBlockMaterial.Ore ||
+            block.BlockMaterial == EnumBlockMaterial.Stone)
+            multiply *= currentPickaxeMiningSpeed;
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
@@ -113,33 +134,16 @@ class LevelPickaxe
         // Check if player is using a Pickaxe
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
 
-        // Get the exp received
         ulong exp = (ulong)Configuration.entityExpPickaxe.GetValueOrDefault(entity.Code.ToString());
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Pickaxe");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Pickaxe", exp);
     }
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
     {
-        // If not a shovel ignore
         if (player.InventoryManager.ActiveTool != EnumTool.Pickaxe) return;
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Stone && breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Ore) return;
 
-        // Get the exp received
         ulong exp = (ulong)Configuration.oresExpPickaxe.GetValueOrDefault(breakedBlock.Block.Code.ToString(), Configuration.ExpPerBreakingPickaxe);
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Pickaxe");
-
-        Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, pickaxe exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Pickaxe", exp);
     }
 

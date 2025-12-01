@@ -79,17 +79,9 @@ class LevelFarming
 
     public void OnBreakBlock(IServerPlayer player, BlockSelection breakedBlock, ref float dropQuantityMultiplier, ref EnumHandling handling)
     {
-        // Get the exp received
         ulong exp = (ulong)Configuration.expPerHarvestFarming.GetValueOrDefault(breakedBlock.Block.Code.ToString(), 0);
-        // No crop exp finded
         if (exp <= 0) return;
 
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Farming");
-
-        Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, farming exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Farming", exp);
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -31,9 +32,7 @@ class LevelKnife
 
     public void Init()
     {
-        // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
-        // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Knife");
@@ -46,6 +45,8 @@ class LevelKnife
     public void InitClient()
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        Client.Instance.RefreshWatchedAttributes += RefreshWatchedAttributes;
 
         Debug.Log("Level Knife initialized");
     }
@@ -54,6 +55,21 @@ class LevelKnife
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        Client.Instance.RefreshWatchedAttributes -= RefreshWatchedAttributes;
+    }
+
+    static private float currentKnifeMiningSpeed = 1.0f;
+    private void RefreshWatchedAttributes()
+    {
+        var api = Shared.Instance.api as ICoreClientAPI;
+        currentKnifeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Knife_MiningSpeed");
+    }
+    private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
+    {
+        if (block.BlockMaterial == EnumBlockMaterial.Plant ||
+            block.BlockMaterial == EnumBlockMaterial.Leaves)
+            multiply *= currentKnifeMiningSpeed;
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
@@ -113,15 +129,7 @@ class LevelKnife
         // Check if player is using a bow
         if (player.InventoryManager.ActiveTool != EnumTool.Knife) return;
 
-        // Get the exp received
         ulong exp = (ulong)Configuration.entityExpKnife.GetValueOrDefault(entity.Code.ToString());
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Knife");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, knife exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Knife", exp);
     }
 
@@ -137,15 +145,7 @@ class LevelKnife
             default: return;
         }
 
-        // Get the exp received
         ulong exp = (ulong)Configuration.ExpPerBreakingKnife;
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Knife");
-
-        Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, knife exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Knife", exp);
     }
 

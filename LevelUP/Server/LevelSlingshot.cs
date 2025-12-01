@@ -110,15 +110,7 @@ class LevelSlingshot
         // Get player instance
         IPlayer player = playerEntity.Player;
 
-        // Get the exp received
         ulong exp = (ulong)Configuration.entityExpSlingshot.GetValueOrDefault(entity.Code.ToString(), 0);
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Slingshot");
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, slingshot exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Slingshot", exp);
     }
 

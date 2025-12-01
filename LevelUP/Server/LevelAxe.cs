@@ -1,10 +1,9 @@
 #pragma warning disable CA1822
-using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -33,9 +32,7 @@ class LevelAxe
 
     public void Init()
     {
-        // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
-        // Instanciate break block event
         Instance.api.Event.BreakBlock += OnBreakBlock;
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Axe");
@@ -49,6 +46,8 @@ class LevelAxe
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        Client.Instance.RefreshWatchedAttributes += RefreshWatchedAttributes;
+        RefreshWatchedAttributes();
 
         Debug.Log("Level Axe initialized");
     }
@@ -57,14 +56,19 @@ class LevelAxe
     {
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        Client.Instance.RefreshWatchedAttributes -= RefreshWatchedAttributes;
     }
 
+    static private float currentAxeMiningSpeed = 1.0f;
+    private void RefreshWatchedAttributes()
+    {
+        var api = Shared.Instance.api as ICoreClientAPI;
+        currentAxeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed");
+    }
     private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
     {
         if (block.BlockMaterial == EnumBlockMaterial.Wood)
-        {
-            // multiply += 20f;
-        }
+            multiply *= currentAxeMiningSpeed;
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
@@ -119,14 +123,7 @@ class LevelAxe
         if (player.InventoryManager.ActiveTool != EnumTool.Axe) return;
 
         ulong exp = (ulong)Configuration.entityExpAxe.GetValueOrDefault(entity.Code.ToString(), 0);
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Axe");
-        if (Configuration.CheckMaxLevelByLevelTypeEXP("Axe", playerExp)) return;
-
-        Debug.LogDebug($"{player.PlayerName} killed: {entity.Code}, axe exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
+        if (exp <= 0) return;
         Experience.IncreaseExperience(player, "Axe", exp);
     }
 
@@ -137,13 +134,6 @@ class LevelAxe
         if (breakedBlock.Block.BlockMaterial != EnumBlockMaterial.Wood) return;
 
         ulong exp = (ulong)Configuration.ExpPerBreakingAxe;
-
-        // Get the actual player total exp
-        ulong playerExp = Experience.GetExperience(player, "Axe");
-
-        Debug.LogDebug($"{player.PlayerName} breaked: {breakedBlock.Block.Code}, axe exp earned: {exp}, actual: {playerExp}");
-
-        // Incrementing
         Experience.IncreaseExperience(player, "Axe", exp);
     }
 
