@@ -1,12 +1,12 @@
 #pragma warning disable CA1822
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
-using Vintagestory.API.Util;
 using Vintagestory.Common;
 using Vintagestory.GameContent;
 
@@ -35,7 +35,6 @@ class LevelSmithing
         Configuration.RegisterNewLevel("Smithing");
         Configuration.RegisterNewLevelTypeEXP("Smithing", Configuration.SmithingGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Smithing", Configuration.SmithingGetExpByLevel);
-        // Update armor stats before functions
         OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats += StatsUpdated;
         OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat += DamageReceived;
 
@@ -45,6 +44,7 @@ class LevelSmithing
     public void InitClient()
     {
         OverwriteDamageInteractionEvents.OnPlayerArmorViewStats += ViewReceived;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributeRefreshed += MiningSpeedRefreshed;
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
 
         Debug.Log("Level Smithing initialized");
@@ -55,6 +55,7 @@ class LevelSmithing
         OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
         OverwriteDamageInteractionEvents.OnPlayerArmorReceiveHandleStats -= StatsUpdated;
         OverwriteDamageInteractionEvents.OnPlayerArmorReceiveDamageStat -= DamageReceived;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributeRefreshed -= MiningSpeedRefreshed;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
     }
 
@@ -117,6 +118,12 @@ class LevelSmithing
         }
     }
 
+    private void MiningSpeedRefreshed(IItemStack itemStack)
+    {
+        float miningspeed = itemStack.Attributes.GetFloat("miningspeed", 1f);
+        if (miningspeed > 1)
+            Shared.Instance.RefreshToolAttributes(itemStack, miningspeed);
+    }
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
@@ -459,6 +466,9 @@ class LevelSmithing
                                 break;
                         }
 
+                        // Generate Base Stats
+                        Shared.Instance.GenerateBaseToolStatus(item);
+
                         LevelSmithingEvents.UpdateFromExternalSmithCraftingItem(player,
                             item.Collectible.Code.ToString(),
                             ref durability,
@@ -575,12 +585,7 @@ class LevelSmithing
         }
         if (miningSpeed != null)
         {
-            List<EnumBlockMaterial> keys = [.. item.Item.MiningSpeed.Keys];
-
-            foreach (EnumBlockMaterial key in keys)
-            {
-                item.Attributes.SetFloat($"{key}_miningspeed", item.Collectible.MiningSpeed[key] * (float)miningSpeed);
-            }
+            item.Attributes.SetFloat("miningspeed", (float)miningSpeed);
 
             Debug.LogDebug($"{player.PlayerName} crafted any item mining speed increased to: {miningSpeed}");
         }
@@ -611,6 +616,8 @@ class LevelSmithing
             List<string> recipeItems = [];
             for (int i = 0; i < craftingGrid.Count; i++)
             {
+                // Index 9 is the output, output needs to be ignored
+                if (i == 9) continue;
                 ItemSlot slot = craftingGrid[i];
                 if (slot?.Itemstack != null)
                 {
@@ -631,6 +638,8 @@ class LevelSmithing
             if (op.World.Api.Side != EnumAppSide.Server) return;
             if (sinkSlot == null || sinkSlot.Itemstack == null) return;
             if (op.ActingPlayer == null) return;
+            Console.WriteLine(string.Join(", ", __state));
+            Console.WriteLine(sinkSlot.Itemstack.Collectible.Code);
             // If the recipe contains the currently item code, them ignore the smith mechanic
             if (__state != null && __state.Contains(sinkSlot.Itemstack.Collectible.Code)) return;
 
@@ -712,33 +721,6 @@ class LevelSmithing
                 return false;
             }
             return true;
-        }
-
-        // Overwrite Visual Mining Speed
-        // This is necessary so the mining speed system is more accurate
-        [HarmonyPrefix] // Client Side
-        [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
-        internal static void GetHeldItemInfoStart(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
-        {
-            inSlot.Itemstack?.Collectible?.MiningSpeed?.Foreach(x =>
-            {
-                if (inSlot.Itemstack.Attributes.GetFloat($"{x.Key}_miningspeed", -1f) != -1f)
-                    inSlot.Itemstack.Collectible.MiningSpeed[x.Key] = inSlot.Itemstack.Attributes.GetFloat($"{x.Key}_miningspeed");
-            });
-        }
-
-        // Overwrite Block break Mining Speed
-        [HarmonyPostfix] // Client Side
-        [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
-        [HarmonyPriority(Priority.VeryHigh)]
-        internal static float GetMiningSpeed(float __result, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
-        {
-            if (forPlayer == null) return __result;
-
-            float miningSpeed = itemstack.Attributes.GetFloat($"{block.BlockMaterial}_miningspeed", -1f);
-
-            if (miningSpeed == -1f) return __result;
-            else return miningSpeed;
         }
     }
 }
