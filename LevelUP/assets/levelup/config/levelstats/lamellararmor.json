@@ -4,7 +4,41 @@
     "lamellarArmorEXPIncreaseByAmountDamage": 20,
     "lamellarArmorEXPPerLevelBase": 500,
     "lamellarArmorEXPMultiplyPerLevel": 1.2,
-    "lamellarArmorBaseStatsIncrease": 1.0,
-    "lamellarArmorStatsIncreasePerLevel": 0.1,
+    
+    "lamellarArmorRelativeProtectionMultiply": 1.0,
+    "lamellarArmorRelativeProtectionMultiplyPerLevel": 0.05,
+    "lamellarArmorRelativeProtectionMultiplyReductionEveryLevel": 1,
+    "lamellarArmorRelativeProtectionMultiplyReductionPerReduce": 0.05,
+
+    "lamellarArmorFlatDamageReductionMultiply": 1.0,
+    "lamellarArmorFlatDamageReductionMultiplyPerLevel": 0.05,
+    "lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel": 1,
+    "lamellarArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
+
+    "lamellarArmorHealingEffectivnessMultiply": 1.0,
+    "lamellarArmorHealingEffectivnessMultiplyPerLevel": 0.05,
+    "lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
+    "lamellarArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
+
+    "lamellarArmorHungerRateMultiply": 1.0,
+    "lamellarArmorHungerRateMultiplyPerLevel": 0.05,
+    "lamellarArmorHungerRateMultiplyReductionEveryLevel": 1,
+    "lamellarArmorHungerRateMultiplyReductionPerReduce": 0.05,
+
+    "lamellarArmorRangedWeaponsAccuracyMultiply": 1.0,
+    "lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.05,
+    "lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
+    "lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
+
+    "lamellarArmorRangedWeaponsSpeedMultiply": 1.0,
+    "lamellarArmorRangedWeaponsSpeedMultiplyPerLevel": 0.05,
+    "lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
+    "lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
+
+    "lamellarArmorWalkSpeedMultiply": 1.0,
+    "lamellarArmorWalkSpeedMultiplyPerLevel": 0.05,
+    "lamellarArmorWalkSpeedMultiplyReductionEveryLevel": 1,
+    "lamellarArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
+    
     "lamellarArmorMaxLevel": 999
 }

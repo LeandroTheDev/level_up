@@ -29,6 +29,12 @@
     "status_durability": "Durability: {0}%",
     "status_regen": "Regeneration: {0}%",
     "status_additionalhealth": "Additional Health: {0}",
+    "status_relativeprotection": "Relative Protection: {0}%",
+    "status_flatdamagereduction": "Flat Damage Reduction: {0}%",
+    "status_healingeffectivness": "Healing Effectivness: {0}%",
+    "status_hungerrate": "Hunger Rate: {0}%",
+    "status_rangedaccuracy": "Ranged Accuracy: {0}%",
+    "status_rangedspeed": "Ranged Speed: {0}%",
 
     "axe": "Axt",
     "pickaxe": "Spitzhacke",

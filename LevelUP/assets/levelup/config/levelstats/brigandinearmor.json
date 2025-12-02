@@ -4,7 +4,41 @@
     "brigandineArmorEXPIncreaseByAmountDamage": 20,
     "brigandineArmorEXPPerLevelBase": 500,
     "brigandineArmorEXPMultiplyPerLevel": 1.2,
-    "brigandineArmorBaseStatsIncrease": 1.0,
-    "brigandineArmorStatsIncreasePerLevel": 0.1,
+    
+    "brigandineArmorRelativeProtectionMultiply": 1.0,
+    "brigandineArmorRelativeProtectionMultiplyPerLevel": 0.05,
+    "brigandineArmorRelativeProtectionMultiplyReductionEveryLevel": 1,
+    "brigandineArmorRelativeProtectionMultiplyReductionPerReduce": 0.05,
+
+    "brigandineArmorFlatDamageReductionMultiply": 1.0,
+    "brigandineArmorFlatDamageReductionMultiplyPerLevel": 0.05,
+    "brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel": 1,
+    "brigandineArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
+
+    "brigandineArmorHealingEffectivnessMultiply": 1.0,
+    "brigandineArmorHealingEffectivnessMultiplyPerLevel": 0.05,
+    "brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
+    "brigandineArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
+
+    "brigandineArmorHungerRateMultiply": 1.0,
+    "brigandineArmorHungerRateMultiplyPerLevel": 0.05,
+    "brigandineArmorHungerRateMultiplyReductionEveryLevel": 1,
+    "brigandineArmorHungerRateMultiplyReductionPerReduce": 0.05,
+
+    "brigandineArmorRangedWeaponsAccuracyMultiply": 1.0,
+    "brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.05,
+    "brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
+    "brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
+
+    "brigandineArmorRangedWeaponsSpeedMultiply": 1.0,
+    "brigandineArmorRangedWeaponsSpeedMultiplyPerLevel": 0.05,
+    "brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
+    "brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
+
+    "brigandineArmorWalkSpeedMultiply": 1.0,
+    "brigandineArmorWalkSpeedMultiplyPerLevel": 0.05,
+    "brigandineArmorWalkSpeedMultiplyReductionEveryLevel": 1,
+    "brigandineArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
+    
     "brigandineArmorMaxLevel": 999
 }

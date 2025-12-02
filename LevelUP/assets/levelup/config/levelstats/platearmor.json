@@ -4,7 +4,41 @@
     "plateArmorEXPIncreaseByAmountDamage": 20,
     "plateArmorEXPPerLevelBase": 500,
     "plateArmorEXPMultiplyPerLevel": 1.2,
-    "plateArmorBaseStatsIncrease": 1.0,
-    "plateArmorStatsIncreasePerLevel": 0.1,
+    
+    "plateArmorRelativeProtectionMultiply": 1.0,
+    "plateArmorRelativeProtectionMultiplyPerLevel": 0.05,
+    "plateArmorRelativeProtectionMultiplyReductionEveryLevel": 1,
+    "plateArmorRelativeProtectionMultiplyReductionPerReduce": 0.05,
+
+    "plateArmorFlatDamageReductionMultiply": 1.0,
+    "plateArmorFlatDamageReductionMultiplyPerLevel": 0.05,
+    "plateArmorFlatDamageReductionMultiplyReductionEveryLevel": 1,
+    "plateArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
+
+    "plateArmorHealingEffectivnessMultiply": 1.0,
+    "plateArmorHealingEffectivnessMultiplyPerLevel": 0.05,
+    "plateArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
+    "plateArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
+
+    "plateArmorHungerRateMultiply": 1.0,
+    "plateArmorHungerRateMultiplyPerLevel": 0.05,
+    "plateArmorHungerRateMultiplyReductionEveryLevel": 1,
+    "plateArmorHungerRateMultiplyReductionPerReduce": 0.05,
+
+    "plateArmorRangedWeaponsAccuracyMultiply": 1.0,
+    "plateArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.05,
+    "plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
+    "plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
+
+    "plateArmorRangedWeaponsSpeedMultiply": 1.0,
+    "plateArmorRangedWeaponsSpeedMultiplyPerLevel": 0.05,
+    "plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
+    "plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
+
+    "plateArmorWalkSpeedMultiply": 1.0,
+    "plateArmorWalkSpeedMultiplyPerLevel": 0.05,
+    "plateArmorWalkSpeedMultiplyReductionEveryLevel": 1,
+    "plateArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
+    
     "plateArmorMaxLevel": 999
 }

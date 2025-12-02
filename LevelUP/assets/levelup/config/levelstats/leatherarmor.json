@@ -4,7 +4,41 @@
     "leatherArmorEXPIncreaseByAmountDamage": 20,
     "leatherArmorEXPPerLevelBase": 500,
     "leatherArmorEXPMultiplyPerLevel": 1.2,
-    "leatherArmorBaseStatsIncrease": 1.0,
-    "leatherArmorStatsIncreasePerLevel": 0.1,
+    
+    "leatherArmorRelativeProtectionMultiply": 1.0,
+    "leatherArmorRelativeProtectionMultiplyPerLevel": 0.05,
+    "leatherArmorRelativeProtectionMultiplyReductionEveryLevel": 1,
+    "leatherArmorRelativeProtectionMultiplyReductionPerReduce": 0.05,
+
+    "leatherArmorFlatDamageReductionMultiply": 1.0,
+    "leatherArmorFlatDamageReductionMultiplyPerLevel": 0.05,
+    "leatherArmorFlatDamageReductionMultiplyReductionEveryLevel": 1,
+    "leatherArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
+
+    "leatherArmorHealingEffectivnessMultiply": 1.0,
+    "leatherArmorHealingEffectivnessMultiplyPerLevel": 0.05,
+    "leatherArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
+    "leatherArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
+
+    "leatherArmorHungerRateMultiply": 1.0,
+    "leatherArmorHungerRateMultiplyPerLevel": 0.05,
+    "leatherArmorHungerRateMultiplyReductionEveryLevel": 1,
+    "leatherArmorHungerRateMultiplyReductionPerReduce": 0.05,
+
+    "leatherArmorRangedWeaponsAccuracyMultiply": 1.0,
+    "leatherArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.05,
+    "leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
+    "leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
+
+    "leatherArmorRangedWeaponsSpeedMultiply": 1.0,
+    "leatherArmorRangedWeaponsSpeedMultiplyPerLevel": 0.05,
+    "leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
+    "leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
+
+    "leatherArmorWalkSpeedMultiply": 1.0,
+    "leatherArmorWalkSpeedMultiplyPerLevel": 0.05,
+    "leatherArmorWalkSpeedMultiplyReductionEveryLevel": 1,
+    "leatherArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
+    
     "leatherArmorMaxLevel": 999
 }

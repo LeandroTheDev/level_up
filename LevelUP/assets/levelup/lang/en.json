@@ -7,6 +7,7 @@
     "levels_tab": "Levels",
     "progress": "Progress: {0}%",
     "status_tab": "{0} Status",
+    "status_proficiency": "Proficiencies",
     "status_miningspeed": "Mining Speed: {0}%",
     "status_damage": "Damage: {0}%",
     "status_accuracy": "Accuracy: {0}%",
@@ -29,6 +30,12 @@
     "status_durability": "Durability: {0}%",
     "status_regen": "Regeneration: {0}%",
     "status_additionalhealth": "Additional Health: {0}",
+    "status_relativeprotection": "Relative Protection: {0}%",
+    "status_flatdamagereduction": "Flat Damage Reduction: {0}%",
+    "status_healingeffectivness": "Healing Effectivness: {0}%",
+    "status_hungerrate": "Hunger Rate: {0}%",
+    "status_rangedaccuracy": "Ranged Accuracy: {0}%",
+    "status_rangedspeed": "Ranged Speed: {0}%",
 
     "axe": "Axe",
     "pickaxe": "Pickaxe",
@@ -54,5 +61,9 @@
     "cooking": "Cooking",
     "panning": "Panning",
     "vitality": "Vitality",
-    "metabolism": "Metabolism"
+    "metabolism": "Metabolism",
+
+    "sewn": "Sewn",
+    "jerkin": "Jerkin",
+    "bear": "Bear"
 }
