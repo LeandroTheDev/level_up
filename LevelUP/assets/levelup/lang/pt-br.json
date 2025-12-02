@@ -65,5 +65,14 @@
 
     "sewn": "Costurado",
     "jerkin": "Colete",
-    "bear": "Urso"
+    "bear": "Urso",
+    "tinbronze": "Bronze de Estanho",
+    "bismuthbronze": "Bismuto Bronze",
+    "blackbronze": "Bronze Negro",
+    "iron": "Ferro",
+    "meteoriciron": "Ferro Meteórico",
+    "steel": "Aço",
+    "gold": "Ouro",
+    "silver": "Prata",
+    "wood": "Madeira"
 }

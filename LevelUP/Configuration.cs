@@ -3142,6 +3142,8 @@ public static class Configuration
     private static float smithingIncrementMiningSpeedMultiplyPerLevel = 0.01f;
     private static float smithingBaseArmorProtectionMultiply = 1.0f;
     private static float smithingIncrementArmorProtectionMultiplyPerLevel = 0.05f;
+    private static float smithingBaseArmorStatusMultiply = 1.0f;
+    private static float smithingIncrementArmorStatusMultiplyPerLevel = 0.05f;
     public static int smithingMaxLevel = 999;
 
     public static void PopulateSmithingConfiguration(ICoreAPI api)
@@ -3221,6 +3223,20 @@ public static class Configuration
                 else smithingIncrementArmorProtectionMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: smithingIncrementArmorProtectionMultiplyPerLevel not set");
         }
+        { //smithingBaseArmorStatusMultiply
+            if (smithingLevelStats.TryGetValue("smithingBaseArmorStatusMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingBaseArmorStatusMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingBaseArmorStatusMultiply is not double is {value.GetType()}");
+                else smithingBaseArmorStatusMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingBaseArmorStatusMultiply not set");
+        }
+        { //smithingIncrementArmorStatusMultiplyPerLevel
+            if (smithingLevelStats.TryGetValue("smithingIncrementArmorStatusMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingIncrementArmorStatusMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingIncrementArmorStatusMultiplyPerLevel is not double is {value.GetType()}");
+                else smithingIncrementArmorStatusMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingIncrementArmorStatusMultiplyPerLevel not set");
+        }
         { //smithingMaxLevel
             if (smithingLevelStats.TryGetValue("smithingMaxLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingMaxLevel is null");
@@ -3296,6 +3312,11 @@ public static class Configuration
     public static float SmithingGetArmorProtectionMultiplyByLevel(int level)
     {
         return smithingBaseArmorProtectionMultiply * (1 + smithingIncrementArmorProtectionMultiplyPerLevel * level);
+    }
+
+    public static float SmithingGetArmorStatusMultiplyByLevel(int level)
+    {
+        return smithingBaseArmorStatusMultiply * (1 + smithingIncrementArmorStatusMultiplyPerLevel * level);
     }
     #endregion
 

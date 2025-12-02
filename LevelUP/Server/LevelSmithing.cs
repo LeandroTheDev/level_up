@@ -70,6 +70,12 @@ class LevelSmithing
         );
 
         stringBuilder.AppendLine(
+            Lang.Get("levelup:status_statusmultiply",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SmithingGetArmorStatusMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing")))
+            )
+        );
+
+        stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
                 Utils.GetPorcentageFromFloatsStart1(Configuration.SmithingGetAttackPowerMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing")))
             )
@@ -88,22 +94,42 @@ class LevelSmithing
         );
     }
 
-    private void ViewReceived(IPlayer player, ItemSlot item)
+    private void ViewReceived(IPlayer player, ItemSlot armorSlot)
     {
-        if (float.TryParse(item.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease))
-        {
-            Shared.Instance.RefreshArmorAttributes(item, statusIncrease);
-        }
+        bool parsedStatus = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease);
+        bool parsedProtection = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"), out float protectionIncrease);
+        statusIncrease = parsedStatus ? statusIncrease : 1.0f;
+        protectionIncrease = parsedProtection ? protectionIncrease : 1.0f;
+
+        Shared.Instance.RefreshArmorAttributes(
+            armorSlot,
+            protectionIncrease,
+            protectionIncrease,
+            statusIncrease,
+            statusIncrease,
+            statusIncrease,
+            statusIncrease,
+            statusIncrease);
     }
 
     private void StatsUpdated(IPlayer player, List<ItemSlot> items)
     {
         foreach (ItemSlot armorSlot in items)
         {
-            if (float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease))
-            {
-                Shared.Instance.RefreshArmorAttributes(armorSlot, statusIncrease);
-            }
+            bool parsedStatus = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease);
+            bool parsedProtection = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"), out float protectionIncrease);
+            statusIncrease = parsedStatus ? statusIncrease : 1.0f;
+            protectionIncrease = parsedProtection ? protectionIncrease : 1.0f;
+
+            Shared.Instance.RefreshArmorAttributes(
+                armorSlot,
+                protectionIncrease,
+                protectionIncrease,
+                statusIncrease,
+                statusIncrease,
+                statusIncrease,
+                statusIncrease,
+                statusIncrease);
         }
     }
 
@@ -111,10 +137,20 @@ class LevelSmithing
     {
         foreach (ItemSlot armorSlot in items)
         {
-            if (float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease))
-            {
-                Shared.Instance.RefreshArmorAttributes(armorSlot, statusIncrease);
-            }
+            bool parsedStatus = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease);
+            bool parsedProtection = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"), out float protectionIncrease);
+            statusIncrease = parsedStatus ? statusIncrease : 1.0f;
+            protectionIncrease = parsedProtection ? protectionIncrease : 1.0f;
+
+            Shared.Instance.RefreshArmorAttributes(
+                armorSlot,
+                protectionIncrease,
+                protectionIncrease,
+                statusIncrease,
+                statusIncrease,
+                statusIncrease,
+                statusIncrease,
+                statusIncrease);
         }
     }
 
@@ -481,9 +517,11 @@ class LevelSmithing
                         if (item.Item is ItemWearable itemWearable)
                         {
                             float multiplyProtection;
+                            float multiplyStats;
                             { // Main Level Calculation
                                 int level = Configuration.SmithingGetLevelByEXP(Experience.GetExperience(player, "Smithing"));
                                 multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+                                multiplyStats = Configuration.SmithingGetArmorStatusMultiplyByLevel(level);
 
                                 // Increasing the armor durability
                                 if (item.Collectible.Durability > 0)
@@ -497,6 +535,7 @@ class LevelSmithing
                             { // Sub Level Calculation
                                 int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", levelType));
                                 multiplyProtection *= Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+                                multiplyStats *= Configuration.SmithingGetArmorStatusMultiplyByLevel(level);
 
                                 // Increasing the armor durability
                                 if (item.Collectible.Durability > 0)
@@ -515,9 +554,10 @@ class LevelSmithing
                             // Generate Base Stats
                             Shared.Instance.GenerateBaseArmorStatus(item);
 
-                            item.Attributes.SetString("LevelUP_Smithing_StatsMultiply", multiplyProtection.ToString());
+                            item.Attributes.SetString("LevelUP_Smithing_ProtectionMultiply", multiplyProtection.ToString());
+                            item.Attributes.SetString("LevelUP_Smithing_StatsMultiply", multiplyStats.ToString());
 
-                            Debug.LogDebug($"{player.PlayerName} crafted any armor protection increased to: {multiplyProtection}");
+                            Debug.LogDebug($"{player.PlayerName} crafted any armor protection increased to: {multiplyProtection}/{multiplyStats}");
                         }
                         // Check if is a shield with protection properties
                         else if (item.Item is ItemShield itemShield)
@@ -525,7 +565,7 @@ class LevelSmithing
                             float multiplyProtection;
                             { // Main Level Calculation
                                 int level = Configuration.SmithingGetLevelByEXP(Experience.GetExperience(player, "Smithing"));
-                                multiplyProtection = Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+                                multiplyProtection = Configuration.SmithingGetArmorStatusMultiplyByLevel(level);
 
                                 // Increasing the armor durability
                                 if (item.Collectible.Durability > 0)
@@ -538,7 +578,7 @@ class LevelSmithing
 
                             { // Sub Level Calculation
                                 int level = Configuration.SmithingGetLevelByEXP(Experience.GetSubExperience(player, "Smithing", levelType));
-                                multiplyProtection *= Configuration.SmithingGetArmorProtectionMultiplyByLevel(level);
+                                multiplyProtection *= Configuration.SmithingGetArmorStatusMultiplyByLevel(level);
 
                                 // Increasing the armor durability
                                 if (item.Collectible.Durability > 0)
