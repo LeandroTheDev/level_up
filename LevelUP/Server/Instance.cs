@@ -74,6 +74,7 @@ public class Instance
         Shared.Instance.levelLeatherArmor.PopulateConfiguration(coreAPI);
         Shared.Instance.levelChainArmor.PopulateConfiguration(coreAPI);
         Shared.Instance.levelBrigandineArmor.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelLamellarArmor.PopulateConfiguration(coreAPI);
         Shared.Instance.levelPlateArmor.PopulateConfiguration(coreAPI);
         Shared.Instance.levelScaleArmor.PopulateConfiguration(coreAPI);
         Shared.Instance.levelSmithing.PopulateConfiguration(coreAPI);
