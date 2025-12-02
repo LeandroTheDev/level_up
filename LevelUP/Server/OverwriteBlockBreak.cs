@@ -32,6 +32,12 @@ class OverwriteBlockBreak
         }
     }
 
+    // Multiplier function called on the end of the transpiler
+    internal static float GetMultiplier(IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, CollectibleObject collectible)
+    {
+        return OverwriteBlockBreakEvents.GetExternalMiningSpeedMultiply(collectible, itemstack, blockSel, block, player, 1.0f);
+    }
+
     // Transpiler to increment mining speed
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]

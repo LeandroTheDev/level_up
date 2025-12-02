@@ -24,6 +24,7 @@
     "enableLevelLeatherArmor": true,
     "enableLevelChainArmor": true,
     "enableLevelBrigandineArmor": true,
+    "enableLevelLamellarArmor": true,
     "enableLevelPlateArmor": true,
     "enableLevelScaleArmor": true,
     "enableLevelSmithing": true,

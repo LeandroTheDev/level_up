@@ -26,7 +26,7 @@
     "status_loot": "Loot Chance: {0}%",
     "status_ore": "Ore: {0}%",
     "status_stonechance": "Keep Stone Chance: {0}%",
-    "status_protectionmultiply": "Protection Multiply: {0}%",
+    "status_protectionmultiply": "Armor/Shield Multiply: {0}%",
     "status_durability": "Durability: {0}%",
     "status_regen": "Regeneration: {0}%",
     "status_additionalhealth": "Additional Health: {0}",
@@ -53,6 +53,7 @@
     "leatherarmor": "Leather Armor",
     "chainarmor": "Chain Armor",
     "brigandinearmor": "Brigandine Armor",
+    "lamellararmor": "Lamellar Armor",
     "platearmor": "Plate Armor",
     "scalearmor": "Scale Armor",
 
