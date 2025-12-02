@@ -396,7 +396,15 @@ class Instance
     /// </summary>
     /// <param name="armorSlot"></param>
     /// <param name="statsIncrease"></param>
-    public static void RefreshArmorAttributes(ItemSlot armorSlot, float statsIncrease)
+    public static void RefreshArmorAttributes(
+        ItemSlot armorSlot, 
+        float relativeProtection = 1.0f,
+        float flatDamageReduction = 1.0f,
+        float healingEffectivness = 1.0f,
+        float hungerRate = 1.0f,
+        float rangedWeaponsAccuracy = 1.0f,
+        float rangedWeaponsSpeed = 1.0f,
+        float walkSpeed = 1.0f)
     {
         if (armorSlot.Itemstack?.Item is not ItemWearable itemWearable) return;
         JsonObject attr = armorSlot.Itemstack.Item?.Attributes;
@@ -416,7 +424,7 @@ class Instance
                     currentMeasured
                 );
 
-                float result = (float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")) + difference) * statsIncrease;
+                float result = (float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")) + difference) * relativeProtection;
                 protectionObj["relativeProtection"] = result;
                 itemWearable.ProtectionModifiers.RelativeProtection = result;
             }
@@ -429,7 +437,7 @@ class Instance
                     currentMeasured
                 );
 
-                float result = (float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")) + difference) * statsIncrease;
+                float result = (float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")) + difference) * flatDamageReduction;
                 protectionObj["flatDamageReduction"] = result;
                 itemWearable.ProtectionModifiers.FlatDamageReduction = result;
             }
@@ -449,7 +457,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(healingEffectivness - 1, 0));
                 statsObj["healingeffectivness"] = result;
                 itemWearable.StatModifers.healingeffectivness = result;
             }
@@ -461,7 +469,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(hungerRate - 1, 0));
                 statsObj["hungerrate"] = result;
                 itemWearable.StatModifers.hungerrate = result;
             }
@@ -473,7 +481,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(rangedWeaponsAccuracy - 1, 0));
                 statsObj["rangedWeaponsAcc"] = result;
                 itemWearable.StatModifers.rangedWeaponsAcc = result;
             }
@@ -485,7 +493,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(rangedWeaponsSpeed - 1, 0));
                 statsObj["rangedWeaponsSpeed"] = result;
                 itemWearable.StatModifers.rangedWeaponsSpeed = result;
             }
@@ -497,7 +505,7 @@ class Instance
                 float baseValue = float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
-                float result = baseValue + (positiveValue * Math.Max(statsIncrease - 1, 0));
+                float result = baseValue + (positiveValue * Math.Max(walkSpeed - 1, 0));
                 statsObj["walkSpeed"] = result;
                 itemWearable.StatModifers.walkSpeed = result;
             }

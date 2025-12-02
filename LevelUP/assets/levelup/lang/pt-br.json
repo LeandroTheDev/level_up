@@ -29,6 +29,12 @@
     "status_durability": "Durabilidade: {0}%",
     "status_regen": "Regeneração: {0}%",
     "status_additionalhealth": "Vída Adicional: {0}",
+    "status_relativeprotection": "Proteção Relativa: {0}%",
+    "status_flatdamagereduction": "Redução de Dano Puro: {0}%",
+    "status_healingeffectivness": "Eficiência de Cura: {0}%",
+    "status_hungerrate": "Taxa de Fome: {0}%",
+    "status_rangedaccuracy": "Precisão em Longa Distância: {0}%",
+    "status_rangedspeed": "Velocidade em Long Distância: {0}%",
 
     "axe": "Machado",
     "pickaxe": "Picareta",
@@ -54,5 +60,9 @@
     "cooking": "Cozinheiro",
     "panning": "Peneirar",
     "vitality": "Vitalidade",
-    "metabolism": "Metabolismo"
+    "metabolism": "Metabolismo",
+
+    "sewn": "Costurado",
+    "jerkin": "Colete",
+    "bear": "Urso"
 }

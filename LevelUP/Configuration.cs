@@ -3592,14 +3592,14 @@ public static class Configuration
     public static float MetabolismGetSaturationReceiveMultiplyByLevel(int level)
     {
         int reduceEvery = metabolismSaturationReceiveMultiplyReductionEveryLevel;
-        float baseChance = metabolismBaseSaturationReceiveMultiply;
+        float baseSaturation = metabolismBaseSaturationReceiveMultiply;
         float baseIncrement = metabolismSaturationReceiveMultiplyPerLevel;
         float reductionPerStep = metabolismSaturationReceiveMultiplyReductionPerReduce;
 
         double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
 
         double reducer = baseIncrement * (Math.Pow(r, level) - 1) / (r - 1);
-        reducer = baseChance - reducer;
+        reducer = baseSaturation - reducer;
 
         Debug.LogDebug($"[MetabolismGetSaturationReceiveMultiplyByLevel] reducer returned: {reducer}");
 
@@ -3614,8 +3614,42 @@ public static class Configuration
     private static int leatherArmorEXPIncreaseByAmountDamage = 20;
     private static int leatherArmorEXPPerLevelBase = 500;
     private static double leatherArmorEXPMultiplyPerLevel = 1.2;
-    private static float leatherArmorBaseStatsIncrease = 1.0f;
-    private static float leatherArmorStatsIncreasePerLevel = 0.1f;
+
+    private static float leatherArmorRelativeProtectionMultiply = 1.0f;
+    private static float leatherArmorRelativeProtectionMultiplyPerLevel = 0.05f;
+    private static int leatherArmorRelativeProtectionMultiplyReductionEveryLevel = 1;
+    private static float leatherArmorRelativeProtectionMultiplyReductionPerReduce = 0.05f;
+
+    private static float leatherArmorFlatDamageReductionMultiply = 1.0f;
+    private static float leatherArmorFlatDamageReductionMultiplyPerLevel = 0.05f;
+    private static int leatherArmorFlatDamageReductionMultiplyReductionEveryLevel = 1;
+    private static float leatherArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
+
+    private static float leatherArmorHealingEffectivnessMultiply = 1.0f;
+    private static float leatherArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static int leatherArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
+    private static float leatherArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
+
+    private static float leatherArmorHungerRateMultiply = 1.0f;
+    private static float leatherArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static int leatherArmorHungerRateMultiplyReductionEveryLevel = 1;
+    private static float leatherArmorHungerRateMultiplyReductionPerReduce = 0.05f;
+
+    private static float leatherArmorRangedWeaponsAccuracyMultiply = 1.0f;
+    private static float leatherArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static int leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
+    private static float leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
+
+    private static float leatherArmorRangedWeaponsSpeedMultiply = 1.0f;
+    private static float leatherArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static int leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
+    private static float leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
+
+    private static float leatherArmorWalkSpeedMultiply = 1.0f;
+    private static float leatherArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static int leatherArmorWalkSpeedMultiplyReductionEveryLevel = 1;
+    private static float leatherArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
+
     public static int leatherArmorMaxLevel = 999;
 
     public static void PopulateLeatherArmorConfiguration(ICoreAPI api)
@@ -3668,13 +3702,210 @@ public static class Configuration
                 else leatherArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel not set");
         }
-        { //leatherArmorBaseStatsIncrease
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorBaseStatsIncrease", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorBaseStatsIncrease is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorBaseStatsIncrease is not double is {value.GetType()}");
-                else leatherArmorBaseStatsIncrease = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: leatherArmorBaseStatsIncrease not set");
+
+        { //leatherArmorRelativeProtectionMultiply
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRelativeProtectionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiply is not double is {value.GetType()}");
+                else leatherArmorRelativeProtectionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiply not set");
         }
+        { //leatherArmorRelativeProtectionMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRelativeProtectionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorRelativeProtectionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyPerLevel not set");
+        }
+        { //leatherArmorRelativeProtectionMultiplyReductionEveryLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRelativeProtectionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else leatherArmorRelativeProtectionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyReductionEveryLevel not set");
+        }
+        { //leatherArmorRelativeProtectionMultiplyReductionPerReduce
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRelativeProtectionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else leatherArmorRelativeProtectionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRelativeProtectionMultiplyReductionPerReduce not set");
+        }
+
+        { //leatherArmorFlatDamageReductionMultiply
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorFlatDamageReductionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiply is not double is {value.GetType()}");
+                else leatherArmorFlatDamageReductionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiply not set");
+        }
+        { //leatherArmorFlatDamageReductionMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorFlatDamageReductionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorFlatDamageReductionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyPerLevel not set");
+        }
+        { //leatherArmorFlatDamageReductionMultiplyReductionEveryLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorFlatDamageReductionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else leatherArmorFlatDamageReductionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyReductionEveryLevel not set");
+        }
+        { //leatherArmorFlatDamageReductionMultiplyReductionPerReduce
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorFlatDamageReductionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else leatherArmorFlatDamageReductionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorFlatDamageReductionMultiplyReductionPerReduce not set");
+        }
+
+        { //leatherArmorHealingEffectivnessMultiply
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorHealingEffectivnessMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiply is not double is {value.GetType()}");
+                else leatherArmorHealingEffectivnessMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiply not set");
+        }
+        { //leatherArmorHealingEffectivnessMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorHealingEffectivnessMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorHealingEffectivnessMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyPerLevel not set");
+        }
+        { //leatherArmorHealingEffectivnessMultiplyReductionEveryLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorHealingEffectivnessMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else leatherArmorHealingEffectivnessMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyReductionEveryLevel not set");
+        }
+        { //leatherArmorHealingEffectivnessMultiplyReductionPerReduce
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorHealingEffectivnessMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else leatherArmorHealingEffectivnessMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorHealingEffectivnessMultiplyReductionPerReduce not set");
+        }
+
+        { //leatherArmorHungerRateMultiply
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorHungerRateMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorHungerRateMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorHungerRateMultiply is not double is {value.GetType()}");
+                else leatherArmorHungerRateMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorHungerRateMultiply not set");
+        }
+        { //leatherArmorHungerRateMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorHungerRateMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorHungerRateMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorHungerRateMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorHungerRateMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorHungerRateMultiplyPerLevel not set");
+        }
+        { //leatherArmorHungerRateMultiplyReductionEveryLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorHungerRateMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorHungerRateMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorHungerRateMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else leatherArmorHungerRateMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorHungerRateMultiplyReductionEveryLevel not set");
+        }
+        { //leatherArmorHungerRateMultiplyReductionPerReduce
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorHungerRateMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorHungerRateMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorHungerRateMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else leatherArmorHungerRateMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorHungerRateMultiplyReductionPerReduce not set");
+        }
+
+        { //leatherArmorRangedWeaponsAccuracyMultiply
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRangedWeaponsAccuracyMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiply is not double is {value.GetType()}");
+                else leatherArmorRangedWeaponsAccuracyMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiply not set");
+        }
+        { //leatherArmorRangedWeaponsAccuracyMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRangedWeaponsAccuracyMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorRangedWeaponsAccuracyMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyPerLevel not set");
+        }
+        { //leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel not set");
+        }
+        { //leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce not set");
+        }
+
+        { //leatherArmorRangedWeaponsSpeedMultiply
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRangedWeaponsSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiply is not double is {value.GetType()}");
+                else leatherArmorRangedWeaponsSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiply not set");
+        }
+        { //leatherArmorRangedWeaponsSpeedMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRangedWeaponsSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorRangedWeaponsSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyPerLevel not set");
+        }
+        { //leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce not set");
+        }
+
+        { //leatherArmorWalkSpeedMultiply
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorWalkSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorWalkSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorWalkSpeedMultiply is not double is {value.GetType()}");
+                else leatherArmorWalkSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorWalkSpeedMultiply not set");
+        }
+        { //leatherArmorWalkSpeedMultiplyPerLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorWalkSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else leatherArmorWalkSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyPerLevel not set");
+        }
+        { //leatherArmorWalkSpeedMultiplyReductionEveryLevel
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorWalkSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else leatherArmorWalkSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //leatherArmorWalkSpeedMultiplyReductionPerReduce
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorWalkSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else leatherArmorWalkSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorWalkSpeedMultiplyReductionPerReduce not set");
+        }
+
         { //leatherArmorMaxLevel
             if (leatherArmorLevelStats.TryGetValue("leatherArmorMaxLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorMaxLevel is null");
@@ -3729,7 +3960,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-
     public static int LeatherArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         int calcDamage = (int)Math.Round(damage);
@@ -3741,9 +3971,109 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float LeatherArmorStatsIncreaseByLevel(int level)
+    public static float LeatherArmorRelativeProtectionMultiplyByLevel(int level)
     {
-        return leatherArmorBaseStatsIncrease + leatherArmorStatsIncreasePerLevel * level;
+        int reduceEvery = leatherArmorRelativeProtectionMultiplyReductionEveryLevel;
+        float baseMultiply = leatherArmorRelativeProtectionMultiply;
+        float baseIncrement = leatherArmorRelativeProtectionMultiplyPerLevel;
+        float reductionPerStep = leatherArmorRelativeProtectionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LeatherArmorFlatDamageReductionMultiplyByLevel(int level)
+    {
+        int reduceEvery = leatherArmorFlatDamageReductionMultiplyReductionEveryLevel;
+        float baseMultiply = leatherArmorFlatDamageReductionMultiply;
+        float baseIncrement = leatherArmorFlatDamageReductionMultiplyPerLevel;
+        float reductionPerStep = leatherArmorFlatDamageReductionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LeatherArmorHealingEffectivnessMultiplyByLevel(int level)
+    {
+        int reduceEvery = leatherArmorHealingEffectivnessMultiplyReductionEveryLevel;
+        float baseMultiply = leatherArmorHealingEffectivnessMultiply;
+        float baseIncrement = leatherArmorHealingEffectivnessMultiplyPerLevel;
+        float reductionPerStep = leatherArmorHealingEffectivnessMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LeatherArmorHungerRateMultiplyByLevel(int level)
+    {
+        int reduceEvery = leatherArmorHungerRateMultiplyReductionEveryLevel;
+        float baseMultiply = leatherArmorHungerRateMultiply;
+        float baseIncrement = leatherArmorHungerRateMultiplyPerLevel;
+        float reductionPerStep = leatherArmorHungerRateMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LeatherArmorRangedWeaponsAccuracyMultiplyByLevel(int level)
+    {
+        int reduceEvery = leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel;
+        float baseMultiply = leatherArmorRangedWeaponsAccuracyMultiply;
+        float baseIncrement = leatherArmorRangedWeaponsAccuracyMultiplyPerLevel;
+        float reductionPerStep = leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LeatherArmorRangedWeaponsSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = leatherArmorRangedWeaponsSpeedMultiply;
+        float baseIncrement = leatherArmorRangedWeaponsSpeedMultiplyPerLevel;
+        float reductionPerStep = leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LeatherArmorWalkSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = leatherArmorWalkSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = leatherArmorWalkSpeedMultiply;
+        float baseIncrement = leatherArmorWalkSpeedMultiplyPerLevel;
+        float reductionPerStep = leatherArmorWalkSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
     }
     #endregion
 
@@ -3754,8 +4084,42 @@ public static class Configuration
     private static int chainArmorEXPIncreaseByAmountDamage = 20;
     private static int chainArmorEXPPerLevelBase = 500;
     private static double chainArmorEXPMultiplyPerLevel = 1.2;
-    private static float chainArmorBaseStatsIncrease = 1.0f;
-    private static float chainArmorStatsIncreasePerLevel = 0.1f;
+
+    private static float chainArmorRelativeProtectionMultiply = 1.0f;
+    private static float chainArmorRelativeProtectionMultiplyPerLevel = 0.05f;
+    private static int chainArmorRelativeProtectionMultiplyReductionEveryLevel = 1;
+    private static float chainArmorRelativeProtectionMultiplyReductionPerReduce = 0.05f;
+
+    private static float chainArmorFlatDamageReductionMultiply = 1.0f;
+    private static float chainArmorFlatDamageReductionMultiplyPerLevel = 0.05f;
+    private static int chainArmorFlatDamageReductionMultiplyReductionEveryLevel = 1;
+    private static float chainArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
+
+    private static float chainArmorHealingEffectivnessMultiply = 1.0f;
+    private static float chainArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static int chainArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
+    private static float chainArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
+
+    private static float chainArmorHungerRateMultiply = 1.0f;
+    private static float chainArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static int chainArmorHungerRateMultiplyReductionEveryLevel = 1;
+    private static float chainArmorHungerRateMultiplyReductionPerReduce = 0.05f;
+
+    private static float chainArmorRangedWeaponsAccuracyMultiply = 1.0f;
+    private static float chainArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static int chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
+    private static float chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
+
+    private static float chainArmorRangedWeaponsSpeedMultiply = 1.0f;
+    private static float chainArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static int chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
+    private static float chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
+
+    private static float chainArmorWalkSpeedMultiply = 1.0f;
+    private static float chainArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static int chainArmorWalkSpeedMultiplyReductionEveryLevel = 1;
+    private static float chainArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
+
     public static int chainArmorMaxLevel = 999;
 
     public static void PopulateChainArmorConfiguration(ICoreAPI api)
@@ -3801,20 +4165,217 @@ public static class Configuration
                 else chainArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel not set");
         }
-        { //chainArmorBaseStatsIncrease
-            if (chainArmorLevelStats.TryGetValue("chainArmorBaseStatsIncrease", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorBaseStatsIncrease is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorBaseStatsIncrease is not double is {value.GetType()}");
-                else chainArmorBaseStatsIncrease = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: chainArmorBaseStatsIncrease not set");
+        { //chainArmorEXPMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel not set");
         }
-        { //chainArmorStatsIncreasePerLevel
-            if (chainArmorLevelStats.TryGetValue("chainArmorStatsIncreasePerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorStatsIncreasePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorStatsIncreasePerLevel is not double is {value.GetType()}");
-                else chainArmorStatsIncreasePerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: chainArmorStatsIncreasePerLevel not set");
+
+        { //chainArmorRelativeProtectionMultiply
+            if (chainArmorLevelStats.TryGetValue("chainArmorRelativeProtectionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRelativeProtectionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRelativeProtectionMultiply is not double is {value.GetType()}");
+                else chainArmorRelativeProtectionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRelativeProtectionMultiply not set");
         }
+        { //chainArmorRelativeProtectionMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorRelativeProtectionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorRelativeProtectionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyPerLevel not set");
+        }
+        { //chainArmorRelativeProtectionMultiplyReductionEveryLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorRelativeProtectionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else chainArmorRelativeProtectionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyReductionEveryLevel not set");
+        }
+        { //chainArmorRelativeProtectionMultiplyReductionPerReduce
+            if (chainArmorLevelStats.TryGetValue("chainArmorRelativeProtectionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else chainArmorRelativeProtectionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRelativeProtectionMultiplyReductionPerReduce not set");
+        }
+
+        { //chainArmorFlatDamageReductionMultiply
+            if (chainArmorLevelStats.TryGetValue("chainArmorFlatDamageReductionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiply is not double is {value.GetType()}");
+                else chainArmorFlatDamageReductionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiply not set");
+        }
+        { //chainArmorFlatDamageReductionMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorFlatDamageReductionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorFlatDamageReductionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyPerLevel not set");
+        }
+        { //chainArmorFlatDamageReductionMultiplyReductionEveryLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorFlatDamageReductionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else chainArmorFlatDamageReductionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyReductionEveryLevel not set");
+        }
+        { //chainArmorFlatDamageReductionMultiplyReductionPerReduce
+            if (chainArmorLevelStats.TryGetValue("chainArmorFlatDamageReductionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else chainArmorFlatDamageReductionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorFlatDamageReductionMultiplyReductionPerReduce not set");
+        }
+
+        { //chainArmorHealingEffectivnessMultiply
+            if (chainArmorLevelStats.TryGetValue("chainArmorHealingEffectivnessMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiply is not double is {value.GetType()}");
+                else chainArmorHealingEffectivnessMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiply not set");
+        }
+        { //chainArmorHealingEffectivnessMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorHealingEffectivnessMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorHealingEffectivnessMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyPerLevel not set");
+        }
+        { //chainArmorHealingEffectivnessMultiplyReductionEveryLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorHealingEffectivnessMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else chainArmorHealingEffectivnessMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyReductionEveryLevel not set");
+        }
+        { //chainArmorHealingEffectivnessMultiplyReductionPerReduce
+            if (chainArmorLevelStats.TryGetValue("chainArmorHealingEffectivnessMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else chainArmorHealingEffectivnessMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorHealingEffectivnessMultiplyReductionPerReduce not set");
+        }
+
+        { //chainArmorHungerRateMultiply
+            if (chainArmorLevelStats.TryGetValue("chainArmorHungerRateMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorHungerRateMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorHungerRateMultiply is not double is {value.GetType()}");
+                else chainArmorHungerRateMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorHungerRateMultiply not set");
+        }
+        { //chainArmorHungerRateMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorHungerRateMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorHungerRateMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorHungerRateMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorHungerRateMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorHungerRateMultiplyPerLevel not set");
+        }
+        { //chainArmorHungerRateMultiplyReductionEveryLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorHungerRateMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorHungerRateMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorHungerRateMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else chainArmorHungerRateMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorHungerRateMultiplyReductionEveryLevel not set");
+        }
+        { //chainArmorHungerRateMultiplyReductionPerReduce
+            if (chainArmorLevelStats.TryGetValue("chainArmorHungerRateMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorHungerRateMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorHungerRateMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else chainArmorHungerRateMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorHungerRateMultiplyReductionPerReduce not set");
+        }
+
+        { //chainArmorRangedWeaponsAccuracyMultiply
+            if (chainArmorLevelStats.TryGetValue("chainArmorRangedWeaponsAccuracyMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiply is not double is {value.GetType()}");
+                else chainArmorRangedWeaponsAccuracyMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiply not set");
+        }
+        { //chainArmorRangedWeaponsAccuracyMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorRangedWeaponsAccuracyMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorRangedWeaponsAccuracyMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyPerLevel not set");
+        }
+        { //chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel not set");
+        }
+        { //chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce
+            if (chainArmorLevelStats.TryGetValue("chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce not set");
+        }
+
+        { //chainArmorRangedWeaponsSpeedMultiply
+            if (chainArmorLevelStats.TryGetValue("chainArmorRangedWeaponsSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiply is not double is {value.GetType()}");
+                else chainArmorRangedWeaponsSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiply not set");
+        }
+        { //chainArmorRangedWeaponsSpeedMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorRangedWeaponsSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorRangedWeaponsSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyPerLevel not set");
+        }
+        { //chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce
+            if (chainArmorLevelStats.TryGetValue("chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce not set");
+        }
+
+        { //chainArmorWalkSpeedMultiply
+            if (chainArmorLevelStats.TryGetValue("chainArmorWalkSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorWalkSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorWalkSpeedMultiply is not double is {value.GetType()}");
+                else chainArmorWalkSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorWalkSpeedMultiply not set");
+        }
+        { //chainArmorWalkSpeedMultiplyPerLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorWalkSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else chainArmorWalkSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyPerLevel not set");
+        }
+        { //chainArmorWalkSpeedMultiplyReductionEveryLevel
+            if (chainArmorLevelStats.TryGetValue("chainArmorWalkSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else chainArmorWalkSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //chainArmorWalkSpeedMultiplyReductionPerReduce
+            if (chainArmorLevelStats.TryGetValue("chainArmorWalkSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else chainArmorWalkSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorWalkSpeedMultiplyReductionPerReduce not set");
+        }
+
         { //chainArmorMaxLevel
             if (chainArmorLevelStats.TryGetValue("chainArmorMaxLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorMaxLevel is null");
@@ -3823,7 +4384,7 @@ public static class Configuration
             else Debug.LogError("CONFIGURATION ERROR: chainArmorMaxLevel not set");
         }
 
-        // Get leather armor multiply exp
+        // Get chain armor multiply exp
         expMultiplyHitChainArmor.Clear();
         Dictionary<string, object> tmpexpMultiplyHitChainArmor = LoadConfigurationByDirectoryAndName(
             api,
@@ -3869,7 +4430,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-
     public static int ChainArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         int calcDamage = (int)Math.Round(damage);
@@ -3881,9 +4441,109 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float ChainArmorStatsIncreaseByLevel(int level)
+    public static float ChainArmorRelativeProtectionMultiplyByLevel(int level)
     {
-        return chainArmorBaseStatsIncrease + chainArmorStatsIncreasePerLevel * level;
+        int reduceEvery = chainArmorRelativeProtectionMultiplyReductionEveryLevel;
+        float baseMultiply = chainArmorRelativeProtectionMultiply;
+        float baseIncrement = chainArmorRelativeProtectionMultiplyPerLevel;
+        float reductionPerStep = chainArmorRelativeProtectionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ChainArmorFlatDamageReductionMultiplyByLevel(int level)
+    {
+        int reduceEvery = chainArmorFlatDamageReductionMultiplyReductionEveryLevel;
+        float baseMultiply = chainArmorFlatDamageReductionMultiply;
+        float baseIncrement = chainArmorFlatDamageReductionMultiplyPerLevel;
+        float reductionPerStep = chainArmorFlatDamageReductionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ChainArmorHealingEffectivnessMultiplyByLevel(int level)
+    {
+        int reduceEvery = chainArmorHealingEffectivnessMultiplyReductionEveryLevel;
+        float baseMultiply = chainArmorHealingEffectivnessMultiply;
+        float baseIncrement = chainArmorHealingEffectivnessMultiplyPerLevel;
+        float reductionPerStep = chainArmorHealingEffectivnessMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ChainArmorHungerRateMultiplyByLevel(int level)
+    {
+        int reduceEvery = chainArmorHungerRateMultiplyReductionEveryLevel;
+        float baseMultiply = chainArmorHungerRateMultiply;
+        float baseIncrement = chainArmorHungerRateMultiplyPerLevel;
+        float reductionPerStep = chainArmorHungerRateMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ChainArmorRangedWeaponsAccuracyMultiplyByLevel(int level)
+    {
+        int reduceEvery = chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel;
+        float baseMultiply = chainArmorRangedWeaponsAccuracyMultiply;
+        float baseIncrement = chainArmorRangedWeaponsAccuracyMultiplyPerLevel;
+        float reductionPerStep = chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ChainArmorRangedWeaponsSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = chainArmorRangedWeaponsSpeedMultiply;
+        float baseIncrement = chainArmorRangedWeaponsSpeedMultiplyPerLevel;
+        float reductionPerStep = chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ChainArmorWalkSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = chainArmorWalkSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = chainArmorWalkSpeedMultiply;
+        float baseIncrement = chainArmorWalkSpeedMultiplyPerLevel;
+        float reductionPerStep = chainArmorWalkSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
     }
     #endregion
 
@@ -3894,8 +4554,42 @@ public static class Configuration
     private static int brigandineArmorEXPIncreaseByAmountDamage = 20;
     private static int brigandineArmorEXPPerLevelBase = 500;
     private static double brigandineArmorEXPMultiplyPerLevel = 1.2;
-    private static float brigandineArmorBaseStatsIncrease = 1.0f;
-    private static float brigandineArmorStatsIncreasePerLevel = 0.1f;
+
+    private static float brigandineArmorRelativeProtectionMultiply = 1.0f;
+    private static float brigandineArmorRelativeProtectionMultiplyPerLevel = 0.05f;
+    private static int brigandineArmorRelativeProtectionMultiplyReductionEveryLevel = 1;
+    private static float brigandineArmorRelativeProtectionMultiplyReductionPerReduce = 0.05f;
+
+    private static float brigandineArmorFlatDamageReductionMultiply = 1.0f;
+    private static float brigandineArmorFlatDamageReductionMultiplyPerLevel = 0.05f;
+    private static int brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel = 1;
+    private static float brigandineArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
+
+    private static float brigandineArmorHealingEffectivnessMultiply = 1.0f;
+    private static float brigandineArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static int brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
+    private static float brigandineArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
+
+    private static float brigandineArmorHungerRateMultiply = 1.0f;
+    private static float brigandineArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static int brigandineArmorHungerRateMultiplyReductionEveryLevel = 1;
+    private static float brigandineArmorHungerRateMultiplyReductionPerReduce = 0.05f;
+
+    private static float brigandineArmorRangedWeaponsAccuracyMultiply = 1.0f;
+    private static float brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static int brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
+    private static float brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
+
+    private static float brigandineArmorRangedWeaponsSpeedMultiply = 1.0f;
+    private static float brigandineArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static int brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
+    private static float brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
+
+    private static float brigandineArmorWalkSpeedMultiply = 1.0f;
+    private static float brigandineArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static int brigandineArmorWalkSpeedMultiplyReductionEveryLevel = 1;
+    private static float brigandineArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
+
     public static int brigandineArmorMaxLevel = 999;
 
     public static void PopulateBrigandineArmorConfiguration(ICoreAPI api)
@@ -3941,20 +4635,217 @@ public static class Configuration
                 else brigandineArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel not set");
         }
-        { //brigandineArmorBaseStatsIncrease
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorBaseStatsIncrease", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorBaseStatsIncrease is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorBaseStatsIncrease is not double is {value.GetType()}");
-                else brigandineArmorBaseStatsIncrease = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorBaseStatsIncrease not set");
+        { //brigandineArmorEXPMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel not set");
         }
-        { //brigandineArmorStatsIncreasePerLevel
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorStatsIncreasePerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorStatsIncreasePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorStatsIncreasePerLevel is not double is {value.GetType()}");
-                else brigandineArmorStatsIncreasePerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorStatsIncreasePerLevel not set");
+
+        { //brigandineArmorRelativeProtectionMultiply
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRelativeProtectionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiply is not double is {value.GetType()}");
+                else brigandineArmorRelativeProtectionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiply not set");
         }
+        { //brigandineArmorRelativeProtectionMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRelativeProtectionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorRelativeProtectionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyPerLevel not set");
+        }
+        { //brigandineArmorRelativeProtectionMultiplyReductionEveryLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRelativeProtectionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else brigandineArmorRelativeProtectionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyReductionEveryLevel not set");
+        }
+        { //brigandineArmorRelativeProtectionMultiplyReductionPerReduce
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRelativeProtectionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else brigandineArmorRelativeProtectionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRelativeProtectionMultiplyReductionPerReduce not set");
+        }
+
+        { //brigandineArmorFlatDamageReductionMultiply
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorFlatDamageReductionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiply is not double is {value.GetType()}");
+                else brigandineArmorFlatDamageReductionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiply not set");
+        }
+        { //brigandineArmorFlatDamageReductionMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorFlatDamageReductionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorFlatDamageReductionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyPerLevel not set");
+        }
+        { //brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel not set");
+        }
+        { //brigandineArmorFlatDamageReductionMultiplyReductionPerReduce
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorFlatDamageReductionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else brigandineArmorFlatDamageReductionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorFlatDamageReductionMultiplyReductionPerReduce not set");
+        }
+
+        { //brigandineArmorHealingEffectivnessMultiply
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorHealingEffectivnessMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiply is not double is {value.GetType()}");
+                else brigandineArmorHealingEffectivnessMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiply not set");
+        }
+        { //brigandineArmorHealingEffectivnessMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorHealingEffectivnessMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorHealingEffectivnessMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyPerLevel not set");
+        }
+        { //brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel not set");
+        }
+        { //brigandineArmorHealingEffectivnessMultiplyReductionPerReduce
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorHealingEffectivnessMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else brigandineArmorHealingEffectivnessMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorHealingEffectivnessMultiplyReductionPerReduce not set");
+        }
+
+        { //brigandineArmorHungerRateMultiply
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorHungerRateMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorHungerRateMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorHungerRateMultiply is not double is {value.GetType()}");
+                else brigandineArmorHungerRateMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorHungerRateMultiply not set");
+        }
+        { //brigandineArmorHungerRateMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorHungerRateMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorHungerRateMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyPerLevel not set");
+        }
+        { //brigandineArmorHungerRateMultiplyReductionEveryLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorHungerRateMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else brigandineArmorHungerRateMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyReductionEveryLevel not set");
+        }
+        { //brigandineArmorHungerRateMultiplyReductionPerReduce
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorHungerRateMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else brigandineArmorHungerRateMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorHungerRateMultiplyReductionPerReduce not set");
+        }
+
+        { //brigandineArmorRangedWeaponsAccuracyMultiply
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRangedWeaponsAccuracyMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiply is not double is {value.GetType()}");
+                else brigandineArmorRangedWeaponsAccuracyMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiply not set");
+        }
+        { //brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel not set");
+        }
+        { //brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel not set");
+        }
+        { //brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce not set");
+        }
+
+        { //brigandineArmorRangedWeaponsSpeedMultiply
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRangedWeaponsSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiply is not double is {value.GetType()}");
+                else brigandineArmorRangedWeaponsSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiply not set");
+        }
+        { //brigandineArmorRangedWeaponsSpeedMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRangedWeaponsSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorRangedWeaponsSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyPerLevel not set");
+        }
+        { //brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce not set");
+        }
+
+        { //brigandineArmorWalkSpeedMultiply
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorWalkSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiply is not double is {value.GetType()}");
+                else brigandineArmorWalkSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiply not set");
+        }
+        { //brigandineArmorWalkSpeedMultiplyPerLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorWalkSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else brigandineArmorWalkSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyPerLevel not set");
+        }
+        { //brigandineArmorWalkSpeedMultiplyReductionEveryLevel
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorWalkSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else brigandineArmorWalkSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //brigandineArmorWalkSpeedMultiplyReductionPerReduce
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorWalkSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else brigandineArmorWalkSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorWalkSpeedMultiplyReductionPerReduce not set");
+        }
+
         { //brigandineArmorMaxLevel
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorMaxLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorMaxLevel is null");
@@ -3963,7 +4854,7 @@ public static class Configuration
             else Debug.LogError("CONFIGURATION ERROR: brigandineArmorMaxLevel not set");
         }
 
-        // Get leather armor multiply exp
+        // Get brigandine armor multiply exp
         expMultiplyHitBrigandineArmor.Clear();
         Dictionary<string, object> tmpexpMultiplyHitBrigandineArmor = LoadConfigurationByDirectoryAndName(
             api,
@@ -3989,6 +4880,7 @@ public static class Configuration
         }
 
         double expDouble = exp;
+
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
@@ -4008,7 +4900,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-
     public static int BrigandineArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         int calcDamage = (int)Math.Round(damage);
@@ -4020,9 +4911,109 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float BrigandineArmorStatsIncreaseByLevel(int level)
+    public static float BrigandineArmorRelativeProtectionMultiplyByLevel(int level)
     {
-        return brigandineArmorBaseStatsIncrease + brigandineArmorStatsIncreasePerLevel * level;
+        int reduceEvery = brigandineArmorRelativeProtectionMultiplyReductionEveryLevel;
+        float baseMultiply = brigandineArmorRelativeProtectionMultiply;
+        float baseIncrement = brigandineArmorRelativeProtectionMultiplyPerLevel;
+        float reductionPerStep = brigandineArmorRelativeProtectionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float BrigandineArmorFlatDamageReductionMultiplyByLevel(int level)
+    {
+        int reduceEvery = brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel;
+        float baseMultiply = brigandineArmorFlatDamageReductionMultiply;
+        float baseIncrement = brigandineArmorFlatDamageReductionMultiplyPerLevel;
+        float reductionPerStep = brigandineArmorFlatDamageReductionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float BrigandineArmorHealingEffectivnessMultiplyByLevel(int level)
+    {
+        int reduceEvery = brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel;
+        float baseMultiply = brigandineArmorHealingEffectivnessMultiply;
+        float baseIncrement = brigandineArmorHealingEffectivnessMultiplyPerLevel;
+        float reductionPerStep = brigandineArmorHealingEffectivnessMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float BrigandineArmorHungerRateMultiplyByLevel(int level)
+    {
+        int reduceEvery = brigandineArmorHungerRateMultiplyReductionEveryLevel;
+        float baseMultiply = brigandineArmorHungerRateMultiply;
+        float baseIncrement = brigandineArmorHungerRateMultiplyPerLevel;
+        float reductionPerStep = brigandineArmorHungerRateMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float BrigandineArmorRangedWeaponsAccuracyMultiplyByLevel(int level)
+    {
+        int reduceEvery = brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel;
+        float baseMultiply = brigandineArmorRangedWeaponsAccuracyMultiply;
+        float baseIncrement = brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel;
+        float reductionPerStep = brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float BrigandineArmorRangedWeaponsSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = brigandineArmorRangedWeaponsSpeedMultiply;
+        float baseIncrement = brigandineArmorRangedWeaponsSpeedMultiplyPerLevel;
+        float reductionPerStep = brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float BrigandineArmorWalkSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = brigandineArmorWalkSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = brigandineArmorWalkSpeedMultiply;
+        float baseIncrement = brigandineArmorWalkSpeedMultiplyPerLevel;
+        float reductionPerStep = brigandineArmorWalkSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
     }
     #endregion
 
@@ -4033,8 +5024,42 @@ public static class Configuration
     private static int lamellarArmorEXPIncreaseByAmountDamage = 20;
     private static int lamellarArmorEXPPerLevelBase = 500;
     private static double lamellarArmorEXPMultiplyPerLevel = 1.2;
-    private static float lamellarArmorBaseStatsIncrease = 1.0f;
-    private static float lamellarArmorStatsIncreasePerLevel = 0.1f;
+
+    private static float lamellarArmorRelativeProtectionMultiply = 1.0f;
+    private static float lamellarArmorRelativeProtectionMultiplyPerLevel = 0.05f;
+    private static int lamellarArmorRelativeProtectionMultiplyReductionEveryLevel = 1;
+    private static float lamellarArmorRelativeProtectionMultiplyReductionPerReduce = 0.05f;
+
+    private static float lamellarArmorFlatDamageReductionMultiply = 1.0f;
+    private static float lamellarArmorFlatDamageReductionMultiplyPerLevel = 0.05f;
+    private static int lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel = 1;
+    private static float lamellarArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
+
+    private static float lamellarArmorHealingEffectivnessMultiply = 1.0f;
+    private static float lamellarArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static int lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
+    private static float lamellarArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
+
+    private static float lamellarArmorHungerRateMultiply = 1.0f;
+    private static float lamellarArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static int lamellarArmorHungerRateMultiplyReductionEveryLevel = 1;
+    private static float lamellarArmorHungerRateMultiplyReductionPerReduce = 0.05f;
+
+    private static float lamellarArmorRangedWeaponsAccuracyMultiply = 1.0f;
+    private static float lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static int lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
+    private static float lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
+
+    private static float lamellarArmorRangedWeaponsSpeedMultiply = 1.0f;
+    private static float lamellarArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static int lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
+    private static float lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
+
+    private static float lamellarArmorWalkSpeedMultiply = 1.0f;
+    private static float lamellarArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static int lamellarArmorWalkSpeedMultiplyReductionEveryLevel = 1;
+    private static float lamellarArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
+
     public static int lamellarArmorMaxLevel = 999;
 
     public static void PopulateLamellarArmorConfiguration(ICoreAPI api)
@@ -4050,7 +5075,7 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPPerReceiveHit is not int is {value.GetType()}");
                 else lamellarArmorEXPPerReceiveHit = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPPerReceiveHit not set");
-            Experience.LoadExperience("lamellarArmor", "Hit", (ulong)lamellarArmorEXPPerReceiveHit);
+            Experience.LoadExperience("LamellarArmor", "Hit", (ulong)lamellarArmorEXPPerReceiveHit);
         }
         { //lamellarArmorEXPMultiplyByDamage
             if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPMultiplyByDamage", out object value))
@@ -4080,20 +5105,217 @@ public static class Configuration
                 else lamellarArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel not set");
         }
-        { //lamellarArmorBaseStatsIncrease
-            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorBaseStatsIncrease", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorBaseStatsIncrease is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorBaseStatsIncrease is not double is {value.GetType()}");
-                else lamellarArmorBaseStatsIncrease = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorBaseStatsIncrease not set");
+        { //lamellarArmorEXPMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel not set");
         }
-        { //lamellarArmorStatsIncreasePerLevel
-            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorStatsIncreasePerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorStatsIncreasePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorStatsIncreasePerLevel is not double is {value.GetType()}");
-                else lamellarArmorStatsIncreasePerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorStatsIncreasePerLevel not set");
+
+        { //lamellarArmorRelativeProtectionMultiply
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRelativeProtectionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiply is not double is {value.GetType()}");
+                else lamellarArmorRelativeProtectionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiply not set");
         }
+        { //lamellarArmorRelativeProtectionMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRelativeProtectionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorRelativeProtectionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyPerLevel not set");
+        }
+        { //lamellarArmorRelativeProtectionMultiplyReductionEveryLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRelativeProtectionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else lamellarArmorRelativeProtectionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyReductionEveryLevel not set");
+        }
+        { //lamellarArmorRelativeProtectionMultiplyReductionPerReduce
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRelativeProtectionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else lamellarArmorRelativeProtectionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRelativeProtectionMultiplyReductionPerReduce not set");
+        }
+
+        { //lamellarArmorFlatDamageReductionMultiply
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorFlatDamageReductionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiply is not double is {value.GetType()}");
+                else lamellarArmorFlatDamageReductionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiply not set");
+        }
+        { //lamellarArmorFlatDamageReductionMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorFlatDamageReductionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorFlatDamageReductionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyPerLevel not set");
+        }
+        { //lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel not set");
+        }
+        { //lamellarArmorFlatDamageReductionMultiplyReductionPerReduce
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorFlatDamageReductionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else lamellarArmorFlatDamageReductionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorFlatDamageReductionMultiplyReductionPerReduce not set");
+        }
+
+        { //lamellarArmorHealingEffectivnessMultiply
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorHealingEffectivnessMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiply is not double is {value.GetType()}");
+                else lamellarArmorHealingEffectivnessMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiply not set");
+        }
+        { //lamellarArmorHealingEffectivnessMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorHealingEffectivnessMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorHealingEffectivnessMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyPerLevel not set");
+        }
+        { //lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel not set");
+        }
+        { //lamellarArmorHealingEffectivnessMultiplyReductionPerReduce
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorHealingEffectivnessMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else lamellarArmorHealingEffectivnessMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorHealingEffectivnessMultiplyReductionPerReduce not set");
+        }
+
+        { //lamellarArmorHungerRateMultiply
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorHungerRateMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorHungerRateMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorHungerRateMultiply is not double is {value.GetType()}");
+                else lamellarArmorHungerRateMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorHungerRateMultiply not set");
+        }
+        { //lamellarArmorHungerRateMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorHungerRateMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorHungerRateMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyPerLevel not set");
+        }
+        { //lamellarArmorHungerRateMultiplyReductionEveryLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorHungerRateMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else lamellarArmorHungerRateMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyReductionEveryLevel not set");
+        }
+        { //lamellarArmorHungerRateMultiplyReductionPerReduce
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorHungerRateMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else lamellarArmorHungerRateMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorHungerRateMultiplyReductionPerReduce not set");
+        }
+
+        { //lamellarArmorRangedWeaponsAccuracyMultiply
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRangedWeaponsAccuracyMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiply is not double is {value.GetType()}");
+                else lamellarArmorRangedWeaponsAccuracyMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiply not set");
+        }
+        { //lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel not set");
+        }
+        { //lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel not set");
+        }
+        { //lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce not set");
+        }
+
+        { //lamellarArmorRangedWeaponsSpeedMultiply
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRangedWeaponsSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiply is not double is {value.GetType()}");
+                else lamellarArmorRangedWeaponsSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiply not set");
+        }
+        { //lamellarArmorRangedWeaponsSpeedMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRangedWeaponsSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorRangedWeaponsSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyPerLevel not set");
+        }
+        { //lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce not set");
+        }
+
+        { //lamellarArmorWalkSpeedMultiply
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorWalkSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiply is not double is {value.GetType()}");
+                else lamellarArmorWalkSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiply not set");
+        }
+        { //lamellarArmorWalkSpeedMultiplyPerLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorWalkSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else lamellarArmorWalkSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyPerLevel not set");
+        }
+        { //lamellarArmorWalkSpeedMultiplyReductionEveryLevel
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorWalkSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else lamellarArmorWalkSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //lamellarArmorWalkSpeedMultiplyReductionPerReduce
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorWalkSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else lamellarArmorWalkSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorWalkSpeedMultiplyReductionPerReduce not set");
+        }
+
         { //lamellarArmorMaxLevel
             if (lamellarArmorLevelStats.TryGetValue("lamellarArmorMaxLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorMaxLevel is null");
@@ -4102,7 +5324,7 @@ public static class Configuration
             else Debug.LogError("CONFIGURATION ERROR: lamellarArmorMaxLevel not set");
         }
 
-        // Get leather armor multiply exp
+        // Get lamellar armor multiply exp
         expMultiplyHitLamellarArmor.Clear();
         Dictionary<string, object> tmpexpMultiplyHitLamellarArmor = LoadConfigurationByDirectoryAndName(
             api,
@@ -4128,6 +5350,7 @@ public static class Configuration
         }
 
         double expDouble = exp;
+
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
@@ -4147,7 +5370,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-
     public static int LamellarArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         int calcDamage = (int)Math.Round(damage);
@@ -4159,9 +5381,109 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float LamellarArmorStatsIncreaseByLevel(int level)
+    public static float LamellarArmorRelativeProtectionMultiplyByLevel(int level)
     {
-        return lamellarArmorBaseStatsIncrease + lamellarArmorStatsIncreasePerLevel * level;
+        int reduceEvery = lamellarArmorRelativeProtectionMultiplyReductionEveryLevel;
+        float baseMultiply = lamellarArmorRelativeProtectionMultiply;
+        float baseIncrement = lamellarArmorRelativeProtectionMultiplyPerLevel;
+        float reductionPerStep = lamellarArmorRelativeProtectionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LamellarArmorFlatDamageReductionMultiplyByLevel(int level)
+    {
+        int reduceEvery = lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel;
+        float baseMultiply = lamellarArmorFlatDamageReductionMultiply;
+        float baseIncrement = lamellarArmorFlatDamageReductionMultiplyPerLevel;
+        float reductionPerStep = lamellarArmorFlatDamageReductionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LamellarArmorHealingEffectivnessMultiplyByLevel(int level)
+    {
+        int reduceEvery = lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel;
+        float baseMultiply = lamellarArmorHealingEffectivnessMultiply;
+        float baseIncrement = lamellarArmorHealingEffectivnessMultiplyPerLevel;
+        float reductionPerStep = lamellarArmorHealingEffectivnessMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LamellarArmorHungerRateMultiplyByLevel(int level)
+    {
+        int reduceEvery = lamellarArmorHungerRateMultiplyReductionEveryLevel;
+        float baseMultiply = lamellarArmorHungerRateMultiply;
+        float baseIncrement = lamellarArmorHungerRateMultiplyPerLevel;
+        float reductionPerStep = lamellarArmorHungerRateMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LamellarArmorRangedWeaponsAccuracyMultiplyByLevel(int level)
+    {
+        int reduceEvery = lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel;
+        float baseMultiply = lamellarArmorRangedWeaponsAccuracyMultiply;
+        float baseIncrement = lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel;
+        float reductionPerStep = lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LamellarArmorRangedWeaponsSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = lamellarArmorRangedWeaponsSpeedMultiply;
+        float baseIncrement = lamellarArmorRangedWeaponsSpeedMultiplyPerLevel;
+        float reductionPerStep = lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float LamellarArmorWalkSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = lamellarArmorWalkSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = lamellarArmorWalkSpeedMultiply;
+        float baseIncrement = lamellarArmorWalkSpeedMultiplyPerLevel;
+        float reductionPerStep = lamellarArmorWalkSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
     }
     #endregion
 
@@ -4172,8 +5494,42 @@ public static class Configuration
     private static int plateArmorEXPIncreaseByAmountDamage = 20;
     private static int plateArmorEXPPerLevelBase = 500;
     private static double plateArmorEXPMultiplyPerLevel = 1.2;
-    private static float plateArmorBaseStatsIncrease = 1.0f;
-    private static float plateArmorStatsIncreasePerLevel = 0.1f;
+
+    private static float plateArmorRelativeProtectionMultiply = 1.0f;
+    private static float plateArmorRelativeProtectionMultiplyPerLevel = 0.05f;
+    private static int plateArmorRelativeProtectionMultiplyReductionEveryLevel = 1;
+    private static float plateArmorRelativeProtectionMultiplyReductionPerReduce = 0.05f;
+
+    private static float plateArmorFlatDamageReductionMultiply = 1.0f;
+    private static float plateArmorFlatDamageReductionMultiplyPerLevel = 0.05f;
+    private static int plateArmorFlatDamageReductionMultiplyReductionEveryLevel = 1;
+    private static float plateArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
+
+    private static float plateArmorHealingEffectivnessMultiply = 1.0f;
+    private static float plateArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static int plateArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
+    private static float plateArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
+
+    private static float plateArmorHungerRateMultiply = 1.0f;
+    private static float plateArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static int plateArmorHungerRateMultiplyReductionEveryLevel = 1;
+    private static float plateArmorHungerRateMultiplyReductionPerReduce = 0.05f;
+
+    private static float plateArmorRangedWeaponsAccuracyMultiply = 1.0f;
+    private static float plateArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static int plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
+    private static float plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
+
+    private static float plateArmorRangedWeaponsSpeedMultiply = 1.0f;
+    private static float plateArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static int plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
+    private static float plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
+
+    private static float plateArmorWalkSpeedMultiply = 1.0f;
+    private static float plateArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static int plateArmorWalkSpeedMultiplyReductionEveryLevel = 1;
+    private static float plateArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
+
     public static int plateArmorMaxLevel = 999;
 
     public static void PopulatePlateArmorConfiguration(ICoreAPI api)
@@ -4219,20 +5575,217 @@ public static class Configuration
                 else plateArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel not set");
         }
-        { //plateArmorBaseStatsIncrease
-            if (plateArmorLevelStats.TryGetValue("plateArmorBaseStatsIncrease", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorBaseStatsIncrease is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorBaseStatsIncrease is not double is {value.GetType()}");
-                else plateArmorBaseStatsIncrease = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: plateArmorBaseStatsIncrease not set");
+        { //plateArmorEXPMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel not set");
         }
-        { //plateArmorStatsIncreasePerLevel
-            if (plateArmorLevelStats.TryGetValue("plateArmorStatsIncreasePerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorStatsIncreasePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorStatsIncreasePerLevel is not double is {value.GetType()}");
-                else plateArmorStatsIncreasePerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: plateArmorStatsIncreasePerLevel not set");
+
+        { //plateArmorRelativeProtectionMultiply
+            if (plateArmorLevelStats.TryGetValue("plateArmorRelativeProtectionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRelativeProtectionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRelativeProtectionMultiply is not double is {value.GetType()}");
+                else plateArmorRelativeProtectionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRelativeProtectionMultiply not set");
         }
+        { //plateArmorRelativeProtectionMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorRelativeProtectionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorRelativeProtectionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyPerLevel not set");
+        }
+        { //plateArmorRelativeProtectionMultiplyReductionEveryLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorRelativeProtectionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else plateArmorRelativeProtectionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyReductionEveryLevel not set");
+        }
+        { //plateArmorRelativeProtectionMultiplyReductionPerReduce
+            if (plateArmorLevelStats.TryGetValue("plateArmorRelativeProtectionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else plateArmorRelativeProtectionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRelativeProtectionMultiplyReductionPerReduce not set");
+        }
+
+        { //plateArmorFlatDamageReductionMultiply
+            if (plateArmorLevelStats.TryGetValue("plateArmorFlatDamageReductionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiply is not double is {value.GetType()}");
+                else plateArmorFlatDamageReductionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiply not set");
+        }
+        { //plateArmorFlatDamageReductionMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorFlatDamageReductionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorFlatDamageReductionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyPerLevel not set");
+        }
+        { //plateArmorFlatDamageReductionMultiplyReductionEveryLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorFlatDamageReductionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else plateArmorFlatDamageReductionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyReductionEveryLevel not set");
+        }
+        { //plateArmorFlatDamageReductionMultiplyReductionPerReduce
+            if (plateArmorLevelStats.TryGetValue("plateArmorFlatDamageReductionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else plateArmorFlatDamageReductionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorFlatDamageReductionMultiplyReductionPerReduce not set");
+        }
+
+        { //plateArmorHealingEffectivnessMultiply
+            if (plateArmorLevelStats.TryGetValue("plateArmorHealingEffectivnessMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiply is not double is {value.GetType()}");
+                else plateArmorHealingEffectivnessMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiply not set");
+        }
+        { //plateArmorHealingEffectivnessMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorHealingEffectivnessMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorHealingEffectivnessMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyPerLevel not set");
+        }
+        { //plateArmorHealingEffectivnessMultiplyReductionEveryLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorHealingEffectivnessMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else plateArmorHealingEffectivnessMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyReductionEveryLevel not set");
+        }
+        { //plateArmorHealingEffectivnessMultiplyReductionPerReduce
+            if (plateArmorLevelStats.TryGetValue("plateArmorHealingEffectivnessMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else plateArmorHealingEffectivnessMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorHealingEffectivnessMultiplyReductionPerReduce not set");
+        }
+
+        { //plateArmorHungerRateMultiply
+            if (plateArmorLevelStats.TryGetValue("plateArmorHungerRateMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorHungerRateMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorHungerRateMultiply is not double is {value.GetType()}");
+                else plateArmorHungerRateMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorHungerRateMultiply not set");
+        }
+        { //plateArmorHungerRateMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorHungerRateMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorHungerRateMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorHungerRateMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorHungerRateMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorHungerRateMultiplyPerLevel not set");
+        }
+        { //plateArmorHungerRateMultiplyReductionEveryLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorHungerRateMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorHungerRateMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorHungerRateMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else plateArmorHungerRateMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorHungerRateMultiplyReductionEveryLevel not set");
+        }
+        { //plateArmorHungerRateMultiplyReductionPerReduce
+            if (plateArmorLevelStats.TryGetValue("plateArmorHungerRateMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorHungerRateMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorHungerRateMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else plateArmorHungerRateMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorHungerRateMultiplyReductionPerReduce not set");
+        }
+
+        { //plateArmorRangedWeaponsAccuracyMultiply
+            if (plateArmorLevelStats.TryGetValue("plateArmorRangedWeaponsAccuracyMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiply is not double is {value.GetType()}");
+                else plateArmorRangedWeaponsAccuracyMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiply not set");
+        }
+        { //plateArmorRangedWeaponsAccuracyMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorRangedWeaponsAccuracyMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorRangedWeaponsAccuracyMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyPerLevel not set");
+        }
+        { //plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel not set");
+        }
+        { //plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce
+            if (plateArmorLevelStats.TryGetValue("plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce not set");
+        }
+
+        { //plateArmorRangedWeaponsSpeedMultiply
+            if (plateArmorLevelStats.TryGetValue("plateArmorRangedWeaponsSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiply is not double is {value.GetType()}");
+                else plateArmorRangedWeaponsSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiply not set");
+        }
+        { //plateArmorRangedWeaponsSpeedMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorRangedWeaponsSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorRangedWeaponsSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyPerLevel not set");
+        }
+        { //plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce
+            if (plateArmorLevelStats.TryGetValue("plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce not set");
+        }
+
+        { //plateArmorWalkSpeedMultiply
+            if (plateArmorLevelStats.TryGetValue("plateArmorWalkSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorWalkSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorWalkSpeedMultiply is not double is {value.GetType()}");
+                else plateArmorWalkSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorWalkSpeedMultiply not set");
+        }
+        { //plateArmorWalkSpeedMultiplyPerLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorWalkSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else plateArmorWalkSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyPerLevel not set");
+        }
+        { //plateArmorWalkSpeedMultiplyReductionEveryLevel
+            if (plateArmorLevelStats.TryGetValue("plateArmorWalkSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else plateArmorWalkSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //plateArmorWalkSpeedMultiplyReductionPerReduce
+            if (plateArmorLevelStats.TryGetValue("plateArmorWalkSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else plateArmorWalkSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorWalkSpeedMultiplyReductionPerReduce not set");
+        }
+
         { //plateArmorMaxLevel
             if (plateArmorLevelStats.TryGetValue("plateArmorMaxLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorMaxLevel is null");
@@ -4241,7 +5794,7 @@ public static class Configuration
             else Debug.LogError("CONFIGURATION ERROR: plateArmorMaxLevel not set");
         }
 
-        // Get leather armor multiply exp
+        // Get plate armor multiply exp
         expMultiplyHitPlateArmor.Clear();
         Dictionary<string, object> tmpexpMultiplyHitPlateArmor = LoadConfigurationByDirectoryAndName(
             api,
@@ -4267,6 +5820,7 @@ public static class Configuration
         }
 
         double expDouble = exp;
+
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
@@ -4286,7 +5840,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-
     public static int PlateArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         int calcDamage = (int)Math.Round(damage);
@@ -4298,9 +5851,109 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float PlateArmorStatsIncreaseByLevel(int level)
+    public static float PlateArmorRelativeProtectionMultiplyByLevel(int level)
     {
-        return plateArmorBaseStatsIncrease + plateArmorStatsIncreasePerLevel * level;
+        int reduceEvery = plateArmorRelativeProtectionMultiplyReductionEveryLevel;
+        float baseMultiply = plateArmorRelativeProtectionMultiply;
+        float baseIncrement = plateArmorRelativeProtectionMultiplyPerLevel;
+        float reductionPerStep = plateArmorRelativeProtectionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float PlateArmorFlatDamageReductionMultiplyByLevel(int level)
+    {
+        int reduceEvery = plateArmorFlatDamageReductionMultiplyReductionEveryLevel;
+        float baseMultiply = plateArmorFlatDamageReductionMultiply;
+        float baseIncrement = plateArmorFlatDamageReductionMultiplyPerLevel;
+        float reductionPerStep = plateArmorFlatDamageReductionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float PlateArmorHealingEffectivnessMultiplyByLevel(int level)
+    {
+        int reduceEvery = plateArmorHealingEffectivnessMultiplyReductionEveryLevel;
+        float baseMultiply = plateArmorHealingEffectivnessMultiply;
+        float baseIncrement = plateArmorHealingEffectivnessMultiplyPerLevel;
+        float reductionPerStep = plateArmorHealingEffectivnessMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float PlateArmorHungerRateMultiplyByLevel(int level)
+    {
+        int reduceEvery = plateArmorHungerRateMultiplyReductionEveryLevel;
+        float baseMultiply = plateArmorHungerRateMultiply;
+        float baseIncrement = plateArmorHungerRateMultiplyPerLevel;
+        float reductionPerStep = plateArmorHungerRateMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float PlateArmorRangedWeaponsAccuracyMultiplyByLevel(int level)
+    {
+        int reduceEvery = plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel;
+        float baseMultiply = plateArmorRangedWeaponsAccuracyMultiply;
+        float baseIncrement = plateArmorRangedWeaponsAccuracyMultiplyPerLevel;
+        float reductionPerStep = plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float PlateArmorRangedWeaponsSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = plateArmorRangedWeaponsSpeedMultiply;
+        float baseIncrement = plateArmorRangedWeaponsSpeedMultiplyPerLevel;
+        float reductionPerStep = plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float PlateArmorWalkSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = plateArmorWalkSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = plateArmorWalkSpeedMultiply;
+        float baseIncrement = plateArmorWalkSpeedMultiplyPerLevel;
+        float reductionPerStep = plateArmorWalkSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
     }
     #endregion
 
@@ -4311,8 +5964,42 @@ public static class Configuration
     private static int scaleArmorEXPIncreaseByAmountDamage = 20;
     private static int scaleArmorEXPPerLevelBase = 500;
     private static double scaleArmorEXPMultiplyPerLevel = 1.2;
-    private static float scaleArmorBaseStatsIncrease = 1.0f;
-    private static float scaleArmorStatsIncreasePerLevel = 0.1f;
+
+    private static float scaleArmorRelativeProtectionMultiply = 1.0f;
+    private static float scaleArmorRelativeProtectionMultiplyPerLevel = 0.05f;
+    private static int scaleArmorRelativeProtectionMultiplyReductionEveryLevel = 1;
+    private static float scaleArmorRelativeProtectionMultiplyReductionPerReduce = 0.05f;
+
+    private static float scaleArmorFlatDamageReductionMultiply = 1.0f;
+    private static float scaleArmorFlatDamageReductionMultiplyPerLevel = 0.05f;
+    private static int scaleArmorFlatDamageReductionMultiplyReductionEveryLevel = 1;
+    private static float scaleArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
+
+    private static float scaleArmorHealingEffectivnessMultiply = 1.0f;
+    private static float scaleArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static int scaleArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
+    private static float scaleArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
+
+    private static float scaleArmorHungerRateMultiply = 1.0f;
+    private static float scaleArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static int scaleArmorHungerRateMultiplyReductionEveryLevel = 1;
+    private static float scaleArmorHungerRateMultiplyReductionPerReduce = 0.05f;
+
+    private static float scaleArmorRangedWeaponsAccuracyMultiply = 1.0f;
+    private static float scaleArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static int scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
+    private static float scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
+
+    private static float scaleArmorRangedWeaponsSpeedMultiply = 1.0f;
+    private static float scaleArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static int scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
+    private static float scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
+
+    private static float scaleArmorWalkSpeedMultiply = 1.0f;
+    private static float scaleArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static int scaleArmorWalkSpeedMultiplyReductionEveryLevel = 1;
+    private static float scaleArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
+
     public static int scaleArmorMaxLevel = 999;
 
     public static void PopulateScaleArmorConfiguration(ICoreAPI api)
@@ -4358,20 +6045,217 @@ public static class Configuration
                 else scaleArmorEXPMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel not set");
         }
-        { //scaleArmorBaseStatsIncrease
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorBaseStatsIncrease", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorBaseStatsIncrease is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorBaseStatsIncrease is not double is {value.GetType()}");
-                else scaleArmorBaseStatsIncrease = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: scaleArmorBaseStatsIncrease not set");
+        { //scaleArmorEXPMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorEXPMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel not set");
         }
-        { //scaleArmorStatsIncreasePerLevel
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorStatsIncreasePerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorStatsIncreasePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorStatsIncreasePerLevel is not double is {value.GetType()}");
-                else scaleArmorStatsIncreasePerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: scaleArmorStatsIncreasePerLevel not set");
+
+        { //scaleArmorRelativeProtectionMultiply
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRelativeProtectionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiply is not double is {value.GetType()}");
+                else scaleArmorRelativeProtectionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiply not set");
         }
+        { //scaleArmorRelativeProtectionMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRelativeProtectionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorRelativeProtectionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyPerLevel not set");
+        }
+        { //scaleArmorRelativeProtectionMultiplyReductionEveryLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRelativeProtectionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else scaleArmorRelativeProtectionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyReductionEveryLevel not set");
+        }
+        { //scaleArmorRelativeProtectionMultiplyReductionPerReduce
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRelativeProtectionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else scaleArmorRelativeProtectionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRelativeProtectionMultiplyReductionPerReduce not set");
+        }
+
+        { //scaleArmorFlatDamageReductionMultiply
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorFlatDamageReductionMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiply is not double is {value.GetType()}");
+                else scaleArmorFlatDamageReductionMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiply not set");
+        }
+        { //scaleArmorFlatDamageReductionMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorFlatDamageReductionMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorFlatDamageReductionMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyPerLevel not set");
+        }
+        { //scaleArmorFlatDamageReductionMultiplyReductionEveryLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorFlatDamageReductionMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else scaleArmorFlatDamageReductionMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyReductionEveryLevel not set");
+        }
+        { //scaleArmorFlatDamageReductionMultiplyReductionPerReduce
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorFlatDamageReductionMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else scaleArmorFlatDamageReductionMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorFlatDamageReductionMultiplyReductionPerReduce not set");
+        }
+
+        { //scaleArmorHealingEffectivnessMultiply
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorHealingEffectivnessMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiply is not double is {value.GetType()}");
+                else scaleArmorHealingEffectivnessMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiply not set");
+        }
+        { //scaleArmorHealingEffectivnessMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorHealingEffectivnessMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorHealingEffectivnessMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyPerLevel not set");
+        }
+        { //scaleArmorHealingEffectivnessMultiplyReductionEveryLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorHealingEffectivnessMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else scaleArmorHealingEffectivnessMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyReductionEveryLevel not set");
+        }
+        { //scaleArmorHealingEffectivnessMultiplyReductionPerReduce
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorHealingEffectivnessMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else scaleArmorHealingEffectivnessMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorHealingEffectivnessMultiplyReductionPerReduce not set");
+        }
+
+        { //scaleArmorHungerRateMultiply
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorHungerRateMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorHungerRateMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorHungerRateMultiply is not double is {value.GetType()}");
+                else scaleArmorHungerRateMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorHungerRateMultiply not set");
+        }
+        { //scaleArmorHungerRateMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorHungerRateMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorHungerRateMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorHungerRateMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorHungerRateMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorHungerRateMultiplyPerLevel not set");
+        }
+        { //scaleArmorHungerRateMultiplyReductionEveryLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorHungerRateMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorHungerRateMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorHungerRateMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else scaleArmorHungerRateMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorHungerRateMultiplyReductionEveryLevel not set");
+        }
+        { //scaleArmorHungerRateMultiplyReductionPerReduce
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorHungerRateMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorHungerRateMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorHungerRateMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else scaleArmorHungerRateMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorHungerRateMultiplyReductionPerReduce not set");
+        }
+
+        { //scaleArmorRangedWeaponsAccuracyMultiply
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRangedWeaponsAccuracyMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiply is not double is {value.GetType()}");
+                else scaleArmorRangedWeaponsAccuracyMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiply not set");
+        }
+        { //scaleArmorRangedWeaponsAccuracyMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRangedWeaponsAccuracyMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorRangedWeaponsAccuracyMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyPerLevel not set");
+        }
+        { //scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel not set");
+        }
+        { //scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce not set");
+        }
+
+        { //scaleArmorRangedWeaponsSpeedMultiply
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRangedWeaponsSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiply is not double is {value.GetType()}");
+                else scaleArmorRangedWeaponsSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiply not set");
+        }
+        { //scaleArmorRangedWeaponsSpeedMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRangedWeaponsSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorRangedWeaponsSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyPerLevel not set");
+        }
+        { //scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce not set");
+        }
+
+        { //scaleArmorWalkSpeedMultiply
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorWalkSpeedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorWalkSpeedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorWalkSpeedMultiply is not double is {value.GetType()}");
+                else scaleArmorWalkSpeedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorWalkSpeedMultiply not set");
+        }
+        { //scaleArmorWalkSpeedMultiplyPerLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorWalkSpeedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyPerLevel is not double is {value.GetType()}");
+                else scaleArmorWalkSpeedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyPerLevel not set");
+        }
+        { //scaleArmorWalkSpeedMultiplyReductionEveryLevel
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorWalkSpeedMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else scaleArmorWalkSpeedMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyReductionEveryLevel not set");
+        }
+        { //scaleArmorWalkSpeedMultiplyReductionPerReduce
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorWalkSpeedMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else scaleArmorWalkSpeedMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorWalkSpeedMultiplyReductionPerReduce not set");
+        }
+
         { //scaleArmorMaxLevel
             if (scaleArmorLevelStats.TryGetValue("scaleArmorMaxLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorMaxLevel is null");
@@ -4380,7 +6264,7 @@ public static class Configuration
             else Debug.LogError("CONFIGURATION ERROR: scaleArmorMaxLevel not set");
         }
 
-        // Get leather armor multiply exp
+        // Get scale armor multiply exp
         expMultiplyHitScaleArmor.Clear();
         Dictionary<string, object> tmpexpMultiplyHitScaleArmor = LoadConfigurationByDirectoryAndName(
             api,
@@ -4406,6 +6290,7 @@ public static class Configuration
         }
 
         double expDouble = exp;
+
         double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
 
         return Math.Max(0, (int)Math.Floor(level));
@@ -4425,7 +6310,6 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-
     public static int ScaleArmorBaseEXPEarnedByDAMAGE(float damage)
     {
         int calcDamage = (int)Math.Round(damage);
@@ -4437,9 +6321,109 @@ public static class Configuration
         return (int)Math.Round(baseMultiply);
     }
 
-    public static float ScaleArmorStatsIncreaseByLevel(int level)
+    public static float ScaleArmorRelativeProtectionMultiplyByLevel(int level)
     {
-        return scaleArmorBaseStatsIncrease + scaleArmorStatsIncreasePerLevel * level;
+        int reduceEvery = scaleArmorRelativeProtectionMultiplyReductionEveryLevel;
+        float baseMultiply = scaleArmorRelativeProtectionMultiply;
+        float baseIncrement = scaleArmorRelativeProtectionMultiplyPerLevel;
+        float reductionPerStep = scaleArmorRelativeProtectionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ScaleArmorFlatDamageReductionMultiplyByLevel(int level)
+    {
+        int reduceEvery = scaleArmorFlatDamageReductionMultiplyReductionEveryLevel;
+        float baseMultiply = scaleArmorFlatDamageReductionMultiply;
+        float baseIncrement = scaleArmorFlatDamageReductionMultiplyPerLevel;
+        float reductionPerStep = scaleArmorFlatDamageReductionMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ScaleArmorHealingEffectivnessMultiplyByLevel(int level)
+    {
+        int reduceEvery = scaleArmorHealingEffectivnessMultiplyReductionEveryLevel;
+        float baseMultiply = scaleArmorHealingEffectivnessMultiply;
+        float baseIncrement = scaleArmorHealingEffectivnessMultiplyPerLevel;
+        float reductionPerStep = scaleArmorHealingEffectivnessMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ScaleArmorHungerRateMultiplyByLevel(int level)
+    {
+        int reduceEvery = scaleArmorHungerRateMultiplyReductionEveryLevel;
+        float baseMultiply = scaleArmorHungerRateMultiply;
+        float baseIncrement = scaleArmorHungerRateMultiplyPerLevel;
+        float reductionPerStep = scaleArmorHungerRateMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ScaleArmorRangedWeaponsAccuracyMultiplyByLevel(int level)
+    {
+        int reduceEvery = scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel;
+        float baseMultiply = scaleArmorRangedWeaponsAccuracyMultiply;
+        float baseIncrement = scaleArmorRangedWeaponsAccuracyMultiplyPerLevel;
+        float reductionPerStep = scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ScaleArmorRangedWeaponsSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = scaleArmorRangedWeaponsSpeedMultiply;
+        float baseIncrement = scaleArmorRangedWeaponsSpeedMultiplyPerLevel;
+        float reductionPerStep = scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
+    }
+
+    public static float ScaleArmorWalkSpeedMultiplyByLevel(int level)
+    {
+        int reduceEvery = scaleArmorWalkSpeedMultiplyReductionEveryLevel;
+        float baseMultiply = scaleArmorWalkSpeedMultiply;
+        float baseIncrement = scaleArmorWalkSpeedMultiplyPerLevel;
+        float reductionPerStep = scaleArmorWalkSpeedMultiplyReductionPerReduce;
+
+        double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
+
+        double multiply = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
+        multiply += baseMultiply;
+
+        return (float)multiply;
     }
     #endregion
 
