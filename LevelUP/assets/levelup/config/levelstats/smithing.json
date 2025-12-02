@@ -9,5 +9,7 @@
     "smithingIncrementMiningSpeedMultiplyPerLevel": 0.01,
     "smithingBaseArmorProtectionMultiply": 1.0,
     "smithingIncrementArmorProtectionMultiplyPerLevel": 0.05,
+    "smithingBaseArmorStatusMultiply": 1.0,
+    "smithingIncrementArmorStatusMultiplyPerLevel": 0.05,
     "smithingMaxLevel": 999
 }

@@ -26,7 +26,8 @@
     "status_loot": "Loot Chance: {0}%",
     "status_ore": "Ore: {0}%",
     "status_stonechance": "Keep Stone Chance: {0}%",
-    "status_protectionmultiply": "Armor/Shield Multiply: {0}%",
+    "status_protectionmultiply": "Armor Protection Multiply: {0}%",
+    "status_statusmultiply": "Armor/Shield Status Multiply: {0}%",
     "status_durability": "Durability: {0}%",
     "status_regen": "Regeneration: {0}%",
     "status_additionalhealth": "Additional Health: {0}",
@@ -66,5 +67,14 @@
 
     "sewn": "Sewn",
     "jerkin": "Jerkin",
-    "bear": "Bear"
+    "bear": "Bear",
+    "tinbronze": "Tin Bronze",
+    "bismuthbronze": "Bismuth Bronze",
+    "blackbronze": "Black Bronze",
+    "iron": "Iron",
+    "meteoriciron": "Meteoric Iron",
+    "steel": "Steel",
+    "gold": "Gold",
+    "silver": "Silver",
+    "wood": "Wood"
 }

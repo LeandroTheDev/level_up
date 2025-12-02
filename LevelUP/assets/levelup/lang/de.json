@@ -61,5 +61,18 @@
     "cooking": "Kochen",
     "panning": "Panning",
     "vitality": "Vitalität",
-    "metabolism": "Metabolism"
+    "metabolism": "Metabolism",
+
+    "sewn": "Sewn",
+    "jerkin": "Jerkin",
+    "bear": "Bear",
+    "tinbronze": "Tin Bronze",
+    "bismuthbronze": "Bismuth Bronze",
+    "blackbronze": "Black Bronze",
+    "iron": "Iron",
+    "meteoriciron": "Meteoric Iron",
+    "steel": "Steel",
+    "gold": "Gold",
+    "silver": "Silver",
+    "wood": "Wood"
 }

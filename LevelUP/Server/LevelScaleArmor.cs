@@ -55,9 +55,13 @@ class LevelScaleArmor
 
     public readonly Dictionary<string, string> SubLevelPatterns = new()
     {
-        { "-sewn-", "Sewn" },
-        { "-jerkin-", "Jerkin" },
-        { "-bear-", "Bear" }
+        { "-copper-", "Copper" },
+        { "-tinbronze-", "TinBronze" },
+        { "-bismuthbronze-", "BismuthBronze" },
+        { "-blackbronze-", "Blackbronze" },
+        { "-iron-", "Iron" },
+        { "-meteoriciron-", "MeteoricIron" },
+        { "-steel-", "Steel" }
     };
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
