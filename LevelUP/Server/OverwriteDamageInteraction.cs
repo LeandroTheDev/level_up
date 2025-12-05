@@ -259,11 +259,7 @@ class OverwriteDamageInteraction
     [HarmonyPriority(Priority.VeryLow)]
     internal static void GetHeldItemInfoFinish(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {
-        if (world.Api is ICoreClientAPI api)
-        {
-            Shared.Instance.ResetArmorAttributes(inSlot);
-            OverwriteDamageInteractionEvents.ExecuteArmorViewStats(api.World.Player, inSlot);
-        }
+        Shared.Instance.ResetArmorAttributes(inSlot);
     }
 }
 

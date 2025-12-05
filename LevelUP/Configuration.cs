@@ -1082,7 +1082,7 @@ public static class Configuration
     private static float knifeBaseDamage = 1.0f;
     private static float knifeIncrementDamagePerLevel = 0.1f;
     private static float knifeBaseHarvestMultiply = 0.5f;
-    private static float knifeIncrementHarvestMultiplyPerLevel = 0.8f;
+    private static float knifeIncrementHarvestMultiplyPerLevel = 0.1f;
     private static float knifeBaseMiningSpeed = 1.0f;
     private static float knifeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
     public static int knifeMaxLevel = 999;
@@ -1091,6 +1091,7 @@ public static class Configuration
     public static int ExpPerHarvestKnife => knifeEXPPerHarvest;
     public static int ExpPerBreakingKnife => knifeEXPPerBreaking;
     public static float BaseHarvestMultiplyKnife = knifeBaseHarvestMultiply;
+    public static float BaseMinigSpeedKnife = knifeBaseMiningSpeed;
 
     public static void PopulateKnifeConfiguration(ICoreAPI api)
     {
@@ -1242,7 +1243,7 @@ public static class Configuration
 
     public static float KnifeGetHarvestMultiplyByLevel(int level)
     {
-        return knifeBaseHarvestMultiply * (1 + knifeIncrementHarvestMultiplyPerLevel * level);
+        return knifeBaseHarvestMultiply * (knifeIncrementHarvestMultiplyPerLevel * level);
     }
 
     public static float KnifeGetMiningMultiplyByLevel(int level)
