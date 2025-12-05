@@ -1,4 +1,5 @@
 #pragma warning disable CA1822
+using System;
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
@@ -81,7 +82,6 @@ class LevelKnife
                 Utils.GetPorcentageFromFloatsStart1(Configuration.KnifeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")))
             )
         );
-
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_harvest",
                 Utils.GetPorcentageFromFloatsStart0(Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) - Configuration.BaseHarvestMultiplyKnife)
@@ -90,7 +90,7 @@ class LevelKnife
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_miningspeed",
-                Utils.GetPorcentageFromFloatsStart1(Configuration.KnifeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.KnifeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) - Configuration.BaseMinigSpeedKnife)
             )
         );
     }
@@ -167,8 +167,7 @@ class LevelKnife
             dropRate = LevelKnifeEvents.GetExternalKnifeHarvest(byPlayer, __instance.entity, dropRate);
 
             // Don't worry, it will be reseted automatically by the game
-            // 1 means 100%, but your formula return 1 by base, so lets put a -1f
-            byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate - 1f);
+            byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate);
 
             // Earn xp by harvesting the entity
             Experience.IncreaseExperience(byPlayer, "Knife", "Harvest");

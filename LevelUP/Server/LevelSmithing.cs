@@ -678,8 +678,7 @@ class LevelSmithing
             if (op.World.Api.Side != EnumAppSide.Server) return;
             if (sinkSlot == null || sinkSlot.Itemstack == null) return;
             if (op.ActingPlayer == null) return;
-            Console.WriteLine(string.Join(", ", __state));
-            Console.WriteLine(sinkSlot.Itemstack.Collectible.Code);
+
             // If the recipe contains the currently item code, them ignore the smith mechanic
             if (__state != null && __state.Contains(sinkSlot.Itemstack.Collectible.Code)) return;
 
