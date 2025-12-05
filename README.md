@@ -23,6 +23,8 @@ Not all item codes is added to the json configurations files, some armors/items/
 ## Resume
 The mods simple increase your status, use a lot of shovel? then your dig speed will be increased, you love bows and only use them? become a ranged killing machine increasing accuracy/damage and increasing chance to keep arrow after hit, you prefer to be a smithing and only smiths items? well other players will love you because your craftings now will have increased damage/durability and stats.
 
+You can view what each level will do ingame docs ``H``
+
 ### Observations
 Configurations will be located in the folder ModConfig/LevelUP, if you want more informations you can see the [wiki](https://github.com/LeandroTheDev/level_up/wiki) to know what each configuration does, if any update from levelup add new configuration you will need to manually added them to fix logs errors, otherwises will have the default value.
 
