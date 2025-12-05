@@ -53,8 +53,38 @@ class LevelShield
         if (levelType != "Shield") return;
 
         stringBuilder.AppendLine(
-            Lang.Get("levelup:status_statsincreaser",
-                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
+            Lang.Get("levelup:status_passiveprojectile",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetPassiveProjectileByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_activeprojectile",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetActiveProjectileByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_passive",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetPassiveByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_active",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetPassiveByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_projectiledamageabsorption",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetProjectileDamageAbsorptionByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_damageabsorption",
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetDamageAbsorptionByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
             )
         );
     }
@@ -77,11 +107,24 @@ class LevelShield
             if (world is not IClientWorldAccessor cworld) return;
             IPlayer player = cworld.Player;
 
-            float statsIncrease = Configuration.ShieldGetStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
+            int playerLevel = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield");
+            float passiveProjectile = Configuration.ShieldGetPassiveProjectileByLevel(playerLevel);
+            float activeProjectile = Configuration.ShieldGetActiveProjectileByLevel(playerLevel);
+            float passive = Configuration.ShieldGetPassiveByLevel(playerLevel);
+            float active = Configuration.ShieldGetActiveByLevel(playerLevel);
+            float projectileDamageAbsorption = Configuration.ShieldGetProjectileDamageAbsorptionByLevel(playerLevel);
+            float damageAbsorption = Configuration.ShieldGetDamageAbsorptionByLevel(playerLevel);
 
             Shared.Instance.ResetShieldAttributes(inSlot);
 
-            Shared.Instance.RefreshShieldAttributes(inSlot, statsIncrease);
+            Shared.Instance.RefreshShieldAttributes(
+                inSlot,
+                passiveProjectile,
+                activeProjectile,
+                passive,
+                active,
+                projectileDamageAbsorption,
+                damageAbsorption);
         }
 
         // Post function call, reset the shield to default
@@ -97,7 +140,13 @@ class LevelShield
         [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
         internal static void ApplyShieldProtectionStart(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
         {
-            float statsIncrease = Configuration.ShieldGetStatsIncreaseByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield"));
+            int playerLevel = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield");
+            float passiveProjectile = Configuration.ShieldGetPassiveProjectileByLevel(playerLevel);
+            float activeProjectile = Configuration.ShieldGetActiveProjectileByLevel(playerLevel);
+            float passive = Configuration.ShieldGetPassiveByLevel(playerLevel);
+            float active = Configuration.ShieldGetActiveByLevel(playerLevel);
+            float projectileDamageAbsorption = Configuration.ShieldGetProjectileDamageAbsorptionByLevel(playerLevel);
+            float damageAbsorption = Configuration.ShieldGetDamageAbsorptionByLevel(playerLevel);
 
             for (int i = 0; i < 2; i++)
             {
@@ -113,7 +162,14 @@ class LevelShield
 
                 Shared.Instance.ResetShieldAttributes(shieldSlot);
 
-                Shared.Instance.RefreshShieldAttributes(shieldSlot, statsIncrease);
+                Shared.Instance.RefreshShieldAttributes(
+                    shieldSlot,
+                    passiveProjectile,
+                    activeProjectile,
+                    passive,
+                    active,
+                    projectileDamageAbsorption,
+                    damageAbsorption);
 
                 LevelShieldEvents.ExecuteOnShieldRefreshed(player, shieldSlot);
             }

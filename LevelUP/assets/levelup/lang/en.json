@@ -37,6 +37,12 @@
     "status_hungerrate": "Hunger Rate: {0}%",
     "status_rangedaccuracy": "Ranged Accuracy: {0}%",
     "status_rangedspeed": "Ranged Speed: {0}%",
+    "status_passiveprojectile": "Passive Projectile Block: {0}%",
+    "status_activeprojectile": "Active Projectile Block: {0}%",
+    "status_passive": "Passive Block: {0}%",
+    "status_active": "Active Block: {0}%",
+    "status_projectiledamageabsorption": "Projectile Damage Absorption: {0}%",
+    "status_damageabsorption": "Damage Absorption: {0}%",
 
     "axe": "Axe",
     "pickaxe": "Pickaxe",
