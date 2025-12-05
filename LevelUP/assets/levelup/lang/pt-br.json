@@ -35,6 +35,12 @@
     "status_hungerrate": "Taxa de Fome: {0}%",
     "status_rangedaccuracy": "Precisão em Longa Distância: {0}%",
     "status_rangedspeed": "Velocidade em Long Distância: {0}%",
+    "status_passiveprojectile": "Defesa Passiva Projéteis: {0}%",
+    "status_activeprojectile": "Defesa Ativa Projéteis: {0}%",
+    "status_passive": "Defesa Passiva: {0}%",
+    "status_active": "Defesa Ativa: {0}%",
+    "status_projectiledamageabsorption": "Dano Absorvido Projétil: {0}%",
+    "status_damageabsorption": "Dano Absorvido: {0}%",
 
     "axe": "Machado",
     "pickaxe": "Picareta",

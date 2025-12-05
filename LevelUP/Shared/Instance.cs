@@ -397,7 +397,7 @@ class Instance
     /// <param name="armorSlot"></param>
     /// <param name="statsIncrease"></param>
     public static void RefreshArmorAttributes(
-        ItemSlot armorSlot, 
+        ItemSlot armorSlot,
         float relativeProtection = 1.0f,
         float flatDamageReduction = 1.0f,
         float healingEffectivness = 1.0f,
@@ -425,6 +425,7 @@ class Instance
                 );
 
                 float result = (float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")) + difference) * relativeProtection;
+                result = (float)Math.Round(result, 2);
                 protectionObj["relativeProtection"] = result;
                 itemWearable.ProtectionModifiers.RelativeProtection = result;
             }
@@ -438,6 +439,7 @@ class Instance
                 );
 
                 float result = (float.Parse(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")) + difference) * flatDamageReduction;
+                result = (float)Math.Round(result, 2);
                 protectionObj["flatDamageReduction"] = result;
                 itemWearable.ProtectionModifiers.FlatDamageReduction = result;
             }
@@ -458,6 +460,7 @@ class Instance
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(healingEffectivness - 1, 0));
+                result = (float)Math.Round(result, 2);
                 statsObj["healingeffectivness"] = result;
                 itemWearable.StatModifers.healingeffectivness = result;
             }
@@ -470,6 +473,7 @@ class Instance
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(hungerRate - 1, 0));
+                result = (float)Math.Round(result, 2);
                 statsObj["hungerrate"] = result;
                 itemWearable.StatModifers.hungerrate = result;
             }
@@ -482,6 +486,7 @@ class Instance
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(rangedWeaponsAccuracy - 1, 0));
+                result = (float)Math.Round(result, 2);
                 statsObj["rangedWeaponsAcc"] = result;
                 itemWearable.StatModifers.rangedWeaponsAcc = result;
             }
@@ -494,6 +499,7 @@ class Instance
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(rangedWeaponsSpeed - 1, 0));
+                result = (float)Math.Round(result, 2);
                 statsObj["rangedWeaponsSpeed"] = result;
                 itemWearable.StatModifers.rangedWeaponsSpeed = result;
             }
@@ -506,6 +512,7 @@ class Instance
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(walkSpeed - 1, 0));
+                result = (float)Math.Round(result, 2);
                 statsObj["walkSpeed"] = result;
                 itemWearable.StatModifers.walkSpeed = result;
             }
@@ -520,7 +527,14 @@ class Instance
     /// </summary>
     /// <param name="shieldSlot"></param>
     /// <param name="statsIncrease"></param>
-    public static void RefreshShieldAttributes(ItemSlot shieldSlot, float statsIncrease)
+    public static void RefreshShieldAttributes(
+        ItemSlot shieldSlot,
+        float passiveProjectile = 1.0f,
+        float activeProjectile = 1.0f,
+        float passive = 1.0f,
+        float active = 1.0f,
+        float projectileDamageAbsorption = 1.0f,
+        float damageAbsorption = 1.0f)
     {
         JsonObject attr = shieldSlot.Itemstack?.ItemAttributes?["shield"];
         if (attr == null || !attr.Exists) return;
@@ -539,7 +553,7 @@ class Instance
                 );
 
                 protectionObj["passive-projectile"] =
-                    (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")) + difference) * statsIncrease;
+                    (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")) + difference) * passiveProjectile, 2);
             }
 
             {
@@ -550,7 +564,7 @@ class Instance
                 );
 
                 protectionObj["active-projectile"] =
-                    (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")) + difference) * statsIncrease;
+                    (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")) + difference) * activeProjectile, 2);
             }
 
             {
@@ -561,7 +575,7 @@ class Instance
                 );
 
                 protectionObj["passive"] =
-                    (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive")) + difference) * statsIncrease;
+                    (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive")) + difference) * passive, 2);
             }
 
             {
@@ -572,14 +586,14 @@ class Instance
                 );
 
                 protectionObj["active"] =
-                    (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActive")) + difference) * statsIncrease;
+                    (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActive")) + difference) * active, 2);
             }
 
             shieldObj["protectionChance"] = protectionObj;
         }
 
-        JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
-        if (projectileDamageAbsorption?.Token is JValue projectileJVal)
+        JsonObject jsonProjectileDamageAbsorption = attr["projectileDamageAbsorption"];
+        if (jsonProjectileDamageAbsorption?.Token is JValue projectileJVal)
         {
             float currentMeasured = projectileJVal.Value<float>();
 
@@ -589,11 +603,11 @@ class Instance
             );
 
             shieldObj["projectileDamageAbsorption"] =
-                (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")) + difference) * statsIncrease;
+                (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")) + difference) * projectileDamageAbsorption, 2);
         }
 
-        JsonObject damageAbsorption = attr["damageAbsorption"];
-        if (damageAbsorption?.Token is JValue damageAbsorptionJVal)
+        JsonObject jsonDamageAbsorption = attr["damageAbsorption"];
+        if (jsonDamageAbsorption?.Token is JValue damageAbsorptionJVal)
         {
             float currentMeasured = damageAbsorptionJVal.Value<float>();
 
@@ -603,7 +617,7 @@ class Instance
             );
 
             shieldObj["damageAbsorption"] =
-                (float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")) + difference) * statsIncrease;
+                (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")) + difference) * damageAbsorption, 2);
         }
     }
 
@@ -611,11 +625,14 @@ class Instance
     /// Increases tool currently status, 1.0 = same, 1.5 = 50% increase.
     /// </summary>
     /// <param name="item"></param>
-    public static void RefreshToolAttributes(IItemStack item, float statsIncrease)
+    public static void RefreshToolAttributes(
+        IItemStack item,
+        float baseAttack = 1.0f,
+        float miningSpeed = 1.0f)
     {
         if (item.Attributes.GetString("BaseAttack") != null)
         {
-            float result = float.Parse(item.Attributes.GetString("BaseAttack")) * statsIncrease;
+            float result = float.Parse(item.Attributes.GetString("BaseAttack")) * baseAttack;
             item.Collectible.AttackPower = result;
         }
 
@@ -626,8 +643,8 @@ class Instance
             {
                 if (item.Attributes.GetString($"BaseMiningSpeed_{key}") != null)
                 {
-                    float result = float.Parse(item.Attributes.GetString($"BaseMiningSpeed_{key}")) * statsIncrease;
-                    item.Collectible.MiningSpeed[key] = result;
+                    float result = float.Parse(item.Attributes.GetString($"BaseMiningSpeed_{key}")) * miningSpeed;
+                    item.Collectible.MiningSpeed[key] = (float)Math.Round(result, 2);
                 }
             }
         }

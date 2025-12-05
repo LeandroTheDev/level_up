@@ -2370,8 +2370,18 @@ public static class Configuration
     private static int shieldEXPPerHit = 10;
     private static int shieldEXPPerLevelBase = 600;
     private static double shieldEXPMultiplyPerLevel = 1.5;
-    private static float shieldBaseStatsIncrease = 1.0f;
-    private static float shieldStatsIncreasePerLevel = 0.1f;
+    private static float shieldBasePassiveProjectile = 1.0f;
+    private static float shieldPassiveProjectilePerLevel = 0.1f;
+    private static float shieldBaseActiveProjectile = 1.0f;
+    private static float shieldActiveProjectilePerLevel = 0.1f;
+    private static float shieldBasePassive = 1.0f;
+    private static float shieldPassivePerLevel = 0.1f;
+    private static float shieldBaseActive = 1.0f;
+    private static float shieldActivePerLevel = 0.1f;
+    private static float shieldBaseProjectileDamageAbsorption = 1.0f;
+    private static float shieldProjectileDamageAbsorptionPerLevel = 0.1f;
+    private static float shieldBaseDamageAbsorption = 1.0f;
+    private static float shieldDamageAbsorptionPerLevel = 0.1f;
     public static int shieldMaxLevel = 999;
 
 
@@ -2398,19 +2408,89 @@ public static class Configuration
                 else shieldEXPMultiplyPerLevel = (double)value;
             else Debug.LogError("CONFIGURATION ERROR: shieldEXPMultiplyPerLevel not set");
         }
-        { //shieldBaseStatsIncrease
-            if (shieldLevelStats.TryGetValue("shieldBaseStatsIncrease", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBaseStatsIncrease is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseStatsIncrease is not double is {value.GetType()}");
-                else shieldBaseStatsIncrease = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: shieldBaseStatsIncrease not set");
+        { //shieldBasePassiveProjectile
+            if (shieldLevelStats.TryGetValue("shieldBasePassiveProjectile", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBasePassiveProjectile is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBasePassiveProjectile is not double is {value.GetType()}");
+                else shieldBasePassiveProjectile = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldBasePassiveProjectile not set");
         }
-        { //shieldStatsIncreasePerLevel
-            if (shieldLevelStats.TryGetValue("shieldStatsIncreasePerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldStatsIncreasePerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldStatsIncreasePerLevel is not double is {value.GetType()}");
-                else shieldStatsIncreasePerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: shieldStatsIncreasePerLevel not set");
+        { //shieldPassiveProjectilePerLevel
+            if (shieldLevelStats.TryGetValue("shieldPassiveProjectilePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldPassiveProjectilePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldPassiveProjectilePerLevel is not double is {value.GetType()}");
+                else shieldPassiveProjectilePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldPassiveProjectilePerLevel not set");
+        }
+        { //shieldBaseActiveProjectile
+            if (shieldLevelStats.TryGetValue("shieldBaseActiveProjectile", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBaseActiveProjectile is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseActiveProjectile is not double is {value.GetType()}");
+                else shieldBaseActiveProjectile = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldBaseActiveProjectile not set");
+        }
+        { //shieldActiveProjectilePerLevel
+            if (shieldLevelStats.TryGetValue("shieldActiveProjectilePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldActiveProjectilePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldActiveProjectilePerLevel is not double is {value.GetType()}");
+                else shieldActiveProjectilePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldActiveProjectilePerLevel not set");
+        }
+        { //shieldBasePassive
+            if (shieldLevelStats.TryGetValue("shieldBasePassive", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBasePassive is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBasePassive is not double is {value.GetType()}");
+                else shieldBasePassive = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldBasePassive not set");
+        }
+        { //shieldPassivePerLevel
+            if (shieldLevelStats.TryGetValue("shieldPassivePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldPassivePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldPassivePerLevel is not double is {value.GetType()}");
+                else shieldPassivePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldPassivePerLevel not set");
+        }
+        { //shieldBaseActive
+            if (shieldLevelStats.TryGetValue("shieldBaseActive", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBaseActive is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseActive is not double is {value.GetType()}");
+                else shieldBaseActive = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldBaseActive not set");
+        }
+        { //shieldActivePerLevel
+            if (shieldLevelStats.TryGetValue("shieldActivePerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldActivePerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldActivePerLevel is not double is {value.GetType()}");
+                else shieldActivePerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldActivePerLevel not set");
+        }
+        { //shieldBaseProjectileDamageAbsorption
+            if (shieldLevelStats.TryGetValue("shieldBaseProjectileDamageAbsorption", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBaseProjectileDamageAbsorption is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseProjectileDamageAbsorption is not double is {value.GetType()}");
+                else shieldBaseProjectileDamageAbsorption = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldBaseProjectileDamageAbsorption not set");
+        }
+        { //shieldProjectileDamageAbsorptionPerLevel
+            if (shieldLevelStats.TryGetValue("shieldProjectileDamageAbsorptionPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldProjectileDamageAbsorptionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldProjectileDamageAbsorptionPerLevel is not double is {value.GetType()}");
+                else shieldProjectileDamageAbsorptionPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldProjectileDamageAbsorptionPerLevel not set");
+        }
+        { //shieldBaseDamageAbsorption
+            if (shieldLevelStats.TryGetValue("shieldBaseDamageAbsorption", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldBaseDamageAbsorption is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldBaseDamageAbsorption is not double is {value.GetType()}");
+                else shieldBaseDamageAbsorption = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldBaseDamageAbsorption not set");
+        }
+        { //shieldDamageAbsorptionPerLevel
+            if (shieldLevelStats.TryGetValue("shieldDamageAbsorptionPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldDamageAbsorptionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: shieldDamageAbsorptionPerLevel is not double is {value.GetType()}");
+                else shieldDamageAbsorptionPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: shieldDamageAbsorptionPerLevel not set");
         }
         { //shieldEXPPerHit
             if (shieldLevelStats.TryGetValue("shieldEXPPerHit", out object value))
@@ -2462,9 +2542,34 @@ public static class Configuration
         return (ulong)Math.Floor(exp);
     }
 
-    public static float ShieldGetStatsIncreaseByLevel(int level)
+    public static float ShieldGetPassiveProjectileByLevel(int level)
     {
-        return shieldBaseStatsIncrease + shieldStatsIncreasePerLevel * level;
+        return shieldBasePassiveProjectile + shieldPassiveProjectilePerLevel * level;
+    }
+
+    public static float ShieldGetActiveProjectileByLevel(int level)
+    {
+        return shieldBaseActiveProjectile + shieldActiveProjectilePerLevel * level;
+    }
+
+    public static float ShieldGetPassiveByLevel(int level)
+    {
+        return shieldBasePassive + shieldPassivePerLevel * level;
+    }
+
+    public static float ShieldGetActiveByLevel(int level)
+    {
+        return shieldBaseActive + shieldActivePerLevel * level;
+    }
+
+    public static float ShieldGetProjectileDamageAbsorptionByLevel(int level)
+    {
+        return shieldBaseProjectileDamageAbsorption + shieldProjectileDamageAbsorptionPerLevel * level;
+    }
+
+    public static float ShieldGetDamageAbsorptionByLevel(int level)
+    {
+        return shieldBaseDamageAbsorption + shieldDamageAbsorptionPerLevel * level;
     }
     #endregion
 
