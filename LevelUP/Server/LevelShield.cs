@@ -162,6 +162,8 @@ class LevelShield
                     shieldSlot = player.Entity.RightHandItemSlot;
                 }
 
+                if (shieldSlot.Itemstack == null) continue;
+
                 Shared.Instance.ResetShieldAttributes(shieldSlot);
 
                 float smithingBaseMultiply = float.Parse(shieldSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply", "1"));
