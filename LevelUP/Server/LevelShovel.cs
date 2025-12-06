@@ -1,4 +1,5 @@
 #pragma warning disable CA1822
+using System;
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
@@ -48,6 +49,7 @@ class LevelShovel
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
         Client.Instance.RefreshWatchedAttributes += RefreshWatchedAttributes;
 
         Debug.Log("Level Shovel initialized");
@@ -58,7 +60,16 @@ class LevelShovel
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         Client.Instance.RefreshWatchedAttributes -= RefreshWatchedAttributes;
+    }
+
+    private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
+    {
+        if (item.Item.Tool == EnumTool.Shovel)
+        {
+            damage *= Configuration.ShovelGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel"));
+        }
     }
 
     static private float currentShovelMiningSpeed = 1.0f;

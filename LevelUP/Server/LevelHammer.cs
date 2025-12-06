@@ -44,6 +44,7 @@ class LevelHammer
     public void InitClient()
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Hammer initialized");
     }
@@ -51,7 +52,16 @@ class LevelHammer
     public void Dispose()
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
+    {
+        if (item.Item.Tool == EnumTool.Hammer)
+        {
+            damage *= Configuration.HammerGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Hammer"));
+        }
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)

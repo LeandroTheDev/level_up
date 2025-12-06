@@ -78,9 +78,8 @@ class Instance
         }
         if (Configuration.enableLevelAxe)
         {
-            if (api.Side == EnumAppSide.Server) levelAxe.Init();
+            if (api.Side == EnumAppSide.Server) { levelAxe.Init(); levelAxe.Patch(); }
             else if (api.Side == EnumAppSide.Client) levelAxe.InitClient();
-            levelAxe.Patch();
         }
         if (Configuration.enableLevelPickaxe)
         {

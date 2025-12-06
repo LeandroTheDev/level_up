@@ -117,14 +117,16 @@ class LevelShield
 
             Shared.Instance.ResetShieldAttributes(inSlot);
 
+            float smithingBaseMultiply = float.Parse(inSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply", "1"));
+
             Shared.Instance.RefreshShieldAttributes(
                 inSlot,
-                passiveProjectile,
-                activeProjectile,
-                passive,
-                active,
-                projectileDamageAbsorption,
-                damageAbsorption);
+                smithingBaseMultiply * passiveProjectile,
+                smithingBaseMultiply * activeProjectile,
+                smithingBaseMultiply * passive,
+                smithingBaseMultiply * active,
+                smithingBaseMultiply * projectileDamageAbsorption,
+                smithingBaseMultiply * damageAbsorption);
         }
 
         // Post function call, reset the shield to default
@@ -162,14 +164,16 @@ class LevelShield
 
                 Shared.Instance.ResetShieldAttributes(shieldSlot);
 
+                float smithingBaseMultiply = float.Parse(shieldSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply", "1"));
+
                 Shared.Instance.RefreshShieldAttributes(
                     shieldSlot,
-                    passiveProjectile,
-                    activeProjectile,
-                    passive,
-                    active,
-                    projectileDamageAbsorption,
-                    damageAbsorption);
+                    smithingBaseMultiply * passiveProjectile,
+                    smithingBaseMultiply * activeProjectile,
+                    smithingBaseMultiply * passive,
+                    smithingBaseMultiply * active,
+                    smithingBaseMultiply * projectileDamageAbsorption,
+                    smithingBaseMultiply * damageAbsorption);
 
                 LevelShieldEvents.ExecuteOnShieldRefreshed(player, shieldSlot);
             }

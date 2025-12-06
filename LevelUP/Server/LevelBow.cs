@@ -43,6 +43,7 @@ class LevelBow
     public void InitClient()
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Bow initialized");
     }
@@ -50,8 +51,17 @@ class LevelBow
     public void Dispose()
     {
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
 
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart -= HandleRangedDamage;
+    }
+
+    private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
+    {
+        if (item.Item.Tool == EnumTool.Bow)
+        {
+            damage *= Configuration.BowGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+        }
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)

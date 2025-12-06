@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
@@ -261,11 +262,27 @@ class OverwriteDamageInteraction
     {
         Shared.Instance.ResetArmorAttributes(inSlot);
     }
+
+    // Update visual damage
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void GetAttackPowerFinish(CollectibleObject __instance, ItemStack withItemStack, ref float __result)
+    {
+        if (withItemStack.Item == null) return;
+
+        ICoreAPI api = (ICoreAPI)AccessTools.Field(typeof(CollectibleObject), "api").GetValue(__instance);
+        if (api is ICoreClientAPI capi)
+        {
+            __result = OverwriteDamageInteractionEvents.GetExternalToolDamageStat(capi.World.Player, withItemStack, __result);
+        }
+    }
 }
 
 public static class OverwriteDamageInteractionEvents
 {
     public delegate void DamageModifierHandler(IPlayer player, DamageSource damageSource, ref float damage);
+    public delegate void ToolViewModifierHandler(IPlayer player, ItemStack item, ref float damage);
     public delegate void ArmorViewModifierHandler(IPlayer player, ItemSlot item);
     public delegate void ArmorStatusModifierHandler(IPlayer player, List<ItemSlot> item);
     public delegate void ArmorDamageModifierHandler(IPlayer player, List<ItemSlot> item, ref float damage);
@@ -277,6 +294,7 @@ public static class OverwriteDamageInteractionEvents
     public static event DamageModifierHandler OnPlayerReceiveDamageStart;
     public static event DamageModifierHandler OnPlayerReceiveDamageFinish;
     public static event DamageModifierHandler OnPlayerReceiveDamageUnkown;
+    public static event ToolViewModifierHandler OnPlayerToolViewStats;
     public static event ArmorViewModifierHandler OnPlayerArmorViewStats;
     public static event ArmorStatusModifierHandler OnPlayerArmorReceiveHandleStats;
     public static event ArmorDamageModifierHandler OnPlayerArmorReceiveDamageStat;
@@ -323,6 +341,12 @@ public static class OverwriteDamageInteractionEvents
     internal static float GetExternalReceiveDamageUnkown(IPlayer player, DamageSource damageSource, float damage)
     {
         OnPlayerReceiveDamageUnkown?.Invoke(player, damageSource, ref damage);
+        return damage;
+    }
+
+    internal static float GetExternalToolDamageStat(IPlayer player, ItemStack item, float damage)
+    {
+        OnPlayerToolViewStats?.Invoke(player, item, ref damage);
         return damage;
     }
 

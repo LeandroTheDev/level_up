@@ -1,4 +1,5 @@
 #pragma warning disable CA1822
+using System;
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
@@ -7,6 +8,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -46,6 +48,7 @@ class LevelAxe
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
         Client.Instance.RefreshWatchedAttributes += RefreshWatchedAttributes;
         RefreshWatchedAttributes();
 
@@ -56,9 +59,17 @@ class LevelAxe
     {
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         Client.Instance.RefreshWatchedAttributes -= RefreshWatchedAttributes;
     }
 
+    private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
+    {
+        if (item.Item.Tool == EnumTool.Axe)
+        {
+            damage *= Configuration.AxeGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe"));
+        }
+    }
     static private float currentAxeMiningSpeed = 1.0f;
     private void RefreshWatchedAttributes()
     {
@@ -148,9 +159,12 @@ class LevelAxe
             if (!Configuration.enableLevelAxe) return;
 
             // Check if axe breaked is a player
-            if (byEntity is EntityPlayer)
+            if (byEntity is EntityPlayer entityPlayer)
             {
-                Experience.IncreaseExperience((byEntity as EntityPlayer).Player, "Axe", "TreeBreak");
+                Stack<BlockPos> foundPositions = __instance.FindTree(world, blockSel.Position, out _, out _);
+                if (foundPositions.Count == 0) return;
+
+                Experience.IncreaseExperience(entityPlayer.Player, "Axe", "TreeBreak");
             }
         }
 
