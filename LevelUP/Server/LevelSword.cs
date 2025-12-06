@@ -43,6 +43,7 @@ class LevelSword
     public void InitClient()
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Sword initialized");
     }
@@ -50,7 +51,16 @@ class LevelSword
     public void Dispose()
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
+    {
+        if (item.Item.Tool == EnumTool.Sword)
+        {
+            damage *= Configuration.SwordGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Sword"));
+        }
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)

@@ -34,6 +34,7 @@ class LevelSpear
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart += HandleRangedDamage;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
         Configuration.RegisterNewLevel("Spear");
         Configuration.RegisterNewLevelTypeEXP("Spear", Configuration.SpearGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Spear", Configuration.SpearGetExpByLevel);
@@ -52,7 +53,16 @@ class LevelSpear
     {
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart -= HandleRangedDamage;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
+    {
+        if (item.Item.Tool == EnumTool.Spear)
+        {
+            damage *= Configuration.SpearGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear"));
+        }
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)

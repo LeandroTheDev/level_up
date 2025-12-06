@@ -1,7 +1,6 @@
 #pragma warning disable CA1822
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
@@ -11,6 +10,9 @@ using Vintagestory.Common;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
+
+// Due to laziness, the stats multiply for smithing on shields is being handled in LevelShield.
+// The correct way is to create a event in levelshield to be called here in smithing
 
 class LevelSmithing
 {
@@ -59,6 +61,39 @@ class LevelSmithing
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
     }
 
+    public static readonly Dictionary<EnumTool, string> SubLevelPatterns = new()
+    {
+        { EnumTool.Knife, "Knife" },
+        { EnumTool.Axe, "Axe" },
+        { EnumTool.Bow, "Bow" },
+        { EnumTool.Chisel, "Chisel" },
+        { EnumTool.Club, "Club" },
+        { EnumTool.Crossbow, "Crossbow" },
+        { EnumTool.Drill, "Drill" },
+        { EnumTool.Firearm, "Firearm" },
+        { EnumTool.Halberd, "Halberd" },
+        { EnumTool.Hammer, "Hammer" },
+        { EnumTool.Hoe, "Hoe" },
+        { EnumTool.Javelin, "Javelin" },
+        { EnumTool.Mace, "Mace" },
+        { EnumTool.Meter, "Meter" },
+        { EnumTool.Pickaxe, "Pickaxe" },
+        { EnumTool.Pike, "Pike" },
+        { EnumTool.Polearm, "Polearm" },
+        { EnumTool.Poleaxe, "Poleaxe" },
+        { EnumTool.Probe, "Probe" },
+        { EnumTool.Saw, "Saw" },
+        { EnumTool.Scythe, "Scythe" },
+        { EnumTool.Shears, "Shears" },
+        { EnumTool.Shovel, "Shovel" },
+        { EnumTool.Sickle, "Sickle" },
+        { EnumTool.Sling, "Sling" },
+        { EnumTool.Spear, "Spear" },
+        { EnumTool.Staff, "Staff" },
+        { EnumTool.Warhammer, "Warhammer" },
+        { EnumTool.Wrench, "Wrench" }
+    };
+
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
     {
         if (levelType != "Smithing") return;
@@ -92,6 +127,15 @@ class LevelSmithing
                 Utils.GetPorcentageFromFloatsStart1(Configuration.SmithingGetMiningSpeedMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Smithing")))
             )
         );
+
+        stringBuilder.AppendLine("");
+
+        stringBuilder.AppendLine(Lang.Get("levelup:status_proficiency"));
+
+        foreach (var pair in SubLevelPatterns)
+        {
+            stringBuilder.AppendLine($"{Lang.Get($"levelup:{pair.Value.ToLower()}")}: {player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}")}");
+        }
     }
 
     private void ViewReceived(IPlayer player, ItemSlot armorSlot)
@@ -237,104 +281,14 @@ class LevelSmithing
                         Debug.LogDebug($"[Smithing] Craft levelType: {levelType}");
 
                         // If the levelType is null, is a tool
-                        if (levelType == null)
+                        if (levelType == null && item.Item != null)
+                        {
                             // Increasing sub tool levels
-                            switch (item.Item.Tool)
+                            if (SubLevelPatterns.TryGetValue((EnumTool)item.Item.Tool, out string subName))
                             {
-                                case EnumTool.Knife:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Knife", (ulong)exp);
-                                    break;
-                                case EnumTool.Axe:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Axe", (ulong)exp);
-                                    break;
-                                case EnumTool.Bow:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Bow", (ulong)exp);
-                                    break;
-                                case EnumTool.Chisel:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Chisel", (ulong)exp);
-                                    break;
-                                case EnumTool.Club:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Club", (ulong)exp);
-                                    break;
-                                case EnumTool.Crossbow:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Crossbow", (ulong)exp);
-                                    break;
-                                case EnumTool.Drill:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Drill", (ulong)exp);
-                                    break;
-                                case EnumTool.Firearm:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Firearm", (ulong)exp);
-                                    break;
-                                case EnumTool.Halberd:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Halberd", (ulong)exp);
-                                    break;
-                                case EnumTool.Hammer:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Hammer", (ulong)exp);
-                                    break;
-                                case EnumTool.Hoe:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Hoe", (ulong)exp);
-                                    break;
-                                case EnumTool.Javelin:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Javelin", (ulong)exp);
-                                    break;
-                                case EnumTool.Mace:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Mace", (ulong)exp);
-                                    break;
-                                case EnumTool.Meter:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Meter", (ulong)exp);
-                                    break;
-                                case EnumTool.Pickaxe:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Pickaxe", (ulong)exp);
-                                    break;
-                                case EnumTool.Pike:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Pike", (ulong)exp);
-                                    break;
-                                case EnumTool.Polearm:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Polearm", (ulong)exp);
-                                    break;
-                                case EnumTool.Poleaxe:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Poleaxe", (ulong)exp);
-                                    break;
-                                case EnumTool.Probe:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Probe", (ulong)exp);
-                                    break;
-                                case EnumTool.Saw:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Saw", (ulong)exp);
-                                    break;
-                                case EnumTool.Scythe:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Scythe", (ulong)exp);
-                                    break;
-                                case EnumTool.Shears:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Shears", (ulong)exp);
-                                    break;
-                                case EnumTool.Shield:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Shield", (ulong)exp);
-                                    break;
-                                case EnumTool.Shovel:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Shovel", (ulong)exp);
-                                    break;
-                                case EnumTool.Sickle:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Sickle", (ulong)exp);
-                                    break;
-                                case EnumTool.Sling:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Sling", (ulong)exp);
-                                    break;
-                                case EnumTool.Spear:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Spear", (ulong)exp);
-                                    break;
-                                case EnumTool.Staff:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Staff", (ulong)exp);
-                                    break;
-                                case EnumTool.Sword:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Sword", (ulong)exp);
-                                    break;
-                                case EnumTool.Warhammer:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Warhammer", (ulong)exp);
-                                    break;
-                                case EnumTool.Wrench:
-                                    Experience.IncreaseSubExperience(player, "Smithing", "Wrench", (ulong)exp);
-                                    break;
+                                Experience.IncreaseSubExperience(player, "Smithing", subName, (ulong)exp);
                             }
+                        }
                         else // Code with custom level type
                             Experience.IncreaseSubExperience(player, "Smithing", levelType, (ulong)exp);
                     }
@@ -747,19 +701,18 @@ class LevelSmithing
             return true;
         }
 
-        // Overwrite Visual and Interaction Attack Power
-        // This is necessary so the attack attack system is more accurate
-        [HarmonyPrefix]
+        // Overwrite Visual Attack Power
+        // Should be called before other codes because smithing is the base damage
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
-        internal static bool GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
+        [HarmonyPriority(Priority.High)]
+        internal static void GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
         {
             float attackPower = withItemStack.Attributes.GetFloat("attackpower", -1f);
             if (attackPower != -1f)
             {
                 __result = attackPower;
-                return false;
             }
-            return true;
         }
     }
 }

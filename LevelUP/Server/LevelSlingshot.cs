@@ -31,7 +31,6 @@ class LevelSlingshot
 
     public void Init()
     {
-        // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart += HandleRangedDamage;
         Configuration.RegisterNewLevel("Slingshot");
@@ -44,6 +43,7 @@ class LevelSlingshot
     public void InitClient()
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Slingshot initialized");
     }
@@ -51,7 +51,16 @@ class LevelSlingshot
     public void Dispose()
     {
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart -= HandleRangedDamage;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
+    }
+
+    private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
+    {
+        if (item.Item.Tool == EnumTool.Sling)
+        {
+            damage *= Configuration.SlingshotGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot"));
+        }
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
