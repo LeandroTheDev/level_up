@@ -1,4 +1,5 @@
 #pragma warning disable IDE0060
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -109,7 +110,7 @@ class OverwriteBlockBreak
     [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
     internal static void GetHeldItemInfoStart(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {
-        if (inSlot.Itemstack.Collectible is not Item) return;
+        if (inSlot.Itemstack?.Item == null || inSlot.Itemstack.Item.Tool == null) return;
 
         Shared.Instance.ResetToolAttributes(inSlot.Itemstack);
         OverwriteBlockBreakEvents.ExecuteMiningSpeedAttribute(inSlot.Itemstack);
@@ -119,7 +120,7 @@ class OverwriteBlockBreak
     [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
     internal static void GetHeldItemInfoFinish(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {
-        if (inSlot.Itemstack.Collectible is not Item) return;
+        if (inSlot.Itemstack?.Item == null || inSlot.Itemstack.Item.Tool == null) return;
 
         Shared.Instance.ResetToolAttributes(inSlot.Itemstack);
     }
