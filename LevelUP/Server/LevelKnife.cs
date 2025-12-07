@@ -94,13 +94,13 @@ class LevelKnife
         );
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_harvest",
-                Utils.GetPorcentageFromFloatsStart0(Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) - Configuration.BaseHarvestMultiplyKnife)
+                Utils.GetPorcentageFromFloatsStart0(Configuration.KnifeGetHarvestMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")))
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_miningspeed",
-                Utils.GetPorcentageFromFloatsStart1(Configuration.KnifeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")) - Configuration.BaseMinigSpeedKnife)
+                Utils.GetPorcentageFromFloatsStart1(Configuration.KnifeGetMiningMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Knife")))
             )
         );
     }

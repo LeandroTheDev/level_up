@@ -339,25 +339,22 @@ class LevelMetabolism
     private class LevelMetabolismPatch
     {
         // Overwrite Saturation consume
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
-        internal static void ConsumeSaturation(EntityBehaviorHunger __instance, ref float amount)
-        {
-            if (!Configuration.enableLevelMetabolism) return;
+        // [HarmonyPrefix]
+        // [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
+        // internal static void ConsumeSaturation(EntityBehaviorHunger __instance, ref float amount)
+        // {
+        //     if (__instance.entity is EntityPlayer entityPlayer)
+        //     {
+        //         float reducer = PlayerLoadedMetabolismReceiveMultiply.TryGetValue(entityPlayer.PlayerUID, out float result)
+        //             ? result
+        //             : 1f;
 
-            if (__instance.entity is EntityPlayer entityPlayer)
-            {
-                float reducer = PlayerLoadedMetabolismReceiveMultiply.TryGetValue(entityPlayer.PlayerUID, out float result)
-                    ? result
-                    : 1f;
+        //         amount *= reducer;
+        //     }
+        // }
 
-                amount *= reducer;
-            }
-        }
-
-        // Clientside view
         // I don't know the reason, but some random function is changing the maxsaturation to default value randomly
-        [HarmonyPrefix]
+        [HarmonyPrefix] // Client side
         [HarmonyPatch(typeof(HudStatbar), "UpdateSaturation")]
         internal static void UpdateSaturation(HudStatbar __instance)
         {
