@@ -269,7 +269,7 @@ class OverwriteDamageInteraction
     [HarmonyPriority(Priority.VeryLow)]
     internal static void GetAttackPowerFinish(CollectibleObject __instance, ItemStack withItemStack, ref float __result)
     {
-        if (withItemStack.Item == null) return;
+        if (withItemStack.Item == null || withItemStack.Item.Tool == null) return;
 
         ICoreAPI api = (ICoreAPI)AccessTools.Field(typeof(CollectibleObject), "api").GetValue(__instance);
         if (api is ICoreClientAPI capi)
