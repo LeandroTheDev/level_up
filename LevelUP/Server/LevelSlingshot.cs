@@ -131,7 +131,6 @@ class LevelSlingshot
         [HarmonyPatch(typeof(ItemStone), "OnHeldInteractStop")]
         internal static void OnHeldInteractSlingshotStoneStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
         {
-            if (!Configuration.enableLevelSlingshot) return;
             if (byEntity.Api.Side != EnumAppSide.Server) return;
 
             if (byEntity is EntityPlayer)
@@ -153,7 +152,6 @@ class LevelSlingshot
         [HarmonyPatch(typeof(ItemSling), "OnHeldInteractStop")]
         internal static void OnHeldInteractSlingshotStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
         {
-            if (!Configuration.enableLevelSlingshot) return;
             if (byEntity.Api.Side != EnumAppSide.Server) return;
 
             if (byEntity is EntityPlayer)
@@ -175,7 +173,6 @@ class LevelSlingshot
         [HarmonyPatch(typeof(EntityThrownStone), "OnGameTick")]
         internal static bool EntityThrownStoneOnGameTick(EntityThrownStone __instance, float dt)
         {
-            if (!Configuration.enableLevelSlingshot) return true;
             if (__instance.Api.Side != EnumAppSide.Server) return true;
 
             // Disable function if damage was done
@@ -189,7 +186,6 @@ class LevelSlingshot
         internal static List<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var list = new List<CodeInstruction>(instructions);
-            if (!Configuration.enableLevelSlingshot) return list;
 
             var dieMethod = AccessTools.Method(typeof(Entity), "Die", [typeof(EnumDespawnReason), typeof(DamageSource)]);
 

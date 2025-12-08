@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using HarmonyLib;
 using LevelUP.Client;
 using Vintagestory.API.Client;
@@ -97,28 +98,40 @@ class LevelMetabolism
 
     private void OnGameTick(float obj)
     {
-        Task.Run(() =>
+        Thread thread = new(() =>
         {
-            foreach (KeyValuePair<string, double> keyValuePair in _playerLoadedMetabolism)
+            foreach (var kvp in _playerLoadedMetabolism)
             {
-                IPlayer player = Instance.api.World.AllOnlinePlayers.First((player) => player.PlayerUID == keyValuePair.Key);
-                // Should never be null, but just in case...
-                if (player == null) { Debug.LogError($"[METABOLISM] [OnGameTick] Cannot find player when refreshing saturation, caused by {keyValuePair.Key}"); continue; }
+                IPlayer player = Instance.api.World.AllOnlinePlayers
+                    .FirstOrDefault(p => p.PlayerUID == kvp.Key);
 
-                // Get player stats
-                EntityBehaviorHunger playerStats = player.Entity.GetBehavior<EntityBehaviorHunger>();
-                // Check if stats is null
-                if (playerStats == null) { Debug.LogError($"[METABOLISM] [OnGameTick] ERROR GETTING SATURATION: Player Stats is null, caused by {player.PlayerName}"); continue; }
-
-                if (playerStats.Saturation < keyValuePair.Value)
+                if (player == null)
                 {
-                    _playerLoadedMetabolism[keyValuePair.Key] = playerStats.Saturation;
-                    Experience.IncreaseExperience(player, "Metabolism", (ulong)Configuration.EXPPerSaturationLostMetabolism);
+                    Debug.LogError($"[METABOLISM] [OnGameTick] Cannot find player for {kvp.Key}");
+                    continue;
+                }
+
+                var stats = player.Entity.GetBehavior<EntityBehaviorHunger>();
+                if (stats == null)
+                {
+                    Debug.LogError($"[METABOLISM] [OnGameTick] ERROR GETTING SATURATION: Stats null for {player.PlayerName}");
+                    continue;
+                }
+
+                if (stats.Saturation < kvp.Value)
+                {
+                    _playerLoadedMetabolism[kvp.Key] = stats.Saturation;
+                    Experience.IncreaseExperience(player, "Metabolism",
+                        (ulong)Configuration.EXPPerSaturationLostMetabolism);
                 }
             }
-        });
+        })
+        {
+            IsBackground = true,
+            Priority = ThreadPriority.Lowest
+        };
+        thread.Start();
     }
-
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
@@ -318,6 +331,9 @@ class LevelMetabolism
 
         playerStats.UpdateNutrientHealthBoost();
 
+        // Send message to the client for him update their local tree too
+        Instance.CommunicationChannel.SendPacket(new ServerMessage() { message = $"maxsaturationupdated&{playerMaxSaturation}" }, player as IServerPlayer);
+
         return playerStats;
     }
 
@@ -338,20 +354,57 @@ class LevelMetabolism
     [HarmonyPatchCategory("levelup_metabolism")]
     private class LevelMetabolismPatch
     {
-        // Overwrite Saturation consume
-        // [HarmonyPrefix]
-        // [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
-        // internal static void ConsumeSaturation(EntityBehaviorHunger __instance, ref float amount)
-        // {
-        //     if (__instance.entity is EntityPlayer entityPlayer)
-        //     {
-        //         float reducer = PlayerLoadedMetabolismReceiveMultiply.TryGetValue(entityPlayer.PlayerUID, out float result)
-        //             ? result
-        //             : 1f;
+        internal static float GetReducerForPlayer(EntityBehaviorHunger instance)
+        {
+            if (!Configuration.enableLevelMetabolism)
+                return 1f;
 
-        //         amount *= reducer;
-        //     }
-        // }
+            if (instance.entity is EntityPlayer entityPlayer &&
+                PlayerLoadedMetabolismReceiveMultiply.TryGetValue(entityPlayer.PlayerUID, out float reducer))
+            {
+                return reducer;
+            }
+
+            return 1f;
+        }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
+        internal static IEnumerable<CodeInstruction> ConsumeSaturationTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var code = new List<CodeInstruction>(instructions);
+
+            // Utility method that calculates the reducer value for the player
+            var getReducerMethod = AccessTools.Method(typeof(LevelMetabolismPatch), nameof(GetReducerForPlayer));
+
+            // Insert at the beginning of the method:
+            // amount *= GetReducerForPlayer(__instance)
+            // where "amount" is argument 1 (ref float amount)
+
+            var newCode = new List<CodeInstruction>
+            {
+                // Load __instance (arg0)
+                new(OpCodes.Ldarg_0),
+    
+                // Call the static method to get the reducer
+                new(OpCodes.Call, getReducerMethod),
+
+                // Load the argument 'amount' (ref float)
+                new(OpCodes.Ldarg_1),
+                new(OpCodes.Ldind_R4), // Read the float value from the reference
+
+                // Multiply
+                new(OpCodes.Mul),
+
+                // Store the new value back into the ref argument 'amount'
+                new(OpCodes.Starg_S, (byte)1)
+            };
+
+            // Insert the new IL at the beginning
+            newCode.AddRange(code);
+
+            return newCode;
+        }
 
         // I don't know the reason, but some random function is changing the maxsaturation to default value randomly
         [HarmonyPrefix] // Client side
