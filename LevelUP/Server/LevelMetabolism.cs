@@ -331,9 +331,6 @@ class LevelMetabolism
 
         playerStats.UpdateNutrientHealthBoost();
 
-        // Send message to the client for him update their local tree too
-        Instance.CommunicationChannel.SendPacket(new ServerMessage() { message = $"maxsaturationupdated&{playerMaxSaturation}" }, player as IServerPlayer);
-
         return playerStats;
     }
 
@@ -372,38 +369,30 @@ class LevelMetabolism
         [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
         internal static IEnumerable<CodeInstruction> ConsumeSaturationTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            var code = new List<CodeInstruction>(instructions);
-
-            // Utility method that calculates the reducer value for the player
             var getReducerMethod = AccessTools.Method(typeof(LevelMetabolismPatch), nameof(GetReducerForPlayer));
 
-            // Insert at the beginning of the method:
-            // amount *= GetReducerForPlayer(__instance)
-            // where "amount" is argument 1 (ref float amount)
-
-            var newCode = new List<CodeInstruction>
+            foreach (var code in instructions)
             {
-                // Load __instance (arg0)
-                new(OpCodes.Ldarg_0),
-    
-                // Call the static method to get the reducer
-                new(OpCodes.Call, getReducerMethod),
+                // Sempre que encontrar ldarg.1, substitui pelo multiplicado
+                if (code.opcode == OpCodes.Ldarg_1)
+                {
+                    // ldarg.0 (this)
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
 
-                // Load the argument 'amount' (ref float)
-                new(OpCodes.Ldarg_1),
-                new(OpCodes.Ldind_R4), // Read the float value from the reference
+                    // call GetReducerForPlayer
+                    yield return new CodeInstruction(OpCodes.Call, getReducerMethod);
 
-                // Multiply
-                new(OpCodes.Mul),
+                    // ldarg.1 (amount)
+                    yield return new CodeInstruction(OpCodes.Ldarg_1);
 
-                // Store the new value back into the ref argument 'amount'
-                new(OpCodes.Starg_S, (byte)1)
-            };
+                    // mul  (amount * reducer)
+                    yield return new CodeInstruction(OpCodes.Mul);
 
-            // Insert the new IL at the beginning
-            newCode.AddRange(code);
+                    continue;
+                }
 
-            return newCode;
+                yield return code;
+            }
         }
 
         // I don't know the reason, but some random function is changing the maxsaturation to default value randomly

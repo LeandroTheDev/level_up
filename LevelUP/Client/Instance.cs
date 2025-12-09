@@ -2,11 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using HarmonyLib;
+using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
-using Vintagestory.API.Datastructures;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Client;
@@ -53,22 +52,10 @@ class Instance
             case "playersublevelup": SubLevelUPMessage(int.Parse(messages[1]), messages[2], messages[3]); RefreshWatchedAttributes?.Invoke(); return;
             case "enabledlevels": enabledLevels = JsonSerializer.Deserialize<Dictionary<string, bool>>(messages[1]); return;
             case "playerhardcoredied": api.ShowChatMessage(Lang.Get("levelup:hardcore_message", 0)); return;
-            case "syncconfig": SyncConfigurations(messages[1]); return;
-            case "maxsaturationupdated": UpdateMaxSaturation(messages[1]); return;
+            case "syncconfig": SyncConfigurations(messages[1]); return;            
         }
     }
 
-    private void UpdateMaxSaturation(string maxsaturation)
-    {
-        if (float.TryParse(maxsaturation, out float value))
-        {
-            IPlayer player = api.World.Player;
-            EntityBehaviorHunger playerStats = player.Entity.GetBehavior<EntityBehaviorHunger>();
-
-            playerStats.MaxSaturation = value;
-            playerStats.UpdateNutrientHealthBoost();
-        }
-    }
 
     private void SyncConfigurations(string json)
     {
