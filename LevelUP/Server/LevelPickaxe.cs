@@ -75,7 +75,7 @@ class LevelPickaxe
     private void RefreshWatchedAttributes()
     {
         var api = Shared.Instance.api as ICoreClientAPI;
-        currentPickaxeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed");
+        currentPickaxeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f);
     }
     private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
     {

@@ -76,7 +76,7 @@ class LevelShovel
     private void RefreshWatchedAttributes()
     {
         var api = Shared.Instance.api as ICoreClientAPI;
-        currentShovelMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed");
+        currentShovelMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Shovel_MiningSpeed", 1.0f);
     }
     private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
     {

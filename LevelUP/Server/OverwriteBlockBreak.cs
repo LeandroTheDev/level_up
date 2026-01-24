@@ -36,6 +36,7 @@ class OverwriteBlockBreak
     // Multiplier function called on the end of the transpiler
     internal static float GetMultiplier(IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, CollectibleObject collectible)
     {
+        Debug.Log("TESTE: " + OverwriteBlockBreakEvents.GetExternalMiningSpeedMultiply(collectible, itemstack, blockSel, block, player, 1.0f));
         return OverwriteBlockBreakEvents.GetExternalMiningSpeedMultiply(collectible, itemstack, blockSel, block, player, 1.0f);
     }
 

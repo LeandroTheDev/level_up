@@ -74,7 +74,7 @@ class LevelKnife
     private void RefreshWatchedAttributes()
     {
         var api = Shared.Instance.api as ICoreClientAPI;
-        currentKnifeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Knife_MiningSpeed");
+        currentKnifeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Knife_MiningSpeed", 1.0f);
     }
     private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
     {
