@@ -23,7 +23,7 @@ class LevelsView
         Task.Delay(1000).ContinueWith((_) =>
         {
             // Creating Level Table
-            characterView = instance.api.Gui.LoadedGuis.Find(dlg => dlg is GuiDialogCharacterBase) as GuiDialogCharacterBase;
+            characterView = Instance.api.Gui.LoadedGuis.Find(dlg => dlg is GuiDialogCharacterBase) as GuiDialogCharacterBase;
             characterView.Tabs.Add(new GuiTab
             {
                 Name = Lang.Get("levelup:levels_tab"),
@@ -70,7 +70,7 @@ class LevelsView
 
             AssetLocation imageAsset = new($"levelup:textures/{levelType.ToLower()}.png");
 
-            if (instance.api.Assets.Exists(imageAsset))
+            if (Instance.api.Assets.Exists(imageAsset))
             {
                 ElementBounds itemBounds = listBounds
                     .ForkChild()
@@ -80,7 +80,7 @@ class LevelsView
                 // Right side button
                 var buttonBounds = itemBounds.RightCopy().ForkChildOffseted(190, 0, 50, 50).WithFixedSize(50, 50);
                 levelContainer.Add(new GuiElementTextButton(
-                    instance.api,
+                    Instance.api,
                     ">",
                     CairoFont.ButtonText(),
                     CairoFont.ButtonPressedText(),
@@ -91,13 +91,13 @@ class LevelsView
 
                 // Left side image
                 levelContainer.Add(new GuiElementImage(
-                    instance.api,
+                    Instance.api,
                     itemBounds,
                     imageAsset));
 
                 // Currently level and name
                 levelContainer.Add(new GuiElementStaticText(
-                    instance.api,
+                    Instance.api,
                     $"{Lang.Get($"levelup:{levelType.ToLower()}")}: {GetLevelByLevelName(levelType)}",
                     EnumTextOrientation.Left,
                     itemBounds.RightCopy().ForkChildOffseted(5, 12, 500, 0),
@@ -106,7 +106,7 @@ class LevelsView
 
                 // Level progress
                 levelContainer.Add(new GuiElementStaticText(
-                    instance.api,
+                    Instance.api,
                     Lang.Get("levelup:progress", GetEXPRemainingByLevelName(levelType)),
                     EnumTextOrientation.Left,
                     itemBounds.RightCopy().ForkChildOffseted(5, 30, 500, 0),
@@ -120,7 +120,7 @@ class LevelsView
         // Finishing Clip for scrollbar
         composer.EndClip();
 
-        instance.api.Event.EnqueueMainThreadTask(() =>
+        Instance.api.Event.EnqueueMainThreadTask(() =>
         {
             // Adding the size of scroll button
             GuiElementScrollbar scrollBar = composer.GetScrollbar("LevelUP_Scrollbar");
@@ -147,7 +147,7 @@ class LevelsView
             }
         }
 
-        loadedDialog = new StatusViewDialog(instance.api, levelType, buttonBounds);
+        loadedDialog = new StatusViewDialog(Instance.api, levelType, buttonBounds);
         loadedDialog.TryOpen();
         return true;
     }
@@ -162,8 +162,8 @@ class LevelsView
     }
 
     private int GetLevelByLevelName(string levelName)
-        => instance.api.World.Player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelName}");
+        => Instance.api.World.Player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelName}");
 
     private float GetEXPRemainingByLevelName(string levelName)
-        => MathF.Round(instance.api.World.Player.Entity.WatchedAttributes.GetFloat($"LevelUP_Level_{levelName}_RemainingNextLevelPercentage"), 2);
+        => MathF.Round(Instance.api.World.Player.Entity.WatchedAttributes.GetFloat($"LevelUP_Level_{levelName}_RemainingNextLevelPercentage"), 2);
 }

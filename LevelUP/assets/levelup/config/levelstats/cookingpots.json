@@ -1,3 +1,12 @@
 {
-    "game:claypot-cooked": 3.0
+    "game:claypot-cooked": 3.0,
+    "game:claypot-blue-cooked": 3.0,
+    "game:claypot-fire-cooked": 3.0,
+    "game:claypot-black-cooked": 3.0,
+    "game:claypot-brown-cooked": 3.0,
+    "game:claypot-cream-cooked": 3.0,
+    "game:claypot-gray-cooked": 3.0,
+    "game:claypot-orange-cooked": 3.0,
+    "game:claypot-red-cooked": 3.0,
+    "game:claypot-tan-cooked": 3.0
 }

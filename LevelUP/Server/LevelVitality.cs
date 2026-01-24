@@ -11,7 +11,6 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
-using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
@@ -40,10 +39,6 @@ class LevelVitality
 
     public void Init()
     {
-        // Instanciate Events
-        Instance.api.Event.PlayerNowPlaying += PlayerJoin;
-        Instance.api.Event.PlayerDisconnect += PlayerDisconnect;
-        Instance.api.Event.GameWorldSave += SaveState;
         OverwriteDamageInteractionEvents.OnPlayerReceiveDamageStart += HandleReceiveDamage;
         Configuration.RegisterNewLevel("Vitality");
         Configuration.RegisterNewLevelTypeEXP("Vitality", Configuration.VitalityGetLevelByEXP);
@@ -111,163 +106,6 @@ class LevelVitality
         // Populate configuration
         Configuration.PopulateVitalityConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Vitality", Configuration.vitalityMaxLevel);
-    }
-
-    /// <summary>
-    /// Loads the player to the memory
-    /// </summary>
-    /// <param name="player"></param>
-    private static void LoadPlayer(IPlayer player)
-    {
-        if (!Utils.ValidatePlayerUID(player))
-        {
-            if (player is IServerPlayer serverPlayer)
-                serverPlayer.Disconnect("[LEVELUP SECURITY] Invalid UID");
-            return;
-        }
-
-        string playerDirectory = Path.Combine(_saveDirectory, player.PlayerUID);
-
-        // Conversion to the safe UID
-        {
-            string correctDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
-            // Wrong directory exists, lets move it
-            if (Directory.Exists(playerDirectory))
-            {
-                if (playerDirectory != correctDirectory)
-                {
-                    Debug.LogWarn($"{player.PlayerUID} is saved on unsafe directory, levelup will move from: {playerDirectory} to {correctDirectory}");
-                    Directory.Move(playerDirectory, correctDirectory);
-                }
-            }
-        }
-
-        Debug.LogDebug($"Loading {player.PlayerName} vitality: {Utils.ConvertPlayerUID(player.PlayerUID)}");
-
-        playerDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
-
-        Directory.CreateDirectory(playerDirectory);
-
-        string lastHealthFile = Path.Combine(playerDirectory, "lastHealth.txt");
-        if (File.Exists(lastHealthFile))
-        {
-            string lastHealthString = File.ReadAllText(lastHealthFile);
-
-            if (double.TryParse(lastHealthString, out double lastHealth))
-                _playerLoadedVitality[player.PlayerUID] = lastHealth;
-            else
-            {
-                _playerLoadedVitality[player.PlayerUID] = Configuration.BaseHPVitality;
-                Debug.LogError($"[VITALITY] {player.PlayerName} has any invalid vitality health: {lastHealthString}");
-            }
-        }
-        else
-        {
-            _playerLoadedVitality[player.PlayerUID] = Configuration.BaseHPVitality;
-            Debug.LogDebug($"Cannot find the player: {player.PlayerName} previous health, probably is the first login, setting HP to: {Configuration.BaseHPVitality}");
-        }
-    }
-
-    /// <summary>
-    /// Saves the player and unload it from the memory
-    /// </summary>
-    /// <param name="player"></param>
-    private static void UnloadPlayer(IPlayer player)
-    {
-        if (!_playerLoadedVitality.ContainsKey(player.PlayerUID)) return;
-
-        SavePlayer(player);
-
-        _playerLoadedVitality.Remove(player.PlayerUID);
-    }
-
-    /// <summary>
-    /// Manually save the player experience and levels
-    /// </summary>
-    /// <param name="player"></param>
-    private static void SavePlayer(IPlayer player)
-    {
-        if (!Utils.ValidatePlayerUID(player)) return;
-
-        string playerDirectory = Path.Combine(_saveDirectory, Utils.ConvertPlayerUID(player.PlayerUID));
-        Directory.CreateDirectory(playerDirectory);
-
-        string lastHealthFile = Path.Combine(playerDirectory, "lastHealth.txt");
-
-        if (_playerLoadedVitality.TryGetValue(player.PlayerUID, out double lastHealth))
-        {
-            File.WriteAllText(lastHealthFile, lastHealth.ToString());
-            Debug.LogDebug($"[VITALITY] {player.PlayerName} saved to the path: {playerDirectory}");
-        }
-        else
-            Debug.LogError($"[VITALITY] {player.PlayerName} cannot be found in playerLoadedVitality");
-    }
-
-    private void SaveState()
-    {
-        foreach (IPlayer player in Instance.api.World.AllOnlinePlayers)
-        {
-            // Saving each online player
-            foreach (KeyValuePair<string, double> keyValue in _playerLoadedVitality)
-            {
-                // Iteration is not the player
-                if (keyValue.Key != player.PlayerUID) continue;
-
-                // Check infinity bug
-                if (double.IsInfinity(keyValue.Value))
-                {
-                    Debug.LogError($"ERROR: {keyValue.Key} vitalityState is infinity??, reseting to {Configuration.BaseHPVitality} before saving");
-                    _playerLoadedVitality[keyValue.Key] = Configuration.BaseHPVitality;
-                }
-                else
-                {
-                    SavePlayer(player);
-                }
-            }
-        }
-    }
-
-    private void PlayerJoin(IServerPlayer player)
-    {
-        LoadPlayer(player);
-
-        EntityBehaviorHealth playerStats = RefreshMaxHealth(player);
-
-        // Reload player health
-        if (_playerLoadedVitality.TryGetValue(player.PlayerUID, out double value)) playerStats.Health = (float)value;
-        // If cannot find player will receive the base max health instead
-        else
-        {
-            playerStats.Health = playerStats.MaxHealth;
-            Debug.LogError($"[VITALITY] Cannot find the player: {player.PlayerName} health, something goes wrong");
-        }
-    }
-
-    private void PlayerDisconnect(IServerPlayer player)
-    {
-        try
-        {
-            // Disconnected during the loading
-            if (player.Entity == null) { Debug.LogDebug($"[VITALITY] {player.PlayerName} entity is null"); return; }
-
-            // Get stats
-            EntityBehaviorHealth playerStats = player.Entity.GetBehavior<EntityBehaviorHealth>();
-            if (playerStats == null) { Debug.LogError($"[VITALITY] ERROR SAVING PLAYER STATE: Player Stats is null, caused by {player.PlayerName}"); return; }
-
-            // Check error treatment
-            if (float.IsInfinity(playerStats.Health))
-            {
-                Debug.LogError($"[VITALITY] ERROR SAVING PLAYER STATE: Player Health is infinity, caused by {player.PlayerName} setting the health to {Configuration.BaseHPVitality}");
-                _playerLoadedVitality[player.PlayerUID] = Configuration.BaseHPVitality;
-            }
-            // Update it
-            else _playerLoadedVitality[player.PlayerUID] = playerStats.Health;
-        }
-        catch (Exception) { }
-        finally
-        {
-            UnloadPlayer(player);
-        }
     }
 
     static public EntityBehaviorHealth RefreshMaxHealth(IPlayer player)

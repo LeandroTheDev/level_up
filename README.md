@@ -3,7 +3,7 @@ Brand new levels for your character in Vintage Story, earn levels by doing actio
 Makes you feels progress through the gameplay.
 
 ### IMPORTANT
-- Consider always making backup for your world, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
+- Consider always making backup for your world ESPECIALLY IF YOU ARE UPDATING THE MOD, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
 - Is not safe to remove levelup after installation, full player wipe is required
 - Strongly recommended to backup your world on level up major updates
 
@@ -46,7 +46,6 @@ English is not my main language, if you encounter any translation problems, plea
 | Item Rarity    | Not compatible with Smithing Level                          |
 | XSkills        | Not compatible with Cooking Level                           |
 | CombatOverhaul | Not compatible with Bow Level and some custom weapons       |
-| Any mod that repair weapons | Requires attention in this [fix](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#crafting)              |
 
 "My custom weapon from my mod does not work with level up!!", check your weapon json, find the "tool" section:
 ```json
@@ -89,13 +88,14 @@ This is just an estimate of what can affect a server's performance, if you are h
 | Pickaxe          | Medium        |
 | Brigandine Armor | High          |
 | Chain Armor      | High          |
+| Cooking          | Depends       |
 | Farming          | Low           |
 | Hammer           | Low           |
 | Hunter           | Low           |
 | Knife            | Medium        |
 | Lamellar Armor   | High          |
 | Leather Armor    | High          |
-| Metabolism       | High          |
+| Metabolism       | Low           |
 | Panning          | Low           |
 | Pickaxe          | Medium        |
 | Plate Armor      | High          |
@@ -106,7 +106,7 @@ This is just an estimate of what can affect a server's performance, if you are h
 | Smithing         | High          |
 | Spear            | Medium        |
 | Sword            | Medium        |
-| Vitality         | Medium        |
+| Vitality         | Low           |
 
 # About Level UP
 Level UP is open source project and can easily be accessed on the github, all contents from this mod is completly free.

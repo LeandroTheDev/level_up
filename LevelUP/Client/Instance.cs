@@ -2,17 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common;
 using Vintagestory.API.Config;
-using Vintagestory.GameContent;
 
 namespace LevelUP.Client;
 
 class Instance
 {
-    public ICoreClientAPI api;
+    public static ICoreClientAPI api;
     public IClientNetworkChannel CommunicationChannel;
     public Dictionary<string, bool> enabledLevels = [];
 

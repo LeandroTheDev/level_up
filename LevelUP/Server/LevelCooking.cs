@@ -96,8 +96,7 @@ class LevelCooking
             float maxCookingTime = __instance.inputSlot.Itemstack.Collectible.GetMeltingDuration(__instance.Api.World, (ISlotProvider)__instance.Inventory, __instance.inputSlot);
             float cookingTime = __instance.inputStackCookingTime;
 
-            if ((int)cookingTime % 10 == 0 && cookingTime > 0 && cookingTime < maxCookingTime)
-                Debug.LogDebug($"Cooking: {cookingTime} / {maxCookingTime}");
+            Debug.LogDebug($"Cooking: {cookingTime} / {maxCookingTime}");
 
             // Check if him finished cooking
             if (cookingTime >= maxCookingTime)
@@ -136,7 +135,6 @@ class LevelCooking
                     ItemStack output = __instance.outputStack;
 
                     Debug.LogDebug($"Cooking outputStack: {output.Collectible.Code}, cooking position: X: {__instance.Pos.X}, Y: {__instance.Pos.Y}, Z: {__instance.Pos.Z}");
-
                     // Update player experience to the most proximity player
                     IPlayer player = __instance.Api.World.NearestPlayer(__instance.Pos.X, __instance.Pos.Y, __instance.Pos.Z);
 
@@ -171,7 +169,6 @@ class LevelCooking
                     else if (Configuration.expMultiplyPotsCooking.TryGetValue(output.Collectible.Code.ToString(), out double expMultiplyPots))
                     {
                         ulong exp = (ulong)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyPots));
-
                         if (firstOutput)
                         {
                             List<float> indexFreshHours = [];
