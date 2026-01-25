@@ -2,15 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
-using System.Threading;
 using HarmonyLib;
 using LevelUP.Client;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
+using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -33,8 +34,6 @@ class LevelMetabolism
         }
     }
 
-    static private string _saveDirectory = "";
-    private static readonly Dictionary<string, double> _playerLoadedMetabolism = [];
     private static readonly Dictionary<string, float> _playerLoadedMetabolismReceiveMultiply = [];
     public static readonly IReadOnlyDictionary<string, float> PlayerLoadedMetabolismReceiveMultiply
         = new ReadOnlyDictionary<string, float>(_playerLoadedMetabolismReceiveMultiply);
@@ -42,6 +41,7 @@ class LevelMetabolism
     public void Init()
     {
         Instance.api.Event.PlayerJoin += (player) => RefreshSaturationReceiveMultiply(player);
+        Instance.api.Event.PlayerDisconnect += (player) => _playerLoadedMetabolismReceiveMultiply.Remove(player.PlayerUID);
         Instance.api.Event.RegisterGameTickListener(OnGameTick, 1000, 10000);
         OverwriteDamageInteractionEvents.OnPlayerReceiveDamageUnkown += HandleUnkownDamage;
         Configuration.RegisterNewLevel("Metabolism");
@@ -91,48 +91,26 @@ class LevelMetabolism
 
     private void OnGameTick(float obj)
     {
-        Thread thread = new(() =>
+        foreach (IPlayer player in Instance.api.World.AllOnlinePlayers)
         {
-            foreach (var kvp in _playerLoadedMetabolism)
+            var stats = player.Entity.GetBehavior<EntityBehaviorHunger>();
+            if (stats == null)
             {
-                IPlayer player = Instance.api.World.AllOnlinePlayers
-                    .FirstOrDefault(p => p.PlayerUID == kvp.Key);
-
-                if (player == null)
-                {
-                    Debug.LogError($"[METABOLISM] [OnGameTick] Cannot find player for {kvp.Key}");
-                    continue;
-                }
-
-                var stats = player.Entity.GetBehavior<EntityBehaviorHunger>();
-                if (stats == null)
-                {
-                    Debug.LogError($"[METABOLISM] [OnGameTick] ERROR GETTING SATURATION: Stats null for {player.PlayerName}");
-                    continue;
-                }
-
-                if (stats.Saturation < kvp.Value)
-                {
-                    _playerLoadedMetabolism[kvp.Key] = stats.Saturation;
-                    Experience.IncreaseExperience(player, "Metabolism",
-                        (ulong)Configuration.EXPPerSaturationLostMetabolism);
-                }
+                Debug.LogError($"[METABOLISM] [OnGameTick] ERROR GETTING SATURATION: Stats null for {player.PlayerName}");
+                continue;
             }
-        })
-        {
-            IsBackground = true,
-            Priority = ThreadPriority.Lowest
-        };
-        thread.Start();
+
+            float expMultiply = 1.5f - (stats.Saturation / stats.MaxSaturation);
+            ulong exp = (ulong)Math.Round(
+                Configuration.EXPPerSaturationLostMetabolism * expMultiply
+            );
+
+            Experience.IncreaseExperience(player, "Metabolism", exp);
+        }
     }
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
-        // Load player state
-        _saveDirectory = Path.Combine(coreAPI.DataBasePath, $"ModData/LevelUP/{coreAPI.World.SavegameIdentifier}-Metabolism");
-        Debug.Log($"LevelUP will save metabolism data in: {_saveDirectory}");
-        Directory.CreateDirectory(_saveDirectory);
-
         // Populate configuration
         Configuration.PopulateMetabolismConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Metabolism", Configuration.metabolismMaxLevel);
@@ -183,9 +161,6 @@ class LevelMetabolism
     {
         internal static float GetReducerForPlayer(EntityBehaviorHunger instance)
         {
-            if (!Configuration.enableLevelMetabolism)
-                return 1f;
-
             if (instance.entity is EntityPlayer entityPlayer &&
                 PlayerLoadedMetabolismReceiveMultiply.TryGetValue(entityPlayer.PlayerUID, out float reducer))
             {
@@ -203,7 +178,7 @@ class LevelMetabolism
 
             foreach (var code in instructions)
             {
-                // Sempre que encontrar ldarg.1, substitui pelo multiplicado
+                // Whenever you find ldarg.1, replace it with the multiplier.
                 if (code.opcode == OpCodes.Ldarg_1)
                 {
                     // ldarg.0 (this)
@@ -222,6 +197,85 @@ class LevelMetabolism
                 }
 
                 yield return code;
+            }
+        }
+
+        // I don't know the reason, but some random function is changing the maxsaturation to default value randomly
+        [HarmonyTranspiler] // Client side
+        [HarmonyPatch(typeof(HudStatbar), "UpdateSaturation")]
+        internal static IEnumerable<CodeInstruction> UpdateSaturationTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            static bool IsStloc(CodeInstruction c)
+            {
+                return c.opcode == OpCodes.Stloc_0
+                    || c.opcode == OpCodes.Stloc_1
+                    || c.opcode == OpCodes.Stloc_2
+                    || c.opcode == OpCodes.Stloc_3
+                    || c.opcode == OpCodes.Stloc_S
+                    || c.opcode == OpCodes.Stloc;
+            }
+
+            var nullableCtor = typeof(float?)
+                .GetConstructor([typeof(float)]);
+
+            var getFloatMethod = AccessTools.Method(
+                typeof(ITreeAttribute),
+                "GetFloat",
+                [typeof(string), typeof(float)]
+            );
+
+            var getWorld = AccessTools.PropertyGetter(typeof(ICoreClientAPI), "World");
+            var getPlayer = AccessTools.PropertyGetter(typeof(IClientWorldAccessor), "Player");
+            var getEntity = AccessTools.PropertyGetter(typeof(IPlayer), "Entity");
+
+            var watchedAttributesField =
+                AccessTools.Field(typeof(Entity), "WatchedAttributes");
+
+            CodeInstruction prev = null;
+            CodeInstruction prevPrev = null;
+
+            foreach (var code in instructions)
+            {
+                // ldstr "maxsaturation" -> callvirt TryGetFloat -> stloc.*
+                if (prevPrev != null &&
+                    prev != null &&
+                    prevPrev.opcode == OpCodes.Ldstr &&
+                    prevPrev.operand is string s &&
+                    s == "maxsaturation" &&
+                    prev.opcode == OpCodes.Callvirt &&
+                    IsStloc(code))
+                {
+                    // keep original store
+                    yield return code;
+
+                    // capi.World.Player.Entity.WatchedAttributes
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(GuiDialog), "capi"));
+                    yield return new CodeInstruction(OpCodes.Callvirt, getWorld);
+                    yield return new CodeInstruction(OpCodes.Callvirt, getPlayer);
+                    yield return new CodeInstruction(OpCodes.Callvirt, getEntity);
+                    yield return new CodeInstruction(OpCodes.Ldfld, watchedAttributesField);
+
+                    // GetFloat("maxsaturation", 1500f)
+                    yield return new CodeInstruction(OpCodes.Ldstr, "maxsaturation");
+                    yield return new CodeInstruction(OpCodes.Ldc_R4, 1500f);
+                    yield return new CodeInstruction(OpCodes.Callvirt, getFloatMethod);
+
+                    // new float?(result)
+                    yield return new CodeInstruction(OpCodes.Newobj, nullableCtor);
+
+                    // store back into maxSaturation
+                    yield return new CodeInstruction(code.opcode, code.operand);
+
+                    prevPrev = prev;
+                    prev = code;
+                    continue;
+                }
+
+                yield return code;
+
+                prevPrev = prev;
+                prev = code;
             }
         }
     }

@@ -20,7 +20,7 @@
     "enableLevelCooking": true,
     "enableLevelPanning": true,
     "enableLevelVitality": true,
-    "enableLevelMetabolism": true,
+    "enableLevelMetabolism": false,
     "enableLevelLeatherArmor": true,
     "enableLevelChainArmor": true,
     "enableLevelBrigandineArmor": true,
