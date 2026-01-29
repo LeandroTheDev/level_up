@@ -544,6 +544,7 @@ class Instance
         {
             JObject protectionObj = (JObject)originalProtObj.DeepClone();
 
+            if (shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile") != null)
             {
                 float currentMeasured = protectionObj["passive-projectile"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
@@ -555,6 +556,7 @@ class Instance
                     (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")) + difference) * passiveProjectile, 2);
             }
 
+            if (shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile") != null)
             {
                 float currentMeasured = protectionObj["active-projectile"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
@@ -566,6 +568,7 @@ class Instance
                     (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")) + difference) * activeProjectile, 2);
             }
 
+            if (shieldSlot.Itemstack.Attributes.GetString("BasePassive") != null)
             {
                 float currentMeasured = protectionObj["passive"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
@@ -577,6 +580,7 @@ class Instance
                     (float)Math.Round((float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive")) + difference) * passive, 2);
             }
 
+            if (shieldSlot.Itemstack.Attributes.GetString("BaseActive") != null)
             {
                 float currentMeasured = protectionObj["active"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
@@ -592,7 +596,8 @@ class Instance
         }
 
         JsonObject jsonProjectileDamageAbsorption = attr["projectileDamageAbsorption"];
-        if (jsonProjectileDamageAbsorption?.Token is JValue projectileJVal)
+        if (shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption") != null &&
+            jsonProjectileDamageAbsorption?.Token is JValue projectileJVal)
         {
             float currentMeasured = projectileJVal.Value<float>();
 
@@ -606,7 +611,8 @@ class Instance
         }
 
         JsonObject jsonDamageAbsorption = attr["damageAbsorption"];
-        if (jsonDamageAbsorption?.Token is JValue damageAbsorptionJVal)
+        if (shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption") != null &&
+            jsonDamageAbsorption?.Token is JValue damageAbsorptionJVal)
         {
             float currentMeasured = damageAbsorptionJVal.Value<float>();
 
@@ -745,10 +751,14 @@ class Instance
         {
             JObject protectionObj = (JObject)originalProtObj.DeepClone();
 
-            protectionObj["passive-projectile"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile"));
-            protectionObj["active-projectile"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile"));
-            protectionObj["passive"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive"));
-            protectionObj["active"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActive"));
+            if (shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile") != null)
+                protectionObj["passive-projectile"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile"));
+            if (shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile") != null)
+                protectionObj["active-projectile"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile"));
+            if (shieldSlot.Itemstack.Attributes.GetString("BasePassive") != null)
+                protectionObj["passive"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BasePassive"));
+            if (shieldSlot.Itemstack.Attributes.GetString("BaseActive") != null)
+                protectionObj["active"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseActive"));
 
             shieldObj["protectionChance"] = protectionObj;
         }
@@ -756,13 +766,15 @@ class Instance
         JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
         if (projectileDamageAbsorption?.Token is JValue)
         {
-            shieldObj["projectileDamageAbsorption"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption"));
+            if (shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption") != null)
+                shieldObj["projectileDamageAbsorption"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption"));
         }
 
         JsonObject damageAbsorption = attr["damageAbsorption"];
         if (damageAbsorption?.Token is JValue)
         {
-            shieldObj["damageAbsorption"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption"));
+            if (shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption") != null)
+                shieldObj["damageAbsorption"] = float.Parse(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption"));
         }
     }
 
