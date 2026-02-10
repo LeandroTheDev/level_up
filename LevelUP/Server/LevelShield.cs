@@ -163,6 +163,7 @@ class LevelShield
                 }
 
                 if (shieldSlot.Itemstack == null) continue;
+                if (shieldSlot.Itemstack.Item is not ItemShield) continue;
 
                 Shared.Instance.ResetShieldAttributes(shieldSlot);
 
@@ -197,6 +198,9 @@ class LevelShield
                 {
                     shieldSlot = player.Entity.RightHandItemSlot;
                 }
+
+                if (shieldSlot.Itemstack == null) continue;
+                if (shieldSlot.Itemstack.Item is not ItemShield) continue;
 
                 Shared.Instance.ResetShieldAttributes(shieldSlot);
             }

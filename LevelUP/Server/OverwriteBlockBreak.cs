@@ -94,6 +94,8 @@ class OverwriteBlockBreak
     [HarmonyPriority(Priority.VeryLow)]
     internal static void GetMiningSpeedStart(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
     {
+        if (__instance.Tool == null) return;
+
         Shared.Instance.ResetToolAttributes(itemstack);
         OverwriteBlockBreakEvents.ExecuteMiningSpeedAttribute(itemstack);
     }
@@ -103,6 +105,8 @@ class OverwriteBlockBreak
     [HarmonyPriority(Priority.VeryLow)]
     internal static void GetMiningSpeedFinish(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
     {
+        if (__instance.Tool == null) return;
+
         Shared.Instance.ResetToolAttributes(itemstack);
     }
 

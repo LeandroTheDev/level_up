@@ -200,6 +200,8 @@ class LevelSmithing
 
     private void MiningSpeedRefreshed(IItemStack itemStack)
     {
+        if (itemStack.Item?.Tool == null) return;
+
         float miningspeed = itemStack.Attributes.GetFloat("miningspeed", 1f);
         if (miningspeed > 1)
             Shared.Instance.RefreshToolAttributes(itemStack, miningspeed);
@@ -225,7 +227,7 @@ class LevelSmithing
     {
         if (item.Attributes.GetBool("repaired", false))
         {
-            Debug.LogDebug($"Smith item crafted ignored because item is repaired by {item.Attributes.GetString("repaired_by")}");
+            Debug.LogDebug($"Smith item crafted ignored because item was repaired by {item.Attributes.GetString("repaired_by")}");
             return item;
         }
 
@@ -456,8 +458,8 @@ class LevelSmithing
                                 break;
                         }
 
-                        // Generate Base Stats
-                        Shared.Instance.GenerateBaseToolStatus(item);
+                        if (item.Item.Tool != null)
+                            Shared.Instance.GenerateBaseToolStatus(item);
 
                         LevelSmithingEvents.UpdateFromExternalSmithCraftingItem(player,
                             item.Collectible.Code.ToString(),

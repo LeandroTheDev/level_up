@@ -371,6 +371,12 @@ class Instance
     /// <param name="item"></param>
     public static void GenerateBaseToolStatus(IItemStack item)
     {
+        if (item.Item?.Tool == null)
+        {
+            Debug.LogDebug($"{item.Collectible.Code} ignored stats generation because is not a tool!");
+            return;
+        }
+
         if (item.Attributes.GetBool("BaseGenerated")) return;
         item.Attributes.SetBool("BaseGenerated", true);
 

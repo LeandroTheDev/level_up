@@ -74,7 +74,7 @@ class LevelAxe
     private void RefreshWatchedAttributes()
     {
         var api = Shared.Instance.api as ICoreClientAPI;
-        currentAxeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("Lev4elUP_Axe_MiningSpeed", 1.0f);
+        currentAxeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Axe_MiningSpeed", 1.0f);
     }
     private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
     {
