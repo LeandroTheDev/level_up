@@ -282,13 +282,16 @@ class LevelSmithing
 
                         Debug.LogDebug($"[Smithing] Craft levelType: {levelType}");
 
-                        // If the levelType is null, is a tool
+                        // If the levelType is null, is a tool?
                         if (levelType == null && item.Item != null)
                         {
-                            // Increasing sub tool levels
-                            if (SubLevelPatterns.TryGetValue((EnumTool)item.Item.Tool, out string subName))
+                            if (item.Item.Tool != null)
                             {
-                                Experience.IncreaseSubExperience(player, "Smithing", subName, (ulong)exp);
+                                // Increasing sub tool levels
+                                if (SubLevelPatterns.TryGetValue((EnumTool)item.Item.Tool, out string subName))
+                                {
+                                    Experience.IncreaseSubExperience(player, "Smithing", subName, (ulong)exp);
+                                }
                             }
                         }
                         else // Code with custom level type

@@ -146,11 +146,11 @@ class Commands
         {
             switch (args[2])
             {
-                case "oreDropRate": player.Entity.Stats.Set("oreDropRate", "oreDropRate", float.Parse(args[3])); break;
-                case "animalLootDropRate": player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", float.Parse(args[3])); break;
-                case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", float.Parse(args[3])); break;
-                case "forageDropRate": player.Entity.Stats.Set("forageDropRate", "forageDropRate", float.Parse(args[3])); break;
-                case "regenSpeed": player.Entity.WatchedAttributes.SetFloat("regenSpeed", float.Parse(args[3])); break;
+                case "oreDropRate": player.Entity.Stats.Set("oreDropRate", "oreDropRate", Utils.ParseFloatCulturized(args[3])); break;
+                case "animalLootDropRate": player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", Utils.ParseFloatCulturized(args[3])); break;
+                case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", Utils.ParseFloatCulturized(args[3])); break;
+                case "forageDropRate": player.Entity.Stats.Set("forageDropRate", "forageDropRate", Utils.ParseFloatCulturized(args[3])); break;
+                case "regenSpeed": player.Entity.WatchedAttributes.SetFloat("regenSpeed", Utils.ParseFloatCulturized(args[3])); break;
                 default: return TextCommandResult.Success($"Invalid status", "16");
             }
             return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to {args[3]}", "18");

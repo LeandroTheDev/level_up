@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using LevelUP;
 using LevelUP.Server;
@@ -174,5 +175,15 @@ partial class Utils
     static public float GetPorcentageFromDecrementalFloat(float number)
     {
         return (float)Math.Round((1f - number) * 100f, 2);
+    }
+
+    /// <summary>
+    /// Parses a string float number with CultureInfo invanriant
+    /// </summary>
+    /// <param name="number"></param>
+    /// <returns></returns>
+    static public float ParseFloatCulturized(string number)
+    {
+        return float.Parse(number, CultureInfo.InvariantCulture);
     }
 }

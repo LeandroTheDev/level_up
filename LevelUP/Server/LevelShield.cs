@@ -117,7 +117,7 @@ class LevelShield
 
             Shared.Instance.ResetShieldAttributes(inSlot);
 
-            float smithingBaseMultiply = float.Parse(inSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply", "1"));
+            float smithingBaseMultiply = Utils.ParseFloatCulturized(inSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply", "1"));
 
             Shared.Instance.RefreshShieldAttributes(
                 inSlot,
@@ -167,7 +167,7 @@ class LevelShield
 
                 Shared.Instance.ResetShieldAttributes(shieldSlot);
 
-                float smithingBaseMultiply = float.Parse(shieldSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply", "1"));
+                float smithingBaseMultiply = Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply", "1"));
 
                 Shared.Instance.RefreshShieldAttributes(
                     shieldSlot,
