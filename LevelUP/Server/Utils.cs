@@ -2,42 +2,42 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using LevelUP;
-using LevelUP.Server;
 using Vintagestory.API.Common;
 
-partial class Utils
+namespace LevelUP.Server
 {
-    // Non authenticated server can let players use whatever ID he wants
-    // if a player set their UID as "../../../../Whatever" he can save their experience
-    // outside the folder, so in that case we will stop that using this validator
-    // that will throw any exception and disconnect the player
-    static public bool ValidatePlayerUID(IPlayer player)
+    partial class Utils
     {
-        if (Instance.api != null && Configuration.enableLevelUPUIDSecurity)
+        // Non authenticated server can let players use whatever ID he wants
+        // if a player set their UID as "../../../../Whatever" he can save their experience
+        // outside the folder, so in that case we will stop that using this validator
+        // that will throw any exception and disconnect the player
+        static public bool ValidatePlayerUID(IPlayer player)
         {
-            if (player.PlayerUID.Length > 24)
+            if (Instance.api != null && Configuration.enableLevelUPUIDSecurity)
             {
-                Debug.LogError($"[LEVELUP SECURITY] player.PlayerUID invalid, UID is too big: {player.PlayerUID}, levelup is bloking the user {player.PlayerName} from saving or loading experience, you are probably using a dedicated server with authentication disabled, and the player is using any invalid UID");
-                return false;
-            }
+                if (player.PlayerUID.Length > 24)
+                {
+                    Debug.LogError($"[LEVELUP SECURITY] player.PlayerUID invalid, UID is too big: {player.PlayerUID}, levelup is bloking the user {player.PlayerName} from saving or loading experience, you are probably using a dedicated server with authentication disabled, and the player is using any invalid UID");
+                    return false;
+                }
 
-            if (player.PlayerUID.Split('/').Length - 1 > 1)
-            {
-                Debug.LogError($"[LEVELUP SECURITY] player.PlayerUID invalid, more than one bar: {player.PlayerUID}, levelup is bloking the user {player.PlayerName} from saving or loading experience, you are probably using a dedicated server with authentication disabled, and the player is using any invalid UID");
-                return false;
-            }
+                if (player.PlayerUID.Split('/').Length - 1 > 1)
+                {
+                    Debug.LogError($"[LEVELUP SECURITY] player.PlayerUID invalid, more than one bar: {player.PlayerUID}, levelup is bloking the user {player.PlayerName} from saving or loading experience, you are probably using a dedicated server with authentication disabled, and the player is using any invalid UID");
+                    return false;
+                }
 
-            if (!NumbersAndLetters().IsMatch(player.PlayerUID) || player.PlayerUID.Contains('.'))
-            {
-                Debug.LogError($"[LEVELUP SECURITY] player.PlayerUID contains invalid characters: {player.PlayerUID}, levelup is bloking the user {player.PlayerName} from saving or loading experience, you are probably using a dedicated server with authentication disabled, and the player is using any invalid UID");
-                return false;
+                if (!NumbersAndLetters().IsMatch(player.PlayerUID) || player.PlayerUID.Contains('.'))
+                {
+                    Debug.LogError($"[LEVELUP SECURITY] player.PlayerUID contains invalid characters: {player.PlayerUID}, levelup is bloking the user {player.PlayerName} from saving or loading experience, you are probably using a dedicated server with authentication disabled, and the player is using any invalid UID");
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
-    }
 
-    static readonly Dictionary<char, string> map = new()
+        static readonly Dictionary<char, string> map = new()
     {
         { '/', "$1" },
         { '$', "$2" },
@@ -65,125 +65,150 @@ partial class Utils
         { '}', "$24" }
     };
 
-    /// <summary>
-    /// Automatically converts the player uid to a safer folder system
-    /// </summary>
-    static public string ConvertPlayerUID(string uid)
-    {
-        if (string.IsNullOrEmpty(uid))
-            return "INVALID_UID";
-
-        var result = new System.Text.StringBuilder();
-
-        foreach (char c in uid)
+        /// <summary>
+        /// Automatically converts the player uid to a safer folder system
+        /// </summary>
+        static public string ConvertPlayerUID(string uid)
         {
-            if (map.TryGetValue(c, out string replacement))
-                result.Append(replacement);
-            else
-                result.Append(c);
+            if (string.IsNullOrEmpty(uid))
+                return "INVALID_UID";
+
+            var result = new System.Text.StringBuilder();
+
+            foreach (char c in uid)
+            {
+                if (map.TryGetValue(c, out string replacement))
+                    result.Append(replacement);
+                else
+                    result.Append(c);
+            }
+
+            return result.ToString();
         }
 
-        return result.ToString();
-    }
+        [GeneratedRegex(@"^[a-zA-Z0-9!@#$%&_+\-/]+$")]
+        private static partial Regex NumbersAndLetters();
 
-    [GeneratedRegex(@"^[a-zA-Z0-9!@#$%&_+\-/]+$")]
-    private static partial Regex NumbersAndLetters();
-
-    /// <summary>
-    /// Gets the base value, checks the new value returns the difference between then
-    /// </summary>
-    /// <param name="primary"></param>
-    /// <param name="secondary"></param>
-    /// <returns></returns>
-    static public float GetDifferenceBetweenTwoFloats(float primary, float secondary)
-    {
-        // Both positive
-        if (primary > 0 && secondary > 0)
+        /// <summary>
+        /// Gets the base value, checks the new value returns the difference between then
+        /// </summary>
+        /// <param name="primary"></param>
+        /// <param name="secondary"></param>
+        /// <returns></returns>
+        static public float GetDifferenceBetweenTwoFloats(float primary, float secondary)
         {
-            // New value is increasing the base
-            // so difference must be positive
-            if (primary < secondary)
+            // Both positive
+            if (primary > 0 && secondary > 0)
             {
-                float difference = secondary - primary;
-                return difference;
+                // New value is increasing the base
+                // so difference must be positive
+                if (primary < secondary)
+                {
+                    float difference = secondary - primary;
+                    return difference;
+                }
+                // New value is decreasing the base
+                // so difference must be negative
+                else if (primary > secondary)
+                {
+                    float difference = primary - secondary;
+                    return -difference;
+                }
+                // No difference
+                else
+                {
+                    return 0f;
+                }
             }
-            // New value is decreasing the base
-            // so difference must be negative
-            else if (primary > secondary)
+            // Negative and positive
+            else if ((primary < 0 && secondary > 0) || (primary > 0 && secondary < 0))
             {
-                float difference = primary - secondary;
-                return -difference;
+                return secondary + primary;
             }
-            // No difference
+            // Both Negative
+            else if (primary < 0 && secondary < 0)
+            {
+                return secondary - primary;
+            }
+            // Only primary is different
+            else if (primary != 0)
+            {
+                return primary;
+            }
+            // Only secondary is different
+            else if (secondary != 0)
+            {
+                return secondary;
+            }
+            // Both is 0
             else
             {
                 return 0f;
             }
         }
-        // Negative and positive
-        else if ((primary < 0 && secondary > 0) || (primary > 0 && secondary < 0))
+
+        /// <summary>
+        /// 1.0 == 0%, 2.0 == 100%...
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        static public float GetPorcentageFromFloatsStart1(float number)
         {
-            return secondary + primary;
+            return (float)Math.Round((number - 1f) * 100f, 2);
         }
-        // Both Negative
-        else if (primary < 0 && secondary < 0)
+
+        /// <summary>
+        /// 0.0 == 0%, 1.0 == 100%...
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        static public float GetPorcentageFromFloatsStart0(float number)
         {
-            return secondary - primary;
+            return (float)Math.Round(number * 100f, 2);
         }
-        // Only primary is different
-        else if (primary != 0)
+
+        /// <summary>
+        /// 0.0 == 100%, 1.0 == 0%...
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        static public float GetPorcentageFromDecrementalFloat(float number)
         {
-            return primary;
-        }
-        // Only secondary is different
-        else if (secondary != 0)
-        {
-            return secondary;
-        }
-        // Both is 0
-        else
-        {
-            return 0f;
+            return (float)Math.Round((1f - number) * 100f, 2);
         }
     }
 
-    /// <summary>
-    /// 1.0 == 0%, 2.0 == 100%...
-    /// </summary>
-    /// <param name="number"></param>
-    /// <returns></returns>
-    static public float GetPorcentageFromFloatsStart1(float number)
-    {
-        return (float)Math.Round((number - 1f) * 100f, 2);
-    }
 
-    /// <summary>
-    /// 0.0 == 0%, 1.0 == 100%...
-    /// </summary>
-    /// <param name="number"></param>
-    /// <returns></returns>
-    static public float GetPorcentageFromFloatsStart0(float number)
+    public static class UtilsCulture
     {
-        return (float)Math.Round(number * 100f, 2);
-    }
+        private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
 
-    /// <summary>
-    /// 0.0 == 100%, 1.0 == 0%...
-    /// </summary>
-    /// <param name="number"></param>
-    /// <returns></returns>
-    static public float GetPorcentageFromDecrementalFloat(float number)
-    {
-        return (float)Math.Round((1f - number) * 100f, 2);
-    }
+        /// <summary>
+        /// Parses a string float number with CultureInfo invanriant
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        static public float ParseFloatCulturized(string number)
+        {
+            if (float.TryParse(number, CultureInfo.InvariantCulture, out float value))
+                return value;
+            else
+                return -1.0f;
+        }
 
-    /// <summary>
-    /// Parses a string float number with CultureInfo invanriant
-    /// </summary>
-    /// <param name="number"></param>
-    /// <returns></returns>
-    static public float ParseFloatCulturized(string number)
-    {
-        return float.Parse(number, CultureInfo.InvariantCulture);
+        public static string ToStringCulturized(this float value)
+        {
+            return value.ToString(Invariant);
+        }
+
+        public static string ToStringCulturized(this double value)
+        {
+            return value.ToString(Invariant);
+        }
+
+        public static string ToStringCulturized(this decimal value)
+        {
+            return value.ToString(Invariant);
+        }
     }
 }

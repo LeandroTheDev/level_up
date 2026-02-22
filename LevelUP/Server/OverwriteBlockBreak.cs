@@ -33,12 +33,20 @@ class OverwriteBlockBreak
         }
     }
 
-    // Multiplier function called on the end of the transpiler
-    internal static float GetMultiplier(IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, CollectibleObject collectible)
+    [HarmonyPrefix] // Client Side
+    [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void GetMiningSpeedStart(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
     {
-        return OverwriteBlockBreakEvents.GetExternalMiningSpeedMultiply(collectible, itemstack, blockSel, block, player, 1.0f);
+        if (__instance.Tool == null) return;
+
+        Shared.Instance.ResetToolAttributes(itemstack);
+        OverwriteBlockBreakEvents.ExecuteMiningSpeedAttribute(itemstack);
     }
 
+    // Multiplier function called on the end of the transpiler
+    internal static float GetMultiplier(IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, CollectibleObject collectible)
+        => OverwriteBlockBreakEvents.GetExternalMiningSpeedMultiply(collectible, itemstack, blockSel, block, player, 1.0f);
     // Transpiler to increment mining speed
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
@@ -87,17 +95,6 @@ class OverwriteBlockBreak
         }
 
         return list;
-    }
-
-    [HarmonyPrefix] // Client Side
-    [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
-    [HarmonyPriority(Priority.VeryLow)]
-    internal static void GetMiningSpeedStart(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
-    {
-        if (__instance.Tool == null) return;
-
-        Shared.Instance.ResetToolAttributes(itemstack);
-        OverwriteBlockBreakEvents.ExecuteMiningSpeedAttribute(itemstack);
     }
 
     [HarmonyPostfix] // Client Side

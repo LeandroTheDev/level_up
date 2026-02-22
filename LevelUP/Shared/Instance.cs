@@ -272,15 +272,15 @@ class Instance
             {
                 float passiveProjectile = protectionModifiersObj["relativeProtection"]?.Value<float>() ?? 0f;
                 if (passiveProjectile != 0)
-                    item.Attributes.SetString("BaseRelativeProtection", passiveProjectile.ToString());
+                    item.Attributes.SetString("BaseRelativeProtection", passiveProjectile.ToStringCulturized());
 
                 float flatDamageReduction = protectionModifiersObj["flatDamageReduction"]?.Value<float>() ?? 0f;
                 if (flatDamageReduction != 0)
-                    item.Attributes.SetString("BaseFlatDamageReduction", flatDamageReduction.ToString());
+                    item.Attributes.SetString("BaseFlatDamageReduction", flatDamageReduction.ToStringCulturized());
 
                 float protectionTier = protectionModifiersObj["protectionTier"]?.Value<float>() ?? 0f;
                 if (protectionTier != 0)
-                    item.Attributes.SetString("BaseProtectionTier", protectionTier.ToString());
+                    item.Attributes.SetString("BaseProtectionTier", protectionTier.ToStringCulturized());
 
                 float[] perTierRelativeProtectionLoss = protectionModifiersObj["perTierRelativeProtectionLoss"]?.ToObject<float[]>() ?? [];
                 if (perTierRelativeProtectionLoss.Length != 0)
@@ -299,23 +299,23 @@ class Instance
             {
                 float rangedWeaponsAcc = statModifiersObj["rangedWeaponsAcc"]?.Value<float>() ?? 0f;
                 if (rangedWeaponsAcc != 0)
-                    item.Attributes.SetString("BaseRangedWeaponsAccuracy", rangedWeaponsAcc.ToString());
+                    item.Attributes.SetString("BaseRangedWeaponsAccuracy", rangedWeaponsAcc.ToStringCulturized());
 
                 float rangedWeaponsSpeed = statModifiersObj["rangedWeaponsSpeed"]?.Value<float>() ?? 0f;
                 if (rangedWeaponsSpeed != 0)
-                    item.Attributes.SetString("BaseRangedWeaponsSpeed", rangedWeaponsSpeed.ToString());
+                    item.Attributes.SetString("BaseRangedWeaponsSpeed", rangedWeaponsSpeed.ToStringCulturized());
 
                 float walkSpeed = statModifiersObj["walkSpeed"]?.Value<float>() ?? 0f;
                 if (walkSpeed != 0)
-                    item.Attributes.SetString("BaseWalkSpeed", walkSpeed.ToString());
+                    item.Attributes.SetString("BaseWalkSpeed", walkSpeed.ToStringCulturized());
 
                 float healingeffectivness = statModifiersObj["healingeffectivness"]?.Value<float>() ?? 0f;
                 if (healingeffectivness != 0)
-                    item.Attributes.SetString("BaseHealingEffectivness", healingeffectivness.ToString());
+                    item.Attributes.SetString("BaseHealingEffectivness", healingeffectivness.ToStringCulturized());
 
                 float hungerrate = statModifiersObj["hungerrate"]?.Value<float>() ?? 0f;
                 if (hungerrate != 0)
-                    item.Attributes.SetString("BaseHungerRate", hungerrate.ToString());
+                    item.Attributes.SetString("BaseHungerRate", hungerrate.ToStringCulturized());
             }
         }
     }
@@ -337,31 +337,31 @@ class Instance
         {
             float passiveProjectile = protectionObj["passive-projectile"]?.Value<float>() ?? 0f;
             if (passiveProjectile != 0)
-                item.Attributes.SetString("BasePassiveProjectile", passiveProjectile.ToString());
+                item.Attributes.SetString("BasePassiveProjectile", passiveProjectile.ToStringCulturized());
 
             float activeProjectile = protectionObj["active-projectile"]?.Value<float>() ?? 0f;
             if (activeProjectile != 0)
-                item.Attributes.SetString("BaseActiveProjectile", activeProjectile.ToString());
+                item.Attributes.SetString("BaseActiveProjectile", activeProjectile.ToStringCulturized());
 
             float passive = protectionObj["passive"]?.Value<float>() ?? 0f;
             if (passive != 0)
-                item.Attributes.SetString("BasePassive", passive.ToString());
+                item.Attributes.SetString("BasePassive", passive.ToStringCulturized());
 
             float active = protectionObj["active"]?.Value<float>() ?? 0f;
             if (active != 0)
-                item.Attributes.SetString("BaseActive", active.ToString());
+                item.Attributes.SetString("BaseActive", active.ToStringCulturized());
         }
 
         JsonObject projectileDamageAbsorption = attr["projectileDamageAbsorption"];
         if (projectileDamageAbsorption?.Token is JValue projectileDamageAbsorptionObj)
         {
-            item.Attributes.SetString("BaseProjectileDamageAbsorption", projectileDamageAbsorptionObj.Value<float>().ToString());
+            item.Attributes.SetString("BaseProjectileDamageAbsorption", projectileDamageAbsorptionObj.Value<float>().ToStringCulturized());
         }
 
         JsonObject damageAbsorption = attr["damageAbsorption"];
         if (damageAbsorption?.Token is JValue damageAbsorptionObj)
         {
-            item.Attributes.SetString("BaseDamageAbsorption", damageAbsorptionObj.Value<float>().ToString());
+            item.Attributes.SetString("BaseDamageAbsorption", damageAbsorptionObj.Value<float>().ToStringCulturized());
         }
     }
 
@@ -382,7 +382,7 @@ class Instance
 
         if (item.Collectible.AttackPower > 0.0f)
         {
-            item.Attributes.SetString("BaseAttack", item.Collectible.AttackPower.ToString());
+            item.Attributes.SetString("BaseAttack", item.Collectible.AttackPower.ToStringCulturized());
         }
 
         if (item.Collectible.MiningSpeed != null)
@@ -390,7 +390,7 @@ class Instance
             List<EnumBlockMaterial> keys = [.. item.Item.MiningSpeed.Keys];
             foreach (EnumBlockMaterial key in keys)
             {
-                item.Attributes.SetString($"BaseMiningSpeed_{key}", item.Collectible.MiningSpeed[key].ToString());
+                item.Attributes.SetString($"BaseMiningSpeed_{key}", item.Collectible.MiningSpeed[key].ToStringCulturized());
             }
         }
     }
@@ -425,11 +425,11 @@ class Instance
             {
                 float currentMeasured = protectionObj["relativeProtection"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
-                    Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")),
+                    UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")),
                     currentMeasured
                 );
 
-                float result = (Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")) + difference) * relativeProtection;
+                float result = (UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")) + difference) * relativeProtection;
                 result = (float)Math.Round(result, 2);
                 protectionObj["relativeProtection"] = result;
                 itemWearable.ProtectionModifiers.RelativeProtection = result;
@@ -439,11 +439,11 @@ class Instance
             {
                 float currentMeasured = protectionObj["flatDamageReduction"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
-                    Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")),
+                    UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")),
                     currentMeasured
                 );
 
-                float result = (Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")) + difference) * flatDamageReduction;
+                float result = (UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")) + difference) * flatDamageReduction;
                 result = (float)Math.Round(result, 2);
                 protectionObj["flatDamageReduction"] = result;
                 itemWearable.ProtectionModifiers.FlatDamageReduction = result;
@@ -460,8 +460,8 @@ class Instance
             if (armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness") != null)
             {
                 float currentMeasured = statsObj["healingeffectivness"].Value<float>();
-                float difference = Utils.GetDifferenceBetweenTwoFloats(Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness")), currentMeasured);
-                float baseValue = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness")) + difference;
+                float difference = Utils.GetDifferenceBetweenTwoFloats(UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness")), currentMeasured);
+                float baseValue = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(healingEffectivness - 1, 0));
@@ -473,8 +473,8 @@ class Instance
             if (armorSlot.Itemstack.Attributes.GetString("BaseHungerRate") != null)
             {
                 float currentMeasured = statsObj["hungerrate"].Value<float>();
-                float difference = Utils.GetDifferenceBetweenTwoFloats(Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate")), currentMeasured);
-                float baseValue = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate")) + difference;
+                float difference = Utils.GetDifferenceBetweenTwoFloats(UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate")), currentMeasured);
+                float baseValue = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(hungerRate - 1, 0));
@@ -486,8 +486,8 @@ class Instance
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy") != null)
             {
                 float currentMeasured = statsObj["rangedWeaponsAcc"].Value<float>();
-                float difference = Utils.GetDifferenceBetweenTwoFloats(Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy")), currentMeasured);
-                float baseValue = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy")) + difference;
+                float difference = Utils.GetDifferenceBetweenTwoFloats(UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy")), currentMeasured);
+                float baseValue = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(rangedWeaponsAccuracy - 1, 0));
@@ -499,8 +499,8 @@ class Instance
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed") != null)
             {
                 float currentMeasured = statsObj["rangedWeaponsSpeed"].Value<float>();
-                float difference = Utils.GetDifferenceBetweenTwoFloats(Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed")), currentMeasured);
-                float baseValue = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed")) + difference;
+                float difference = Utils.GetDifferenceBetweenTwoFloats(UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed")), currentMeasured);
+                float baseValue = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(rangedWeaponsSpeed - 1, 0));
@@ -512,8 +512,8 @@ class Instance
             if (armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed") != null)
             {
                 float currentMeasured = statsObj["walkSpeed"].Value<float>();
-                float difference = Utils.GetDifferenceBetweenTwoFloats(Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed")), currentMeasured);
-                float baseValue = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed")) + difference;
+                float difference = Utils.GetDifferenceBetweenTwoFloats(UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed")), currentMeasured);
+                float baseValue = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed")) + difference;
                 float positiveValue = Math.Abs(baseValue);
 
                 float result = baseValue + (positiveValue * Math.Max(walkSpeed - 1, 0));
@@ -554,48 +554,48 @@ class Instance
             {
                 float currentMeasured = protectionObj["passive-projectile"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
-                    Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")),
+                    UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")),
                     currentMeasured
                 );
 
                 protectionObj["passive-projectile"] =
-                    (float)Math.Round((Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")) + difference) * passiveProjectile, 2);
+                    (float)Math.Round((UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile")) + difference) * passiveProjectile, 2);
             }
 
             if (shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile") != null)
             {
                 float currentMeasured = protectionObj["active-projectile"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
-                    Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")),
+                    UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")),
                     currentMeasured
                 );
 
                 protectionObj["active-projectile"] =
-                    (float)Math.Round((Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")) + difference) * activeProjectile, 2);
+                    (float)Math.Round((UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile")) + difference) * activeProjectile, 2);
             }
 
             if (shieldSlot.Itemstack.Attributes.GetString("BasePassive") != null)
             {
                 float currentMeasured = protectionObj["passive"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
-                    Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassive")),
+                    UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassive")),
                     currentMeasured
                 );
 
                 protectionObj["passive"] =
-                    (float)Math.Round((Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassive")) + difference) * passive, 2);
+                    (float)Math.Round((UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassive")) + difference) * passive, 2);
             }
 
             if (shieldSlot.Itemstack.Attributes.GetString("BaseActive") != null)
             {
                 float currentMeasured = protectionObj["active"].Value<float>();
                 float difference = Utils.GetDifferenceBetweenTwoFloats(
-                    Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActive")),
+                    UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActive")),
                     currentMeasured
                 );
 
                 protectionObj["active"] =
-                    (float)Math.Round((Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActive")) + difference) * active, 2);
+                    (float)Math.Round((UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActive")) + difference) * active, 2);
             }
 
             shieldObj["protectionChance"] = protectionObj;
@@ -608,12 +608,12 @@ class Instance
             float currentMeasured = projectileJVal.Value<float>();
 
             float difference = Utils.GetDifferenceBetweenTwoFloats(
-                Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")),
+                UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")),
                 currentMeasured
             );
 
             shieldObj["projectileDamageAbsorption"] =
-                (float)Math.Round((Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")) + difference) * projectileDamageAbsorption, 2);
+                (float)Math.Round((UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption")) + difference) * projectileDamageAbsorption, 2);
         }
 
         JsonObject jsonDamageAbsorption = attr["damageAbsorption"];
@@ -623,12 +623,12 @@ class Instance
             float currentMeasured = damageAbsorptionJVal.Value<float>();
 
             float difference = Utils.GetDifferenceBetweenTwoFloats(
-                Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")),
+                UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")),
                 currentMeasured
             );
 
             shieldObj["damageAbsorption"] =
-                (float)Math.Round((Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")) + difference) * damageAbsorption, 2);
+                (float)Math.Round((UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption")) + difference) * damageAbsorption, 2);
         }
     }
 
@@ -643,7 +643,7 @@ class Instance
     {
         if (item.Attributes.GetString("BaseAttack") != null)
         {
-            float result = Utils.ParseFloatCulturized(item.Attributes.GetString("BaseAttack")) * baseAttack;
+            float result = UtilsCulture.ParseFloatCulturized(item.Attributes.GetString("BaseAttack")) * baseAttack;
             item.Collectible.AttackPower = result;
         }
 
@@ -654,7 +654,7 @@ class Instance
             {
                 if (item.Attributes.GetString($"BaseMiningSpeed_{key}") != null)
                 {
-                    float result = Utils.ParseFloatCulturized(item.Attributes.GetString($"BaseMiningSpeed_{key}")) * miningSpeed;
+                    float result = UtilsCulture.ParseFloatCulturized(item.Attributes.GetString($"BaseMiningSpeed_{key}")) * miningSpeed;
                     item.Collectible.MiningSpeed[key] = (float)Math.Round(result, 2);
                 }
             }
@@ -681,14 +681,14 @@ class Instance
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection") != null)
             {
-                float result = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection"));
+                float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection"));
                 protectionObj["relativeProtection"] = result;
                 itemWearable.ProtectionModifiers.RelativeProtection = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction") != null)
             {
-                float result = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction"));
+                float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction"));
                 protectionObj["flatDamageReduction"] = result;
                 itemWearable.ProtectionModifiers.FlatDamageReduction = result;
             }
@@ -703,35 +703,35 @@ class Instance
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness") != null)
             {
-                float result = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness"));
+                float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness"));
                 statsObj["healingeffectivness"] = result;
                 itemWearable.StatModifers.healingeffectivness = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseHungerRate") != null)
             {
-                float result = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate"));
+                float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate"));
                 statsObj["hungerrate"] = result;
                 itemWearable.StatModifers.hungerrate = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy") != null)
             {
-                float result = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy"));
+                float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy"));
                 statsObj["rangedWeaponsAcc"] = result;
                 itemWearable.StatModifers.rangedWeaponsAcc = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed") != null)
             {
-                float result = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed"));
+                float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed"));
                 statsObj["rangedWeaponsSpeed"] = result;
                 itemWearable.StatModifers.rangedWeaponsSpeed = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed") != null)
             {
-                float result = Utils.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed"));
+                float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed"));
                 statsObj["walkSpeed"] = result;
                 itemWearable.StatModifers.walkSpeed = result;
             }
@@ -758,13 +758,13 @@ class Instance
             JObject protectionObj = (JObject)originalProtObj.DeepClone();
 
             if (shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile") != null)
-                protectionObj["passive-projectile"] = Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile"));
+                protectionObj["passive-projectile"] = UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassiveProjectile"));
             if (shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile") != null)
-                protectionObj["active-projectile"] = Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile"));
+                protectionObj["active-projectile"] = UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActiveProjectile"));
             if (shieldSlot.Itemstack.Attributes.GetString("BasePassive") != null)
-                protectionObj["passive"] = Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassive"));
+                protectionObj["passive"] = UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BasePassive"));
             if (shieldSlot.Itemstack.Attributes.GetString("BaseActive") != null)
-                protectionObj["active"] = Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActive"));
+                protectionObj["active"] = UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseActive"));
 
             shieldObj["protectionChance"] = protectionObj;
         }
@@ -773,14 +773,14 @@ class Instance
         if (projectileDamageAbsorption?.Token is JValue)
         {
             if (shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption") != null)
-                shieldObj["projectileDamageAbsorption"] = Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption"));
+                shieldObj["projectileDamageAbsorption"] = UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseProjectileDamageAbsorption"));
         }
 
         JsonObject damageAbsorption = attr["damageAbsorption"];
         if (damageAbsorption?.Token is JValue)
         {
             if (shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption") != null)
-                shieldObj["damageAbsorption"] = Utils.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption"));
+                shieldObj["damageAbsorption"] = UtilsCulture.ParseFloatCulturized(shieldSlot.Itemstack.Attributes.GetString("BaseDamageAbsorption"));
         }
     }
 
@@ -796,7 +796,7 @@ class Instance
         {
             if (item.Attributes.GetString("BaseAttack") != null)
             {
-                float result = Utils.ParseFloatCulturized(item.Attributes.GetString("BaseAttack"));
+                float result = UtilsCulture.ParseFloatCulturized(item.Attributes.GetString("BaseAttack"));
                 item.Collectible.AttackPower = result;
             }
         }
@@ -808,7 +808,7 @@ class Instance
             {
                 if (item.Attributes.GetString($"BaseMiningSpeed_{key}") != null)
                 {
-                    float result = Utils.ParseFloatCulturized(item.Attributes.GetString($"BaseMiningSpeed_{key}"));
+                    float result = UtilsCulture.ParseFloatCulturized(item.Attributes.GetString($"BaseMiningSpeed_{key}"));
                     item.Collectible.MiningSpeed[key] = result;
                 }
             }

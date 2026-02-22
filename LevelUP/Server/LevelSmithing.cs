@@ -140,8 +140,10 @@ class LevelSmithing
 
     private void ViewReceived(IPlayer player, ItemSlot armorSlot)
     {
-        bool parsedStatus = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease);
-        bool parsedProtection = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"), out float protectionIncrease);
+        float statusIncrease = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"));
+        bool parsedStatus = statusIncrease != -1.0f;
+        float protectionIncrease = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"));
+        bool parsedProtection = protectionIncrease != -1.0f;
         statusIncrease = parsedStatus ? statusIncrease : 1.0f;
         protectionIncrease = parsedProtection ? protectionIncrease : 1.0f;
 
@@ -160,8 +162,10 @@ class LevelSmithing
     {
         foreach (ItemSlot armorSlot in items)
         {
-            bool parsedStatus = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease);
-            bool parsedProtection = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"), out float protectionIncrease);
+            float statusIncrease = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"));
+            bool parsedStatus = statusIncrease != -1.0f;
+            float protectionIncrease = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"));
+            bool parsedProtection = protectionIncrease != -1.0f;
             statusIncrease = parsedStatus ? statusIncrease : 1.0f;
             protectionIncrease = parsedProtection ? protectionIncrease : 1.0f;
 
@@ -181,8 +185,10 @@ class LevelSmithing
     {
         foreach (ItemSlot armorSlot in items)
         {
-            bool parsedStatus = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"), out float statusIncrease);
-            bool parsedProtection = float.TryParse(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"), out float protectionIncrease);
+            float statusIncrease = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_StatsMultiply"));
+            bool parsedStatus = statusIncrease != -1.0f;
+            float protectionIncrease = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("LevelUP_Smithing_ProtectionMultiply"));
+            bool parsedProtection = protectionIncrease != -1.0f;
             statusIncrease = parsedStatus ? statusIncrease : 1.0f;
             protectionIncrease = parsedProtection ? protectionIncrease : 1.0f;
 
@@ -513,8 +519,8 @@ class LevelSmithing
                             // Generate Base Stats
                             Shared.Instance.GenerateBaseArmorStatus(item);
 
-                            item.Attributes.SetString("LevelUP_Smithing_ProtectionMultiply", multiplyProtection.ToString());
-                            item.Attributes.SetString("LevelUP_Smithing_StatsMultiply", multiplyStats.ToString());
+                            item.Attributes.SetString("LevelUP_Smithing_ProtectionMultiply", multiplyProtection.ToStringCulturized());
+                            item.Attributes.SetString("LevelUP_Smithing_StatsMultiply", multiplyStats.ToStringCulturized());
 
                             Debug.LogDebug($"{player.PlayerName} crafted any armor protection increased to: {multiplyProtection}/{multiplyStats}");
                         }
@@ -551,7 +557,7 @@ class LevelSmithing
                             // Generate Base Stats
                             Shared.Instance.GenerateBaseShieldStatus(item);
 
-                            item.Attributes.SetString("LevelUP_Smithing_StatsMultiply", multiplyProtection.ToString());
+                            item.Attributes.SetString("LevelUP_Smithing_StatsMultiply", multiplyProtection.ToStringCulturized());
 
                             Debug.LogDebug($"{player.PlayerName} crafted any shield protection increased to: {multiplyProtection}");
                         }
@@ -695,7 +701,8 @@ class LevelSmithing
         // This is necessary so the durability system is more accurate
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CollectibleObject), "GetMaxDurability")]
-        internal static bool GetMaxDurabilityFinish(ItemStack itemstack, ref int __result)
+        [HarmonyPriority(Priority.High)]
+        internal static bool GetMaxDurabilityStart(ItemStack itemstack, ref int __result)
         {
             int maxDurability = itemstack.Attributes.GetInt("maxdurability", -1);
             if (maxDurability != -1)
