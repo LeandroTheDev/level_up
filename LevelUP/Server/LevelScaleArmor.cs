@@ -160,7 +160,7 @@ class LevelScaleArmor
                 rangedWeaponsSpeed,
                 walkSpeed);
 
-        LevelScaleArmorEvents.ExecuteItemInfoUpdated(armorSlot.Itemstack.Item as ItemWearable, player);
+        LevelScaleArmorEvents.ExecuteItemInfoUpdated(armorSlot.Itemstack.Item.GetCollectibleBehavior<CollectibleBehaviorWearable>(true), player);
     }
 
     private void StatsUpdated(IPlayer player, List<ItemSlot> items)
@@ -171,7 +171,7 @@ class LevelScaleArmor
         {
             if (!Configuration.expMultiplyHitScaleArmor.ContainsKey(armorSlot.Itemstack.Collectible.Code)) continue;
 
-            ItemWearable armor = armorSlot.Itemstack.Item as ItemWearable;
+            CollectibleBehaviorWearable armor = armorSlot.Itemstack.Item.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
 
             float relativeProtection = Configuration.ScaleArmorRelativeProtectionMultiplyByLevel(playerLevel);
             float flatDamageReduction = Configuration.ScaleArmorFlatDamageReductionMultiplyByLevel(playerLevel);
@@ -181,7 +181,7 @@ class LevelScaleArmor
             float rangedWeaponsSpeed = Configuration.ScaleArmorRangedWeaponsSpeedMultiplyByLevel(playerLevel);
             float walkSpeed = Configuration.ScaleArmorWalkSpeedMultiplyByLevel(playerLevel);
 
-            string code = armor.Code.ToString();
+            string code = armorSlot.Itemstack.Collectible.Code.ToString();
             foreach (var pair in SubLevelPatterns)
             {
                 if (code.Contains(pair.Key))
@@ -219,15 +219,15 @@ class LevelScaleArmor
         {
             if (!Configuration.expMultiplyHitScaleArmor.ContainsKey(armorSlot.Itemstack.Collectible.Code)) continue;
 
-            ItemWearable armor = armorSlot.Itemstack.Item as ItemWearable;
+            CollectibleBehaviorWearable armor = armorSlot.Itemstack.Item.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
 
             float relativeProtection = Configuration.ScaleArmorRelativeProtectionMultiplyByLevel(playerLevel);
             float flatDamageReduction = Configuration.ScaleArmorFlatDamageReductionMultiplyByLevel(playerLevel);
 
-            double multiply = Configuration.expMultiplyHitScaleArmor[armor.Code];
+            double multiply = Configuration.expMultiplyHitScaleArmor[armorSlot.Itemstack.Collectible.Code];
             ulong exp = (ulong)(Configuration.ScaleArmorBaseEXPEarnedByDAMAGE(damage) * multiply);
             Experience.IncreaseExperience(player, "ScaleArmor", exp);
-            string code = armor.Code.ToString();
+            string code = armorSlot.Itemstack.Collectible.Code.ToString();
             foreach (var pair in SubLevelPatterns)
             {
                 if (code.Contains(pair.Key))
@@ -263,23 +263,23 @@ class LevelScaleArmor
 
 public class LevelScaleArmorEvents
 {
-    public delegate void PlayerItemWearableHandler(ItemWearable item, IPlayer player);
+    public delegate void PlayerItemWearableHandler(CollectibleBehaviorWearable item, IPlayer player);
 
     public static event PlayerItemWearableHandler OnItemInfoUpdated;
     public static event PlayerItemWearableHandler OnItemHandledDamage;
     public static event PlayerItemWearableHandler OnItemHandledStats;
 
-    internal static void ExecuteItemInfoUpdated(ItemWearable item, IPlayer player)
+    internal static void ExecuteItemInfoUpdated(CollectibleBehaviorWearable item, IPlayer player)
     {
         OnItemInfoUpdated?.Invoke(item, player);
     }
 
-    internal static void ExecuteItemHandledDamage(ItemWearable item, IPlayer player)
+    internal static void ExecuteItemHandledDamage(CollectibleBehaviorWearable item, IPlayer player)
     {
         OnItemHandledDamage?.Invoke(item, player);
     }
 
-    internal static void ExecuteItemHandledStats(ItemWearable item, IPlayer player)
+    internal static void ExecuteItemHandledStats(CollectibleBehaviorWearable item, IPlayer player)
     {
         OnItemHandledStats?.Invoke(item, player);
     }

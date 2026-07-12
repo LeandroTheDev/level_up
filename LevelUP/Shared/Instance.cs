@@ -260,7 +260,7 @@ class Instance
     /// <param name="item"></param>
     public static void GenerateBaseArmorStatus(ItemStack item)
     {
-        if (item.Item is not ItemWearable) return;
+        if (item.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) == null) return;
 
         if (item.Attributes.GetBool("BaseGenerated")) return;
         item.Attributes.SetBool("BaseGenerated", true);
@@ -411,7 +411,8 @@ class Instance
         float rangedWeaponsSpeed = 1.0f,
         float walkSpeed = 1.0f)
     {
-        if (armorSlot.Itemstack?.Item is not ItemWearable itemWearable) return;
+        CollectibleBehaviorWearable collectibleBehaviorWearable = armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
+        if (collectibleBehaviorWearable == null) return;
         JsonObject attr = armorSlot.Itemstack.Item?.Attributes;
         if (attr == null || !attr.Exists) return;
         JObject armorObj = (JObject)attr.Token;
@@ -432,7 +433,7 @@ class Instance
                 float result = (UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")) + difference) * relativeProtection;
                 result = (float)Math.Round(result, 2);
                 protectionObj["relativeProtection"] = result;
-                itemWearable.ProtectionModifiers.RelativeProtection = result;
+                collectibleBehaviorWearable.GetProtectionModifiers(armorSlot).RelativeProtection = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction") != null)
@@ -446,7 +447,7 @@ class Instance
                 float result = (UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction")) + difference) * flatDamageReduction;
                 result = (float)Math.Round(result, 2);
                 protectionObj["flatDamageReduction"] = result;
-                itemWearable.ProtectionModifiers.FlatDamageReduction = result;
+                collectibleBehaviorWearable.GetProtectionModifiers(armorSlot).FlatDamageReduction = result;
             }
 
             armorObj["protectionModifiers"] = protectionObj;
@@ -467,7 +468,7 @@ class Instance
                 float result = baseValue + (positiveValue * Math.Max(healingEffectivness - 1, 0));
                 result = (float)Math.Round(result, 2);
                 statsObj["healingeffectivness"] = result;
-                itemWearable.StatModifers.healingeffectivness = result;
+                collectibleBehaviorWearable.GetStatModifiers(armorSlot).healingeffectivness = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseHungerRate") != null)
@@ -480,7 +481,7 @@ class Instance
                 float result = baseValue + (positiveValue * Math.Max(hungerRate - 1, 0));
                 result = (float)Math.Round(result, 2);
                 statsObj["hungerrate"] = result;
-                itemWearable.StatModifers.hungerrate = result;
+                collectibleBehaviorWearable.GetStatModifiers(armorSlot).hungerrate = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy") != null)
@@ -493,7 +494,7 @@ class Instance
                 float result = baseValue + (positiveValue * Math.Max(rangedWeaponsAccuracy - 1, 0));
                 result = (float)Math.Round(result, 2);
                 statsObj["rangedWeaponsAcc"] = result;
-                itemWearable.StatModifers.rangedWeaponsAcc = result;
+                collectibleBehaviorWearable.GetStatModifiers(armorSlot).rangedWeaponsAcc = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed") != null)
@@ -506,7 +507,7 @@ class Instance
                 float result = baseValue + (positiveValue * Math.Max(rangedWeaponsSpeed - 1, 0));
                 result = (float)Math.Round(result, 2);
                 statsObj["rangedWeaponsSpeed"] = result;
-                itemWearable.StatModifers.rangedWeaponsSpeed = result;
+                collectibleBehaviorWearable.GetStatModifiers(armorSlot).rangedWeaponsSpeed = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed") != null)
@@ -519,7 +520,7 @@ class Instance
                 float result = baseValue + (positiveValue * Math.Max(walkSpeed - 1, 0));
                 result = (float)Math.Round(result, 2);
                 statsObj["walkSpeed"] = result;
-                itemWearable.StatModifers.walkSpeed = result;
+                collectibleBehaviorWearable.GetStatModifiers(armorSlot).walkSpeed = result;
             }
 
             armorObj["statModifiers"] = statsObj;
@@ -667,7 +668,8 @@ class Instance
     /// <param name="armorSlot"></param>
     public static void ResetArmorAttributes(ItemSlot armorSlot)
     {
-        if (armorSlot.Itemstack?.Item is not ItemWearable itemWearable) return;
+        CollectibleBehaviorWearable armorSlotBehavior = armorSlot.Itemstack?.Item.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
+        if (armorSlotBehavior == null) return;
         JsonObject attr = armorSlot.Itemstack.Item?.Attributes;
         if (attr == null || !attr.Exists) return;
         JObject armorObj = (JObject)attr.Token;
@@ -683,14 +685,14 @@ class Instance
             {
                 float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection"));
                 protectionObj["relativeProtection"] = result;
-                itemWearable.ProtectionModifiers.RelativeProtection = result;
+                armorSlotBehavior.GetProtectionModifiers(armorSlot).RelativeProtection = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction") != null)
             {
                 float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction"));
                 protectionObj["flatDamageReduction"] = result;
-                itemWearable.ProtectionModifiers.FlatDamageReduction = result;
+                armorSlotBehavior.GetProtectionModifiers(armorSlot).FlatDamageReduction = result;
             }
 
             armorObj["protectionModifiers"] = protectionObj;
@@ -705,35 +707,35 @@ class Instance
             {
                 float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHealingEffectivness"));
                 statsObj["healingeffectivness"] = result;
-                itemWearable.StatModifers.healingeffectivness = result;
+                armorSlotBehavior.GetStatModifiers(armorSlot).healingeffectivness = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseHungerRate") != null)
             {
                 float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseHungerRate"));
                 statsObj["hungerrate"] = result;
-                itemWearable.StatModifers.hungerrate = result;
+                armorSlotBehavior.GetStatModifiers(armorSlot).hungerrate = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy") != null)
             {
                 float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy"));
                 statsObj["rangedWeaponsAcc"] = result;
-                itemWearable.StatModifers.rangedWeaponsAcc = result;
+                armorSlotBehavior.GetStatModifiers(armorSlot).rangedWeaponsAcc = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed") != null)
             {
                 float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed"));
                 statsObj["rangedWeaponsSpeed"] = result;
-                itemWearable.StatModifers.rangedWeaponsSpeed = result;
+                armorSlotBehavior.GetStatModifiers(armorSlot).rangedWeaponsSpeed = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed") != null)
             {
                 float result = UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed"));
                 statsObj["walkSpeed"] = result;
-                itemWearable.StatModifers.walkSpeed = result;
+                armorSlotBehavior.GetStatModifiers(armorSlot).walkSpeed = result;
             }
 
             armorObj["statModifiers"] = statsObj;

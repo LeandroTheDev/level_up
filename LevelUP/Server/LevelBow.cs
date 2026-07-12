@@ -129,8 +129,8 @@ class LevelBow
     {
         // Overwrite Projectile impact
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(EntityProjectile), "impactOnEntity")]
-        internal static void ImpactOnEntity(EntityProjectile __instance, Entity entity)
+        [HarmonyPatch(typeof(EntityProjectileBase), "ImpactOnEntity")]
+        internal static void ImpactOnEntity(EntityProjectileBase __instance)
         {
             if (!Configuration.enableLevelBow) return;
             if (__instance.World.Side != EnumAppSide.Server) return;

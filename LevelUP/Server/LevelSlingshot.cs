@@ -126,9 +126,9 @@ class LevelSlingshot
     [HarmonyPatchCategory("levelup_slingshot")]
     private class LevelSlingshotPatch
     {
-        // Overwrite Stone shot
+        // Overwrite Stone shot (stone throw now uses CollectibleBehaviorThrowable)
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(ItemStone), "OnHeldInteractStop")]
+        [HarmonyPatch(typeof(CollectibleBehaviorThrowable), "OnHeldInteractStop")]
         internal static void OnHeldInteractSlingshotStoneStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
         {
             if (byEntity.Api.Side != EnumAppSide.Server) return;
@@ -140,10 +140,23 @@ class LevelSlingshot
                 // Integration
                 chance = LevelSlingshotEvents.GetExternalSlingshotAiming((byEntity as EntityPlayer).Player, chance);
 
-                // Setting new aim accuracy
+                // Store in entity attribute — picked up by SpawnProjectile prefix
                 byEntity.Attributes.SetFloat("aimingAccuracy", chance);
 
-                Debug.LogDebug($"Slingshot Accuracy: {chance}");
+                Debug.LogDebug($"Slingshot Stone Accuracy: {chance}");
+            }
+        }
+
+        // Override dispersionFactor in SpawnProjectile when aimingAccuracy was set by a slingshot/stone patch
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EntityProjectileBase), "SpawnProjectile")]
+        internal static void SpawnProjectilePrefix(EntityAgent byEntity, ref double dispersionFactor)
+        {
+            float aimingAccuracy = byEntity.Attributes.GetFloat("aimingAccuracy", -1f);
+            if (aimingAccuracy >= 0f)
+            {
+                dispersionFactor = aimingAccuracy;
+                byEntity.Attributes.SetFloat("aimingAccuracy", -1f);
             }
         }
 

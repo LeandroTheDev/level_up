@@ -479,7 +479,7 @@ class LevelSmithing
                     else // Code with custom level type
                     {
                         // Check if is a armor with protection properties
-                        if (item.Item is ItemWearable itemWearable)
+                        if (item.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
                         {
                             float multiplyProtection;
                             float multiplyStats;
@@ -718,9 +718,9 @@ class LevelSmithing
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
         [HarmonyPriority(Priority.High)]
-        internal static void GetAttackPowerFinish(ItemStack withItemStack, ref float __result)
+        internal static void GetAttackPowerFinish(ItemStack itemStack, ref float __result)
         {
-            float attackPower = withItemStack.Attributes.GetFloat("attackpower", -1f);
+            float attackPower = itemStack.Attributes.GetFloat("attackpower", -1f);
             if (attackPower != -1f)
             {
                 __result = attackPower;

@@ -151,7 +151,7 @@ class OverwriteDamageInteraction
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item is ItemWearable)
+            if (armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
             {
                 Shared.Instance.ResetArmorAttributes(armorSlot);
                 armorSlots.Add(armorSlot);
@@ -176,7 +176,7 @@ class OverwriteDamageInteraction
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item is ItemWearable)
+            if (armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
             {
                 Shared.Instance.ResetArmorAttributes(armorSlot);
                 armorSlots.Add(armorSlot);
@@ -205,7 +205,7 @@ class OverwriteDamageInteraction
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item is ItemWearable)
+            if (armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
             {
                 Shared.Instance.ResetArmorAttributes(armorSlot);
                 armorSlots.Add(armorSlot);
@@ -228,7 +228,7 @@ class OverwriteDamageInteraction
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item is ItemWearable)
+            if (armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
             {
                 Shared.Instance.ResetArmorAttributes(armorSlot);
                 armorSlots.Add(armorSlot);
@@ -243,9 +243,9 @@ class OverwriteDamageInteraction
 
     // Update visual protections and stats
     [HarmonyPrefix] // Client Side
-    [HarmonyPatch(typeof(ItemWearable), "GetHeldItemInfo")]
+    [HarmonyPatch(typeof(CollectibleBehaviorWearable), "GetHeldItemInfo")]
     [HarmonyPriority(Priority.VeryLow)]
-    internal static void GetHeldItemInfoStart(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    internal static void GetHeldItemInfoStart(CollectibleBehaviorWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {
         if (world.Api is ICoreClientAPI api)
         {
@@ -256,9 +256,9 @@ class OverwriteDamageInteraction
 
     // Update visual protections and stats
     [HarmonyPostfix] // Client Side
-    [HarmonyPatch(typeof(ItemWearable), "GetHeldItemInfo")]
+    [HarmonyPatch(typeof(CollectibleBehaviorWearable), "GetHeldItemInfo")]
     [HarmonyPriority(Priority.VeryLow)]
-    internal static void GetHeldItemInfoFinish(ItemWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+    internal static void GetHeldItemInfoFinish(CollectibleBehaviorWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {
         Shared.Instance.ResetArmorAttributes(inSlot);
     }
@@ -267,14 +267,14 @@ class OverwriteDamageInteraction
     [HarmonyPostfix]
     [HarmonyPatch(typeof(CollectibleObject), "GetAttackPower")]
     [HarmonyPriority(Priority.VeryLow)]
-    internal static void GetAttackPowerFinish(CollectibleObject __instance, ItemStack withItemStack, ref float __result)
+    internal static void GetAttackPowerFinish(CollectibleObject __instance, ItemStack itemStack, ref float __result)
     {
-        if (withItemStack.Item == null || withItemStack.Item.Tool == null) return;
+        if (itemStack.Item == null || itemStack.Item.Tool == null) return;
 
         ICoreAPI api = (ICoreAPI)AccessTools.Field(typeof(CollectibleObject), "api").GetValue(__instance);
         if (api is ICoreClientAPI capi)
         {
-            __result = OverwriteDamageInteractionEvents.GetExternalToolDamageStat(capi.World.Player, withItemStack, __result);
+            __result = OverwriteDamageInteractionEvents.GetExternalToolDamageStat(capi.World.Player, itemStack, __result);
         }
     }
 }
