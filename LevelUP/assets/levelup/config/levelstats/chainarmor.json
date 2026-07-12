@@ -16,27 +16,27 @@
     "chainArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
 
     "chainArmorHealingEffectivnessMultiply": 1.0,
-    "chainArmorHealingEffectivnessMultiplyPerLevel": 0.05,
+    "chainArmorHealingEffectivnessMultiplyPerLevel": 0.1,
     "chainArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
     "chainArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
 
     "chainArmorHungerRateMultiply": 1.0,
-    "chainArmorHungerRateMultiplyPerLevel": 0.05,
+    "chainArmorHungerRateMultiplyPerLevel": 0.1,
     "chainArmorHungerRateMultiplyReductionEveryLevel": 1,
     "chainArmorHungerRateMultiplyReductionPerReduce": 0.05,
 
     "chainArmorRangedWeaponsAccuracyMultiply": 1.0,
-    "chainArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.05,
+    "chainArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.1,
     "chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
     "chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
 
     "chainArmorRangedWeaponsSpeedMultiply": 1.0,
-    "chainArmorRangedWeaponsSpeedMultiplyPerLevel": 0.05,
+    "chainArmorRangedWeaponsSpeedMultiplyPerLevel": 0.1,
     "chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
     "chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
 
     "chainArmorWalkSpeedMultiply": 1.0,
-    "chainArmorWalkSpeedMultiplyPerLevel": 0.05,
+    "chainArmorWalkSpeedMultiplyPerLevel": 0.1,
     "chainArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "chainArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
     

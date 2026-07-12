@@ -96,7 +96,8 @@ public static class Configuration
     {
         var type = typeof(Configuration);
 
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+            .Where(f => f.FieldType.IsPrimitive || f.FieldType == typeof(string) || f.FieldType == typeof(Dictionary<string, double>));
         var dict = fields.ToDictionary(
             f => f.Name,
             f => f.GetValue(null)
@@ -119,7 +120,8 @@ public static class Configuration
         }
 
         var type = typeof(Configuration);
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+        var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+            .Where(f => f.FieldType.IsPrimitive || f.FieldType == typeof(string) || f.FieldType == typeof(Dictionary<string, double>));
 
         var data = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(json);
         if (data == null)
@@ -3753,27 +3755,27 @@ public static class Configuration
     private static float leatherArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
 
     private static float leatherArmorHealingEffectivnessMultiply = 1.0f;
-    private static float leatherArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static float leatherArmorHealingEffectivnessMultiplyPerLevel = 0.1f;
     private static int leatherArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
     private static float leatherArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
 
     private static float leatherArmorHungerRateMultiply = 1.0f;
-    private static float leatherArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static float leatherArmorHungerRateMultiplyPerLevel = 0.1f;
     private static int leatherArmorHungerRateMultiplyReductionEveryLevel = 1;
     private static float leatherArmorHungerRateMultiplyReductionPerReduce = 0.05f;
 
     private static float leatherArmorRangedWeaponsAccuracyMultiply = 1.0f;
-    private static float leatherArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static float leatherArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.1f;
     private static int leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
     private static float leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
 
     private static float leatherArmorRangedWeaponsSpeedMultiply = 1.0f;
-    private static float leatherArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static float leatherArmorRangedWeaponsSpeedMultiplyPerLevel = 0.1f;
     private static int leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
     private static float leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
 
     private static float leatherArmorWalkSpeedMultiply = 1.0f;
-    private static float leatherArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static float leatherArmorWalkSpeedMultiplyPerLevel = 0.1f;
     private static int leatherArmorWalkSpeedMultiplyReductionEveryLevel = 1;
     private static float leatherArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
@@ -4223,27 +4225,27 @@ public static class Configuration
     private static float chainArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
 
     private static float chainArmorHealingEffectivnessMultiply = 1.0f;
-    private static float chainArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static float chainArmorHealingEffectivnessMultiplyPerLevel = 0.1f;
     private static int chainArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
     private static float chainArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
 
     private static float chainArmorHungerRateMultiply = 1.0f;
-    private static float chainArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static float chainArmorHungerRateMultiplyPerLevel = 0.1f;
     private static int chainArmorHungerRateMultiplyReductionEveryLevel = 1;
     private static float chainArmorHungerRateMultiplyReductionPerReduce = 0.05f;
 
     private static float chainArmorRangedWeaponsAccuracyMultiply = 1.0f;
-    private static float chainArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static float chainArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.1f;
     private static int chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
     private static float chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
 
     private static float chainArmorRangedWeaponsSpeedMultiply = 1.0f;
-    private static float chainArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static float chainArmorRangedWeaponsSpeedMultiplyPerLevel = 0.1f;
     private static int chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
     private static float chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
 
     private static float chainArmorWalkSpeedMultiply = 1.0f;
-    private static float chainArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static float chainArmorWalkSpeedMultiplyPerLevel = 0.1f;
     private static int chainArmorWalkSpeedMultiplyReductionEveryLevel = 1;
     private static float chainArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
@@ -4693,27 +4695,27 @@ public static class Configuration
     private static float brigandineArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
 
     private static float brigandineArmorHealingEffectivnessMultiply = 1.0f;
-    private static float brigandineArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static float brigandineArmorHealingEffectivnessMultiplyPerLevel = 0.1f;
     private static int brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
     private static float brigandineArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
 
     private static float brigandineArmorHungerRateMultiply = 1.0f;
-    private static float brigandineArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static float brigandineArmorHungerRateMultiplyPerLevel = 0.1f;
     private static int brigandineArmorHungerRateMultiplyReductionEveryLevel = 1;
     private static float brigandineArmorHungerRateMultiplyReductionPerReduce = 0.05f;
 
     private static float brigandineArmorRangedWeaponsAccuracyMultiply = 1.0f;
-    private static float brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static float brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.1f;
     private static int brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
     private static float brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
 
     private static float brigandineArmorRangedWeaponsSpeedMultiply = 1.0f;
-    private static float brigandineArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static float brigandineArmorRangedWeaponsSpeedMultiplyPerLevel = 0.1f;
     private static int brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
     private static float brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
 
     private static float brigandineArmorWalkSpeedMultiply = 1.0f;
-    private static float brigandineArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static float brigandineArmorWalkSpeedMultiplyPerLevel = 0.1f;
     private static int brigandineArmorWalkSpeedMultiplyReductionEveryLevel = 1;
     private static float brigandineArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
@@ -5163,27 +5165,27 @@ public static class Configuration
     private static float lamellarArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
 
     private static float lamellarArmorHealingEffectivnessMultiply = 1.0f;
-    private static float lamellarArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static float lamellarArmorHealingEffectivnessMultiplyPerLevel = 0.1f;
     private static int lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
     private static float lamellarArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
 
     private static float lamellarArmorHungerRateMultiply = 1.0f;
-    private static float lamellarArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static float lamellarArmorHungerRateMultiplyPerLevel = 0.1f;
     private static int lamellarArmorHungerRateMultiplyReductionEveryLevel = 1;
     private static float lamellarArmorHungerRateMultiplyReductionPerReduce = 0.05f;
 
     private static float lamellarArmorRangedWeaponsAccuracyMultiply = 1.0f;
-    private static float lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static float lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.1f;
     private static int lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
     private static float lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
 
     private static float lamellarArmorRangedWeaponsSpeedMultiply = 1.0f;
-    private static float lamellarArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static float lamellarArmorRangedWeaponsSpeedMultiplyPerLevel = 0.1f;
     private static int lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
     private static float lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
 
     private static float lamellarArmorWalkSpeedMultiply = 1.0f;
-    private static float lamellarArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static float lamellarArmorWalkSpeedMultiplyPerLevel = 0.1f;
     private static int lamellarArmorWalkSpeedMultiplyReductionEveryLevel = 1;
     private static float lamellarArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
@@ -5633,27 +5635,27 @@ public static class Configuration
     private static float plateArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
 
     private static float plateArmorHealingEffectivnessMultiply = 1.0f;
-    private static float plateArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static float plateArmorHealingEffectivnessMultiplyPerLevel = 0.1f;
     private static int plateArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
     private static float plateArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
 
     private static float plateArmorHungerRateMultiply = 1.0f;
-    private static float plateArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static float plateArmorHungerRateMultiplyPerLevel = 0.1f;
     private static int plateArmorHungerRateMultiplyReductionEveryLevel = 1;
     private static float plateArmorHungerRateMultiplyReductionPerReduce = 0.05f;
 
     private static float plateArmorRangedWeaponsAccuracyMultiply = 1.0f;
-    private static float plateArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static float plateArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.1f;
     private static int plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
     private static float plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
 
     private static float plateArmorRangedWeaponsSpeedMultiply = 1.0f;
-    private static float plateArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static float plateArmorRangedWeaponsSpeedMultiplyPerLevel = 0.1f;
     private static int plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
     private static float plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
 
     private static float plateArmorWalkSpeedMultiply = 1.0f;
-    private static float plateArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static float plateArmorWalkSpeedMultiplyPerLevel = 0.1f;
     private static int plateArmorWalkSpeedMultiplyReductionEveryLevel = 1;
     private static float plateArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
@@ -6103,27 +6105,27 @@ public static class Configuration
     private static float scaleArmorFlatDamageReductionMultiplyReductionPerReduce = 0.05f;
 
     private static float scaleArmorHealingEffectivnessMultiply = 1.0f;
-    private static float scaleArmorHealingEffectivnessMultiplyPerLevel = 0.05f;
+    private static float scaleArmorHealingEffectivnessMultiplyPerLevel = 0.1f;
     private static int scaleArmorHealingEffectivnessMultiplyReductionEveryLevel = 1;
     private static float scaleArmorHealingEffectivnessMultiplyReductionPerReduce = 0.05f;
 
     private static float scaleArmorHungerRateMultiply = 1.0f;
-    private static float scaleArmorHungerRateMultiplyPerLevel = 0.05f;
+    private static float scaleArmorHungerRateMultiplyPerLevel = 0.1f;
     private static int scaleArmorHungerRateMultiplyReductionEveryLevel = 1;
     private static float scaleArmorHungerRateMultiplyReductionPerReduce = 0.05f;
 
     private static float scaleArmorRangedWeaponsAccuracyMultiply = 1.0f;
-    private static float scaleArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.05f;
+    private static float scaleArmorRangedWeaponsAccuracyMultiplyPerLevel = 0.1f;
     private static int scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel = 1;
     private static float scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce = 0.05f;
 
     private static float scaleArmorRangedWeaponsSpeedMultiply = 1.0f;
-    private static float scaleArmorRangedWeaponsSpeedMultiplyPerLevel = 0.05f;
+    private static float scaleArmorRangedWeaponsSpeedMultiplyPerLevel = 0.1f;
     private static int scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel = 1;
     private static float scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce = 0.05f;
 
     private static float scaleArmorWalkSpeedMultiply = 1.0f;
-    private static float scaleArmorWalkSpeedMultiplyPerLevel = 0.05f;
+    private static float scaleArmorWalkSpeedMultiplyPerLevel = 0.1f;
     private static int scaleArmorWalkSpeedMultiplyReductionEveryLevel = 1;
     private static float scaleArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 

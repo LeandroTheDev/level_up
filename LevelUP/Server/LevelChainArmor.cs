@@ -134,6 +134,7 @@ class LevelChainArmor
         float rangedWeaponsAccuracy = Configuration.ChainArmorRangedWeaponsAccuracyMultiplyByLevel(playerLevel);
         float rangedWeaponsSpeed = Configuration.ChainArmorRangedWeaponsSpeedMultiplyByLevel(playerLevel);
         float walkSpeed = Configuration.ChainArmorWalkSpeedMultiplyByLevel(playerLevel);
+        Debug.LogDebug($"[ChainArmor] ViewReceived level={playerLevel} walkSpeed={walkSpeed:F3} hungerRate={hungerRate:F3} rangedAcc={rangedWeaponsAccuracy:F3}");
 
         string code = armorSlot.Itemstack.Item.Code.ToString();
         foreach (var pair in SubLevelPatterns)
