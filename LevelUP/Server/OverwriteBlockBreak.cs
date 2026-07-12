@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using HarmonyLib;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
@@ -115,6 +116,8 @@ class OverwriteBlockBreak
 
         Shared.Instance.ResetToolAttributes(inSlot.Itemstack);
         OverwriteBlockBreakEvents.ExecuteMiningSpeedAttribute(inSlot.Itemstack);
+        if (world.Api is ICoreClientAPI capi)
+            OverwriteBlockBreakEvents.ExecuteMiningSpeedAttributeWithPlayer(capi.World.Player, inSlot.Itemstack);
     }
 
     [HarmonyPostfix] // Client Side
@@ -147,5 +150,12 @@ public static class OverwriteBlockBreakEvents
     internal static void ExecuteMiningSpeedAttribute(IItemStack itemstack)
     {
         OnMiningSpeedAttributeRefreshed?.Invoke(itemstack);
+    }
+
+    public delegate void MiningSpeedHandleWithPlayer(IPlayer player, IItemStack itemstack);
+    public static event MiningSpeedHandleWithPlayer OnMiningSpeedAttributePlayerRefreshed;
+    internal static void ExecuteMiningSpeedAttributeWithPlayer(IPlayer player, IItemStack itemstack)
+    {
+        OnMiningSpeedAttributePlayerRefreshed?.Invoke(player, itemstack);
     }
 }

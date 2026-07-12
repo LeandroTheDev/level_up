@@ -48,6 +48,7 @@ class LevelShovel
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributePlayerRefreshed += MiningSpeedAttributeReceived;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Shovel initialized");
@@ -58,7 +59,18 @@ class LevelShovel
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributePlayerRefreshed -= MiningSpeedAttributeReceived;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
+    }
+
+    private void MiningSpeedAttributeReceived(IPlayer player, IItemStack itemstack)
+    {
+        if (itemstack?.Item?.Tool != EnumTool.Shovel) return;
+        int level = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shovel");
+        if (level <= 0) return;
+        float mining = Configuration.ShovelGetMiningMultiplyByLevel(level);
+        if (mining > 1.0f)
+            Shared.Instance.RefreshToolAttributes(itemstack, 1.0f, mining);
     }
 
     private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)

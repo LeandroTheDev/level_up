@@ -47,6 +47,7 @@ class LevelPickaxe
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributePlayerRefreshed += MiningSpeedAttributeReceived;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Pickaxe initialized");
@@ -57,7 +58,18 @@ class LevelPickaxe
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart -= HandleDamage;
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributePlayerRefreshed -= MiningSpeedAttributeReceived;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
+    }
+
+    private void MiningSpeedAttributeReceived(IPlayer player, IItemStack itemstack)
+    {
+        if (itemstack?.Item?.Tool != EnumTool.Pickaxe) return;
+        int level = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Pickaxe");
+        if (level <= 0) return;
+        float mining = Configuration.PickaxeGetMiningMultiplyByLevel(level);
+        if (mining > 1.0f)
+            Shared.Instance.RefreshToolAttributes(itemstack, 1.0f, mining);
     }
 
     private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)

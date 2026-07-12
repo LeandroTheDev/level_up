@@ -469,7 +469,6 @@ class Instance
                 result = (float)Math.Round(result, 2);
                 statsObj["healingeffectivness"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).healingeffectivness = result;
-                Debug.LogDebug($"[ArmorStats] {armorSlot.Itemstack.Collectible.Code} healingEffectivness: base={baseValue:F3} multi={healingEffectivness:F3} -> {result:F3}");
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseHungerRate") != null)
@@ -483,7 +482,6 @@ class Instance
                 result = (float)Math.Round(result, 2);
                 statsObj["hungerrate"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).hungerrate = result;
-                Debug.LogDebug($"[ArmorStats] {armorSlot.Itemstack.Collectible.Code} hungerRate: base={baseValue:F3} multi={hungerRate:F3} -> {result:F3}");
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsAccuracy") != null)
@@ -497,7 +495,6 @@ class Instance
                 result = (float)Math.Round(result, 2);
                 statsObj["rangedWeaponsAcc"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).rangedWeaponsAcc = result;
-                Debug.LogDebug($"[ArmorStats] {armorSlot.Itemstack.Collectible.Code} rangedWeaponsAcc: base={baseValue:F3} multi={rangedWeaponsAccuracy:F3} -> {result:F3}");
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseRangedWeaponsSpeed") != null)
@@ -511,7 +508,6 @@ class Instance
                 result = (float)Math.Round(result, 2);
                 statsObj["rangedWeaponsSpeed"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).rangedWeaponsSpeed = result;
-                Debug.LogDebug($"[ArmorStats] {armorSlot.Itemstack.Collectible.Code} rangedWeaponsSpeed: base={baseValue:F3} multi={rangedWeaponsSpeed:F3} -> {result:F3}");
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseWalkSpeed") != null)
@@ -525,7 +521,6 @@ class Instance
                 result = (float)Math.Round(result, 2);
                 statsObj["walkSpeed"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).walkSpeed = result;
-                Debug.LogDebug($"[ArmorStats] {armorSlot.Itemstack.Collectible.Code} walkSpeed: base={baseValue:F3} multi={walkSpeed:F3} -> {result:F3}");
             }
 
             armorObj["statModifiers"] = statsObj;

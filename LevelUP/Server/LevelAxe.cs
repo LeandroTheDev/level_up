@@ -47,6 +47,7 @@ class LevelAxe
     {
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributePlayerRefreshed += MiningSpeedAttributeReceived;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Axe initialized");
@@ -56,7 +57,18 @@ class LevelAxe
     {
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributePlayerRefreshed -= MiningSpeedAttributeReceived;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
+    }
+
+    private void MiningSpeedAttributeReceived(IPlayer player, IItemStack itemstack)
+    {
+        if (itemstack?.Item?.Tool != EnumTool.Axe) return;
+        int level = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Axe");
+        if (level <= 0) return;
+        float mining = Configuration.AxeGetMiningMultiplyByLevel(level);
+        if (mining > 1.0f)
+            Shared.Instance.RefreshToolAttributes(itemstack, 1.0f, mining);
     }
 
     private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
