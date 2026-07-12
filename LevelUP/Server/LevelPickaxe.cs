@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
-using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -49,7 +48,6 @@ class LevelPickaxe
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
-        Client.Instance.RefreshWatchedAttributes += RefreshWatchedAttributes;
 
         Debug.Log("Level Pickaxe initialized");
     }
@@ -60,7 +58,6 @@ class LevelPickaxe
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
-        Client.Instance.RefreshWatchedAttributes -= RefreshWatchedAttributes;
     }
 
     private void RefreshDamage(IPlayer player, ItemStack item, ref float damage)
@@ -71,12 +68,6 @@ class LevelPickaxe
         }
     }
 
-    static private float currentPickaxeMiningSpeed = 1.0f;
-    private void RefreshWatchedAttributes()
-    {
-        var api = Shared.Instance.api as ICoreClientAPI;
-        currentPickaxeMiningSpeed = api.World.Player.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f);
-    }
     private void RefreshMiningSpeed(CollectibleObject collectible, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer player, ref float multiply)
     {
         if (block.BlockMaterial == EnumBlockMaterial.Brick ||
@@ -84,7 +75,11 @@ class LevelPickaxe
             block.BlockMaterial == EnumBlockMaterial.Metal ||
             block.BlockMaterial == EnumBlockMaterial.Ore ||
             block.BlockMaterial == EnumBlockMaterial.Stone)
-            multiply *= currentPickaxeMiningSpeed;
+        {
+            float speed = player.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f);
+            multiply *= speed;
+            Debug.LogDebug($"{player.PlayerName} mining speed refreshed with pickaxe multiply: {multiply} (speed={speed})");
+        }
     }
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)

@@ -169,7 +169,7 @@ class LevelPanning
                     {
                         if (player == null || !player.InventoryManager.TryGiveItemstack(stack, slotNotifyEffect: true))
                         {
-                            byEntity.Api.World.SpawnItemEntity(stack, byEntity.ServerPos.XYZ);
+                            byEntity.Api.World.SpawnItemEntity(stack, byEntity.Pos.XYZ);
                         }
                         break;
                     }
