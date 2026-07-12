@@ -433,7 +433,8 @@ class Instance
                 float result = (UtilsCulture.ParseFloatCulturized(armorSlot.Itemstack.Attributes.GetString("BaseRelativeProtection")) + difference) * relativeProtection;
                 result = (float)Math.Round(result, 2);
                 protectionObj["relativeProtection"] = result;
-                collectibleBehaviorWearable.GetProtectionModifiers(armorSlot).RelativeProtection = result;
+                var pm = collectibleBehaviorWearable.GetProtectionModifiers(armorSlot);
+                if (pm != null) pm.RelativeProtection = result;
             }
 
             if (armorSlot.Itemstack.Attributes.GetString("BaseFlatDamageReduction") != null)
