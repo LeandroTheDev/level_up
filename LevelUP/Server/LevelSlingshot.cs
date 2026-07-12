@@ -140,10 +140,10 @@ class LevelSlingshot
                 // Integration
                 chance = LevelSlingshotEvents.GetExternalSlingshotAiming((byEntity as EntityPlayer).Player, chance);
 
-                // Store in entity attribute — picked up by SpawnProjectile prefix
+                // Store in entity attribute — read by GetProjectileDirection as (1 - aimingAccuracy) spread factor
                 byEntity.Attributes.SetFloat("aimingAccuracy", chance);
 
-                Debug.LogDebug($"Slingshot Stone Accuracy: {chance}");
+                Debug.LogDebug($"Stone throw: level={byEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0)} aimingAccuracy={chance:F3} (spread factor={(1f - chance):F3})");
             }
         }
 
@@ -155,8 +155,10 @@ class LevelSlingshot
             float aimingAccuracy = byEntity.Attributes.GetFloat("aimingAccuracy", -1f);
             if (aimingAccuracy >= 0f)
             {
+                // Do NOT clear aimingAccuracy here — GetProjectileDirection (called inside SpawnProjectile)
+                // also reads this attribute: num = 1 - aimingAccuracy. Clearing to -1f causes num = 2.0 → huge spread.
+                Debug.LogDebug($"SpawnProjectile: aimingAccuracy={aimingAccuracy:F3}, dispersionFactor {dispersionFactor:F3} → {aimingAccuracy:F3}");
                 dispersionFactor = aimingAccuracy;
-                byEntity.Attributes.SetFloat("aimingAccuracy", -1f);
             }
         }
 
@@ -174,10 +176,10 @@ class LevelSlingshot
                 // Integration
                 chance = LevelSlingshotEvents.GetExternalSlingshotAiming((byEntity as EntityPlayer).Player, chance);
 
-                // Setting new aim accuracy
+                // Store in entity attribute — read by GetProjectileDirection as (1 - aimingAccuracy) spread factor
                 byEntity.Attributes.SetFloat("aimingAccuracy", chance);
 
-                Debug.LogDebug($"Slingshot Accuracy: {chance}");
+                Debug.LogDebug($"Slingshot: level={byEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0)} aimingAccuracy={chance:F3} (spread factor={(1f - chance):F3})");
             }
         }
 

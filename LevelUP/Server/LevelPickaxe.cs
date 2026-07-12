@@ -76,9 +76,7 @@ class LevelPickaxe
             block.BlockMaterial == EnumBlockMaterial.Ore ||
             block.BlockMaterial == EnumBlockMaterial.Stone)
         {
-            float speed = player.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f);
-            multiply *= speed;
-            Debug.LogDebug($"{player.PlayerName} mining speed refreshed with pickaxe multiply: {multiply} (speed={speed})");
+            multiply *= player.Entity.WatchedAttributes.GetFloat("LevelUP_Pickaxe_MiningSpeed", 1.0f);
         }
     }
 
