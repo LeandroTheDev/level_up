@@ -134,7 +134,7 @@ class LevelSmithing
 
         foreach (var pair in SubLevelPatterns)
         {
-            stringBuilder.AppendLine($"{Lang.Get($"levelup:{pair.Value.ToLower()}")}: {player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}")}");
+            stringBuilder.AppendLine($"{Lang.Get($"levelup:{pair.Value.ToLower()}")}: {player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Smithing_Sub_{pair.Value}")}");
         }
     }
 

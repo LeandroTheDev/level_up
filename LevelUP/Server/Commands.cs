@@ -43,24 +43,44 @@ class Commands
     {
         //args:
         //1 => LevelType
-        //2 => PlayerName to be changed
-        //3 => Experience quantity to change
-        if (args.Length != 4) return TextCommandResult.Success($"Invalid arguments", "2");
+        //2 => PlayerName to be changed (or proficiency if 5 args)
+        //3 => Experience quantity to change (or PlayerName if 5 args)
+        //--- optional (proficiency form) ---
+        //2 => Proficiency
+        //3 => PlayerName to be changed
+        //4 => Experience quantity to change
+        if (args.Length != 4 && args.Length != 5) return TextCommandResult.Success($"Invalid arguments", "2");
 
-        // Check if experience is a valid decimal number
+        if (args.Length == 5)
+        {
+            // Proficiency form: changeexperience LevelType Proficiency PlayerName Amount
+            if (!long.TryParse(args[4], out _)) return TextCommandResult.Success($"Invalid experience value, use only decimal numbers", "3");
+
+            IServerPlayer player = GetPlayerByUsernameOrUID(args[3]);
+            if (player == null) return TextCommandResult.Success($"Player {args[3]} not found or not online", "14");
+
+            Experience.ChangeSubExperience(player, args[1], args[2], ulong.Parse(args[4]));
+
+            Instance.UpdatePlayerLevels(player, Instance.api);
+            Instance.RefreshStatus(player, args[1]);
+
+            return TextCommandResult.Success($"Changed experience from {player.PlayerName} to {args[4]} on level {args[1]}/{args[2]}", "10");
+        }
+
+        // Normal form: changeexperience LevelType PlayerName Amount
         if (!long.TryParse(args[3], out _)) return TextCommandResult.Success($"Invalid experience value, use only decimal numbers", "3");
 
-        IServerPlayer player = GetPlayerByUsernameOrUID(args[2]);
-        if (player == null) return TextCommandResult.Success($"Player {args[2]} not found or not online", "14");
+        IServerPlayer normalPlayer = GetPlayerByUsernameOrUID(args[2]);
+        if (normalPlayer == null) return TextCommandResult.Success($"Player {args[2]} not found or not online", "14");
 
         // Update player levels
-        Experience.ChangeExperience(player, args[1], ulong.Parse(args[3]));
+        Experience.ChangeExperience(normalPlayer, args[1], ulong.Parse(args[3]));
 
         // Refresh player levels
-        Instance.UpdatePlayerLevels(player, Instance.api);        
-        Instance.RefreshStatus(player, args[1]);
+        Instance.UpdatePlayerLevels(normalPlayer, Instance.api);
+        Instance.RefreshStatus(normalPlayer, args[1]);
 
-        return TextCommandResult.Success($"Changed experience from {player.PlayerName} to {args[3]} on level {args[1]}", "10");
+        return TextCommandResult.Success($"Changed experience from {normalPlayer.PlayerName} to {args[3]} on level {args[1]}", "10");
     }
 
     private TextCommandResult AddExperience(string[] args)

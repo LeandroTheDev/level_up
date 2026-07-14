@@ -118,7 +118,7 @@ class LevelPlateArmor
 
         foreach (var pair in SubLevelPatterns)
         {
-            stringBuilder.AppendLine($"{Lang.Get($"levelup:{pair.Value.ToLower()}")}: {player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}")}");
+            stringBuilder.AppendLine($"{Lang.Get($"levelup:{pair.Value.ToLower()}")}: {player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_PlateArmor_Sub_{pair.Value}")}");
         }
     }
 
@@ -140,7 +140,7 @@ class LevelPlateArmor
         {
             if (code.Contains(pair.Key))
             {
-                int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}");
+                int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_PlateArmor_Sub_{pair.Value}");
                 relativeProtection += Configuration.PlateArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                 flatDamageReduction += Configuration.PlateArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
                 healingEffectivness += Configuration.PlateArmorHealingEffectivnessMultiplyByLevel(playerSubLevel) - 1f;
@@ -188,7 +188,7 @@ class LevelPlateArmor
             {
                 if (code.Contains(pair.Key))
                 {
-                    int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}");
+                    int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_PlateArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.PlateArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.PlateArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
                     healingEffectivness += Configuration.PlateArmorHealingEffectivnessMultiplyByLevel(playerSubLevel) - 1f;
@@ -234,7 +234,7 @@ class LevelPlateArmor
             {
                 if (code.Contains(pair.Key))
                 {
-                    int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}");
+                    int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_PlateArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.PlateArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.PlateArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
                     Experience.IncreaseSubExperience(player, "PlateArmor", pair.Value, exp);

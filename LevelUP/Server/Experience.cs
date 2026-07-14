@@ -319,12 +319,27 @@ public class Experience
         _playerLoadedExperience[player.PlayerUID][type]["experience"] = amount;
 
         Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"]);
+        CalculateRemainingExperience(player, type);
+    }
 
-        Debug.Log($"[EXPERIENCE] All experience of {player.PlayerName} has changed to: {amount}, {type}");
+    static internal void ChangeSubExperience(IPlayer player, string type, string subType, ulong amount)
+    {
+        if (!_playerLoadedExperience.TryGetValue(player.PlayerUID, out _))
+            _playerLoadedExperience.Add(player.PlayerUID, []);
+
+        if (!_playerLoadedExperience[player.PlayerUID].TryGetValue(type, out _))
+            _playerLoadedExperience[player.PlayerUID].Add(type, []);
+
+        if (!_playerLoadedExperience[player.PlayerUID][type].TryGetValue(subType, out _))
+            _playerLoadedExperience[player.PlayerUID][type].Add(subType, 0);
+
+        _playerLoadedExperience[player.PlayerUID][type][subType] = amount;
+
+        Instance.UpdateSubLevelAndNotify(null, player, type, subType, _playerLoadedExperience[player.PlayerUID][type][subType]);
     }
 
     /// <summary>
-    /// Manually reduce player experience by the type, but will not reduce if the level is below the currently player level    
+    /// Manually reduce player experience by the type, but will not reduce if the level is below the currently player level
     /// unless ``ignoreLevel`` is set to true
     /// </summary>
     /// <param name="player">Player instance</param>
@@ -334,13 +349,12 @@ public class Experience
     /// <returns>false if not reduced, true if is reduced</returns>
     static internal bool ReduceExperience(IPlayer player, string type, ulong amount, bool ignoreLevel = false)
     {
-
         ulong currentlyExp = GetExperience(player, type);
         if (ignoreLevel)
         {
             amount = ExperienceEvents.GetExternalAmountReduce(player, type, amount);
 
-            if (currentlyExp - amount < 0)
+            if (amount >= currentlyExp)
             {
                 DecrementExperience(player, type, currentlyExp);
                 return true;
@@ -353,6 +367,10 @@ public class Experience
         }
 
         amount = ExperienceEvents.GetExternalAmountReduce(player, type, amount);
+
+        if (amount >= currentlyExp)
+            return false;
+
         int currentlyLevel = Configuration.GetLevelByLevelTypeEXP(type, currentlyExp);
         int nextLevel = Configuration.GetLevelByLevelTypeEXP(type, currentlyExp - amount);
 
@@ -380,12 +398,12 @@ public class Experience
         if (!_playerLoadedExperience[player.PlayerUID][type].TryGetValue("experience", out _))
             _playerLoadedExperience[player.PlayerUID][type].Add("experience", 0);
         else
-            _playerLoadedExperience[player.PlayerUID][type]["experience"] -= amount;
+        {
+            ulong current = _playerLoadedExperience[player.PlayerUID][type]["experience"];
+            _playerLoadedExperience[player.PlayerUID][type]["experience"] = amount >= current ? 0 : current - amount;
+        }
 
-        if (_playerLoadedExperience[player.PlayerUID][type]["experience"] < 0)
-            _playerLoadedExperience[player.PlayerUID][type]["experience"] = 0;
-
-        Instance.UpdateLevelAndNotify(null, player, type, amount, true);
+        Instance.UpdateLevelAndNotify(null, player, type, _playerLoadedExperience[player.PlayerUID][type]["experience"], true);
     }
 
     /// <summary>

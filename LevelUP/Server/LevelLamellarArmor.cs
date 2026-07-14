@@ -114,7 +114,7 @@ class LevelLamellarArmor
 
         foreach (var pair in SubLevelPatterns)
         {
-            stringBuilder.AppendLine($"{Lang.Get($"levelup:{pair.Value.ToLower()}")}: {player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}")}");
+            stringBuilder.AppendLine($"{Lang.Get($"levelup:{pair.Value.ToLower()}")}: {player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_LamellarArmor_Sub_{pair.Value}")}");
         }
     }
 
@@ -136,7 +136,7 @@ class LevelLamellarArmor
         {
             if (code.Contains(pair.Key))
             {
-                int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}");
+                int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_LamellarArmor_Sub_{pair.Value}");
                 relativeProtection += Configuration.LamellarArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                 flatDamageReduction += Configuration.LamellarArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
                 healingEffectivness += Configuration.LamellarArmorHealingEffectivnessMultiplyByLevel(playerSubLevel) - 1f;
@@ -184,7 +184,7 @@ class LevelLamellarArmor
             {
                 if (code.Contains(pair.Key))
                 {
-                    int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}");
+                    int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_LamellarArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.LamellarArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.LamellarArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
                     healingEffectivness += Configuration.LamellarArmorHealingEffectivnessMultiplyByLevel(playerSubLevel) - 1f;
@@ -230,7 +230,7 @@ class LevelLamellarArmor
             {
                 if (code.Contains(pair.Key))
                 {
-                    int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Sub_{pair.Value}");
+                    int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_LamellarArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.LamellarArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.LamellarArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
                     Experience.IncreaseSubExperience(player, "LamellarArmor", pair.Value, exp);

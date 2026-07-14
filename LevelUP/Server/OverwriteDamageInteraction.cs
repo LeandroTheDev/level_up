@@ -144,6 +144,9 @@ class OverwriteDamageInteraction
     [HarmonyPriority(Priority.VeryLow)]
     internal static void HandleDamagedStart(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
     {
+        if (dmgSource.Type == EnumDamageType.Heal) return;
+        if (dmgSource.Type == EnumDamageType.Hunger) return;
+
         IInventory inv = player.InventoryManager.GetOwnInventory("character");
 
         // The inventory codes: 12,13,14 is reserved to store armor
@@ -169,6 +172,9 @@ class OverwriteDamageInteraction
     [HarmonyPriority(Priority.VeryLow)]
     internal static void HandleDamagedFinish(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
     {
+        if (dmgSource.Type == EnumDamageType.Heal) return;
+        if (dmgSource.Type == EnumDamageType.Hunger) return;
+
         IInventory inv = player.InventoryManager.GetOwnInventory("character");
 
         // The inventory codes: 12,13,14 is reserved to store armor
