@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -11,18 +10,17 @@ public class StatusViewDialog(ICoreClientAPI capi, string levelType, ElementBoun
     public string levelType = levelType;
     public override string ToggleKeyCombinationCode => "levelinfo";
 
-    private ElementBounds _textBounds;
+    private GuiElementContainer _textContainer;
 
     public override void OnGuiOpened()
     {
         base.OnGuiOpened();
 
         StringBuilder stringBuilder = StatusViewEvents.GetExternalStringBuilder(capi.World.Player, new(), levelType);
-        string text = stringBuilder.ToString();
+        string[] lines = stringBuilder.ToString().Split('\n');
 
         double viewHeight = 455.0;
         double lineHeight = 20.0;
-        double textTotalHeight = Math.Max(text.Split('\n').Length * lineHeight, viewHeight);
 
         ElementBounds windowBounds = ElementBounds.Fixed(
             buttonBounds.absX + 60,
@@ -31,30 +29,50 @@ public class StatusViewDialog(ICoreClientAPI capi, string levelType, ElementBoun
             500
         );
 
-        ElementBounds bg = ElementBounds.Fill;
         ElementBounds clipBounds = ElementBounds.Fixed(10, 35, 370, viewHeight);
-        _textBounds = ElementBounds.Fixed(0, 0, 360, textTotalHeight);
+        ElementBounds listBounds = clipBounds.ForkContainingChild(5, 5, 5, 5);
 
-        SingleComposer = capi.Gui
-            .CreateCompo("levelinfo", windowBounds)
-            .AddShadedDialogBG(bg)
-            .AddDialogTitleBar(Lang.Get("levelup:status_tab", Lang.Get($"levelup:{levelType.ToLower()}")), OnClose)
-            .BeginClip(clipBounds)
-            .AddStaticText(text, CairoFont.WhiteSmallText(), _textBounds)
-            .EndClip()
-            .AddVerticalScrollbar(OnNewScrollbarValue, ElementStdBounds.VerticalScrollbar(clipBounds), "statusscroll")
-            .Compose();
+        GuiComposer composer = capi.Gui.CreateCompo("levelinfo", windowBounds);
+        composer.AddShadedDialogBG(ElementBounds.Fill);
+        composer.AddDialogTitleBar(Lang.Get("levelup:status_tab", Lang.Get($"levelup:{levelType.ToLower()}")), OnClose);
+        composer.AddVerticalScrollbar(OnNewScrollbarValue, ElementStdBounds.VerticalScrollbar(clipBounds), "statusscroll");
+        composer.BeginClip(clipBounds);
+        composer.AddContainer(listBounds, "statuscontent");
+        _textContainer = composer.GetContainer("statuscontent");
 
+        double offsetY = 0;
+        foreach (string line in lines)
+        {
+            ElementBounds lineBounds = listBounds.ForkChild()
+                .WithFixedPosition(0, offsetY)
+                .WithFixedSize(355, lineHeight);
+
+            _textContainer.Add(new GuiElementStaticText(
+                capi,
+                line,
+                EnumTextOrientation.Left,
+                lineBounds,
+                CairoFont.WhiteSmallText()
+            ));
+
+            offsetY += lineHeight;
+        }
+
+        composer.EndClip();
+        SingleComposer = composer.Compose();
+
+        double totalHeight = offsetY;
         capi.Event.EnqueueMainThreadTask(() =>
         {
-            SingleComposer.GetScrollbar("statusscroll").SetHeights((float)viewHeight, (float)textTotalHeight);
+            SingleComposer.GetScrollbar("statusscroll").SetHeights((float)viewHeight, (float)totalHeight);
         }, "StatusScrollInit");
     }
 
     private void OnNewScrollbarValue(float value)
     {
-        _textBounds.fixedY = 3 - value;
-        _textBounds.CalcWorldBounds();
+        if (_textContainer == null) return;
+        _textContainer.Bounds.fixedY = 0f - value;
+        _textContainer.Bounds.CalcWorldBounds();
     }
 
     private void OnClose()
