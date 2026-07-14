@@ -1,7 +1,6 @@
 #pragma warning disable CA1822
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +10,6 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
-using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -33,9 +31,6 @@ class LevelVitality
             patch.UnpatchCategory("levelup_vitality");
         }
     }
-
-    static private string _saveDirectory = "";
-    private static readonly Dictionary<string, double> _playerLoadedVitality = [];
 
     public void Init()
     {
@@ -98,11 +93,6 @@ class LevelVitality
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
     {
-        // Load player state
-        _saveDirectory = Path.Combine(coreAPI.DataBasePath, $"ModData/LevelUP/{coreAPI.World.SavegameIdentifier}-Vitality");
-        Debug.Log($"LevelUP will save vitality data in: {_saveDirectory}");
-        Directory.CreateDirectory(_saveDirectory);
-
         // Populate configuration
         Configuration.PopulateVitalityConfiguration(coreAPI);
         Configuration.RegisterNewMaxLevelByLevelTypeEXP("Vitality", Configuration.vitalityMaxLevel);

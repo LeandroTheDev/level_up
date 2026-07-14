@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -10,28 +11,50 @@ public class StatusViewDialog(ICoreClientAPI capi, string levelType, ElementBoun
     public string levelType = levelType;
     public override string ToggleKeyCombinationCode => "levelinfo";
 
+    private ElementBounds _textBounds;
+
     public override void OnGuiOpened()
     {
         base.OnGuiOpened();
+
+        StringBuilder stringBuilder = StatusViewEvents.GetExternalStringBuilder(capi.World.Player, new(), levelType);
+        string text = stringBuilder.ToString();
+
+        double viewHeight = 455.0;
+        double lineHeight = 20.0;
+        double textTotalHeight = Math.Max(text.Split('\n').Length * lineHeight, viewHeight);
+
         ElementBounds windowBounds = ElementBounds.Fixed(
             buttonBounds.absX + 60,
             buttonBounds.absY,
-            400,
+            420,
             500
         );
 
         ElementBounds bg = ElementBounds.Fill;
-
-        ElementBounds contentBounds = ElementBounds.Fixed(10, 35, 380, 455);
-
-        StringBuilder stringBuilder = StatusViewEvents.GetExternalStringBuilder(capi.World.Player, new(), levelType);
+        ElementBounds clipBounds = ElementBounds.Fixed(10, 35, 370, viewHeight);
+        _textBounds = ElementBounds.Fixed(0, 0, 360, textTotalHeight);
 
         SingleComposer = capi.Gui
             .CreateCompo("levelinfo", windowBounds)
             .AddShadedDialogBG(bg)
             .AddDialogTitleBar(Lang.Get("levelup:status_tab", Lang.Get($"levelup:{levelType.ToLower()}")), OnClose)
-            .AddStaticText(stringBuilder.ToString(), CairoFont.WhiteSmallText(), contentBounds)
+            .BeginClip(clipBounds)
+            .AddStaticText(text, CairoFont.WhiteSmallText(), _textBounds)
+            .EndClip()
+            .AddVerticalScrollbar(OnNewScrollbarValue, ElementStdBounds.VerticalScrollbar(clipBounds), "statusscroll")
             .Compose();
+
+        capi.Event.EnqueueMainThreadTask(() =>
+        {
+            SingleComposer.GetScrollbar("statusscroll").SetHeights((float)viewHeight, (float)textTotalHeight);
+        }, "StatusScrollInit");
+    }
+
+    private void OnNewScrollbarValue(float value)
+    {
+        _textBounds.fixedY = 3 - value;
+        _textBounds.CalcWorldBounds();
     }
 
     private void OnClose()
