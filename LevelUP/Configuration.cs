@@ -663,7 +663,6 @@ public static class Configuration
     private static double bowEXPMultiplyPerLevel = 1.1;
     private static float bowBaseDamage = 1.0f;
     private static float bowIncrementDamagePerLevel = 0.1f;
-    private static float bowBaseChanceToNotLoseArrow = 50.0f;
     private static float bowChanceToNotLoseArrowBaseIncreasePerLevel = 2.0f;
     private static int bowChanceToNotLoseArrowReduceIncreaseEveryLevel = 5;
     private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.2f;
@@ -717,13 +716,6 @@ public static class Configuration
                 else bowEXPPerHit = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: bowEXPPerHit not set");
             Experience.LoadExperience("Bow", "Hit", (ulong)bowEXPPerHit);
-        }
-        { //bowBaseChanceToNotLoseArrow
-            if (bowLevelStats.TryGetValue("bowBaseChanceToNotLoseArrow", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowBaseChanceToNotLoseArrow is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseChanceToNotLoseArrow is not double is {value.GetType()}");
-                else bowBaseChanceToNotLoseArrow = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: bowBaseChanceToNotLoseArrow not set");
         }
         { //bowChanceToNotLoseArrowBaseIncreasePerLevel
             if (bowLevelStats.TryGetValue("bowChanceToNotLoseArrowBaseIncreasePerLevel", out object value))
@@ -823,39 +815,30 @@ public static class Configuration
     public static float BowGetChanceToNotLoseArrowByLevel(int level)
     {
         int reduceEvery = bowChanceToNotLoseArrowReduceIncreaseEveryLevel;
-        float baseChance = bowBaseChanceToNotLoseArrow;
         float baseIncrement = bowChanceToNotLoseArrowBaseIncreasePerLevel;
         float reductionPerStep = bowChanceToNotLoseArrowReduceQuantityEveryLevel;
 
         double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
 
-        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
-        finalChance += baseChance;
-
-        int chance = Random.Next(0, 100);
+        double increment = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
 
         if (enableExtendedLog)
-            Debug.LogDebug($"Bow should not lose arrow: {finalChance} : {chance}");
+            Debug.LogDebug($"Bow arrow drop increment: {increment}%");
 
-        if (finalChance >= chance)
-            return 1.0f;
-        else
-            return 0.0f;
+        return (float)(increment / 100.0);
     }
 
     public static double BowGetRawChanceToNotLoseArrowByLevel(int level)
     {
         int reduceEvery = bowChanceToNotLoseArrowReduceIncreaseEveryLevel;
-        float baseChance = bowBaseChanceToNotLoseArrow;
         float baseIncrement = bowChanceToNotLoseArrowBaseIncreasePerLevel;
         float reductionPerStep = bowChanceToNotLoseArrowReduceQuantityEveryLevel;
 
         double r = Math.Pow(1 - reductionPerStep, 1.0 / reduceEvery);
 
-        double finalChance = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
-        finalChance += baseChance;
+        double increment = baseIncrement * (1 - Math.Pow(r, level)) / (1 - r);
 
-        return finalChance;
+        return increment;
     }
 
     public static float BowGetAimAccuracyByLevel(int level)

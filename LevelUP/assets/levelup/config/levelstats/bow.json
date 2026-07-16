@@ -4,7 +4,6 @@
     "bowEXPMultiplyPerLevel": 1.1,
     "bowBaseDamage": 1.0,
     "bowIncrementDamagePerLevel": 0.1,
-    "bowBaseChanceToNotLoseArrow": 50.0,
     "bowChanceToNotLoseArrowBaseIncreasePerLevel": 2.0,
     "bowChanceToNotLoseArrowReduceIncreaseEveryLevel": 5,
     "bowChanceToNotLoseArrowReduceQuantityEveryLevel": 0.2,

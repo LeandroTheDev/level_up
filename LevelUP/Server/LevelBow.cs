@@ -1,8 +1,10 @@
 #pragma warning disable CA1822
+using System;
 using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
@@ -143,13 +145,13 @@ class LevelBow
                 {
                     EntityPlayer playerEntity = __instance.FiredBy as EntityPlayer;
 
-                    float chance = Configuration.BowGetChanceToNotLoseArrowByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
+                    float increment = Configuration.BowGetChanceToNotLoseArrowByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
 
                     // Integration
-                    chance = LevelBowEvents.GetExternalBowDropChance(playerEntity.Player, chance);
+                    increment = LevelBowEvents.GetExternalBowDropChance(playerEntity.Player, increment);
 
-                    // Change the change based on level
-                    __instance.DropOnImpactChance = chance;
+                    // Increment the drop chance based on level, keeping the arrow's base chance
+                    __instance.DropOnImpactChance = Math.Min(1.0f, __instance.DropOnImpactChance + increment);
                 }
             }
         }
@@ -173,6 +175,39 @@ class LevelBow
                 byEntity.Attributes.SetFloat("aimingAccuracy", chance);
 
                 Debug.LogDebug($"Bow Accuracy: {chance}");
+            }
+        }
+
+        // Replace vanilla break chance line with level-adjusted value
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(ItemArrow), "GetHeldItemInfo")]
+        internal static void GetArrowHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+        {
+            if (!Configuration.enableLevelBow) return;
+            if (world.Side != EnumAppSide.Client) return;
+            if (world.Api is not ICoreClientAPI capi) return;
+
+            IPlayer player = capi.World.Player;
+            if (player == null) return;
+
+            int bowLevel = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow");
+            if (bowLevel <= 0) return;
+
+            float increment = Configuration.BowGetChanceToNotLoseArrowByLevel(bowLevel);
+            if (increment <= 0) return;
+
+            if (inSlot.Itemstack?.Collectible?.Attributes == null) return;
+            float baseBreakChance = inSlot.Itemstack.Collectible.Attributes["breakChanceOnImpact"].AsFloat(0.5f);
+            float effectiveBreakChance = Math.Max(0f, baseBreakChance - increment);
+
+            string vanillaLine = Lang.Get("breakchanceonimpact", (int)(baseBreakChance * 100f));
+            string effectiveLine = Lang.Get("breakchanceonimpact", (int)(effectiveBreakChance * 100f));
+
+            string content = dsc.ToString();
+            if (content.Contains(vanillaLine))
+            {
+                dsc.Clear();
+                dsc.Append(content.Replace(vanillaLine, effectiveLine));
             }
         }
     }
