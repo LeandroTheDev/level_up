@@ -5,7 +5,9 @@
     "spearEXPMultiplyPerLevel": 1.3,
     "spearBaseDamage": 1.0,
     "spearIncrementDamagePerLevel": 0.1,
-    "spearBaseAimAccuracy": 0.8,
-    "spearIncreaseAimAccuracyPerLevel": 0.03,
+    "spearBaseRangedAccuracy": 0.0,
+    "spearIncrementRangedAccuracyPerLevel": 0.003,
+    "spearBaseRangedSpeed": 0.0,
+    "spearIncrementRangedSpeedPerLevel": 0.01,
     "spearMaxLevel": 999
 }

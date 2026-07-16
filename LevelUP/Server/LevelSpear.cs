@@ -30,8 +30,9 @@ class LevelSpear
 
     public void Init()
     {
-        // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.PlayerJoin += ApplySpearStats;
+        ExperienceEvents.OnLevelUp += OnSpearLevelUp;
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart += HandleRangedDamage;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
@@ -40,6 +41,19 @@ class LevelSpear
         Configuration.RegisterNewEXPLevelType("Spear", Configuration.SpearGetExpByLevel);
 
         Debug.Log("Level Spear initialized");
+    }
+
+    public static void ApplySpearStats(IPlayer player)
+    {
+        int level = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear");
+        player.Entity.Stats.Set("rangedWeaponsAcc", "levelup_spear", Configuration.SpearGetRangedAccuracyBonusByLevel(level));
+        player.Entity.Stats.Set("rangedWeaponsSpeed", "levelup_spear", Configuration.SpearGetRangedSpeedBonusByLevel(level));
+    }
+
+    private void OnSpearLevelUp(IPlayer player, string type, ulong exp, int level)
+    {
+        if (type != "Spear") return;
+        ApplySpearStats(player);
     }
 
     public void InitClient()
@@ -69,15 +83,23 @@ class LevelSpear
     {
         if (levelType != "Spear") return;
 
+        int level = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear");
+
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Utils.GetPorcentageFromFloatsStart1(Configuration.SpearGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear")))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.SpearGetDamageMultiplyByLevel(level))
             )
         );
 
         stringBuilder.AppendLine(
-            Lang.Get("levelup:status_accuracy",
-                Utils.GetPorcentageFromFloatsStart0(Configuration.SpearGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Spear")) - Configuration.BaseAimAccuracySpear)
+            Lang.Get("levelup:status_rangedaccuracy",
+                (int)(Configuration.SpearGetRangedAccuracyBonusByLevel(level) * 100f)
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_rangedspeed",
+                (int)(Configuration.SpearGetRangedSpeedBonusByLevel(level) * 100f)
             )
         );
     }
@@ -145,40 +167,10 @@ class LevelSpear
     }
 
     [HarmonyPatchCategory("levelup_spear")]
-    private class LevelSpearPatch
-    {
-        // Overwrite Spear shot start
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ItemSpear), "OnHeldInteractStop")]
-        internal static void OnHeldInteractSpearStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
-        {
-            if (!Configuration.enableLevelSpear) return;
-            if (byEntity.Api.Side != EnumAppSide.Server) return;
-
-            if (byEntity is EntityPlayer)
-            {
-                float chance = Configuration.SpearGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Spear", 0));
-
-                // Integration
-                chance = LevelSpearEvents.GetExternalSpearAiming((byEntity as EntityPlayer).Player, chance);
-
-                // Setting new aim accuracy
-                byEntity.Attributes.SetFloat("aimingAccuracy", chance);
-                Debug.LogDebug($"Spear Accuracy: {chance}");
-            }
-        }
-    }
+    private class LevelSpearPatch { }
 }
 
 public class LevelSpearEvents
 {
     public delegate void PlayerFloatModifierHandler(IPlayer player, ref float number);
-
-    public static event PlayerFloatModifierHandler OnSpearAimingRefresh;
-
-    internal static float GetExternalSpearAiming(IPlayer player, float chance)
-    {
-        OnSpearAimingRefresh?.Invoke(player, ref chance);
-        return chance;
-    }
 }

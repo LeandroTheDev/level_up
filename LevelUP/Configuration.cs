@@ -666,12 +666,13 @@ public static class Configuration
     private static float bowChanceToNotLoseArrowBaseIncreasePerLevel = 2.0f;
     private static int bowChanceToNotLoseArrowReduceIncreaseEveryLevel = 5;
     private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.2f;
-    private static float bowBaseAimAccuracy = 0.8f;
-    private static float bowIncreaseAimAccuracyPerLevel = 0.02f;
+    private static float bowBaseRangedAccuracy = 0.0f;
+    private static float bowIncrementRangedAccuracyPerLevel = 0.003f;
+    private static float bowBaseRangedSpeed = 0.0f;
+    private static float bowIncrementRangedSpeedPerLevel = 0.01f;
     public static int bowMaxLevel = 999;
 
     public static int ExpPerHitBow => bowEXPPerHit;
-    public static float BaseAimAccuracyBow => bowBaseAimAccuracy;
 
     public static void PopulateBowConfiguration(ICoreAPI api)
     {
@@ -738,19 +739,33 @@ public static class Configuration
                 else bowChanceToNotLoseArrowReduceQuantityEveryLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: bowChanceToNotLoseArrowReduceQuantityEveryLevel not set");
         }
-        { //bowBaseAimAccuracy
-            if (bowLevelStats.TryGetValue("bowBaseAimAccuracy", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowBaseAimAccuracy is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseAimAccuracy is not double is {value.GetType()}");
-                else bowBaseAimAccuracy = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: bowBaseAimAccuracy not set");
+        { //bowBaseRangedAccuracy
+            if (bowLevelStats.TryGetValue("bowBaseRangedAccuracy", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowBaseRangedAccuracy is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseRangedAccuracy is not double is {value.GetType()}");
+                else bowBaseRangedAccuracy = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: bowBaseRangedAccuracy not set");
         }
-        { //bowIncreaseAimAccuracyPerLevel
-            if (bowLevelStats.TryGetValue("bowIncreaseAimAccuracyPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel is not double is {value.GetType()}");
-                else bowIncreaseAimAccuracyPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: bowIncreaseAimAccuracyPerLevel not set");
+        { //bowIncrementRangedAccuracyPerLevel
+            if (bowLevelStats.TryGetValue("bowIncrementRangedAccuracyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowIncrementRangedAccuracyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowIncrementRangedAccuracyPerLevel is not double is {value.GetType()}");
+                else bowIncrementRangedAccuracyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: bowIncrementRangedAccuracyPerLevel not set");
+        }
+        { //bowBaseRangedSpeed
+            if (bowLevelStats.TryGetValue("bowBaseRangedSpeed", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowBaseRangedSpeed is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseRangedSpeed is not double is {value.GetType()}");
+                else bowBaseRangedSpeed = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: bowBaseRangedSpeed not set");
+        }
+        { //bowIncrementRangedSpeedPerLevel
+            if (bowLevelStats.TryGetValue("bowIncrementRangedSpeedPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowIncrementRangedSpeedPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowIncrementRangedSpeedPerLevel is not double is {value.GetType()}");
+                else bowIncrementRangedSpeedPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: bowIncrementRangedSpeedPerLevel not set");
         }
         { //bowMaxLevel
             if (bowLevelStats.TryGetValue("bowMaxLevel", out object value))
@@ -841,9 +856,14 @@ public static class Configuration
         return increment;
     }
 
-    public static float BowGetAimAccuracyByLevel(int level)
+    public static float BowGetRangedAccuracyBonusByLevel(int level)
     {
-        return bowBaseAimAccuracy + bowIncreaseAimAccuracyPerLevel * level;
+        return bowBaseRangedAccuracy + bowIncrementRangedAccuracyPerLevel * level;
+    }
+
+    public static float BowGetRangedSpeedBonusByLevel(int level)
+    {
+        return bowBaseRangedSpeed + bowIncrementRangedSpeedPerLevel * level;
     }
 
     #endregion
@@ -1742,14 +1762,15 @@ public static class Configuration
     private static double spearEXPMultiplyPerLevel = 1.3;
     private static float spearBaseDamage = 1.0f;
     private static float spearIncrementDamagePerLevel = 0.1f;
-    private static float spearBaseAimAccuracy = 0.8f;
-    private static float spearIncreaseAimAccuracyPerLevel = 0.03f;
+    private static float spearBaseRangedAccuracy = 0.0f;
+    private static float spearIncrementRangedAccuracyPerLevel = 0.003f;
+    private static float spearBaseRangedSpeed = 0.0f;
+    private static float spearIncrementRangedSpeedPerLevel = 0.01f;
     public static int spearMaxLevel = 999;
 
 
     public static int ExpPerHitSpear => spearEXPPerHit;
     public static int ExpPerThrowSpear => spearEXPPerThrow;
-    public static float BaseAimAccuracySpear => spearBaseAimAccuracy;
 
     public static void PopulateSpearConfiguration(ICoreAPI api)
     {
@@ -1802,19 +1823,33 @@ public static class Configuration
             else Debug.LogError("CONFIGURATION ERROR: spearEXPPerThrow not set");
             Experience.LoadExperience("Spear", "Throw", (ulong)spearEXPPerThrow);
         }
-        { //spearBaseAimAccuracy
-            if (spearLevelStats.TryGetValue("spearBaseAimAccuracy", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearBaseAimAccuracy is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearBaseAimAccuracy is not double is {value.GetType()}");
-                else spearBaseAimAccuracy = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: spearBaseAimAccuracy not set");
+        { //spearBaseRangedAccuracy
+            if (spearLevelStats.TryGetValue("spearBaseRangedAccuracy", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearBaseRangedAccuracy is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearBaseRangedAccuracy is not double is {value.GetType()}");
+                else spearBaseRangedAccuracy = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: spearBaseRangedAccuracy not set");
         }
-        { //spearIncreaseAimAccuracyPerLevel
-            if (spearLevelStats.TryGetValue("spearIncreaseAimAccuracyPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel is not double is {value.GetType()}");
-                else spearIncreaseAimAccuracyPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: spearIncreaseAimAccuracyPerLevel not set");
+        { //spearIncrementRangedAccuracyPerLevel
+            if (spearLevelStats.TryGetValue("spearIncrementRangedAccuracyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearIncrementRangedAccuracyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearIncrementRangedAccuracyPerLevel is not double is {value.GetType()}");
+                else spearIncrementRangedAccuracyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: spearIncrementRangedAccuracyPerLevel not set");
+        }
+        { //spearBaseRangedSpeed
+            if (spearLevelStats.TryGetValue("spearBaseRangedSpeed", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearBaseRangedSpeed is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearBaseRangedSpeed is not double is {value.GetType()}");
+                else spearBaseRangedSpeed = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: spearBaseRangedSpeed not set");
+        }
+        { //spearIncrementRangedSpeedPerLevel
+            if (spearLevelStats.TryGetValue("spearIncrementRangedSpeedPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearIncrementRangedSpeedPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearIncrementRangedSpeedPerLevel is not double is {value.GetType()}");
+                else spearIncrementRangedSpeedPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: spearIncrementRangedSpeedPerLevel not set");
         }
         { //spearMaxLevel
             if (spearLevelStats.TryGetValue("spearMaxLevel", out object value))
@@ -1877,9 +1912,14 @@ public static class Configuration
         return spearBaseDamage + spearIncrementDamagePerLevel * level;
     }
 
-    public static float SpearGetAimAccuracyByLevel(int level)
+    public static float SpearGetRangedAccuracyBonusByLevel(int level)
     {
-        return spearBaseAimAccuracy + spearIncreaseAimAccuracyPerLevel * level;
+        return spearBaseRangedAccuracy + spearIncrementRangedAccuracyPerLevel * level;
+    }
+
+    public static float SpearGetRangedSpeedBonusByLevel(int level)
+    {
+        return spearBaseRangedSpeed + spearIncrementRangedSpeedPerLevel * level;
     }
     #endregion
 

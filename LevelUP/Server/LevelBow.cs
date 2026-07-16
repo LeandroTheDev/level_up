@@ -32,14 +32,28 @@ class LevelBow
 
     public void Init()
     {
-        // Instanciate death event
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
+        Instance.api.Event.PlayerJoin += ApplyBowStats;
+        ExperienceEvents.OnLevelUp += OnBowLevelUp;
         OverwriteDamageInteractionEvents.OnPlayerRangedDoDamageStart += HandleRangedDamage;
         Configuration.RegisterNewLevel("Bow");
         Configuration.RegisterNewLevelTypeEXP("Bow", Configuration.BowGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Bow", Configuration.BowGetExpByLevel);
 
         Debug.Log("Level Bow initialized");
+    }
+
+    public static void ApplyBowStats(IPlayer player)
+    {
+        int level = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow");
+        player.Entity.Stats.Set("rangedWeaponsAcc", "levelup_bow", Configuration.BowGetRangedAccuracyBonusByLevel(level));
+        player.Entity.Stats.Set("rangedWeaponsSpeed", "levelup_bow", Configuration.BowGetRangedSpeedBonusByLevel(level));
+    }
+
+    private void OnBowLevelUp(IPlayer player, string type, ulong exp, int level)
+    {
+        if (type != "Bow") return;
+        ApplyBowStats(player);
     }
 
     public void InitClient()
@@ -70,21 +84,29 @@ class LevelBow
     {
         if (levelType != "Bow") return;
 
+        int level = player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow");
+
         stringBuilder.AppendLine(
-            Lang.Get("levelup:status_accuracy",
-                Utils.GetPorcentageFromFloatsStart0(Configuration.BowGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow")) - Configuration.BaseAimAccuracyBow)
+            Lang.Get("levelup:status_rangedaccuracy",
+                (int)(Configuration.BowGetRangedAccuracyBonusByLevel(level) * 100f)
+            )
+        );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_rangedspeed",
+                (int)(Configuration.BowGetRangedSpeedBonusByLevel(level) * 100f)
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_arrowchance",
-                Configuration.BowGetRawChanceToNotLoseArrowByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow"))
+                Configuration.BowGetRawChanceToNotLoseArrowByLevel(level)
             )
         );
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_damage",
-                Utils.GetPorcentageFromFloatsStart1(Configuration.BowGetDamageMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Bow")))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.BowGetDamageMultiplyByLevel(level))
             )
         );
     }
@@ -156,28 +178,6 @@ class LevelBow
             }
         }
 
-        // Overwrite Bow shot start
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ItemBow), "OnHeldInteractStop")]
-        internal static void OnHeldInteractBowStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
-        {
-            if (!Configuration.enableLevelBow) return;
-            if (byEntity.Api.Side != EnumAppSide.Server) return;
-
-            if (byEntity is EntityPlayer)
-            {
-                float chance = Configuration.BowGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Bow"));
-
-                // Integration
-                chance = LevelBowEvents.GetExternalBowAiming((byEntity as EntityPlayer).Player, chance);
-
-                // Setting new aim accuracy
-                byEntity.Attributes.SetFloat("aimingAccuracy", chance);
-
-                Debug.LogDebug($"Bow Accuracy: {chance}");
-            }
-        }
-
         // Replace vanilla break chance line with level-adjusted value
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ItemArrow), "GetHeldItemInfo")]
@@ -218,17 +218,10 @@ public class LevelBowEvents
     public delegate void PlayerFloatModifierHandler(IPlayer player, ref float number);
 
     public static event PlayerFloatModifierHandler OnBowDropChanceRefresh;
-    public static event PlayerFloatModifierHandler OnBowAimingRefresh;
 
     internal static float GetExternalBowDropChance(IPlayer player, float chance)
     {
         OnBowDropChanceRefresh?.Invoke(player, ref chance);
-        return chance;
-    }
-
-    internal static float GetExternalBowAiming(IPlayer player, float chance)
-    {
-        OnBowAimingRefresh?.Invoke(player, ref chance);
         return chance;
     }
 }
