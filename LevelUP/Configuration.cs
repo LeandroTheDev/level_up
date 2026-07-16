@@ -670,6 +670,8 @@ public static class Configuration
     private static float bowIncrementRangedAccuracyPerLevel = 0.003f;
     private static float bowBaseRangedSpeed = 0.0f;
     private static float bowIncrementRangedSpeedPerLevel = 0.01f;
+    private static float bowBaseMovePenaltyReduction = 0.0f;
+    private static float bowIncrementMovePenaltyReductionPerLevel = 0.005f;
     public static int bowMaxLevel = 999;
 
     public static int ExpPerHitBow => bowEXPPerHit;
@@ -766,6 +768,20 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowIncrementRangedSpeedPerLevel is not double is {value.GetType()}");
                 else bowIncrementRangedSpeedPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: bowIncrementRangedSpeedPerLevel not set");
+        }
+        { //bowBaseMovePenaltyReduction
+            if (bowLevelStats.TryGetValue("bowBaseMovePenaltyReduction", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowBaseMovePenaltyReduction is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowBaseMovePenaltyReduction is not double is {value.GetType()}");
+                else bowBaseMovePenaltyReduction = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: bowBaseMovePenaltyReduction not set");
+        }
+        { //bowIncrementMovePenaltyReductionPerLevel
+            if (bowLevelStats.TryGetValue("bowIncrementMovePenaltyReductionPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: bowIncrementMovePenaltyReductionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: bowIncrementMovePenaltyReductionPerLevel is not double is {value.GetType()}");
+                else bowIncrementMovePenaltyReductionPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: bowIncrementMovePenaltyReductionPerLevel not set");
         }
         { //bowMaxLevel
             if (bowLevelStats.TryGetValue("bowMaxLevel", out object value))
@@ -864,6 +880,11 @@ public static class Configuration
     public static float BowGetRangedSpeedBonusByLevel(int level)
     {
         return bowBaseRangedSpeed + bowIncrementRangedSpeedPerLevel * level;
+    }
+
+    public static float BowGetMovePenaltyReductionByLevel(int level)
+    {
+        return bowBaseMovePenaltyReduction + bowIncrementMovePenaltyReductionPerLevel * level;
     }
 
     #endregion
@@ -1766,6 +1787,8 @@ public static class Configuration
     private static float spearIncrementRangedAccuracyPerLevel = 0.003f;
     private static float spearBaseRangedSpeed = 0.0f;
     private static float spearIncrementRangedSpeedPerLevel = 0.01f;
+    private static float spearBaseMovePenaltyReduction = 0.0f;
+    private static float spearIncrementMovePenaltyReductionPerLevel = 0.005f;
     public static int spearMaxLevel = 999;
 
 
@@ -1851,6 +1874,20 @@ public static class Configuration
                 else spearIncrementRangedSpeedPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: spearIncrementRangedSpeedPerLevel not set");
         }
+        { //spearBaseMovePenaltyReduction
+            if (spearLevelStats.TryGetValue("spearBaseMovePenaltyReduction", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearBaseMovePenaltyReduction is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearBaseMovePenaltyReduction is not double is {value.GetType()}");
+                else spearBaseMovePenaltyReduction = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: spearBaseMovePenaltyReduction not set");
+        }
+        { //spearIncrementMovePenaltyReductionPerLevel
+            if (spearLevelStats.TryGetValue("spearIncrementMovePenaltyReductionPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: spearIncrementMovePenaltyReductionPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: spearIncrementMovePenaltyReductionPerLevel is not double is {value.GetType()}");
+                else spearIncrementMovePenaltyReductionPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: spearIncrementMovePenaltyReductionPerLevel not set");
+        }
         { //spearMaxLevel
             if (spearLevelStats.TryGetValue("spearMaxLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: spearMaxLevel is null");
@@ -1920,6 +1957,11 @@ public static class Configuration
     public static float SpearGetRangedSpeedBonusByLevel(int level)
     {
         return spearBaseRangedSpeed + spearIncrementRangedSpeedPerLevel * level;
+    }
+
+    public static float SpearGetMovePenaltyReductionByLevel(int level)
+    {
+        return spearBaseMovePenaltyReduction + spearIncrementMovePenaltyReductionPerLevel * level;
     }
     #endregion
 

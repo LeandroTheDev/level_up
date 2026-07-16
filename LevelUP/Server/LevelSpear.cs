@@ -102,6 +102,12 @@ class LevelSpear
                 (int)(Configuration.SpearGetRangedSpeedBonusByLevel(level) * 100f)
             )
         );
+
+        stringBuilder.AppendLine(
+            Lang.Get("levelup:status_movepenaltyreduction",
+                (int)(Configuration.SpearGetMovePenaltyReductionByLevel(level) * 100f)
+            )
+        );
     }
 
     private void HandleRangedDamage(IPlayer player, DamageSource damageSource, ref float damage)

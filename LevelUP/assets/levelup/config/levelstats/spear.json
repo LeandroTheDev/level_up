@@ -9,5 +9,7 @@
     "spearIncrementRangedAccuracyPerLevel": 0.003,
     "spearBaseRangedSpeed": 0.0,
     "spearIncrementRangedSpeedPerLevel": 0.01,
+    "spearBaseMovePenaltyReduction": 0.0,
+    "spearIncrementMovePenaltyReductionPerLevel": 0.005,
     "spearMaxLevel": 999
 }

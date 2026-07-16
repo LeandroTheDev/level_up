@@ -11,5 +11,7 @@
     "bowIncrementRangedAccuracyPerLevel": 0.003,
     "bowBaseRangedSpeed": 0.0,
     "bowIncrementRangedSpeedPerLevel": 0.01,
+    "bowBaseMovePenaltyReduction": 0.0,
+    "bowIncrementMovePenaltyReductionPerLevel": 0.005,
     "bowMaxLevel": 999
 }

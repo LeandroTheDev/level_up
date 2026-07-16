@@ -35,6 +35,7 @@
     "status_hungerrate": "Taxa de Fome: {0}%",
     "status_rangedaccuracy": "Precisão em Longa Distância: {0}%",
     "status_rangedspeed": "Velocidade em Long Distância: {0}%",
+    "status_movepenaltyreduction": "Redução Penalidade Movimento: {0}%",
     "status_passiveprojectile": "Defesa Passiva Projéteis: {0}%",
     "status_activeprojectile": "Defesa Ativa Projéteis: {0}%",
     "status_passive": "Defesa Passiva: {0}%",

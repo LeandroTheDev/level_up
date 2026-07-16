@@ -38,6 +38,7 @@ class Instance
 
     internal static OverwriteBlockBreak overwriteBlockBreak = new();
     internal static OverwriteDamageInteraction overwriteDamageInteraction = new();
+    internal static OverwriteAimingAccuracy overwriteAimingAccuracy = new();
 
     /// <summary>
     /// Patch all native codes with harmony, will not patch disabled levels.
@@ -51,6 +52,8 @@ class Instance
     {
         overwriteBlockBreak.Patch();
         overwriteDamageInteraction.Patch();
+        if (Configuration.enableLevelBow || Configuration.enableLevelSpear)
+            overwriteAimingAccuracy.Patch();
 
         if (Configuration.enableLevelHunter)
         {
@@ -206,6 +209,7 @@ class Instance
     {
         overwriteBlockBreak.Unpatch();
         overwriteDamageInteraction.Unpatch();
+        overwriteAimingAccuracy.Unpatch();
         levelHunter.Unpatch();
         levelHunter.Dispose();
         levelBow.Unpatch();

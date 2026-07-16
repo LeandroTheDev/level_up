@@ -99,6 +99,12 @@ class LevelBow
         );
 
         stringBuilder.AppendLine(
+            Lang.Get("levelup:status_movepenaltyreduction",
+                (int)(Configuration.BowGetMovePenaltyReductionByLevel(level) * 100f)
+            )
+        );
+
+        stringBuilder.AppendLine(
             Lang.Get("levelup:status_arrowchance",
                 Configuration.BowGetRawChanceToNotLoseArrowByLevel(level)
             )

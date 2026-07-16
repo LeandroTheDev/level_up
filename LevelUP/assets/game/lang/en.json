@@ -9,7 +9,7 @@
 
     "levelupdocs-bow": "About the Bow",
     "levelupdocs-bow-title": "Level: Bow",
-    "levelupdocs-bow-text": "<strong>Bow</strong><br><i>Bow: Arrow Man</i><br><br>Killing entities with your bow will grant experience with bows.<br><br><strong>Upgrades</strong><br>Bow levels will grant you more damage when using bows, reduce the chance of losing the arrow after hitting, and ensure greater accuracy.",
+    "levelupdocs-bow-text": "<strong>Bow</strong><br><i>Bow: Arrow Man</i><br><br>Killing entities with your bow will grant experience with bows.<br><br><strong>Upgrades</strong><br>Bow levels will grant you more damage when using bows, reduce the chance of losing the arrow after hitting, increase ranged accuracy and aiming speed, and reduce the accuracy penalty while moving.",
 
     "levelupdocs-pickaxe": "About the Pickaxe",
     "levelupdocs-pickaxe-title": "Level: Pickaxe",
@@ -25,7 +25,7 @@
 
     "levelupdocs-spear": "About the Spear",
     "levelupdocs-spear-title": "Level: Spear",
-    "levelupdocs-spear-text": "<strong>Spear</strong><br><i>Spear: Sharp</i><br><br>Throwing or hitting creatures with spears will grant experience.<br><br><strong>Upgrades</strong><br>Spear levels will increase all damage dealt by spears, it will also ensure greater accuracy when throwing a spear.",
+    "levelupdocs-spear-text": "<strong>Spear</strong><br><i>Spear: Sharp</i><br><br>Throwing or hitting creatures with spears will grant experience.<br><br><strong>Upgrades</strong><br>Spear levels will increase all damage dealt by spears, increase ranged accuracy and aiming speed, and reduce the accuracy penalty while moving.",
 
     "levelupdocs-hammer": "About the Hammer",
     "levelupdocs-hammer-title": "Level: Hammer",

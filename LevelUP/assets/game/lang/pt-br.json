@@ -9,7 +9,7 @@
 
     "levelupdocs-bow": "Sobre o Arco",
     "levelupdocs-bow-title": "Níveis: Arco",
-    "levelupdocs-bow-text": "<strong>Arco</strong><br><i>Arco: Flecheiros</i><br><br>Matar entidades com seu arco vai garantir experiência com arcos.<br><br><strong>Melhorias</strong><br>Os níveis de arcos vão lhe garantir mais dano em todos as fontes de dano usando arcos, irá reduzir a chance de perder a flecha ao utilizar e vai garantir maior precisão.",
+    "levelupdocs-bow-text": "<strong>Arco</strong><br><i>Arco: Flecheiros</i><br><br>Matar entidades com seu arco vai garantir experiência com arcos.<br><br><strong>Melhorias</strong><br>Os níveis de arcos vão lhe garantir mais dano em todos as fontes de dano usando arcos, irá reduzir a chance de perder a flecha ao utilizar, aumentar a precisão e velocidade de mira e reduzir a penalidade de precisão ao se mover.",
 
     "levelupdocs-pickaxe": "Sobre a Picareta",
     "levelupdocs-pickaxe-title": "Níveis: Picareta",
@@ -25,7 +25,7 @@
 
     "levelupdocs-spear": "Sobre a Lança",
     "levelupdocs-spear-title": "Níveis: Lança",
-    "levelupdocs-spear-text": "<strong>Lança</strong><br><i>Lança: Afiados</i><br><br>Arremeçar ou atingir criaturas com lanças irá garantir experiência.<br><br><strong>Melhorias</strong><br>Níveis de lanças vão aumentar todo o dano causado por lanças, também irá garantir uma maior precisão ao lançar uma lança.",
+    "levelupdocs-spear-text": "<strong>Lança</strong><br><i>Lança: Afiados</i><br><br>Arremeçar ou atingir criaturas com lanças irá garantir experiência.<br><br><strong>Melhorias</strong><br>Níveis de lanças vão aumentar todo o dano causado por lanças, aumentar a precisão e velocidade de mira e reduzir a penalidade de precisão ao se mover.",
 
     "levelupdocs-hammer": "Sobre o Martelo",
     "levelupdocs-hammer-title": "Níveis: Martelo",
