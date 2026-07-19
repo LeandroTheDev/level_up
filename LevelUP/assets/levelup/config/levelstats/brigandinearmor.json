@@ -6,37 +6,37 @@
     "brigandineArmorEXPMultiplyPerLevel": 1.2,
 
     "brigandineArmorRelativeProtectionMultiply": 1.0,
-    "brigandineArmorRelativeProtectionMultiplyPerLevel": 0.08,
+    "brigandineArmorRelativeProtectionMultiplyPerLevel": 0.04,
     "brigandineArmorRelativeProtectionMultiplyReductionEveryLevel": 1,
-    "brigandineArmorRelativeProtectionMultiplyReductionPerReduce": 0.05,
+    "brigandineArmorRelativeProtectionMultiplyReductionPerReduce": 0.18,
 
     "brigandineArmorFlatDamageReductionMultiply": 1.0,
-    "brigandineArmorFlatDamageReductionMultiplyPerLevel": 0.08,
+    "brigandineArmorFlatDamageReductionMultiplyPerLevel": 0.04,
     "brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel": 1,
     "brigandineArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
 
     "brigandineArmorHealingEffectivnessMultiply": 1.0,
-    "brigandineArmorHealingEffectivnessMultiplyPerLevel": 0.08,
+    "brigandineArmorHealingEffectivnessMultiplyPerLevel": 0.04,
     "brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
     "brigandineArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
 
     "brigandineArmorHungerRateMultiply": 1.0,
-    "brigandineArmorHungerRateMultiplyPerLevel": 0.07,
+    "brigandineArmorHungerRateMultiplyPerLevel": 0.035,
     "brigandineArmorHungerRateMultiplyReductionEveryLevel": 1,
     "brigandineArmorHungerRateMultiplyReductionPerReduce": 0.05,
 
     "brigandineArmorRangedWeaponsAccuracyMultiply": 1.0,
-    "brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.06,
+    "brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.03,
     "brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
     "brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
 
     "brigandineArmorRangedWeaponsSpeedMultiply": 1.0,
-    "brigandineArmorRangedWeaponsSpeedMultiplyPerLevel": 0.06,
+    "brigandineArmorRangedWeaponsSpeedMultiplyPerLevel": 0.03,
     "brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
     "brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
 
     "brigandineArmorWalkSpeedMultiply": 1.0,
-    "brigandineArmorWalkSpeedMultiplyPerLevel": 0.05,
+    "brigandineArmorWalkSpeedMultiplyPerLevel": 0.025,
     "brigandineArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "brigandineArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
 
