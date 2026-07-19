@@ -4,12 +4,12 @@
     "smithingBaseDurabilityMultiply": 1.0,
     "smithingIncrementDurabilityMultiplyPerLevel": 0.05,
     "smithingBaseAttackPowerMultiply": 1.0,
-    "smithingIncrementAttackPowerMultiplyPerLevel": 0.05,
+    "smithingIncrementAttackPowerMultiplyPerLevel": 0.04,
     "smithingBaseMiningSpeedMultiply": 1.0,
-    "smithingIncrementMiningSpeedMultiplyPerLevel": 0.01,
+    "smithingIncrementMiningSpeedMultiplyPerLevel": 0.025,
     "smithingBaseArmorProtectionMultiply": 1.0,
-    "smithingIncrementArmorProtectionMultiplyPerLevel": 0.05,
+    "smithingIncrementArmorProtectionMultiplyPerLevel": 0.015,
     "smithingBaseArmorStatusMultiply": 1.0,
-    "smithingIncrementArmorStatusMultiplyPerLevel": 0.05,
+    "smithingIncrementArmorStatusMultiplyPerLevel": 0.02,
     "smithingMaxLevel": 999
 }
