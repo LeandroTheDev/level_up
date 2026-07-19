@@ -6,7 +6,7 @@
     "spearBaseDamage": 1.0,
     "spearIncrementDamagePerLevel": 0.1,
     "spearBaseRangedAccuracy": 0.0,
-    "spearIncrementRangedAccuracyPerLevel": 0.003,
+    "spearIncrementRangedAccuracyPerLevel": 0.015,
     "spearBaseRangedSpeed": 0.0,
     "spearIncrementRangedSpeedPerLevel": 0.01,
     "spearBaseMovePenaltyReduction": 0.0,
