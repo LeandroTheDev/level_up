@@ -232,7 +232,7 @@ class LevelLeatherArmor
                     int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_LeatherArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.LeatherArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.LeatherArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
-                    Experience.IncreaseSubExperience(player, "LeatherArmor", pair.Value, exp);
+                    Experience.IncreaseSubExperience(player, "LeatherArmor", pair.Value, (ulong)(exp * Configuration.leatherArmorSubLevelEXPMultiply));
                     break;
                 }
             }

@@ -237,7 +237,7 @@ class LevelChainArmor
                     int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_ChainArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.ChainArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.ChainArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
-                    Experience.IncreaseSubExperience(player, "ChainArmor", pair.Value, exp);
+                    Experience.IncreaseSubExperience(player, "ChainArmor", pair.Value, (ulong)(exp * Configuration.chainArmorSubLevelEXPMultiply));
                     break;
                 }
             }

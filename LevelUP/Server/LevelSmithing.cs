@@ -296,12 +296,12 @@ class LevelSmithing
                                 // Increasing sub tool levels
                                 if (SubLevelPatterns.TryGetValue((EnumTool)item.Item.Tool, out string subName))
                                 {
-                                    Experience.IncreaseSubExperience(player, "Smithing", subName, (ulong)exp);
+                                    Experience.IncreaseSubExperience(player, "Smithing", subName, (ulong)(exp * Configuration.smithingSubLevelEXPMultiply));
                                 }
                             }
                         }
                         else // Code with custom level type
-                            Experience.IncreaseSubExperience(player, "Smithing", levelType, (ulong)exp);
+                            Experience.IncreaseSubExperience(player, "Smithing", levelType, (ulong)(exp * Configuration.smithingSubLevelEXPMultiply));
                     }
                 }
 

@@ -233,7 +233,7 @@ class LevelLamellarArmor
                     int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_LamellarArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.LamellarArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.LamellarArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
-                    Experience.IncreaseSubExperience(player, "LamellarArmor", pair.Value, exp);
+                    Experience.IncreaseSubExperience(player, "LamellarArmor", pair.Value, (ulong)(exp * Configuration.lamellarArmorSubLevelEXPMultiply));
                     break;
                 }
             }

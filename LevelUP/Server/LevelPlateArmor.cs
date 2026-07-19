@@ -237,7 +237,7 @@ class LevelPlateArmor
                     int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_PlateArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.PlateArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.PlateArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
-                    Experience.IncreaseSubExperience(player, "PlateArmor", pair.Value, exp);
+                    Experience.IncreaseSubExperience(player, "PlateArmor", pair.Value, (ulong)(exp * Configuration.plateArmorSubLevelEXPMultiply));
                     break;
                 }
             }

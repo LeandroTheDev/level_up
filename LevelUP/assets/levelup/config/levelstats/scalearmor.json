@@ -40,5 +40,6 @@
     "scaleArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "scaleArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
 
-    "scaleArmorMaxLevel": 999
+    "scaleArmorMaxLevel": 999,
+    "scaleArmorSubLevelEXPMultiply": 3.0
 }

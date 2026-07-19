@@ -40,5 +40,6 @@
     "brigandineArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "brigandineArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
 
-    "brigandineArmorMaxLevel": 999
+    "brigandineArmorMaxLevel": 999,
+    "brigandineArmorSubLevelEXPMultiply": 3.0
 }

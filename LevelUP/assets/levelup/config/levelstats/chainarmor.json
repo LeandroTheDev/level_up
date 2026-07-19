@@ -40,5 +40,6 @@
     "chainArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "chainArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
 
-    "chainArmorMaxLevel": 999
+    "chainArmorMaxLevel": 999,
+    "chainArmorSubLevelEXPMultiply": 3.0
 }

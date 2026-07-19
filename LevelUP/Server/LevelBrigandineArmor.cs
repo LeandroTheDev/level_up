@@ -235,7 +235,7 @@ class LevelBrigandineArmor
                     int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_BrigandineArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.BrigandineArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.BrigandineArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
-                    Experience.IncreaseSubExperience(player, "BrigandineArmor", pair.Value, exp);
+                    Experience.IncreaseSubExperience(player, "BrigandineArmor", pair.Value, (ulong)(exp * Configuration.brigandineArmorSubLevelEXPMultiply));
                     break;
                 }
             }

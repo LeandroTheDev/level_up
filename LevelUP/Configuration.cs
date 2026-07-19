@@ -3318,6 +3318,7 @@ public static class Configuration
     private static float smithingBaseArmorStatusMultiply = 1.0f;
     private static float smithingIncrementArmorStatusMultiplyPerLevel = 0.05f;
     public static int smithingMaxLevel = 999;
+    public static double smithingSubLevelEXPMultiply = 3.0;
 
     public static void PopulateSmithingConfiguration(ICoreAPI api)
     {
@@ -3416,6 +3417,13 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: smithingMaxLevel is not int is {value.GetType()}");
                 else smithingMaxLevel = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: smithingMaxLevel not set");
+        }
+        { //smithingSubLevelEXPMultiply
+            if (smithingLevelStats.TryGetValue("smithingSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: smithingSubLevelEXPMultiply is not double is {value.GetType()}");
+                else smithingSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: smithingSubLevelEXPMultiply not set");
         }
 
 
@@ -3845,6 +3853,7 @@ public static class Configuration
     private static float leatherArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
     public static int leatherArmorMaxLevel = 999;
+    public static double leatherArmorSubLevelEXPMultiply = 3.0;
 
     public static void PopulateLeatherArmorConfiguration(ICoreAPI api)
     {
@@ -4107,6 +4116,13 @@ public static class Configuration
                 else leatherArmorMaxLevel = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: leatherArmorMaxLevel not set");
         }
+        { //leatherArmorSubLevelEXPMultiply
+            if (leatherArmorLevelStats.TryGetValue("leatherArmorSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorSubLevelEXPMultiply is not double is {value.GetType()}");
+                else leatherArmorSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: leatherArmorSubLevelEXPMultiply not set");
+        }
 
         // Get leather armor multiply exp
         expMultiplyHitLeatherArmor.Clear();
@@ -4315,6 +4331,7 @@ public static class Configuration
     private static float chainArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
     public static int chainArmorMaxLevel = 999;
+    public static double chainArmorSubLevelEXPMultiply = 3.0;
 
     public static void PopulateChainArmorConfiguration(ICoreAPI api)
     {
@@ -4577,6 +4594,13 @@ public static class Configuration
                 else chainArmorMaxLevel = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: chainArmorMaxLevel not set");
         }
+        { //chainArmorSubLevelEXPMultiply
+            if (chainArmorLevelStats.TryGetValue("chainArmorSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorSubLevelEXPMultiply is not double is {value.GetType()}");
+                else chainArmorSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: chainArmorSubLevelEXPMultiply not set");
+        }
 
         // Get chain armor multiply exp
         expMultiplyHitChainArmor.Clear();
@@ -4785,6 +4809,7 @@ public static class Configuration
     private static float brigandineArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
     public static int brigandineArmorMaxLevel = 999;
+    public static double brigandineArmorSubLevelEXPMultiply = 3.0;
 
     public static void PopulateBrigandineArmorConfiguration(ICoreAPI api)
     {
@@ -5047,6 +5072,13 @@ public static class Configuration
                 else brigandineArmorMaxLevel = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: brigandineArmorMaxLevel not set");
         }
+        { //brigandineArmorSubLevelEXPMultiply
+            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorSubLevelEXPMultiply is not double is {value.GetType()}");
+                else brigandineArmorSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorSubLevelEXPMultiply not set");
+        }
 
         // Get brigandine armor multiply exp
         expMultiplyHitBrigandineArmor.Clear();
@@ -5255,6 +5287,7 @@ public static class Configuration
     private static float lamellarArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
     public static int lamellarArmorMaxLevel = 999;
+    public static double lamellarArmorSubLevelEXPMultiply = 3.0;
 
     public static void PopulateLamellarArmorConfiguration(ICoreAPI api)
     {
@@ -5517,6 +5550,13 @@ public static class Configuration
                 else lamellarArmorMaxLevel = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: lamellarArmorMaxLevel not set");
         }
+        { //lamellarArmorSubLevelEXPMultiply
+            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorSubLevelEXPMultiply is not double is {value.GetType()}");
+                else lamellarArmorSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorSubLevelEXPMultiply not set");
+        }
 
         // Get lamellar armor multiply exp
         expMultiplyHitLamellarArmor.Clear();
@@ -5725,6 +5765,7 @@ public static class Configuration
     private static float plateArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
     public static int plateArmorMaxLevel = 999;
+    public static double plateArmorSubLevelEXPMultiply = 3.0;
 
     public static void PopulatePlateArmorConfiguration(ICoreAPI api)
     {
@@ -5987,6 +6028,13 @@ public static class Configuration
                 else plateArmorMaxLevel = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: plateArmorMaxLevel not set");
         }
+        { //plateArmorSubLevelEXPMultiply
+            if (plateArmorLevelStats.TryGetValue("plateArmorSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorSubLevelEXPMultiply is not double is {value.GetType()}");
+                else plateArmorSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: plateArmorSubLevelEXPMultiply not set");
+        }
 
         // Get plate armor multiply exp
         expMultiplyHitPlateArmor.Clear();
@@ -6195,6 +6243,7 @@ public static class Configuration
     private static float scaleArmorWalkSpeedMultiplyReductionPerReduce = 0.05f;
 
     public static int scaleArmorMaxLevel = 999;
+    public static double scaleArmorSubLevelEXPMultiply = 3.0;
 
     public static void PopulateScaleArmorConfiguration(ICoreAPI api)
     {
@@ -6456,6 +6505,13 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorMaxLevel is not int is {value.GetType()}");
                 else scaleArmorMaxLevel = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: scaleArmorMaxLevel not set");
+        }
+        { //scaleArmorSubLevelEXPMultiply
+            if (scaleArmorLevelStats.TryGetValue("scaleArmorSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorSubLevelEXPMultiply is not double is {value.GetType()}");
+                else scaleArmorSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: scaleArmorSubLevelEXPMultiply not set");
         }
 
         // Get scale armor multiply exp

@@ -40,5 +40,6 @@
     "plateArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "plateArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
 
-    "plateArmorMaxLevel": 999
+    "plateArmorMaxLevel": 999,
+    "plateArmorSubLevelEXPMultiply": 3.0
 }

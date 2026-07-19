@@ -40,5 +40,6 @@
     "lamellarArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "lamellarArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
 
-    "lamellarArmorMaxLevel": 999
+    "lamellarArmorMaxLevel": 999,
+    "lamellarArmorSubLevelEXPMultiply": 3.0
 }

@@ -235,7 +235,7 @@ class LevelScaleArmor
                     int playerSubLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_ScaleArmor_Sub_{pair.Value}");
                     relativeProtection += Configuration.ScaleArmorRelativeProtectionMultiplyByLevel(playerSubLevel) - 1f;
                     flatDamageReduction += Configuration.ScaleArmorFlatDamageReductionMultiplyByLevel(playerSubLevel) - 1f;
-                    Experience.IncreaseSubExperience(player, "ScaleArmor", pair.Value, exp);
+                    Experience.IncreaseSubExperience(player, "ScaleArmor", pair.Value, (ulong)(exp * Configuration.scaleArmorSubLevelEXPMultiply));
                     break;
                 }
             }

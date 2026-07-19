@@ -11,5 +11,6 @@
     "smithingIncrementArmorProtectionMultiplyPerLevel": 0.015,
     "smithingBaseArmorStatusMultiply": 1.0,
     "smithingIncrementArmorStatusMultiplyPerLevel": 0.02,
-    "smithingMaxLevel": 999
+    "smithingMaxLevel": 999,
+    "smithingSubLevelEXPMultiply": 3.0
 }

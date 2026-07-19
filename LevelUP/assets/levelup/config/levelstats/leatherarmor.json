@@ -40,5 +40,6 @@
     "leatherArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "leatherArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
 
-    "leatherArmorMaxLevel": 999
+    "leatherArmorMaxLevel": 999,
+    "leatherArmorSubLevelEXPMultiply": 3.0
 }
