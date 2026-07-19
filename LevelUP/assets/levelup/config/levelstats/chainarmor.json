@@ -1,10 +1,10 @@
 {
     "chainArmorEXPPerReceiveHit": 10,
     "chainArmorEXPMultiplyByDamage": 0.3,
-    "chainArmorEXPIncreaseByAmountDamage": 20,
+    "chainArmorEXPIncreaseByAmountDamage": 2,
     "chainArmorEXPPerLevelBase": 500,
     "chainArmorEXPMultiplyPerLevel": 1.2,
-    
+
     "chainArmorRelativeProtectionMultiply": 1.0,
     "chainArmorRelativeProtectionMultiplyPerLevel": 0.05,
     "chainArmorRelativeProtectionMultiplyReductionEveryLevel": 1,
@@ -16,29 +16,29 @@
     "chainArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
 
     "chainArmorHealingEffectivnessMultiply": 1.0,
-    "chainArmorHealingEffectivnessMultiplyPerLevel": 0.1,
+    "chainArmorHealingEffectivnessMultiplyPerLevel": 0.08,
     "chainArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
     "chainArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
 
     "chainArmorHungerRateMultiply": 1.0,
-    "chainArmorHungerRateMultiplyPerLevel": 0.1,
+    "chainArmorHungerRateMultiplyPerLevel": 0.06,
     "chainArmorHungerRateMultiplyReductionEveryLevel": 1,
     "chainArmorHungerRateMultiplyReductionPerReduce": 0.05,
 
     "chainArmorRangedWeaponsAccuracyMultiply": 1.0,
-    "chainArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.1,
+    "chainArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.10,
     "chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
     "chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
 
     "chainArmorRangedWeaponsSpeedMultiply": 1.0,
-    "chainArmorRangedWeaponsSpeedMultiplyPerLevel": 0.1,
+    "chainArmorRangedWeaponsSpeedMultiplyPerLevel": 0.10,
     "chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
     "chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
 
     "chainArmorWalkSpeedMultiply": 1.0,
-    "chainArmorWalkSpeedMultiplyPerLevel": 0.1,
+    "chainArmorWalkSpeedMultiplyPerLevel": 0.08,
     "chainArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "chainArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
-    
+
     "chainArmorMaxLevel": 999
 }

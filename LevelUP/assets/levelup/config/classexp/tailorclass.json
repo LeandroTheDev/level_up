@@ -21,5 +21,6 @@
     "classBrigandineArmorLevelMultiply": 1.0,
     "classPlateArmorLevelMultiply": 1.0,
     "classScaleArmorLevelMultiply": 1.0,
+    "classLamellarArmorLevelMultiply": 1.0,
     "classSmithingLevelMultiply": 2.0
 }

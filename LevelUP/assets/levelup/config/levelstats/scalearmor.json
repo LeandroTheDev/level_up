@@ -1,44 +1,44 @@
 {
     "scaleArmorEXPPerReceiveHit": 10,
     "scaleArmorEXPMultiplyByDamage": 0.3,
-    "scaleArmorEXPIncreaseByAmountDamage": 20,
+    "scaleArmorEXPIncreaseByAmountDamage": 2,
     "scaleArmorEXPPerLevelBase": 500,
     "scaleArmorEXPMultiplyPerLevel": 1.2,
-    
+
     "scaleArmorRelativeProtectionMultiply": 1.0,
-    "scaleArmorRelativeProtectionMultiplyPerLevel": 0.05,
+    "scaleArmorRelativeProtectionMultiplyPerLevel": 0.10,
     "scaleArmorRelativeProtectionMultiplyReductionEveryLevel": 1,
     "scaleArmorRelativeProtectionMultiplyReductionPerReduce": 0.05,
 
     "scaleArmorFlatDamageReductionMultiply": 1.0,
-    "scaleArmorFlatDamageReductionMultiplyPerLevel": 0.05,
+    "scaleArmorFlatDamageReductionMultiplyPerLevel": 0.10,
     "scaleArmorFlatDamageReductionMultiplyReductionEveryLevel": 1,
     "scaleArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
 
     "scaleArmorHealingEffectivnessMultiply": 1.0,
-    "scaleArmorHealingEffectivnessMultiplyPerLevel": 0.1,
+    "scaleArmorHealingEffectivnessMultiplyPerLevel": 0.09,
     "scaleArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
     "scaleArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
 
     "scaleArmorHungerRateMultiply": 1.0,
-    "scaleArmorHungerRateMultiplyPerLevel": 0.1,
+    "scaleArmorHungerRateMultiplyPerLevel": 0.09,
     "scaleArmorHungerRateMultiplyReductionEveryLevel": 1,
     "scaleArmorHungerRateMultiplyReductionPerReduce": 0.05,
 
     "scaleArmorRangedWeaponsAccuracyMultiply": 1.0,
-    "scaleArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.1,
+    "scaleArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.04,
     "scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
     "scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
 
     "scaleArmorRangedWeaponsSpeedMultiply": 1.0,
-    "scaleArmorRangedWeaponsSpeedMultiplyPerLevel": 0.1,
+    "scaleArmorRangedWeaponsSpeedMultiplyPerLevel": 0.04,
     "scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
     "scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
 
     "scaleArmorWalkSpeedMultiply": 1.0,
-    "scaleArmorWalkSpeedMultiplyPerLevel": 0.1,
+    "scaleArmorWalkSpeedMultiplyPerLevel": 0.03,
     "scaleArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "scaleArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
-    
+
     "scaleArmorMaxLevel": 999
 }

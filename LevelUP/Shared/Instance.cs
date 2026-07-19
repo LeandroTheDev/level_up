@@ -447,7 +447,7 @@ class Instance
             if (GetCachedBaseFloat(armorSlot, "BaseRelativeProtection").HasValue)
             {
                 float current = protectionModifiersObj["relativeProtection"].Value<float>();
-                float result = (float)Math.Round(current * relativeProtection, 2);
+                float result = (float)Math.Round(current + Math.Max(relativeProtection - 1, 0f), 2);
                 protectionModifiersObj["relativeProtection"] = result;
                 collectibleBehaviorWearable.GetProtectionModifiers(armorSlot).RelativeProtection = result;
             }
@@ -455,7 +455,7 @@ class Instance
             if (GetCachedBaseFloat(armorSlot, "BaseFlatDamageReduction").HasValue)
             {
                 float current = protectionModifiersObj["flatDamageReduction"].Value<float>();
-                float result = (float)Math.Round(current * flatDamageReduction, 2);
+                float result = (float)Math.Round(current + Math.Max(flatDamageReduction - 1, 0f), 2);
                 protectionModifiersObj["flatDamageReduction"] = result;
                 collectibleBehaviorWearable.GetProtectionModifiers(armorSlot).FlatDamageReduction = result;
             }
@@ -467,7 +467,7 @@ class Instance
             if (GetCachedBaseFloat(armorSlot, "BaseHealingEffectivness").HasValue)
             {
                 float current = statModifiersObj["healingeffectivness"].Value<float>();
-                float result = (float)Math.Round(current + (Math.Abs(current) * Math.Max(healingEffectivness - 1, 0)), 2);
+                float result = (float)Math.Round(current + Math.Max(healingEffectivness - 1, 0f), 2);
                 statModifiersObj["healingeffectivness"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).healingeffectivness = result;
             }
@@ -475,7 +475,7 @@ class Instance
             if (GetCachedBaseFloat(armorSlot, "BaseHungerRate").HasValue)
             {
                 float current = statModifiersObj["hungerrate"].Value<float>();
-                float result = (float)Math.Round(current - (Math.Abs(current) * Math.Max(hungerRate - 1, 0)), 2);
+                float result = (float)Math.Round(current - Math.Max(hungerRate - 1, 0f), 2);
                 statModifiersObj["hungerrate"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).hungerrate = result;
             }
@@ -483,7 +483,7 @@ class Instance
             if (GetCachedBaseFloat(armorSlot, "BaseRangedWeaponsAccuracy").HasValue)
             {
                 float current = statModifiersObj["rangedWeaponsAcc"].Value<float>();
-                float result = (float)Math.Round(current + (Math.Abs(current) * Math.Max(rangedWeaponsAccuracy - 1, 0)), 2);
+                float result = (float)Math.Round(current + Math.Max(rangedWeaponsAccuracy - 1, 0f), 2);
                 statModifiersObj["rangedWeaponsAcc"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).rangedWeaponsAcc = result;
             }
@@ -491,7 +491,7 @@ class Instance
             if (GetCachedBaseFloat(armorSlot, "BaseRangedWeaponsSpeed").HasValue)
             {
                 float current = statModifiersObj["rangedWeaponsSpeed"].Value<float>();
-                float result = (float)Math.Round(current + (Math.Abs(current) * Math.Max(rangedWeaponsSpeed - 1, 0)), 2);
+                float result = (float)Math.Round(current + Math.Max(rangedWeaponsSpeed - 1, 0f), 2);
                 statModifiersObj["rangedWeaponsSpeed"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).rangedWeaponsSpeed = result;
             }
@@ -499,7 +499,7 @@ class Instance
             if (GetCachedBaseFloat(armorSlot, "BaseWalkSpeed").HasValue)
             {
                 float current = statModifiersObj["walkSpeed"].Value<float>();
-                float result = (float)Math.Round(current + (Math.Abs(current) * Math.Max(walkSpeed - 1, 0)), 2);
+                float result = (float)Math.Round(current + Math.Max(walkSpeed - 1, 0f), 2);
                 statModifiersObj["walkSpeed"] = result;
                 collectibleBehaviorWearable.GetStatModifiers(armorSlot).walkSpeed = result;
             }

@@ -1,44 +1,44 @@
 {
     "lamellarArmorEXPPerReceiveHit": 10,
     "lamellarArmorEXPMultiplyByDamage": 0.3,
-    "lamellarArmorEXPIncreaseByAmountDamage": 20,
+    "lamellarArmorEXPIncreaseByAmountDamage": 2,
     "lamellarArmorEXPPerLevelBase": 500,
     "lamellarArmorEXPMultiplyPerLevel": 1.2,
-    
+
     "lamellarArmorRelativeProtectionMultiply": 1.0,
-    "lamellarArmorRelativeProtectionMultiplyPerLevel": 0.05,
+    "lamellarArmorRelativeProtectionMultiplyPerLevel": 0.13,
     "lamellarArmorRelativeProtectionMultiplyReductionEveryLevel": 1,
     "lamellarArmorRelativeProtectionMultiplyReductionPerReduce": 0.05,
 
     "lamellarArmorFlatDamageReductionMultiply": 1.0,
-    "lamellarArmorFlatDamageReductionMultiplyPerLevel": 0.05,
+    "lamellarArmorFlatDamageReductionMultiplyPerLevel": 0.13,
     "lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel": 1,
     "lamellarArmorFlatDamageReductionMultiplyReductionPerReduce": 0.05,
 
     "lamellarArmorHealingEffectivnessMultiply": 1.0,
-    "lamellarArmorHealingEffectivnessMultiplyPerLevel": 0.1,
+    "lamellarArmorHealingEffectivnessMultiplyPerLevel": 0.10,
     "lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel": 1,
     "lamellarArmorHealingEffectivnessMultiplyReductionPerReduce": 0.05,
 
     "lamellarArmorHungerRateMultiply": 1.0,
-    "lamellarArmorHungerRateMultiplyPerLevel": 0.1,
+    "lamellarArmorHungerRateMultiplyPerLevel": 0.10,
     "lamellarArmorHungerRateMultiplyReductionEveryLevel": 1,
     "lamellarArmorHungerRateMultiplyReductionPerReduce": 0.05,
 
     "lamellarArmorRangedWeaponsAccuracyMultiply": 1.0,
-    "lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.1,
+    "lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel": 0.02,
     "lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel": 1,
     "lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce": 0.05,
 
     "lamellarArmorRangedWeaponsSpeedMultiply": 1.0,
-    "lamellarArmorRangedWeaponsSpeedMultiplyPerLevel": 0.1,
+    "lamellarArmorRangedWeaponsSpeedMultiplyPerLevel": 0.02,
     "lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel": 1,
     "lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce": 0.05,
 
     "lamellarArmorWalkSpeedMultiply": 1.0,
-    "lamellarArmorWalkSpeedMultiplyPerLevel": 0.1,
+    "lamellarArmorWalkSpeedMultiplyPerLevel": 0.02,
     "lamellarArmorWalkSpeedMultiplyReductionEveryLevel": 1,
     "lamellarArmorWalkSpeedMultiplyReductionPerReduce": 0.05,
-    
+
     "lamellarArmorMaxLevel": 999
 }
