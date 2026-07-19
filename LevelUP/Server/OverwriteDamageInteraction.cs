@@ -136,7 +136,10 @@ class OverwriteDamageInteraction
         if (damage < 0) damage = 0;
     }
 
-    // Handle Status: 
+    private static readonly System.Reflection.FieldInfo _collectibleApiField =
+        AccessTools.Field(typeof(CollectibleObject), "api");
+
+    // Handle Status:
     // ProtectionModifiers
     // FlatDamageReduction
     [HarmonyPrefix]
@@ -150,13 +153,14 @@ class OverwriteDamageInteraction
         IInventory inv = player.InventoryManager.GetOwnInventory("character");
 
         // The inventory codes: 12,13,14 is reserved to store armor
-        List<ItemSlot> armorSlots = [];
+        List<ItemSlot> armorSlots = new(3);
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
+            CollectibleBehaviorWearable armorBehavior = armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
+            if (armorBehavior != null)
             {
-                Shared.Instance.ResetArmorAttributes(armorSlot);
+                Shared.Instance.ResetArmorAttributes(armorSlot, armorBehavior);
                 armorSlots.Add(armorSlot);
             }
         }
@@ -178,13 +182,14 @@ class OverwriteDamageInteraction
         IInventory inv = player.InventoryManager.GetOwnInventory("character");
 
         // The inventory codes: 12,13,14 is reserved to store armor
-        List<ItemSlot> armorSlots = [];
+        List<ItemSlot> armorSlots = new(3);
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
+            CollectibleBehaviorWearable armorBehavior = armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
+            if (armorBehavior != null)
             {
-                Shared.Instance.ResetArmorAttributes(armorSlot);
+                Shared.Instance.ResetArmorAttributes(armorSlot, armorBehavior);
                 armorSlots.Add(armorSlot);
             }
         }
@@ -195,7 +200,7 @@ class OverwriteDamageInteraction
         }
     }
 
-    // Handle Status: 
+    // Handle Status:
     // healingeffectivness
     // hungerrate
     // rangedWeaponsAcc
@@ -207,13 +212,14 @@ class OverwriteDamageInteraction
     internal static void UpdateWearableStatsStart(ModSystemWearableStats __instance, InventoryBase inv, IServerPlayer player)
     {
         // The inventory codes: 12,13,14 is reserved to store armor
-        List<ItemSlot> armorSlots = [];
+        List<ItemSlot> armorSlots = new(3);
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
+            CollectibleBehaviorWearable armorBehavior = armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
+            if (armorBehavior != null)
             {
-                Shared.Instance.ResetArmorAttributes(armorSlot);
+                Shared.Instance.ResetArmorAttributes(armorSlot, armorBehavior);
                 armorSlots.Add(armorSlot);
             }
         }
@@ -230,13 +236,14 @@ class OverwriteDamageInteraction
     internal static void UpdateWearableStatsFinish(ModSystemWearableStats __instance, InventoryBase inv, IServerPlayer player)
     {
         // The inventory codes: 12,13,14 is reserved to store armor
-        List<ItemSlot> armorSlots = [];
+        List<ItemSlot> armorSlots = new(3);
         for (int i = 12; i <= 14; i++)
         {
             ItemSlot armorSlot = inv[i];
-            if (armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true) != null)
+            CollectibleBehaviorWearable armorBehavior = armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
+            if (armorBehavior != null)
             {
-                Shared.Instance.ResetArmorAttributes(armorSlot);
+                Shared.Instance.ResetArmorAttributes(armorSlot, armorBehavior);
                 armorSlots.Add(armorSlot);
             }
         }
@@ -255,7 +262,7 @@ class OverwriteDamageInteraction
     {
         if (world.Api is ICoreClientAPI api)
         {
-            Shared.Instance.ResetArmorAttributes(inSlot);
+            Shared.Instance.ResetArmorAttributes(inSlot, __instance);
             OverwriteDamageInteractionEvents.ExecuteArmorViewStats(api.World.Player, inSlot);
         }
     }
@@ -266,7 +273,7 @@ class OverwriteDamageInteraction
     [HarmonyPriority(Priority.VeryLow)]
     internal static void GetHeldItemInfoFinish(CollectibleBehaviorWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {
-        Shared.Instance.ResetArmorAttributes(inSlot);
+        Shared.Instance.ResetArmorAttributes(inSlot, __instance);
     }
 
     // Update visual damage
@@ -277,7 +284,7 @@ class OverwriteDamageInteraction
     {
         if (itemStack.Item == null || itemStack.Item.Tool == null) return;
 
-        ICoreAPI api = (ICoreAPI)AccessTools.Field(typeof(CollectibleObject), "api").GetValue(__instance);
+        ICoreAPI api = (ICoreAPI)_collectibleApiField.GetValue(__instance);
         if (api is ICoreClientAPI capi)
         {
             __result = OverwriteDamageInteractionEvents.GetExternalToolDamageStat(capi.World.Player, itemStack, __result);
