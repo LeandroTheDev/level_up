@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
@@ -189,30 +188,27 @@ public class Instance
 
     public static void RefreshStatus(IPlayer player, string levelType)
     {
-        // This is a heavy formula calculations, we run on task to reduce and prevent lag spikes
-        Task.Run(() =>
+        // WatchedAttributes must only be mutated on the main thread, so this runs inline (the lookups here are cheap Configuration reads)
+        int nextLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelType}");
+
+        // Mining speed
+        float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
+        // Check if this levelType has mining speed
+        if (miningspeed != -1)
+            // Set the mining speed for clients
+            player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
+
+        // Refresh metabolism
+        if (levelType == "Metabolism")
         {
-            int nextLevel = player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_{levelType}");
-
-            // Mining speed
-            float miningspeed = Configuration.GetMiningSpeedByLevelTypeLevel(levelType, nextLevel);
-            // Check if this levelType has mining speed
-            if (miningspeed != -1)
-                // Set the mining speed for clients
-                player.Entity.WatchedAttributes.SetFloat($"LevelUP_{levelType}_MiningSpeed", miningspeed);
-
-            // Refresh metabolism
-            if (levelType == "Metabolism")
-            {
-                LevelMetabolism.RefreshMaxSaturation(player);
-                LevelMetabolism.RefreshSaturationReceiveMultiply(player);
-            }
-            // Refresh vitality
-            else if (levelType == "Vitality")
-            {
-                LevelVitality.RefreshMaxHealth(player);
-            }
-        });
+            LevelMetabolism.RefreshMaxSaturation(player);
+            LevelMetabolism.RefreshSaturationReceiveMultiply(player);
+        }
+        // Refresh vitality
+        else if (levelType == "Vitality")
+        {
+            LevelVitality.RefreshMaxHealth(player);
+        }
     }
 
     private static void SyncPlayerConfigs(IServerPlayer player)

@@ -149,6 +149,8 @@ class OverwriteDamageInteraction
     {
         if (dmgSource.Type == EnumDamageType.Heal) return;
         if (dmgSource.Type == EnumDamageType.Hunger) return;
+        if (dmgSource.Source == EnumDamageSource.Fall) return;
+        if (dmgSource.Source == EnumDamageSource.Revive) return;
 
         IInventory inv = player.InventoryManager.GetOwnInventory("character");
 
@@ -178,6 +180,8 @@ class OverwriteDamageInteraction
     {
         if (dmgSource.Type == EnumDamageType.Heal) return;
         if (dmgSource.Type == EnumDamageType.Hunger) return;
+        if (dmgSource.Source == EnumDamageSource.Fall) return;
+        if (dmgSource.Source == EnumDamageSource.Revive) return;
 
         IInventory inv = player.InventoryManager.GetOwnInventory("character");
 

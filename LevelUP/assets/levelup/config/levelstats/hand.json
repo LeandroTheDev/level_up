@@ -1,8 +1,0 @@
-{
-    "handEXPPerHit": 10,
-    "handEXPPerLevelBase": 300,
-    "handEXPMultiplyPerLevel": 1.5,
-    "handBaseDamage": 1.0,
-    "handIncrementDamagePerLevel": 0.1,
-    "handMaxLevel": 999
-}

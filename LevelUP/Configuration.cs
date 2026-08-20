@@ -17,7 +17,7 @@ public static class Configuration
 {
     private static readonly Random Random = new();
 
-    private static Dictionary<string, object> LoadConfigurationByDirectoryAndName(ICoreAPI api, string directory, string name, string defaultDirectory)
+    private static Dictionary<string, object> LoadConfigurationByDirectoryAndName(ICoreAPI api, string directory, string name, Dictionary<string, object> defaultConfig)
     {
         string directoryPath = Path.Combine(api.DataBasePath, directory);
         string configPath = Path.Combine(api.DataBasePath, directory, $"{name}.json");
@@ -26,7 +26,31 @@ public static class Configuration
         {
             // Load server configurations
             string jsonConfig = File.ReadAllText(configPath);
-            loadedConfig = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonConfig);
+            loadedConfig = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonConfig) ?? defaultConfig;
+
+            // Backfill keys missing from the user's file (e.g. added by a mod update) with their default value
+            bool missingKeyAdded = false;
+            foreach (var entry in defaultConfig)
+            {
+                if (loadedConfig.ContainsKey(entry.Key)) continue;
+
+                Debug.LogWarn($"WARNING: Configuration key '{entry.Key}' missing from {name}.json, adding it with its default value");
+                loadedConfig[entry.Key] = entry.Value;
+                missingKeyAdded = true;
+            }
+
+            if (missingKeyAdded)
+            {
+                try
+                {
+                    string mergedJson = JsonConvert.SerializeObject(loadedConfig, Formatting.Indented);
+                    File.WriteAllText(configPath, mergedJson);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"ERROR: Cannot save updated configs to {configPath}, reason: {ex.Message}");
+                }
+            }
         }
         catch (DirectoryNotFoundException)
         {
@@ -40,8 +64,7 @@ public static class Configuration
                 Debug.LogError($"ERROR: Cannot create directory: {ex.Message}");
             }
             Debug.Log("Loading default configurations...");
-            // Load default configurations
-            loadedConfig = api.Assets.Get(new AssetLocation(defaultDirectory)).ToObject<Dictionary<string, object>>();
+            loadedConfig = defaultConfig;
 
             Debug.Log($"Configurations loaded, saving configs in: {configPath}");
             try
@@ -49,7 +72,6 @@ public static class Configuration
                 // Saving default configurations
                 string defaultJson = JsonConvert.SerializeObject(loadedConfig, Formatting.Indented);
                 File.WriteAllText(configPath, defaultJson);
-                return LoadConfigurationByDirectoryAndName(api, directory, name, defaultDirectory);
             }
             catch (Exception ex)
             {
@@ -60,8 +82,7 @@ public static class Configuration
         {
             Debug.LogWarn($"WARNING: Server configurations {name}.json cannot be found, recreating file from default");
             Debug.Log("Loading default configurations...");
-            // Load default configurations
-            loadedConfig = api.Assets.Get(new AssetLocation(defaultDirectory)).ToObject<Dictionary<string, object>>();
+            loadedConfig = defaultConfig;
 
             Debug.Log($"Configurations loaded, saving configs in: {configPath}");
             try
@@ -69,20 +90,17 @@ public static class Configuration
                 // Saving default configurations
                 string defaultJson = JsonConvert.SerializeObject(loadedConfig, Formatting.Indented);
                 File.WriteAllText(configPath, defaultJson);
-                return LoadConfigurationByDirectoryAndName(api, directory, name, defaultDirectory);
             }
             catch (Exception ex)
             {
                 Debug.Log($"ERROR: Cannot save default files to {configPath}, reason: {ex.Message}");
             }
-
         }
         catch (Exception ex)
         {
             Debug.LogError($"ERROR: Cannot read the server configurations: {ex.Message}");
-            Debug.Log("Loading default values from mod assets...");
-            // Load default configurations
-            loadedConfig = api.Assets.Get(new AssetLocation(defaultDirectory)).ToObject<Dictionary<string, object>>();
+            Debug.Log("Loading default values...");
+            loadedConfig = defaultConfig;
         }
         return loadedConfig;
     }
@@ -170,7 +188,7 @@ public static class Configuration
     public static bool enableLevelCooking = true;
     public static bool enableLevelPanning = true;
     public static bool enableLevelVitality = true;
-    public static bool enableLevelMetabolism = true;
+    public static bool enableLevelMetabolism = false;
     public static bool enableLevelLeatherArmor = true;
     public static bool enableLevelChainArmor = true;
     public static bool enableLevelBrigandineArmor = true;
@@ -180,12 +198,50 @@ public static class Configuration
     public static bool enableLevelSmithing = true;
     public static int minimumEXPEarned = 1;
     public static bool enableLevelUPUIDSecurity = false;
-    public static bool enableLevelUpChatMessages = false;
+    public static bool enableLevelUpChatMessages = true;
     public static bool enableLevelUpExperienceServerLog = false;
     public static bool enableExtendedLog = false;
 
     private static Dictionary<string, bool> enabledLevels = [];
     public static IReadOnlyDictionary<string, bool> EnabledLevels => enabledLevels;
+
+    private static Dictionary<string, object> BuildBaseDefaultConfig() => new()
+    {
+        ["enableHardcore"] = enableHardcore,
+        ["hardcoreLosePercentage"] = hardcoreLosePercentage,
+        ["hardcorePenaltyDelayInWorldSeconds"] = (long)hardcorePenaltyDelayInWorldSeconds,
+        ["hardcoreIgnoreLevelMinimum"] = hardcoreIgnoreLevelMinimum,
+        ["hardcoreMessageWhenDying"] = hardcoreMessageWhenDying,
+        ["enableLevelHunter"] = enableLevelHunter,
+        ["enableLevelBow"] = enableLevelBow,
+        ["enableLevelSlingshot"] = enableLevelSlingshot,
+        ["enableLevelKnife"] = enableLevelKnife,
+        ["enableLevelSpear"] = enableLevelSpear,
+        ["enableLevelHammer"] = enableLevelHammer,
+        ["enableLevelAxe"] = enableLevelAxe,
+        ["enableLevelPickaxe"] = enableLevelPickaxe,
+        ["enableLevelShovel"] = enableLevelShovel,
+        ["enableLevelSword"] = enableLevelSword,
+        ["enableLevelShield"] = enableLevelShield,
+        ["enableLevelHand"] = enableLevelHand,
+        ["enableLevelFarming"] = enableLevelFarming,
+        ["enableLevelCooking"] = enableLevelCooking,
+        ["enableLevelPanning"] = enableLevelPanning,
+        ["enableLevelVitality"] = enableLevelVitality,
+        ["enableLevelMetabolism"] = enableLevelMetabolism,
+        ["enableLevelLeatherArmor"] = enableLevelLeatherArmor,
+        ["enableLevelChainArmor"] = enableLevelChainArmor,
+        ["enableLevelBrigandineArmor"] = enableLevelBrigandineArmor,
+        ["enableLevelLamellarArmor"] = enableLevelLamellarArmor,
+        ["enableLevelPlateArmor"] = enableLevelPlateArmor,
+        ["enableLevelScaleArmor"] = enableLevelScaleArmor,
+        ["enableLevelSmithing"] = enableLevelSmithing,
+        ["minimumEXPEarned"] = (long)minimumEXPEarned,
+        ["enableLevelUPUIDSecurity"] = enableLevelUPUIDSecurity,
+        ["enableLevelUpChatMessages"] = enableLevelUpChatMessages,
+        ["enableLevelUpExperienceServerLog"] = enableLevelUpExperienceServerLog,
+        ["enableExtendedLog"] = enableExtendedLog,
+    };
 
     internal static void UpdateBaseConfigurations(ICoreAPI api)
     {
@@ -193,7 +249,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config",
             "base",
-            "levelup:config/base.json");
+            BuildBaseDefaultConfig());
         { //enableHardcore
             if (baseConfigs.TryGetValue("enableHardcore", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: enableHardcore is null");
@@ -221,6 +277,13 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: hardcoreMessageWhenDying is not boolean is {value.GetType()}");
                 else hardcoreMessageWhenDying = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: hardcoreMessageWhenDying not set");
+        }
+        { //hardcoreIgnoreLevelMinimum
+            if (baseConfigs.TryGetValue("hardcoreIgnoreLevelMinimum", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: hardcoreIgnoreLevelMinimum is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: hardcoreIgnoreLevelMinimum is not boolean is {value.GetType()}");
+                else hardcoreIgnoreLevelMinimum = (bool)value;
+            else Debug.LogError("CONFIGURATION ERROR: hardcoreIgnoreLevelMinimum not set");
         }
         { //enableLevelHunter
             if (baseConfigs.TryGetValue("enableLevelHunter", out object value))
@@ -284,13 +347,6 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelShovel is not boolean is {value.GetType()}");
                 else enableLevelShovel = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: enableLevelShovel not set");
-        }
-        { //enableLevelHammer
-            if (baseConfigs.TryGetValue("enableLevelHammer", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelHammer is null");
-                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelHammer is not boolean is {value.GetType()}");
-                else enableLevelHammer = (bool)value;
-            else Debug.LogError("CONFIGURATION ERROR: enableLevelHammer not set");
         }
         { //enableLevelSword
             if (baseConfigs.TryGetValue("enableLevelSword", out object value))
@@ -560,13 +616,278 @@ public static class Configuration
     private static float hunterIncrementDamagePerLevel = 0.1f;
     public static int hunterMaxLevel = 999;
 
+    private static Dictionary<string, object> BuildHunterDefaultConfig() => new()
+    {
+        ["hunterEXPPerLevelBase"] = (long)hunterEXPPerLevelBase,
+        ["hunterEXPMultiplyPerLevel"] = hunterEXPMultiplyPerLevel,
+        ["hunterBaseDamage"] = (double)hunterBaseDamage,
+        ["hunterIncrementDamagePerLevel"] = (double)hunterIncrementDamagePerLevel,
+        ["hunterMaxLevel"] = (long)hunterMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildHunterEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateHunterConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> hunterLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "hunter",
-            "levelup:config/levelstats/hunter.json");
+            BuildHunterDefaultConfig());
         { //hunterEXPPerLevelBase
             if (hunterLevelStats.TryGetValue("hunterEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: hunterEXPPerLevelBase is null");
@@ -608,8 +929,8 @@ public static class Configuration
         Dictionary<string, object> tmpentityExpHunter = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/entityexp",
-            "bow",
-            "levelup:config/entityexp/hunter.json");
+            "hunter",
+            BuildHunterEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpHunter)
         {
             if (pair.Value is long value) entityExpHunter.Add(pair.Key, (int)value);
@@ -667,7 +988,7 @@ public static class Configuration
     private static int bowChanceToNotLoseArrowReduceIncreaseEveryLevel = 5;
     private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.2f;
     private static float bowBaseRangedAccuracy = 0.0f;
-    private static float bowIncrementRangedAccuracyPerLevel = 0.003f;
+    private static float bowIncrementRangedAccuracyPerLevel = 0.015f;
     private static float bowBaseRangedSpeed = 0.0f;
     private static float bowIncrementRangedSpeedPerLevel = 0.01f;
     private static float bowBaseMovePenaltyReduction = 0.0f;
@@ -676,13 +997,288 @@ public static class Configuration
 
     public static int ExpPerHitBow => bowEXPPerHit;
 
+    private static Dictionary<string, object> BuildBowDefaultConfig() => new()
+    {
+        ["bowEXPPerHit"] = (long)bowEXPPerHit,
+        ["bowEXPPerLevelBase"] = (long)bowEXPPerLevelBase,
+        ["bowEXPMultiplyPerLevel"] = bowEXPMultiplyPerLevel,
+        ["bowBaseDamage"] = (double)bowBaseDamage,
+        ["bowIncrementDamagePerLevel"] = (double)bowIncrementDamagePerLevel,
+        ["bowChanceToNotLoseArrowBaseIncreasePerLevel"] = (double)bowChanceToNotLoseArrowBaseIncreasePerLevel,
+        ["bowChanceToNotLoseArrowReduceIncreaseEveryLevel"] = (long)bowChanceToNotLoseArrowReduceIncreaseEveryLevel,
+        ["bowChanceToNotLoseArrowReduceQuantityEveryLevel"] = (double)bowChanceToNotLoseArrowReduceQuantityEveryLevel,
+        ["bowBaseRangedAccuracy"] = (double)bowBaseRangedAccuracy,
+        ["bowIncrementRangedAccuracyPerLevel"] = (double)bowIncrementRangedAccuracyPerLevel,
+        ["bowBaseRangedSpeed"] = (double)bowBaseRangedSpeed,
+        ["bowIncrementRangedSpeedPerLevel"] = (double)bowIncrementRangedSpeedPerLevel,
+        ["bowBaseMovePenaltyReduction"] = (double)bowBaseMovePenaltyReduction,
+        ["bowIncrementMovePenaltyReductionPerLevel"] = (double)bowIncrementMovePenaltyReductionPerLevel,
+        ["bowMaxLevel"] = (long)bowMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildBowEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateBowConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> bowLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "bow",
-            "levelup:config/levelstats/bow.json");
+            BuildBowDefaultConfig());
 
         { //bowEXPPerLevelBase
             if (bowLevelStats.TryGetValue("bowEXPPerLevelBase", out object value))
@@ -797,7 +1393,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "bow",
-            "levelup:config/entityexp/bow.json");
+            BuildBowEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpBow)
         {
             if (pair.Value is long value) entityExpBow.Add(pair.Key, (int)value);
@@ -907,13 +1503,285 @@ public static class Configuration
     public static int ExpPerHitSlingshot => slingshotEXPPerHit;
     public static float BaseAimAccuracySlingshot => slingshotBaseAimAccuracy;
 
+    private static Dictionary<string, object> BuildSlingshotDefaultConfig() => new()
+    {
+        ["slingshotEXPPerHit"] = (long)slingshotEXPPerHit,
+        ["slingshotEXPPerLevelBase"] = (long)slingshotEXPPerLevelBase,
+        ["slingshotEXPMultiplyPerLevel"] = slingshotEXPMultiplyPerLevel,
+        ["slingshotBaseDamage"] = (double)slingshotBaseDamage,
+        ["slingshotIncrementDamagePerLevel"] = (double)slingshotIncrementDamagePerLevel,
+        ["slingshotBaseChanceToNotLoseRock"] = (double)slingshotBaseChanceToNotLoseRock,
+        ["slingshotChanceToNotLoseRockBaseIncreasePerLevel"] = (double)slingshotChanceToNotLoseRockBaseIncreasePerLevel,
+        ["slingshotChanceToNotLoseRockReduceIncreaseEveryLevel"] = (long)slingshotChanceToNotLoseRockReduceIncreaseEveryLevel,
+        ["slingshotChanceToNotLoseRockReduceQuantityEveryLevel"] = (double)slingshotChanceToNotLoseRockReduceQuantityEveryLevel,
+        ["slingshotBaseAimAccuracy"] = (double)slingshotBaseAimAccuracy,
+        ["slingshotIncreaseAimAccuracyPerLevel"] = (double)slingshotIncreaseAimAccuracyPerLevel,
+        ["slingshotMaxLevel"] = (long)slingshotMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildSlingshotEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateSlingshotConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> slingshotLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "slingshot",
-            "levelup:config/levelstats/slingshot.json");
+            BuildSlingshotDefaultConfig());
 
         { //slingshotEXPPerLevelBase
             if (slingshotLevelStats.TryGetValue("slingshotEXPPerLevelBase", out object value))
@@ -1007,7 +1875,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "slingshot",
-            "levelup:config/entityexp/slingshot.json");
+            BuildSlingshotEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpSlingshot)
         {
             if (pair.Value is long value) entityExpSlingshot.Add(pair.Key, (int)value);
@@ -1106,11 +1974,11 @@ public static class Configuration
     private static int knifeEXPPerLevelBase = 500;
     private static double knifeEXPMultiplyPerLevel = 1.3;
     private static float knifeBaseDamage = 1.0f;
-    private static float knifeIncrementDamagePerLevel = 0.1f;
+    private static float knifeIncrementDamagePerLevel = 0.03f;
     private static float knifeBaseHarvestMultiply = 0.5f;
     private static float knifeIncrementHarvestMultiplyPerLevel = 0.1f;
     private static float knifeBaseMiningSpeed = 1.0f;
-    private static float knifeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
+    private static float knifeIncrementMiningSpeedMultiplyPerLevel = 0.05f;
     public static int knifeMaxLevel = 999;
 
     public static int ExpPerHitKnife => knifeEXPPerHit;
@@ -1119,13 +1987,285 @@ public static class Configuration
     public static float BaseHarvestMultiplyKnife = knifeBaseHarvestMultiply;
     public static float BaseMinigSpeedKnife = knifeBaseMiningSpeed;
 
+    private static Dictionary<string, object> BuildKnifeDefaultConfig() => new()
+    {
+        ["knifeEXPPerHit"] = (long)knifeEXPPerHit,
+        ["knifeEXPPerHarvest"] = (long)knifeEXPPerHarvest,
+        ["knifeEXPPerBreaking"] = (long)knifeEXPPerBreaking,
+        ["knifeEXPPerLevelBase"] = (long)knifeEXPPerLevelBase,
+        ["knifeEXPMultiplyPerLevel"] = knifeEXPMultiplyPerLevel,
+        ["knifeBaseDamage"] = (double)knifeBaseDamage,
+        ["knifeIncrementDamagePerLevel"] = (double)knifeIncrementDamagePerLevel,
+        ["knifeBaseHarvestMultiply"] = (double)knifeBaseHarvestMultiply,
+        ["knifeIncrementHarvestMultiplyPerLevel"] = (double)knifeIncrementHarvestMultiplyPerLevel,
+        ["knifeBaseMiningSpeed"] = (double)knifeBaseMiningSpeed,
+        ["knifeIncrementMiningSpeedMultiplyPerLevel"] = (double)knifeIncrementMiningSpeedMultiplyPerLevel,
+        ["knifeMaxLevel"] = (long)knifeMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildKnifeEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateKnifeConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> knifeLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "knife",
-            "levelup:config/levelstats/knife.json");
+            BuildKnifeDefaultConfig());
 
         { //knifeEXPPerLevelBase
             if (knifeLevelStats.TryGetValue("knifeEXPPerLevelBase", out object value))
@@ -1221,12 +2361,15 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "knife",
-            "levelup:config/entityexp/knife.json");
+            BuildKnifeEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpKnife)
         {
             if (pair.Value is long value) entityExpKnife.Add(pair.Key, (int)value);
             else Debug.Log($"CONFIGURATION ERROR: entityExpKnife {pair.Key} is not int");
         }
+
+        BaseHarvestMultiplyKnife = knifeBaseHarvestMultiply;
+        BaseMinigSpeedKnife = knifeBaseMiningSpeed;
 
         Debug.Log("Knife configuration set");
     }
@@ -1293,9 +2436,9 @@ public static class Configuration
     private static int axeEXPPerLevelBase = 1000;
     private static double axeEXPMultiplyPerLevel = 1.2;
     private static float axeBaseDamage = 1.0f;
-    private static float axeIncrementDamagePerLevel = 0.1f;
+    private static float axeIncrementDamagePerLevel = 0.05f;
     private static float axeBaseMiningSpeed = 1.0f;
-    private static float axeIncrementMiningSpeedMultiplyPerLevel = 0.1f;
+    private static float axeIncrementMiningSpeedMultiplyPerLevel = 0.05f;
     public static int axeMaxLevel = 999;
 
 
@@ -1303,13 +2446,283 @@ public static class Configuration
     public static int ExpPerBreakingAxe => axeEXPPerBreaking;
     public static int ExpPerTreeBreakingAxe => axeEXPPerTreeBreaking;
 
+    private static Dictionary<string, object> BuildAxeDefaultConfig() => new()
+    {
+        ["axeEXPPerHit"] = (long)axeEXPPerHit,
+        ["axeEXPPerBreaking"] = (long)axeEXPPerBreaking,
+        ["axeEXPPerTreeBreaking"] = (long)axeEXPPerTreeBreaking,
+        ["axeEXPPerLevelBase"] = (long)axeEXPPerLevelBase,
+        ["axeEXPMultiplyPerLevel"] = axeEXPMultiplyPerLevel,
+        ["axeBaseDamage"] = (double)axeBaseDamage,
+        ["axeIncrementDamagePerLevel"] = (double)axeIncrementDamagePerLevel,
+        ["axeBaseMiningSpeed"] = (double)axeBaseMiningSpeed,
+        ["axeIncrementMiningSpeedMultiplyPerLevel"] = (double)axeIncrementMiningSpeedMultiplyPerLevel,
+        ["axeMaxLevel"] = (long)axeMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildAxeEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateAxeConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> axeLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "axe",
-            "levelup:config/levelstats/axe.json");
+            BuildAxeDefaultConfig());
         { //axeEXPPerLevelBase
             if (axeLevelStats.TryGetValue("axeEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: axeEXPPerLevelBase is null");
@@ -1391,7 +2804,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "axe",
-            "levelup:config/entityexp/axe.json");
+            BuildAxeEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpAxe)
         {
             if (pair.Value is long value) entityExpAxe.Add(pair.Key, (int)value);
@@ -1452,16 +2865,839 @@ public static class Configuration
     private static int pickaxeEXPPerLevelBase = 500;
     private static double pickaxeEXPMultiplyPerLevel = 1.5;
     private static float pickaxeBaseDamage = 1.0f;
-    private static float pickaxeIncrementDamagePerLevel = 0.1f;
+    private static float pickaxeIncrementDamagePerLevel = 0.03f;
     private static float pickaxeBaseMiningSpeed = 1.0f;
     private static float pickaxeIncrementMiningSpeedMultiplyPerLevel = 0.03f;
     private static float pickaxeBaseOreMultiply = 0.0f;
-    private static float pickaxeIncrementOreMultiplyPerLevel = 0.2f;
+    private static float pickaxeIncrementOreMultiplyPerLevel = 0.1f;
     public static int pickaxeMaxLevel = 999;
 
 
     public static int ExpPerHitPickaxe => pickaxeEXPPerHit;
     public static int ExpPerBreakingPickaxe => pickaxeEXPPerBreaking;
+
+    private static Dictionary<string, object> BuildPickaxeEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
+    private static Dictionary<string, object> BuildPickaxeOresDefaultConfig() => new()
+    {
+        ["game:ore-poor-nativecopper-andesite"] = (long)20,
+        ["game:ore-medium-nativecopper-andesite"] = (long)30,
+        ["game:ore-rich-nativecopper-andesite"] = (long)40,
+        ["game:ore-poor-quartz_nativegold-andesite"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-andesite"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-andesite"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-andesite"] = (long)80,
+        ["game:ore-poor-cassiterite-andesite"] = (long)20,
+        ["game:ore-medium-cassiterite-andesite"] = (long)30,
+        ["game:ore-poor-chromite-andesite"] = (long)20,
+        ["game:ore-medium-chromite-andesite"] = (long)30,
+        ["game:ore-poor-ilmenite-andesite"] = (long)20,
+        ["game:ore-medium-ilmenite-andesite"] = (long)30,
+        ["game:ore-poor-sphalerite-andesite"] = (long)20,
+        ["game:ore-medium-sphalerite-andesite"] = (long)30,
+        ["game:ore-poor-quartz_nativesilver-andesite"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-andesite"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-andesite"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-andesite"] = (long)50,
+        ["game:ore-poor-bismuthinite-andesite"] = (long)20,
+        ["game:ore-medium-bismuthinite-andesite"] = (long)30,
+        ["game:ore-rich-bismuthinite-andesite"] = (long)40,
+        ["game:ore-poor-magnetite-andesite"] = (long)20,
+        ["game:ore-medium-magnetite-andesite"] = (long)30,
+        ["game:ore-rich-magnetite-andesite"] = (long)40,
+        ["game:ore-poor-pentlandite-andesite"] = (long)20,
+        ["game:ore-medium-pentlandite-andesite"] = (long)30,
+        ["game:ore-poor-uranium-andesite"] = (long)40,
+        ["game:ore-medium-uranium-andesite"] = (long)60,
+        ["game:ore-rich-uranium-andesite"] = (long)70,
+        ["game:ore-poor-nativecopper-chalk"] = (long)20,
+        ["game:ore-medium-nativecopper-chalk"] = (long)30,
+        ["game:ore-poor-quartz_nativegold-chalk"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-chalk"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-chalk"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-chalk"] = (long)80,
+        ["game:ore-poor-galena-chalk"] = (long)20,
+        ["game:ore-medium-galena-chalk"] = (long)30,
+        ["game:ore-poor-sphalerite-chalk"] = (long)20,
+        ["game:ore-medium-sphalerite-chalk"] = (long)30,
+        ["game:ore-rich-sphalerite-chalk"] = (long)40,
+        ["game:ore-poor-quartz_nativesilver-chalk"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-chalk"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-chalk"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-chalk"] = (long)50,
+        ["game:ore-poor-galena_nativesilver-chalk"] = (long)20,
+        ["game:ore-medium-galena_nativesilver-chalk"] = (long)30,
+        ["game:ore-poor-magnetite-chalk"] = (long)20,
+        ["game:ore-medium-magnetite-chalk"] = (long)30,
+        ["game:ore-poor-uranium-chalk"] = (long)40,
+        ["game:ore-medium-uranium-chalk"] = (long)60,
+        ["game:ore-rich-uranium-chalk"] = (long)70,
+        ["game:ore-poor-rhodochrosite-chalk"] = (long)20,
+        ["game:ore-poor-nativecopper-chert"] = (long)20,
+        ["game:ore-medium-nativecopper-chert"] = (long)30,
+        ["game:ore-poor-limonite-chert"] = (long)20,
+        ["game:ore-medium-limonite-chert"] = (long)30,
+        ["game:ore-rich-limonite-chert"] = (long)40,
+        ["game:ore-bountiful-limonite-chert"] = (long)50,
+        ["game:ore-poor-quartz_nativegold-chert"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-chert"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-chert"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-chert"] = (long)80,
+        ["game:ore-poor-galena-chert"] = (long)20,
+        ["game:ore-medium-galena-chert"] = (long)30,
+        ["game:ore-rich-galena-chert"] = (long)40,
+        ["game:ore-bountiful-galena-chert"] = (long)50,
+        ["game:ore-poor-sphalerite-chert"] = (long)20,
+        ["game:ore-medium-sphalerite-chert"] = (long)30,
+        ["game:ore-rich-sphalerite-chert"] = (long)40,
+        ["game:ore-poor-quartz_nativesilver-chert"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-chert"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-chert"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-chert"] = (long)50,
+        ["game:ore-poor-galena_nativesilver-chert"] = (long)20,
+        ["game:ore-medium-galena_nativesilver-chert"] = (long)30,
+        ["game:ore-poor-uranium-chert"] = (long)40,
+        ["game:ore-medium-uranium-chert"] = (long)60,
+        ["game:ore-rich-uranium-chert"] = (long)70,
+        ["game:ore-poor-rhodochrosite-chert"] = (long)20,
+        ["game:ore-poor-nativecopper-conglomerate"] = (long)20,
+        ["game:ore-medium-nativecopper-conglomerate"] = (long)30,
+        ["game:ore-poor-quartz_nativegold-conglomerate"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-conglomerate"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-conglomerate"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-conglomerate"] = (long)80,
+        ["game:ore-poor-galena-conglomerate"] = (long)20,
+        ["game:ore-medium-galena-conglomerate"] = (long)30,
+        ["game:ore-poor-sphalerite-conglomerate"] = (long)20,
+        ["game:ore-medium-sphalerite-conglomerate"] = (long)30,
+        ["game:ore-rich-sphalerite-conglomerate"] = (long)40,
+        ["game:ore-poor-quartz_nativesilver-conglomerate"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-conglomerate"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-conglomerate"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-conglomerate"] = (long)50,
+        ["game:ore-poor-galena_nativesilver-conglomerate"] = (long)20,
+        ["game:ore-medium-galena_nativesilver-conglomerate"] = (long)30,
+        ["game:ore-poor-magnetite-conglomerate"] = (long)20,
+        ["game:ore-medium-magnetite-conglomerate"] = (long)30,
+        ["game:ore-poor-uranium-conglomerate"] = (long)40,
+        ["game:ore-medium-uranium-conglomerate"] = (long)60,
+        ["game:ore-poor-rhodochrosite-conglomerate"] = (long)20,
+        ["game:ore-rich-rhodochrosite-conglomerate"] = (long)40,
+        ["game:ore-poor-quartz_nativegold-limestone"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-limestone"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-limestone"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-limestone"] = (long)80,
+        ["game:ore-poor-galena-limestone"] = (long)20,
+        ["game:ore-medium-galena-limestone"] = (long)30,
+        ["game:ore-poor-sphalerite-limestone"] = (long)20,
+        ["game:ore-medium-sphalerite-limestone"] = (long)30,
+        ["game:ore-rich-sphalerite-limestone"] = (long)40,
+        ["game:ore-poor-quartz_nativesilver-limestone"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-limestone"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-limestone"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-limestone"] = (long)50,
+        ["game:ore-poor-galena_nativesilver-limestone"] = (long)20,
+        ["game:ore-medium-galena_nativesilver-limestone"] = (long)30,
+        ["game:ore-poor-hematite-limestone"] = (long)20,
+        ["game:ore-medium-hematite-limestone"] = (long)30,
+        ["game:ore-rich-hematite-limestone"] = (long)40,
+        ["game:ore-poor-malachite-limestone"] = (long)20,
+        ["game:ore-medium-malachite-limestone"] = (long)30,
+        ["game:ore-rich-malachite-limestone"] = (long)40,
+        ["game:ore-bountiful-malachite-limestone"] = (long)50,
+        ["game:ore-poor-uranium-limestone"] = (long)40,
+        ["game:ore-medium-uranium-limestone"] = (long)60,
+        ["game:ore-rich-uranium-limestone"] = (long)70,
+        ["game:ore-poor-rhodochrosite-limestone"] = (long)20,
+        ["game:ore-poor-nativecopper-claystone"] = (long)20,
+        ["game:ore-medium-nativecopper-claystone"] = (long)30,
+        ["game:ore-poor-quartz_nativegold-claystone"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-claystone"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-claystone"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-claystone"] = (long)80,
+        ["game:ore-poor-bismuthinite-granite"] = (long)20,
+        ["game:ore-medium-bismuthinite-granite"] = (long)30,
+        ["game:ore-rich-bismuthinite-granite"] = (long)40,
+        ["game:ore-poor-bismuthinite-basalt"] = (long)20,
+        ["game:ore-medium-bismuthinite-basalt"] = (long)30,
+        ["game:ore-rich-bismuthinite-basalt"] = (long)40,
+        ["game:ore-bountiful-bismuthinite-basalt"] = (long)50,
+        ["game:ore-poor-bismuthinite-peridotite"] = (long)20,
+        ["game:ore-medium-bismuthinite-peridotite"] = (long)30,
+        ["game:ore-rich-bismuthinite-peridotite"] = (long)40,
+        ["game:ore-poor-bismuthinite-phyllite"] = (long)20,
+        ["game:ore-medium-bismuthinite-phyllite"] = (long)30,
+        ["game:ore-poor-bismuthinite-slate"] = (long)20,
+        ["game:ore-medium-bismuthinite-slate"] = (long)30,
+        ["game:ore-poor-cassiterite-granite"] = (long)20,
+        ["game:ore-medium-cassiterite-granite"] = (long)30,
+        ["game:ore-rich-cassiterite-granite"] = (long)40,
+        ["game:ore-bountiful-cassiterite-granite"] = (long)50,
+        ["game:ore-poor-cassiterite-basalt"] = (long)20,
+        ["game:ore-medium-cassiterite-basalt"] = (long)30,
+        ["game:ore-poor-cassiterite-peridotite"] = (long)20,
+        ["game:ore-medium-cassiterite-peridotite"] = (long)30,
+        ["game:ore-poor-cassiterite-phyllite"] = (long)20,
+        ["game:ore-medium-cassiterite-phyllite"] = (long)30,
+        ["game:ore-poor-cassiterite-slate"] = (long)20,
+        ["game:ore-medium-cassiterite-slate"] = (long)30,
+        ["game:ore-poor-sphalerite-granite"] = (long)20,
+        ["game:ore-medium-sphalerite-granite"] = (long)30,
+        ["game:ore-poor-sphalerite-basalt"] = (long)20,
+        ["game:ore-medium-sphalerite-basalt"] = (long)30,
+        ["game:ore-poor-sphalerite-peridotite"] = (long)20,
+        ["game:ore-medium-sphalerite-peridotite"] = (long)30,
+        ["game:ore-poor-sphalerite-claystone"] = (long)20,
+        ["game:ore-medium-sphalerite-claystone"] = (long)30,
+        ["game:ore-rich-sphalerite-claystone"] = (long)40,
+        ["game:ore-poor-sphalerite-sandstone"] = (long)20,
+        ["game:ore-medium-sphalerite-sandstone"] = (long)30,
+        ["game:ore-rich-sphalerite-sandstone"] = (long)40,
+        ["game:ore-poor-sphalerite-shale"] = (long)20,
+        ["game:ore-medium-sphalerite-shale"] = (long)30,
+        ["game:ore-rich-sphalerite-shale"] = (long)40,
+        ["game:ore-poor-sphalerite-phyllite"] = (long)20,
+        ["game:ore-medium-sphalerite-phyllite"] = (long)30,
+        ["game:ore-rich-sphalerite-phyllite"] = (long)40,
+        ["game:ore-bountiful-sphalerite-phyllite"] = (long)50,
+        ["game:ore-poor-sphalerite-slate"] = (long)20,
+        ["game:ore-medium-sphalerite-slate"] = (long)30,
+        ["game:ore-rich-sphalerite-slate"] = (long)40,
+        ["game:ore-bountiful-sphalerite-slate"] = (long)50,
+        ["game:ore-poor-nativecopper-granite"] = (long)20,
+        ["game:ore-medium-nativecopper-granite"] = (long)30,
+        ["game:ore-rich-nativecopper-granite"] = (long)40,
+        ["game:ore-poor-nativecopper-basalt"] = (long)20,
+        ["game:ore-medium-nativecopper-basalt"] = (long)30,
+        ["game:ore-rich-nativecopper-basalt"] = (long)40,
+        ["game:ore-bountiful-nativecopper-basalt"] = (long)50,
+        ["game:ore-poor-nativecopper-slate"] = (long)20,
+        ["game:ore-medium-nativecopper-slate"] = (long)30,
+        ["game:ore-rich-nativecopper-slate"] = (long)40,
+        ["game:ore-poor-nativecopper-peridotite"] = (long)20,
+        ["game:ore-medium-nativecopper-peridotite"] = (long)30,
+        ["game:ore-rich-nativecopper-peridotite"] = (long)40,
+        ["game:ore-poor-nativecopper-sandstone"] = (long)20,
+        ["game:ore-medium-nativecopper-sandstone"] = (long)30,
+        ["game:ore-poor-nativecopper-shale"] = (long)20,
+        ["game:ore-medium-nativecopper-shale"] = (long)30,
+        ["game:ore-poor-nativecopper-phyllite"] = (long)20,
+        ["game:ore-medium-nativecopper-phyllite"] = (long)30,
+        ["game:ore-rich-nativecopper-phyllite"] = (long)40,
+        ["game:ore-poor-malachite-whitemarble"] = (long)20,
+        ["game:ore-medium-malachite-whitemarble"] = (long)30,
+        ["game:ore-rich-malachite-whitemarble"] = (long)40,
+        ["game:ore-poor-malachite-redmarble"] = (long)20,
+        ["game:ore-medium-malachite-redmarble"] = (long)30,
+        ["game:ore-rich-malachite-redmarble"] = (long)40,
+        ["game:ore-poor-malachite-greenmarble"] = (long)20,
+        ["game:ore-medium-malachite-greenmarble"] = (long)30,
+        ["game:ore-rich-malachite-greenmarble"] = (long)40,
+        ["game:ore-poor-galena-claystone"] = (long)20,
+        ["game:ore-medium-galena-claystone"] = (long)30,
+        ["game:ore-rich-galena-claystone"] = (long)40,
+        ["game:ore-poor-galena-sandstone"] = (long)20,
+        ["game:ore-medium-galena-sandstone"] = (long)30,
+        ["game:ore-rich-galena-sandstone"] = (long)40,
+        ["game:ore-poor-galena-shale"] = (long)20,
+        ["game:ore-medium-galena-shale"] = (long)30,
+        ["game:ore-rich-galena-shale"] = (long)40,
+        ["game:ore-bountiful-galena-shale"] = (long)50,
+        ["game:ore-poor-galena_nativesilver-claystone"] = (long)20,
+        ["game:ore-medium-galena_nativesilver-claystone"] = (long)30,
+        ["game:ore-poor-galena_nativesilver-sandstone"] = (long)20,
+        ["game:ore-medium-galena_nativesilver-sandstone"] = (long)30,
+        ["game:ore-poor-galena_nativesilver-shale"] = (long)20,
+        ["game:ore-medium-galena_nativesilver-shale"] = (long)30,
+        ["game:ore-poor-quartz_nativesilver-granite"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-granite"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-granite"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-granite"] = (long)50,
+        ["game:ore-poor-quartz_nativesilver-basalt"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-basalt"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-basalt"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-basalt"] = (long)50,
+        ["game:ore-poor-quartz_nativesilver-peridotite"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-peridotite"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-peridotite"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-peridotite"] = (long)50,
+        ["game:ore-poor-quartz_nativesilver-claystone"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-claystone"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-claystone"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-claystone"] = (long)50,
+        ["game:ore-poor-quartz_nativesilver-sandstone"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-sandstone"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-sandstone"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-sandstone"] = (long)50,
+        ["game:ore-poor-quartz_nativesilver-shale"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-shale"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-shale"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-shale"] = (long)50,
+        ["game:ore-poor-quartz_nativesilver-phyllite"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-phyllite"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-phyllite"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-phyllite"] = (long)50,
+        ["game:ore-poor-quartz_nativesilver-slate"] = (long)20,
+        ["game:ore-medium-quartz_nativesilver-slate"] = (long)30,
+        ["game:ore-rich-quartz_nativesilver-slate"] = (long)40,
+        ["game:ore-bountiful-quartz_nativesilver-slate"] = (long)50,
+        ["game:ore-poor-quartz_nativegold-granite"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-granite"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-granite"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-granite"] = (long)80,
+        ["game:ore-poor-quartz_nativegold-basalt"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-basalt"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-basalt"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-basalt"] = (long)80,
+        ["game:ore-poor-quartz_nativegold-peridotite"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-peridotite"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-peridotite"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-peridotite"] = (long)80,
+        ["game:ore-poor-quartz_nativegold-sandstone"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-sandstone"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-sandstone"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-sandstone"] = (long)80,
+        ["game:ore-poor-quartz_nativegold-shale"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-shale"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-shale"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-shale"] = (long)80,
+        ["game:ore-poor-quartz_nativegold-phyllite"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-phyllite"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-phyllite"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-phyllite"] = (long)80,
+        ["game:ore-poor-quartz_nativegold-slate"] = (long)50,
+        ["game:ore-medium-quartz_nativegold-slate"] = (long)60,
+        ["game:ore-rich-quartz_nativegold-slate"] = (long)70,
+        ["game:ore-bountiful-quartz_nativegold-slate"] = (long)80,
+        ["game:ore-poor-limonite-basalt"] = (long)20,
+        ["game:ore-medium-limonite-basalt"] = (long)30,
+        ["game:ore-poor-limonite-shale"] = (long)20,
+        ["game:ore-medium-limonite-shale"] = (long)30,
+        ["game:ore-rich-limonite-shale"] = (long)40,
+        ["game:ore-bountiful-limonite-shale"] = (long)50,
+        ["game:ore-poor-hematite-granite"] = (long)20,
+        ["game:ore-medium-hematite-granite"] = (long)30,
+        ["game:ore-rich-hematite-granite"] = (long)40,
+        ["game:ore-bountiful-hematite-granite"] = (long)50,
+        ["game:ore-poor-hematite-peridotite"] = (long)20,
+        ["game:ore-medium-hematite-peridotite"] = (long)30,
+        ["game:ore-rich-hematite-peridotite"] = (long)40,
+        ["game:ore-bountiful-hematite-peridotite"] = (long)50,
+        ["game:ore-poor-hematite-sandstone"] = (long)20,
+        ["game:ore-medium-hematite-sandstone"] = (long)30,
+        ["game:ore-rich-hematite-sandstone"] = (long)40,
+        ["game:ore-poor-hematite-phyllite"] = (long)20,
+        ["game:ore-medium-hematite-phyllite"] = (long)30,
+        ["game:ore-poor-magnetite-claystone"] = (long)20,
+        ["game:ore-medium-magnetite-claystone"] = (long)30,
+        ["game:ore-poor-magnetite-slate"] = (long)20,
+        ["game:ore-medium-magnetite-slate"] = (long)30,
+        ["game:ore-rich-magnetite-slate"] = (long)40,
+        ["game:ore-bountiful-magnetite-slate"] = (long)50,
+        ["game:ore-poor-chromite-granite"] = (long)20,
+        ["game:ore-medium-chromite-granite"] = (long)30,
+        ["game:ore-poor-chromite-basalt"] = (long)20,
+        ["game:ore-medium-chromite-basalt"] = (long)30,
+        ["game:ore-rich-chromite-basalt"] = (long)40,
+        ["game:ore-poor-chromite-peridotite"] = (long)20,
+        ["game:ore-medium-chromite-peridotite"] = (long)30,
+        ["game:ore-rich-chromite-peridotite"] = (long)40,
+        ["game:ore-poor-chromite-kimberlite"] = (long)20,
+        ["game:ore-medium-chromite-kimberlite"] = (long)30,
+        ["game:ore-rich-chromite-kimberlite"] = (long)40,
+        ["game:ore-bountiful-chromite-kimberlite"] = (long)50,
+        ["game:ore-poor-rhodochrosite-claystone"] = (long)20,
+        ["game:ore-medium-rhodochrosite-claystone"] = (long)30,
+        ["game:ore-rich-rhodochrosite-claystone"] = (long)40,
+        ["game:ore-poor-rhodochrosite-sandstone"] = (long)20,
+        ["game:ore-medium-rhodochrosite-sandstone"] = (long)30,
+        ["game:ore-rich-rhodochrosite-sandstone"] = (long)40,
+        ["game:ore-poor-rhodochrosite-shale"] = (long)20,
+        ["game:ore-medium-rhodochrosite-shale"] = (long)30,
+        ["game:ore-rich-rhodochrosite-shale"] = (long)40,
+        ["game:ore-medium-rhodochrosite-chalk"] = (long)30,
+        ["game:ore-medium-rhodochrosite-limestone"] = (long)30,
+        ["game:ore-medium-rhodochrosite-chert"] = (long)30,
+        ["game:ore-medium-rhodochrosite-conglomerate"] = (long)30,
+        ["game:ore-poor-rhodochrosite-phyllite"] = (long)20,
+        ["game:ore-medium-rhodochrosite-phyllite"] = (long)30,
+        ["game:ore-rich-rhodochrosite-phyllite"] = (long)40,
+        ["game:ore-bountiful-rhodochrosite-phyllite"] = (long)50,
+        ["game:ore-poor-rhodochrosite-slate"] = (long)20,
+        ["game:ore-medium-rhodochrosite-slate"] = (long)30,
+        ["game:ore-rich-rhodochrosite-slate"] = (long)40,
+        ["game:ore-bountiful-rhodochrosite-slate"] = (long)50,
+        ["game:ore-poor-ilmenite-granite"] = (long)20,
+        ["game:ore-medium-ilmenite-granite"] = (long)30,
+        ["game:ore-poor-ilmenite-basalt"] = (long)20,
+        ["game:ore-medium-ilmenite-basalt"] = (long)30,
+        ["game:ore-rich-ilmenite-basalt"] = (long)40,
+        ["game:ore-poor-ilmenite-peridotite"] = (long)20,
+        ["game:ore-medium-ilmenite-peridotite"] = (long)30,
+        ["game:ore-rich-ilmenite-peridotite"] = (long)40,
+        ["game:ore-poor-ilmenite-kimberlite"] = (long)20,
+        ["game:ore-medium-ilmenite-kimberlite"] = (long)30,
+        ["game:ore-rich-ilmenite-kimberlite"] = (long)40,
+        ["game:ore-bountiful-ilmenite-kimberlite"] = (long)50,
+        ["game:ore-poor-ilmenite-phyllite"] = (long)20,
+        ["game:ore-medium-ilmenite-phyllite"] = (long)30,
+        ["game:ore-rich-ilmenite-phyllite"] = (long)40,
+        ["game:ore-poor-ilmenite-slate"] = (long)20,
+        ["game:ore-medium-ilmenite-slate"] = (long)30,
+        ["game:ore-rich-ilmenite-slate"] = (long)40,
+        ["game:ore-poor-stibnite-andesite"] = (long)20,
+        ["game:ore-medium-stibnite-andesite"] = (long)30,
+        ["game:ore-poor-stibnite-granite"] = (long)20,
+        ["game:ore-medium-stibnite-granite"] = (long)30,
+        ["game:ore-rich-stibnite-granite"] = (long)40,
+        ["game:ore-poor-stibnite-basalt"] = (long)20,
+        ["game:ore-medium-stibnite-basalt"] = (long)30,
+        ["game:ore-rich-stibnite-basalt"] = (long)40,
+        ["game:ore-bountiful-stibnite-basalt"] = (long)50,
+        ["game:ore-poor-uranium-granite"] = (long)40,
+        ["game:ore-medium-uranium-granite"] = (long)60,
+        ["game:ore-rich-uranium-granite"] = (long)70,
+        ["game:ore-poor-uranium-basalt"] = (long)40,
+        ["game:ore-medium-uranium-basalt"] = (long)60,
+        ["game:ore-poor-uranium-peridotite"] = (long)40,
+        ["game:ore-medium-uranium-peridotite"] = (long)60,
+        ["game:ore-poor-uranium-kimberlite"] = (long)40,
+        ["game:ore-medium-uranium-kimberlite"] = (long)60,
+        ["game:ore-rich-uranium-kimberlite"] = (long)70,
+        ["game:ore-bountiful-uranium-kimberlite"] = (long)80,
+        ["game:ore-poor-uranium-claystone"] = (long)40,
+        ["game:ore-medium-uranium-claystone"] = (long)60,
+        ["game:ore-poor-uranium-sandstone"] = (long)40,
+        ["game:ore-medium-uranium-sandstone"] = (long)60,
+        ["game:ore-poor-uranium-shale"] = (long)40,
+        ["game:ore-medium-uranium-shale"] = (long)60,
+        ["game:ore-poor-uranium-phyllite"] = (long)40,
+        ["game:ore-medium-uranium-phyllite"] = (long)60,
+        ["game:ore-rich-uranium-phyllite"] = (long)70,
+        ["game:ore-bountiful-uranium-phyllite"] = (long)80,
+        ["game:ore-poor-uranium-slate"] = (long)40,
+        ["game:ore-medium-uranium-slate"] = (long)60,
+        ["game:ore-rich-uranium-slate"] = (long)70,
+        ["game:ore-bountiful-uranium-slate"] = (long)80,
+        ["game:ore-poor-pentlandite-granite"] = (long)20,
+        ["game:ore-medium-pentlandite-granite"] = (long)30,
+        ["game:ore-poor-pentlandite-basalt"] = (long)20,
+        ["game:ore-medium-pentlandite-basalt"] = (long)30,
+        ["game:ore-poor-pentlandite-peridotite"] = (long)20,
+        ["game:ore-medium-pentlandite-peridotite"] = (long)30,
+        ["game:ore-rich-pentlandite-peridotite"] = (long)40,
+        ["game:ore-bountiful-pentlandite-peridotite"] = (long)50,
+        ["game:ore-flint-andesite"] = (long)5,
+        ["game:ore-flint-basalt"] = (long)5,
+        ["game:ore-flint-bauxite"] = (long)5,
+        ["game:ore-flint-chalk"] = (long)5,
+        ["game:ore-flint-chert"] = (long)5,
+        ["game:ore-flint-claystone"] = (long)5,
+        ["game:ore-flint-conglomerate"] = (long)5,
+        ["game:ore-flint-granite"] = (long)5,
+        ["game:ore-flint-kimberlite"] = (long)5,
+        ["game:ore-flint-limestone"] = (long)5,
+        ["game:ore-flint-peridotite"] = (long)5,
+        ["game:ore-flint-phyllite"] = (long)5,
+        ["game:ore-flint-sandstone"] = (long)5,
+        ["game:ore-flint-shale"] = (long)5,
+        ["game:ore-flint-slate"] = (long)5,
+        ["game:ore-flint-travertine"] = (long)5,
+        ["game:ore-quartz-andesite"] = (long)10,
+        ["game:ore-quartz-granite"] = (long)10,
+        ["game:ore-quartz-basalt"] = (long)10,
+        ["game:ore-quartz-peridotite"] = (long)10,
+        ["game:ore-quartz-claystone"] = (long)10,
+        ["game:ore-quartz-sandstone"] = (long)10,
+        ["game:ore-quartz-shale"] = (long)10,
+        ["game:ore-quartz-chalk"] = (long)10,
+        ["game:ore-quartz-limestone"] = (long)10,
+        ["game:ore-quartz-chert"] = (long)10,
+        ["game:ore-quartz-conglomerate"] = (long)10,
+        ["game:ore-quartz-phyllite"] = (long)10,
+        ["game:ore-quartz-slate"] = (long)10,
+        ["game:ore-quartz_wolframite-granite"] = (long)30,
+        ["game:ore-alum-claystone"] = (long)10,
+        ["game:ore-alum-sandstone"] = (long)10,
+        ["game:ore-alum-shale"] = (long)10,
+        ["game:ore-alum-chalk"] = (long)10,
+        ["game:ore-alum-limestone"] = (long)10,
+        ["game:ore-alum-chert"] = (long)10,
+        ["game:ore-alum-conglomerate"] = (long)10,
+        ["game:ore-stibnite-limestone"] = (long)20,
+        ["game:ore-lignite-claystone"] = (long)10,
+        ["game:ore-lignite-sandstone"] = (long)10,
+        ["game:ore-lignite-shale"] = (long)10,
+        ["game:ore-lignite-chalk"] = (long)10,
+        ["game:ore-lignite-limestone"] = (long)10,
+        ["game:ore-lignite-chert"] = (long)10,
+        ["game:ore-lignite-conglomerate"] = (long)10,
+        ["game:ore-bituminouscoal-claystone"] = (long)15,
+        ["game:ore-bituminouscoal-sandstone"] = (long)15,
+        ["game:ore-bituminouscoal-shale"] = (long)15,
+        ["game:ore-bituminouscoal-chalk"] = (long)15,
+        ["game:ore-bituminouscoal-limestone"] = (long)15,
+        ["game:ore-bituminouscoal-chert"] = (long)15,
+        ["game:ore-bituminouscoal-conglomerate"] = (long)15,
+        ["game:ore-anthracite-claystone"] = (long)20,
+        ["game:ore-anthracite-sandstone"] = (long)20,
+        ["game:ore-anthracite-shale"] = (long)20,
+        ["game:ore-anthracite-chalk"] = (long)20,
+        ["game:ore-anthracite-limestone"] = (long)20,
+        ["game:ore-anthracite-chert"] = (long)20,
+        ["game:ore-anthracite-conglomerate"] = (long)20,
+        ["game:ore-sulfur-claystone"] = (long)10,
+        ["game:ore-sulfur-sandstone"] = (long)10,
+        ["game:ore-sulfur-shale"] = (long)10,
+        ["game:ore-sulfur-chalk"] = (long)10,
+        ["game:ore-sulfur-limestone"] = (long)10,
+        ["game:ore-sulfur-chert"] = (long)10,
+        ["game:ore-sulfur-conglomerate"] = (long)10,
+        ["game:ore-sylvite-halite"] = (long)15,
+        ["game:ore-borax-claystone"] = (long)10,
+        ["game:ore-borax-sandstone"] = (long)10,
+        ["game:ore-borax-shale"] = (long)10,
+        ["game:ore-borax-chalk"] = (long)10,
+        ["game:ore-borax-limestone"] = (long)10,
+        ["game:ore-borax-chert"] = (long)10,
+        ["game:ore-borax-conglomerate"] = (long)10,
+        ["game:ore-kernite-claystone"] = (long)15,
+        ["game:ore-kernite-sandstone"] = (long)15,
+        ["game:ore-kernite-shale"] = (long)15,
+        ["game:ore-kernite-chalk"] = (long)15,
+        ["game:ore-kernite-limestone"] = (long)15,
+        ["game:ore-kernite-chert"] = (long)15,
+        ["game:ore-kernite-conglomerate"] = (long)15,
+        ["game:ore-graphite-phyllite"] = (long)20,
+        ["game:ore-graphite-slate"] = (long)20,
+        ["game:ore-graphite-whitemarble"] = (long)20,
+        ["game:ore-graphite-redmarble"] = (long)20,
+        ["game:ore-graphite-greenmarble"] = (long)20,
+        ["game:ore-cinnabar-andesite"] = (long)20,
+        ["game:ore-cinnabar-granite"] = (long)20,
+        ["game:ore-cinnabar-basalt"] = (long)20,
+        ["game:ore-cinnabar-peridotite"] = (long)20,
+        ["game:ore-cinnabar-phyllite"] = (long)20,
+        ["game:ore-cinnabar-slate"] = (long)20,
+        ["game:ore-corundum-peridotite"] = (long)25,
+        ["game:ore-corundum-phyllite"] = (long)25,
+        ["game:ore-corundum-slate"] = (long)25,
+        ["game:ore-corundum-whitemarble"] = (long)25,
+        ["game:ore-corundum-redmarble"] = (long)25,
+        ["game:ore-corundum-greenmarble"] = (long)25,
+        ["game:ore-lapislazuli-limestone"] = (long)25,
+        ["game:ore-lapislazuli-bauxite"] = (long)25,
+        ["game:ore-lapislazuli-whitemarble"] = (long)25,
+        ["game:ore-lapislazuli-redmarble"] = (long)25,
+        ["game:ore-lapislazuli-greenmarble"] = (long)25,
+        ["game:ore-olivine-peridotite"] = (long)20,
+        ["game:ore-fluorite-claystone"] = (long)15,
+        ["game:ore-fluorite-sandstone"] = (long)15,
+        ["game:ore-fluorite-shale"] = (long)15,
+        ["game:ore-fluorite-chalk"] = (long)15,
+        ["game:ore-fluorite-limestone"] = (long)15,
+        ["game:ore-fluorite-chert"] = (long)15,
+        ["game:ore-fluorite-conglomerate"] = (long)15,
+        ["game:ore-fluorite-phyllite"] = (long)15,
+        ["game:ore-fluorite-slate"] = (long)15,
+        ["game:ore-phosphorite-claystone"] = (long)10,
+        ["game:ore-phosphorite-sandstone"] = (long)10,
+        ["game:ore-phosphorite-shale"] = (long)10,
+        ["game:ore-phosphorite-chalk"] = (long)10,
+        ["game:ore-phosphorite-limestone"] = (long)10,
+        ["game:ore-phosphorite-chert"] = (long)10,
+        ["game:ore-phosphorite-conglomerate"] = (long)10,
+        ["game:ore-low-emerald-basalt"] = (long)50,
+        ["game:ore-medium-emerald-basalt"] = (long)70,
+        ["game:ore-low-emerald-peridotite"] = (long)50,
+        ["game:ore-medium-emerald-peridotite"] = (long)70,
+        ["game:ore-low-emerald-shale"] = (long)50,
+        ["game:ore-medium-emerald-shale"] = (long)70,
+        ["game:ore-high-emerald-shale"] = (long)90,
+        ["game:ore-low-emerald-limestone"] = (long)50,
+        ["game:ore-medium-emerald-limestone"] = (long)70,
+        ["game:ore-high-emerald-limestone"] = (long)90,
+        ["game:ore-low-emerald-phyllite"] = (long)50,
+        ["game:ore-medium-emerald-phyllite"] = (long)70,
+        ["game:ore-low-emerald-slate"] = (long)50,
+        ["game:ore-medium-emerald-slate"] = (long)70,
+        ["game:ore-low-diamond-kimberlite"] = (long)80,
+        ["game:ore-medium-diamond-kimberlite"] = (long)100,
+        ["game:ore-high-diamond-kimberlite"] = (long)120,
+        ["game:ore-low-diamond-suevite"] = (long)80,
+        ["game:ore-low-olivine_peridot-peridotite"] = (long)30,
+        ["game:ore-medium-olivine_peridot-peridotite"] = (long)50,
+        ["game:ore-high-olivine_peridot-peridotite"] = (long)70,
+    };
+
+    private static Dictionary<string, object> BuildPickaxeDefaultConfig() => new()
+    {
+        ["pickaxeEXPPerHit"] = (long)pickaxeEXPPerHit,
+        ["pickaxeEXPPerBreaking"] = (long)pickaxeEXPPerBreaking,
+        ["pickaxeEXPPerLevelBase"] = (long)pickaxeEXPPerLevelBase,
+        ["pickaxeEXPMultiplyPerLevel"] = pickaxeEXPMultiplyPerLevel,
+        ["pickaxeBaseDamage"] = (double)pickaxeBaseDamage,
+        ["pickaxeIncrementDamagePerLevel"] = (double)pickaxeIncrementDamagePerLevel,
+        ["pickaxeBaseMiningSpeed"] = (double)pickaxeBaseMiningSpeed,
+        ["pickaxeIncrementMiningSpeedMultiplyPerLevel"] = (double)pickaxeIncrementMiningSpeedMultiplyPerLevel,
+        ["pickaxeBaseOreMultiply"] = (double)pickaxeBaseOreMultiply,
+        ["pickaxeIncrementOreMultiplyPerLevel"] = (double)pickaxeIncrementOreMultiplyPerLevel,
+        ["pickaxeMaxLevel"] = (long)pickaxeMaxLevel,
+    };
 
     public static void PopulatePickaxeConfiguration(ICoreAPI api)
     {
@@ -1469,7 +3705,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "pickaxe",
-            "levelup:config/levelstats/pickaxe.json");
+            BuildPickaxeDefaultConfig());
         { //pickaxeEXPPerLevelBase
             if (pickaxeLevelStats.TryGetValue("pickaxeEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: pickaxeEXPPerLevelBase is null");
@@ -1556,7 +3792,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "pickaxe",
-            "levelup:config/entityexp/pickaxe.json");
+            BuildPickaxeEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpPickaxe)
         {
             if (pair.Value is long value) entityExpPickaxe.Add(pair.Key, (int)value);
@@ -1569,7 +3805,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "pickaxesores",
-            "levelup:config/levelstats/pickaxesores.json");
+            BuildPickaxeOresDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmporesExpPickaxe)
         {
             if (pair.Value is long value) oresExpPickaxe.Add(pair.Key, (int)value);
@@ -1635,7 +3871,7 @@ public static class Configuration
     private static int shovelEXPPerLevelBase = 500;
     private static double shovelEXPMultiplyPerLevel = 1.5;
     private static float shovelBaseDamage = 1.0f;
-    private static float shovelIncrementDamagePerLevel = 0.1f;
+    private static float shovelIncrementDamagePerLevel = 0.03f;
     private static float shovelBaseMiningSpeed = 1.0f;
     private static float shovelIncrementMiningSpeedMultiplyPerLevel = 0.02f;
     public static int shovelMaxLevel = 999;
@@ -1644,13 +3880,282 @@ public static class Configuration
     public static int ExpPerHitShovel => shovelEXPPerHit;
     public static int ExpPerBreakingShovel => shovelEXPPerBreaking;
 
+    private static Dictionary<string, object> BuildShovelDefaultConfig() => new()
+    {
+        ["shovelEXPPerHit"] = (long)shovelEXPPerHit,
+        ["shovelEXPPerBreaking"] = (long)shovelEXPPerBreaking,
+        ["shovelEXPPerLevelBase"] = (long)shovelEXPPerLevelBase,
+        ["shovelEXPMultiplyPerLevel"] = shovelEXPMultiplyPerLevel,
+        ["shovelBaseDamage"] = (double)shovelBaseDamage,
+        ["shovelIncrementDamagePerLevel"] = (double)shovelIncrementDamagePerLevel,
+        ["shovelBaseMiningSpeed"] = (double)shovelBaseMiningSpeed,
+        ["shovelIncrementMiningSpeedMultiplyPerLevel"] = (double)shovelIncrementMiningSpeedMultiplyPerLevel,
+        ["shovelMaxLevel"] = (long)shovelMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildShovelEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateShovelConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> shovelLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "shovel",
-            "levelup:config/levelstats/shovel.json");
+            BuildShovelDefaultConfig());
         { //shovelEXPPerLevelBase
             if (shovelLevelStats.TryGetValue("shovelEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: shovelEXPPerLevelBase is null");
@@ -1722,7 +4227,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "shovel",
-            "levelup:config/entityexp/shovel.json");
+            BuildShovelEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpShovel)
         {
             if (pair.Value is long value) entityExpShovel.Add(pair.Key, (int)value);
@@ -1784,7 +4289,7 @@ public static class Configuration
     private static float spearBaseDamage = 1.0f;
     private static float spearIncrementDamagePerLevel = 0.1f;
     private static float spearBaseRangedAccuracy = 0.0f;
-    private static float spearIncrementRangedAccuracyPerLevel = 0.003f;
+    private static float spearIncrementRangedAccuracyPerLevel = 0.015f;
     private static float spearBaseRangedSpeed = 0.0f;
     private static float spearIncrementRangedSpeedPerLevel = 0.01f;
     private static float spearBaseMovePenaltyReduction = 0.0f;
@@ -1795,13 +4300,286 @@ public static class Configuration
     public static int ExpPerHitSpear => spearEXPPerHit;
     public static int ExpPerThrowSpear => spearEXPPerThrow;
 
+    private static Dictionary<string, object> BuildSpearDefaultConfig() => new()
+    {
+        ["spearEXPPerHit"] = (long)spearEXPPerHit,
+        ["spearEXPPerThrow"] = (long)spearEXPPerThrow,
+        ["spearEXPPerLevelBase"] = (long)spearEXPPerLevelBase,
+        ["spearEXPMultiplyPerLevel"] = spearEXPMultiplyPerLevel,
+        ["spearBaseDamage"] = (double)spearBaseDamage,
+        ["spearIncrementDamagePerLevel"] = (double)spearIncrementDamagePerLevel,
+        ["spearBaseRangedAccuracy"] = (double)spearBaseRangedAccuracy,
+        ["spearIncrementRangedAccuracyPerLevel"] = (double)spearIncrementRangedAccuracyPerLevel,
+        ["spearBaseRangedSpeed"] = (double)spearBaseRangedSpeed,
+        ["spearIncrementRangedSpeedPerLevel"] = (double)spearIncrementRangedSpeedPerLevel,
+        ["spearBaseMovePenaltyReduction"] = (double)spearBaseMovePenaltyReduction,
+        ["spearIncrementMovePenaltyReductionPerLevel"] = (double)spearIncrementMovePenaltyReductionPerLevel,
+        ["spearMaxLevel"] = (long)spearMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildSpearEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateSpearConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> spearLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "spear",
-            "levelup:config/levelstats/spear.json");
+            BuildSpearDefaultConfig());
         { //spearEXPPerLevelBase
             if (spearLevelStats.TryGetValue("spearEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: spearEXPPerLevelBase is null");
@@ -1903,7 +4681,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "spear",
-            "levelup:config/entityexp/spear.json");
+            BuildSpearEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpSpear)
         {
             if (pair.Value is long value) entityExpSpear.Add(pair.Key, (int)value);
@@ -1993,13 +4771,316 @@ public static class Configuration
 
     public static int ExpPerHitHammer => hammerEXPPerHit;
 
+    private static Dictionary<string, object> BuildHammerDefaultConfig() => new()
+    {
+        ["hammerEXPPerHit"] = (long)hammerEXPPerHit,
+        ["hammerEXPPerLevelBase"] = (long)hammerEXPPerLevelBase,
+        ["hammerEXPMultiplyPerLevel"] = hammerEXPMultiplyPerLevel,
+        ["hammerBaseDamage"] = (double)hammerBaseDamage,
+        ["hammerIncrementDamagePerLevel"] = (double)hammerIncrementDamagePerLevel,
+        ["hammerBaseSmithRetrieveChance"] = (double)hammerBaseSmithRetrieveChance,
+        ["hammerSmithRetrieveChancePerLevel"] = (double)hammerSmithRetrieveChancePerLevel,
+        ["hammerSmithRetrieveEveryLevelReduceChance"] = (long)hammerSmithRetrieveEveryLevelReduceChance,
+        ["hammerSmithRetrieveReduceChanceForEveryLevel"] = (double)hammerSmithRetrieveReduceChanceForEveryLevel,
+        ["hammerBaseChanceToDouble"] = (double)hammerBaseChanceToDouble,
+        ["hammerIncreaseChanceToDoublePerLevel"] = (double)hammerIncreaseChanceToDoublePerLevel,
+        ["hammerIncreaseChanceToDoublePerLevelReducerPerLevel"] = (long)hammerIncreaseChanceToDoublePerLevelReducerPerLevel,
+        ["hammerIncreaseChanceToDoublePerLevelReducer"] = (double)hammerIncreaseChanceToDoublePerLevelReducer,
+        ["hammerBaseChanceToTriple"] = (double)hammerBaseChanceToTriple,
+        ["hammerIncreaseChanceToTriplePerLevel"] = (double)hammerIncreaseChanceToTriplePerLevel,
+        ["hammerIncreaseChanceToTriplePerLevelReducerPerLevel"] = (long)hammerIncreaseChanceToTriplePerLevelReducerPerLevel,
+        ["hammerIncreaseChanceToTriplePerLevelReducer"] = (double)hammerIncreaseChanceToTriplePerLevelReducer,
+        ["hammerBaseChanceToQuadruple"] = (double)hammerBaseChanceToQuadruple,
+        ["hammerIncreaseChanceToQuadruplePerLevel"] = (double)hammerIncreaseChanceToQuadruplePerLevel,
+        ["hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel"] = (long)hammerIncreaseChanceToQuadruplePerLevelReducerPerLevel,
+        ["hammerIncreaseChanceToQuadruplePerLevelReducer"] = (double)hammerIncreaseChanceToQuadruplePerLevelReducer,
+        ["hammerMaxLevel"] = (long)hammerMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildHammerEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
+    private static Dictionary<string, object> BuildHammerSmithChanceDefaultConfig() => new()
+    {
+        ["copper"] = "game:nugget-nativecopper",
+        ["limonite"] = "game:nugget-limonite",
+        ["gold"] = "game:nugget-nativegold",
+        ["galena"] = "game:nugget-galena",
+        ["cassiterite"] = "game:nugget-cassiterite",
+        ["chromite"] = "game:nugget-chromite",
+        ["ilmenite"] = "game:nugget-ilmenite",
+        ["sphalerite"] = "game:nugget-sphalerite",
+        ["silver"] = "game:nugget-nativesilver",
+        ["bismuthinite"] = "game:nugget-bismuthinite",
+        ["magnetite"] = "game:nugget-magnetite",
+        ["hematite"] = "game:nugget-hematite",
+        ["malachite"] = "game:nugget-malachite",
+        ["pentlandite"] = "game:nugget-pentlandite",
+        ["uranium"] = "game:nugget-uranium",
+        ["wolframite"] = "game:nugget-wolframite",
+        ["rhodochrosite"] = "game:nugget-rhodochrosite",
+    };
+
     public static void PopulateHammerConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> hammerLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "hammer",
-            "levelup:config/levelstats/hammer.json");
+            BuildHammerDefaultConfig());
         { //hammerEXPPerLevelBase
             if (hammerLevelStats.TryGetValue("hammerEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: hammerEXPPerLevelBase is null");
@@ -2162,7 +5243,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "hammer",
-            "levelup:config/entityexp/hammer.json");
+            BuildHammerEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpHammer)
         {
             if (pair.Value is long value) entityExpHammer.Add(pair.Key, (int)value);
@@ -2175,7 +5256,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "hammersmiths",
-            "levelup:config/levelstats/hammersmiths.json");
+            BuildHammerSmithChanceDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpsmithChanceHammer)
         {
             if (pair.Value is string value) smithChanceHammer.Add(pair.Key, value);
@@ -2328,13 +5409,279 @@ public static class Configuration
 
     public static int ExpPerHitSword => swordEXPPerHit;
 
+    private static Dictionary<string, object> BuildSwordDefaultConfig() => new()
+    {
+        ["swordEXPPerHit"] = (long)swordEXPPerHit,
+        ["swordEXPPerLevelBase"] = (long)swordEXPPerLevelBase,
+        ["swordEXPMultiplyPerLevel"] = swordEXPMultiplyPerLevel,
+        ["swordBaseDamage"] = (double)swordBaseDamage,
+        ["swordIncrementDamagePerLevel"] = (double)swordIncrementDamagePerLevel,
+        ["swordMaxLevel"] = (long)swordMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildSwordEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateSwordConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> swordLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "sword",
-            "levelup:config/levelstats/sword.json");
+            BuildSwordDefaultConfig());
         { //swordEXPPerLevelBase
             if (swordLevelStats.TryGetValue("swordEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: swordEXPPerLevelBase is null");
@@ -2385,14 +5732,14 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "sword",
-            "levelup:config/entityexp/sword.json");
+            BuildSwordEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpSword)
         {
             if (pair.Value is long value) entityExpSword.Add(pair.Key, (int)value);
             else Debug.Log($"CONFIGURATION ERROR: entityExpSword {pair.Key} is not int");
         }
 
-        Debug.Log("Hand configuration set");
+        Debug.Log("Sword configuration set");
     }
 
     public static int SwordGetLevelByEXP(ulong exp)
@@ -2454,13 +5801,33 @@ public static class Configuration
 
     public static int ExpPerHitShield => shieldEXPPerHit;
 
+    private static Dictionary<string, object> BuildShieldDefaultConfig() => new()
+    {
+        ["shieldEXPPerHit"] = (long)shieldEXPPerHit,
+        ["shieldEXPPerLevelBase"] = (long)shieldEXPPerLevelBase,
+        ["shieldEXPMultiplyPerLevel"] = shieldEXPMultiplyPerLevel,
+        ["shieldBasePassiveProjectile"] = (double)shieldBasePassiveProjectile,
+        ["shieldPassiveProjectilePerLevel"] = (double)shieldPassiveProjectilePerLevel,
+        ["shieldBaseActiveProjectile"] = (double)shieldBaseActiveProjectile,
+        ["shieldActiveProjectilePerLevel"] = (double)shieldActiveProjectilePerLevel,
+        ["shieldBasePassive"] = (double)shieldBasePassive,
+        ["shieldPassivePerLevel"] = (double)shieldPassivePerLevel,
+        ["shieldBaseActive"] = (double)shieldBaseActive,
+        ["shieldActivePerLevel"] = (double)shieldActivePerLevel,
+        ["shieldBaseProjectileDamageAbsorption"] = (double)shieldBaseProjectileDamageAbsorption,
+        ["shieldProjectileDamageAbsorptionPerLevel"] = (double)shieldProjectileDamageAbsorptionPerLevel,
+        ["shieldBaseDamageAbsorption"] = (double)shieldBaseDamageAbsorption,
+        ["shieldDamageAbsorptionPerLevel"] = (double)shieldDamageAbsorptionPerLevel,
+        ["shieldMaxLevel"] = (long)shieldMaxLevel,
+    };
+
     public static void PopulateShieldConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> shieldLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "shield",
-            "levelup:config/levelstats/shield.json");
+            BuildShieldDefaultConfig());
         { //shieldEXPPerLevelBase
             if (shieldLevelStats.TryGetValue("shieldEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: shieldEXPPerLevelBase is null");
@@ -2651,13 +6018,279 @@ public static class Configuration
 
     public static int ExpPerHitHand => handEXPPerHit;
 
+    private static Dictionary<string, object> BuildHandDefaultConfig() => new()
+    {
+        ["handEXPPerHit"] = (long)handEXPPerHit,
+        ["handEXPPerLevelBase"] = (long)handEXPPerLevelBase,
+        ["handEXPMultiplyPerLevel"] = handEXPMultiplyPerLevel,
+        ["handBaseDamage"] = (double)handBaseDamage,
+        ["handIncrementDamagePerLevel"] = (double)handIncrementDamagePerLevel,
+        ["handMaxLevel"] = (long)handMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildHandEntityExpDefaultConfig() => new()
+    {
+        ["game:sheep-bighorn-male"] = (long)50,
+        ["game:sheep-bighorn-female"] = (long)50,
+        ["game:sheep-bighorn-lamb"] = (long)20,
+        ["game:chicken-rooster"] = (long)10,
+        ["game:chicken-hen"] = (long)10,
+        ["game:chicken-baby"] = (long)10,
+        ["game:wolf-male"] = (long)40,
+        ["game:wolf-female"] = (long)40,
+        ["game:wolf-pup"] = (long)10,
+        ["game:hyena-male"] = (long)40,
+        ["game:hyena-female"] = (long)40,
+        ["game:hyena-pup"] = (long)10,
+        ["game:fox-male-red"] = (long)20,
+        ["game:fox-female-red"] = (long)20,
+        ["game:fox-pup"] = (long)10,
+        ["game:fox-pup-red"] = (long)20,
+        ["game:fox-pup-arctic"] = (long)20,
+        ["game:fox-male-arctic"] = (long)10,
+        ["game:fox-female-arctic"] = (long)10,
+        ["game:raccoon-male"] = (long)20,
+        ["game:raccoon-female"] = (long)20,
+        ["game:raccoon-pup"] = (long)10,
+        ["game:hare-male-arctic"] = (long)30,
+        ["game:hare-male-ashgrey"] = (long)30,
+        ["game:hare-male-darkbrown"] = (long)30,
+        ["game:hare-male-desert"] = (long)30,
+        ["game:hare-male-gold"] = (long)40,
+        ["game:hare-male-lightbrown"] = (long)40,
+        ["game:hare-male-lightgrey"] = (long)40,
+        ["game:hare-male-silver"] = (long)40,
+        ["game:hare-male-smokegrey"] = (long)50,
+        ["game:hare-female-arctic"] = (long)60,
+        ["game:hare-female-ashgrey"] = (long)60,
+        ["game:hare-female-gold"] = (long)70,
+        ["game:hare-female-lightbrown"] = (long)40,
+        ["game:hare-female-lightgrey"] = (long)40,
+        ["game:hare-female-silver"] = (long)40,
+        ["game:hare-female-smokegrey"] = (long)30,
+        ["game:hare-baby"] = (long)20,
+        ["game:drifter-normal"] = (long)40,
+        ["game:drifter-deep"] = (long)50,
+        ["game:drifter-tainted"] = (long)60,
+        ["game:drifter-corrupt"] = (long)70,
+        ["game:drifter-nightmare"] = (long)80,
+        ["game:drifter-double-headed"] = (long)90,
+        ["game:locust-bronze"] = (long)60,
+        ["game:locust-corrupt"] = (long)60,
+        ["game:bell-normal"] = (long)100,
+        ["game:bear-female-black"] = (long)50,
+        ["game:bear-female-brown"] = (long)50,
+        ["game:bear-female-sun"] = (long)50,
+        ["game:bear-female-panda"] = (long)50,
+        ["game:bear-female-polar"] = (long)50,
+        ["game:bear-male-black"] = (long)50,
+        ["game:bear-male-brown"] = (long)50,
+        ["game:bear-male-sun"] = (long)50,
+        ["game:bear-male-panda"] = (long)50,
+        ["game:bear-male-polar"] = (long)50,
+        ["game:locust-bronze-hacked"] = (long)60,
+        ["game:locust-corrupt-hacked"] = (long)60,
+        ["game:gazelle-male"] = (long)50,
+        ["game:gazelle-female"] = (long)50,
+        ["game:gazelle-calf"] = (long)30,
+        ["game:deer-moose-male-adult"] = (long)30,
+        ["game:deer-moose-female-adult"] = (long)50,
+        ["game:deer-moose-male-baby"] = (long)50,
+        ["game:deer-moose-female-baby"] = (long)30,
+        ["game:deer-whitetail-male-adult"] = (long)30,
+        ["game:deer-whitetail-female-adult"] = (long)30,
+        ["game:deer-whitetail-male-baby"] = (long)30,
+        ["game:deer-whitetail-female-baby"] = (long)10,
+        ["game:deer-redbrocket-male-adult"] = (long)10,
+        ["game:deer-chital-female-baby"] = (long)60,
+        ["game:deer-guemal-male-adult"] = (long)60,
+        ["game:deer-guemal-female-adult"] = (long)20,
+        ["game:deer-guemal-male-baby"] = (long)20,
+        ["game:deer-guemal-female-baby"] = (long)60,
+        ["game:deer-pampas-male-adult"] = (long)60,
+        ["game:deer-pampas-female-adult"] = (long)70,
+        ["game:deer-pampas-male-baby"] = (long)70,
+        ["game:deer-pampas-female-baby"] = (long)40,
+        ["game:deer-pudu-male-adult"] = (long)40,
+        ["game:deer-pudu-female-adult"] = (long)10,
+        ["game:deer-pudu-male-baby"] = (long)10,
+        ["game:deer-pudu-female-baby"] = (long)60,
+        ["game:deer-elk-male-adult"] = (long)60,
+        ["game:deer-elk-female-adult"] = (long)20,
+        ["game:deer-elk-male-baby"] = (long)20,
+        ["game:deer-elk-female-baby"] = (long)50,
+        ["game:deer-taruca-male-adult"] = (long)50,
+        ["game:deer-taruca-female-adult"] = (long)20,
+        ["game:deer-taruca-male-baby"] = (long)20,
+        ["game:deer-taruca-female-baby"] = (long)60,
+        ["game:deer-chital-male-adult"] = (long)60,
+        ["game:deer-chital-female-adult"] = (long)20,
+        ["game:deer-chital-male-baby"] = (long)20,
+        ["game:deer-fallow-female-baby"] = (long)60,
+        ["game:deer-fallow-male-adult"] = (long)60,
+        ["game:deer-fallow-male-baby"] = (long)20,
+        ["game:deer-fallow-female-adult"] = (long)20,
+        ["game:goat-angora-male-adult"] = (long)70,
+        ["game:goat-angora-female-adult"] = (long)70,
+        ["game:goat-angora-male-baby"] = (long)30,
+        ["game:goat-angora-female-baby"] = (long)30,
+        ["game:goat-ibexalp-male-adult"] = (long)70,
+        ["game:goat-ibexalp-female-adult"] = (long)70,
+        ["game:goat-ibexalp-male-baby"] = (long)30,
+        ["game:goat-ibexalp-female-baby"] = (long)30,
+        ["game:goat-ibexnub-male-adult"] = (long)50,
+        ["game:goat-ibexnub-female-adult"] = (long)50,
+        ["game:goat-ibexnub-male-baby"] = (long)20,
+        ["game:goat-ibexnub-female-baby"] = (long)20,
+        ["game:goat-markhor-male-adult"] = (long)60,
+        ["game:goat-markhor-female-adult"] = (long)60,
+        ["game:goat-markhor-male-baby"] = (long)20,
+        ["game:goat-markhor-female-baby"] = (long)20,
+        ["game:goat-mountain-male-adult"] = (long)40,
+        ["game:goat-mountain-female-adult"] = (long)40,
+        ["game:goat-mountain-male-baby"] = (long)20,
+        ["game:goat-mountain-female-baby"] = (long)20,
+        ["game:goat-muskox-male-adult"] = (long)40,
+        ["game:goat-muskox-female-adult"] = (long)40,
+        ["game:goat-muskox-male-baby"] = (long)20,
+        ["game:goat-muskox-female-baby"] = (long)20,
+        ["game:goat-nubian-male-adult"] = (long)40,
+        ["game:goat-nubian-female-adult"] = (long)40,
+        ["game:goat-nubian-male-baby"] = (long)20,
+        ["game:goat-sirohi-male-adult"] = (long)40,
+        ["game:goat-sirohi-female-adult"] = (long)40,
+        ["game:goat-sirohi-male-baby"] = (long)20,
+        ["game:goat-sirohi-female-baby"] = (long)20,
+        ["game:goat-takingold-male-adult"] = (long)40,
+        ["game:goat-takingold-female-adult"] = (long)40,
+        ["game:goat-takingold-male-baby"] = (long)20,
+        ["game:goat-takingold-female-baby"] = (long)20,
+        ["game:goat-turdag-male-adult"] = (long)40,
+        ["game:goat-turdag-female-adult"] = (long)40,
+        ["game:goat-turdag-male-baby"] = (long)20,
+        ["game:goat-turdag-female-baby"] = (long)20,
+        ["game:goat-valais-male-adult"] = (long)40,
+        ["game:goat-valais-female-adult"] = (long)40,
+        ["game:goat-valais-male-baby"] = (long)20,
+        ["game:goat-valais-female-baby"] = (long)20,
+        ["game:pig-eurasian-adult-male"] = (long)30,
+        ["game:pig-eurasian-adult-female"] = (long)30,
+        ["game:pig-eurasian-elder-male"] = (long)40,
+        ["game:pig-eurasian-elder-female"] = (long)40,
+        ["game:pig-redriver-adult-male"] = (long)35,
+        ["game:pig-redriver-adult-female"] = (long)35,
+        ["game:pig-warthog-adult-male"] = (long)40,
+        ["game:pig-warthog-adult-female"] = (long)40,
+        ["game:pig-eurasian-baby-male"] = (long)10,
+        ["game:pig-eurasian-baby-female"] = (long)10,
+        ["game:pig-redriver-baby-male"] = (long)10,
+        ["game:pig-redriver-baby-female"] = (long)10,
+        ["game:pig-warthog-baby-male"] = (long)10,
+        ["game:pig-warthog-baby-female"] = (long)10,
+        ["game:sheep-mouflon-male"] = (long)50,
+        ["game:sheep-mouflon-female"] = (long)50,
+        ["game:sheep-mouflon-lamb"] = (long)20,
+        ["game:shiver-surface"] = (long)50,
+        ["game:shiver-deep"] = (long)60,
+        ["game:shiver-tainted"] = (long)70,
+        ["game:shiver-corrupt"] = (long)80,
+        ["game:shiver-nightmare"] = (long)90,
+        ["game:shiver-stilt"] = (long)60,
+        ["game:shiver-bellhead"] = (long)80,
+        ["game:shiver-deepsplit"] = (long)90,
+        ["game:bowtorn-surface"] = (long)50,
+        ["game:bowtorn-deep"] = (long)60,
+        ["game:bowtorn-tainted"] = (long)70,
+        ["game:bowtorn-corrupt"] = (long)80,
+        ["game:bowtorn-nightmare"] = (long)90,
+        ["game:bowtorn-gearfoot"] = (long)80,
+        ["game:erel-pristine"] = (long)200,
+        ["game:erel-corrupted"] = (long)250,
+        ["game:eidolon-immobilized"] = (long)300,
+        ["game:bellmini-normal"] = (long)100,
+        ["game:locust-corrupt-sawblade"] = (long)60,
+        ["game:chicken-henpoult"] = (long)10,
+        ["game:chicken-roosterpoult"] = (long)10,
+        ["game:deer-marsh-male-adult"] = (long)30,
+        ["game:deer-marsh-female-adult"] = (long)30,
+        ["game:deer-marsh-male-baby"] = (long)10,
+        ["game:deer-marsh-female-baby"] = (long)10,
+        ["game:deer-caribou-male-adult"] = (long)30,
+        ["game:deer-caribou-female-adult"] = (long)30,
+        ["game:deer-caribou-male-baby"] = (long)10,
+        ["game:deer-caribou-female-baby"] = (long)10,
+        ["game:deer-water-male-adult"] = (long)30,
+        ["game:deer-water-female-adult"] = (long)30,
+        ["game:deer-water-male-baby"] = (long)10,
+        ["game:deer-water-female-baby"] = (long)10,
+        ["game:deer-redbrocket-female-adult"] = (long)10,
+        ["game:deer-redbrocket-male-baby"] = (long)10,
+        ["game:deer-redbrocket-female-baby"] = (long)10,
+        ["game:fish-freshwater-alewife-shad-adult"] = (long)5,
+        ["game:fish-freshwater-chub-river-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-black-adult"] = (long)5,
+        ["game:fish-freshwater-crappie-white-adult"] = (long)5,
+        ["game:fish-freshwater-perch-european-adult"] = (long)5,
+        ["game:fish-freshwater-perch-yellow-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-black-adult"] = (long)5,
+        ["game:fish-freshwater-piranha-red-adult"] = (long)5,
+        ["game:fish-freshwater-trout-brown-adult"] = (long)5,
+        ["game:fish-freshwater-trout-rainbow-adult"] = (long)5,
+        ["game:fish-freshwater-bass-largemouth-adult"] = (long)10,
+        ["game:fish-freshwater-bass-smallmouth-adult"] = (long)10,
+        ["game:fish-freshwater-carp-common-adult"] = (long)10,
+        ["game:fish-freshwater-carp-grass-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-blue-adult"] = (long)10,
+        ["game:fish-freshwater-catfish-channel-adult"] = (long)10,
+        ["game:fish-freshwater-pickerel-chain-adult"] = (long)10,
+        ["game:fish-freshwater-salmon-coho-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-nile-adult"] = (long)10,
+        ["game:fish-freshwater-tilapia-red-adult"] = (long)10,
+        ["game:fish-freshwater-walleye-common-adult"] = (long)10,
+        ["game:fish-freshwater-pike-northern-adult"] = (long)15,
+        ["game:fish-freshwater-arapaima-arapaima-adult"] = (long)20,
+        ["game:fish-freshwater-arapaima-gigas-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-black-adult"] = (long)20,
+        ["game:fish-freshwater-sheatfish-white-adult"] = (long)20,
+        ["game:fish-saltwater-bream-sea-adult"] = (long)5,
+        ["game:fish-saltwater-gurnard-cape-adult"] = (long)5,
+        ["game:fish-saltwater-haddock-common-adult"] = (long)5,
+        ["game:fish-saltwater-hake-silver-adult"] = (long)5,
+        ["game:fish-saltwater-herring-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-mackerel-atlantic-adult"] = (long)5,
+        ["game:fish-saltwater-pollock-alaska-adult"] = (long)5,
+        ["game:fish-saltwater-perch-pacific-adult"] = (long)5,
+        ["game:fish-saltwater-barracuda-great-adult"] = (long)10,
+        ["game:fish-saltwater-grouper-black-adult"] = (long)10,
+        ["game:fish-saltwater-salmon-pink-adult"] = (long)10,
+        ["game:fish-saltwater-snapper-red-adult"] = (long)10,
+        ["game:fish-saltwater-tuna-skipjack-adult"] = (long)10,
+        ["game:fish-saltwater-wolf-bering-adult"] = (long)10,
+        ["game:fish-saltwater-amberjack-yellowtail-adult"] = (long)15,
+        ["game:fish-saltwater-mahi-mahi-common-adult"] = (long)15,
+        ["game:fish-saltwater-wreckfish-atlantic-adult"] = (long)15,
+        ["game:fish-saltwater-coelacanth-common-adult"] = (long)20,
+        ["game:fish-saltwater-sturgeon-atlantic-adult"] = (long)20,
+        ["game:fish-reef-angel-bicolor-adult"] = (long)5,
+        ["game:fish-reef-butterfly-copperband-adult"] = (long)5,
+        ["game:fish-reef-butterfly-blackwedged-adult"] = (long)5,
+        ["game:fish-reef-clown-black-adult"] = (long)5,
+        ["game:fish-reef-clown-common-adult"] = (long)5,
+        ["game:fish-reef-clown-yellowstripe-adult"] = (long)5,
+        ["game:fish-reef-puffer-longspine-adult"] = (long)5,
+        ["game:fish-reef-tang-banded-adult"] = (long)5,
+        ["game:fish-reef-tang-powderblue-adult"] = (long)5,
+        ["game:fish-reef-trigger-titan-adult"] = (long)5,
+        ["game:fish-reef-wrasse-creole-adult"] = (long)5,
+    };
+
     public static void PopulateHandConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> handLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "hand",
-            "levelup:config/levelstats/hand.json");
+            BuildHandDefaultConfig());
         { //handEXPPerLevelBase
             if (handLevelStats.TryGetValue("handEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: handEXPPerLevelBase is null");
@@ -2708,7 +6341,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/entityexp",
             "hand",
-            "levelup:config/entityexp/hand.json");
+            BuildHandEntityExpDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpentityExpHand)
         {
             if (pair.Value is long value) entityExpHand.Add(pair.Key, (int)value);
@@ -2762,13 +6395,106 @@ public static class Configuration
     private static int farmingEXPPerLevelBase = 100;
     private static double farmingEXPMultiplyPerLevel = 2.5;
     private static float farmingBaseHarvestMultiply = 0.5f;
-    private static float farmingIncrementHarvestMultiplyPerLevel = 0.2f;
+    private static float farmingIncrementHarvestMultiplyPerLevel = 0.1f;
     private static float farmingBaseForageMultiply = 1.0f;
-    private static float farmingIncrementForageMultiplyPerLevel = 0.2f;
+    private static float farmingIncrementForageMultiplyPerLevel = 0.08f;
     public static int farmingMaxLevel = 999;
 
     public static int ExpPerTillFarming => farmingEXPPerTill;
     public static float BaseHarvestMultiplyFarming => farmingBaseHarvestMultiply;
+
+    private static Dictionary<string, object> BuildFarmingDefaultConfig() => new()
+    {
+        ["farmingEXPPerTill"] = (long)farmingEXPPerTill,
+        ["farmingEXPPerLevelBase"] = (long)farmingEXPPerLevelBase,
+        ["farmingEXPMultiplyPerLevel"] = farmingEXPMultiplyPerLevel,
+        ["farmingBaseHarvestMultiply"] = (double)farmingBaseHarvestMultiply,
+        ["farmingIncrementHarvestMultiplyPerLevel"] = (double)farmingIncrementHarvestMultiplyPerLevel,
+        ["farmingBaseForageMultiply"] = (double)farmingBaseForageMultiply,
+        ["farmingIncrementForageMultiplyPerLevel"] = (double)farmingIncrementForageMultiplyPerLevel,
+        ["farmingMaxLevel"] = (long)farmingMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildFarmingCropsDefaultConfig() => new()
+    {
+        // Crops
+        ["game:crop-turnip-5"] = (long)40,
+        ["game:crop-turnip-4"] = (long)10,
+        ["game:crop-carrot-6"] = (long)20,
+        ["game:crop-carrot-7"] = (long)50,
+        ["game:crop-flax-9"] = (long)80,
+        ["game:crop-flax-8"] = (long)40,
+        ["game:crop-onion-7"] = (long)50,
+        ["game:crop-onion-6"] = (long)30,
+        ["game:crop-spelt-9"] = (long)80,
+        ["game:crop-spelt-8"] = (long)40,
+        ["game:crop-parsnip-8"] = (long)70,
+        ["game:crop-parsnip-7"] = (long)30,
+        ["game:crop-rye-9"] = (long)80,
+        ["game:crop-rye-8"] = (long)40,
+        ["game:crop-rice-10"] = (long)100,
+        ["game:crop-rice-9"] = (long)50,
+        ["game:crop-soybean-11"] = (long)120,
+        ["game:crop-soybean-10"] = (long)50,
+        ["game:crop-amaranth-9"] = (long)70,
+        ["game:crop-amaranth-8"] = (long)30,
+        ["game:crop-cassava-9"] = (long)80,
+        ["game:crop-cassava-8"] = (long)30,
+        ["game:crop-peanut-9"] = (long)70,
+        ["game:crop-peanut-8"] = (long)20,
+        ["game:crop-pineapple-16"] = (long)200,
+        ["game:crop-pineapple-15"] = (long)90,
+        ["game:crop-sunflower-12"] = (long)100,
+        ["game:crop-sunflower-11"] = (long)60,
+        ["game:crop-pumpkin-8"] = (long)120,
+        ["game:crop-pumpkin-7"] = (long)50,
+        ["game:crop-cabbage-12"] = (long)140,
+        ["game:crop-cabbage-11"] = (long)60,
+        // Mushrooms
+        ["game:mushroom-fieldmushroom-normal"] = (long)10,
+        ["game:mushroom-almondmushroom-normal"] = (long)10,
+        ["game:mushroom-flyagaric-normal"] = (long)10,
+        ["game:mushroom-bitterbolete-normal"] = (long)10,
+        ["game:mushroom-blacktrumpet-normal"] = (long)10,
+        ["game:mushroom-chanterelle-normal"] = (long)10,
+        ["game:mushroom-commonmorel-normal"] = (long)10,
+        ["game:mushroom-deathcap-normal"] = (long)10,
+        ["game:mushroom-devilstooth-normal"] = (long)10,
+        ["game:mushroom-devilbolete-normal"] = (long)10,
+        ["game:mushroom-earthball-normal"] = (long)10,
+        ["game:mushroom-elfinsaddle-normal"] = (long)10,
+        ["game:mushroom-golddropmilkcap-normal-north"] = (long)10,
+        ["game:mushroom-greencrackedrussula-normal"] = (long)10,
+        ["game:mushroom-indigomilkcap-normal"] = (long)10,
+        ["game:mushroom-jackolantern-normal"] = (long)10,
+        ["game:mushroom-kingbolete-normal"] = (long)10,
+        ["game:mushroom-lobster-normal"] = (long)10,
+        ["game:mushroom-orangeoakbolete-normal"] = (long)10,
+        ["game:mushroom-paddystraw-normal"] = (long)10,
+        ["game:mushroom-puffball-normal"] = (long)10,
+        ["game:mushroom-redwinecap-normal"] = (long)10,
+        ["game:mushroom-saffronmilkcap-normal"] = (long)10,
+        ["game:mushroom-violetwebcap-normal"] = (long)10,
+        ["game:mushroom-witchhat-normal"] = (long)10,
+        ["game:mushroom-beardedtooth-normal"] = (long)10,
+        ["game:mushroom-chickenofthewoods-normal-north"] = (long)10,
+        ["game:mushroom-dryadsaddle-normal"] = (long)10,
+        ["game:mushroom-pinkoyster-normal-north"] = (long)10,
+        ["game:mushroom-tinderhoof-normal-north"] = (long)10,
+        ["game:mushroom-whiteoyster-normal-north"] = (long)10,
+        ["game:mushroom-reishi-normal-north"] = (long)10,
+        ["game:mushroom-funeralbell-normal-north"] = (long)10,
+        ["game:mushroom-deerear-normal-north"] = (long)10,
+        ["game:mushroom-livermushroom-normal-north"] = (long)10,
+        ["game:mushroom-pinkbonnet-normal-north"] = (long)10,
+        ["game:mushroom-shiitake-normal-north"] = (long)10,
+        // Bush Berries
+        ["game:bigberrybush-blackcurrant-ripe"] = (long)10,
+        ["game:bigberrybush-redcurrant-ripe"] = (long)10,
+        ["game:bigberrybush-whitecurrant-ripe"] = (long)10,
+        ["game:smallberrybush-blueberry-ripe"] = (long)10,
+        ["game:smallberrybush-cranberry-ripe"] = (long)10,
+    };
 
     public static void PopulateFarmingConfiguration(ICoreAPI api)
     {
@@ -2776,7 +6502,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "farming",
-            "levelup:config/levelstats/farming.json");
+            BuildFarmingDefaultConfig());
         { //farmingEXPPerLevelBase
             if (farmingLevelStats.TryGetValue("farmingEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingEXPPerLevelBase is null");
@@ -2788,7 +6514,7 @@ public static class Configuration
             if (farmingLevelStats.TryGetValue("farmingEXPMultiplyPerLevel", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: farmingEXPMultiplyPerLevel is null");
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: farmingEXPMultiplyPerLevel is not double is {value.GetType()}");
-                else farmingEXPMultiplyPerLevel = (float)(double)value;
+                else farmingEXPMultiplyPerLevel = (double)value;
             else Debug.LogError("CONFIGURATION ERROR: farmingEXPMultiplyPerLevel not set");
         }
         { //farmingEXPPerTill
@@ -2842,7 +6568,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "farmingcrops",
-            "levelup:config/levelstats/farmingcrops.json");
+            BuildFarmingCropsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpPerHarvestFarming)
         {
             if (pair.Value is long value) expPerHarvestFarming.Add(pair.Key, (int)value);
@@ -2914,13 +6640,53 @@ public static class Configuration
 
     public static int ExpPerCookingcooking => cookingBaseExpPerCooking;
 
+    private static Dictionary<string, object> BuildCookingDefaultConfig() => new()
+    {
+        ["cookingBaseExpPerCooking"] = (long)cookingBaseExpPerCooking,
+        ["cookingEXPPerLevelBase"] = (long)cookingEXPPerLevelBase,
+        ["cookingEXPMultiplyPerLevel"] = cookingEXPMultiplyPerLevel,
+        ["cookingBaseFreshHoursMultiply"] = (double)cookingBaseFreshHoursMultiply,
+        ["cookingFreshHoursMultiplyPerLevel"] = (double)cookingFreshHoursMultiplyPerLevel,
+        ["cookingBaseChanceToIncreaseServings"] = (double)cookingBaseChanceToIncreaseServings,
+        ["cookingReduceChanceToIncreaseServings"] = (long)cookingReduceChanceToIncreaseServings,
+        ["cookingIncrementChanceToIncreaseServings"] = (double)cookingIncrementChanceToIncreaseServings,
+        ["cookingChanceToIncreaseServingsReducerTotal"] = (double)cookingChanceToIncreaseServingsReducerTotal,
+        ["cookingBaseRollsChanceToIncreaseServings"] = (long)cookingBaseRollsChanceToIncreaseServings,
+        ["cookingEarnRollsChanceToIncreaseServingsEveryLevel"] = (long)cookingEarnRollsChanceToIncreaseServingsEveryLevel,
+        ["cookingEarnRollsChanceToIncreaseServingsQuantity"] = (long)cookingEarnRollsChanceToIncreaseServingsQuantity,
+        ["cookingMaxLevel"] = (long)cookingMaxLevel,
+    };
+
+    private static Dictionary<string, object> BuildCookingSinglesDefaultConfig() => new()
+    {
+        ["game:redmeat-cooked"] = 0.5,
+        ["game:poultry-cooked"] = 0.4,
+        ["game:fish-cooked"] = 0.4,
+        ["game:bushmeat-cooked"] = 0.3,
+        ["game:vegetable-cookedcattailroot"] = 0.1,
+    };
+
+    private static Dictionary<string, object> BuildCookingPotsDefaultConfig() => new()
+    {
+        ["game:claypot-cooked"] = 3.0,
+        ["game:claypot-blue-cooked"] = 3.0,
+        ["game:claypot-fire-cooked"] = 3.0,
+        ["game:claypot-black-cooked"] = 3.0,
+        ["game:claypot-brown-cooked"] = 3.0,
+        ["game:claypot-cream-cooked"] = 3.0,
+        ["game:claypot-gray-cooked"] = 3.0,
+        ["game:claypot-orange-cooked"] = 3.0,
+        ["game:claypot-red-cooked"] = 3.0,
+        ["game:claypot-tan-cooked"] = 3.0,
+    };
+
     public static void PopulateCookingConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> cookingLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "cooking",
-            "levelup:config/levelstats/cooking.json");
+            BuildCookingDefaultConfig());
         { //cookingBaseExpPerCooking
             if (cookingLevelStats.TryGetValue("cookingBaseExpPerCooking", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingBaseExpPerCooking is null");
@@ -2977,7 +6743,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: cookingReduceChanceToIncreaseServings is not int is {value.GetType()}");
                 else cookingReduceChanceToIncreaseServings = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: cookingReduceChanceToIncreaseServings not set");
-            Experience.LoadExperience("Cooking", "Cooking", (ulong)cookingReduceChanceToIncreaseServings);
         }
         { //cookingChanceToIncreaseServingsReducerTotal
             if (cookingLevelStats.TryGetValue("cookingChanceToIncreaseServingsReducerTotal", out object value))
@@ -3021,7 +6786,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "cookingsingles",
-            "levelup:config/levelstats/cookingsingles.json");
+            BuildCookingSinglesDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplySingleCooking)
         {
             if (pair.Value is double value) expMultiplySingleCooking.Add(pair.Key, value);
@@ -3033,7 +6798,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "cookingpots",
-            "levelup:config/levelstats/cookingpots.json");
+            BuildCookingPotsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyPotsCooking)
         {
             if (pair.Value is double value) expMultiplyPotsCooking.Add(pair.Key, value);
@@ -3141,13 +6906,29 @@ public static class Configuration
 
     public static int ExpPerPanning => panningBaseExpPerPanning;
 
+    private static Dictionary<string, object> BuildPanningDefaultConfig() => new()
+    {
+        ["panningBaseExpPerPanning"] = (long)panningBaseExpPerPanning,
+        ["panningEXPPerLevelBase"] = (long)panningEXPPerLevelBase,
+        ["panningEXPMultiplyPerLevel"] = panningEXPMultiplyPerLevel,
+        ["panningBaseLootMultiply"] = (double)panningBaseLootMultiply,
+        ["panningLootMultiplyPerLevel"] = (double)panningLootMultiplyPerLevel,
+        ["panningBaseChanceToDoubleLoot"] = (double)panningBaseChanceToDoubleLoot,
+        ["panningChanceToDoubleLootPerLevel"] = (double)panningChanceToDoubleLootPerLevel,
+        ["panningBaseChanceToTripleLoot"] = (double)panningBaseChanceToTripleLoot,
+        ["panningChanceToTripleLootPerLevel"] = (double)panningChanceToTripleLootPerLevel,
+        ["panningBaseChanceToQuadrupleLoot"] = (double)panningBaseChanceToQuadrupleLoot,
+        ["panningChanceToQuadrupleLootPerLevel"] = (double)panningChanceToQuadrupleLootPerLevel,
+        ["panningMaxLevel"] = (long)panningMaxLevel,
+    };
+
     public static void PopulatePanningConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> panningLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "panning",
-            "levelup:config/levelstats/panning.json");
+            BuildPanningDefaultConfig());
         { //panningBaseExpPerPanning
             if (panningLevelStats.TryGetValue("panningBaseExpPerPanning", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: panningBaseExpPerPanning is null");
@@ -3310,15 +7091,347 @@ public static class Configuration
     private static float smithingBaseDurabilityMultiply = 1.0f;
     private static float smithingIncrementDurabilityMultiplyPerLevel = 0.05f;
     private static float smithingBaseAttackPowerMultiply = 1.0f;
-    private static float smithingIncrementAttackPowerMultiplyPerLevel = 0.05f;
+    private static float smithingIncrementAttackPowerMultiplyPerLevel = 0.04f;
     private static float smithingBaseMiningSpeedMultiply = 1.0f;
-    private static float smithingIncrementMiningSpeedMultiplyPerLevel = 0.01f;
+    private static float smithingIncrementMiningSpeedMultiplyPerLevel = 0.025f;
     private static float smithingBaseArmorProtectionMultiply = 1.0f;
-    private static float smithingIncrementArmorProtectionMultiplyPerLevel = 0.05f;
+    private static float smithingIncrementArmorProtectionMultiplyPerLevel = 0.015f;
     private static float smithingBaseArmorStatusMultiply = 1.0f;
-    private static float smithingIncrementArmorStatusMultiplyPerLevel = 0.05f;
+    private static float smithingIncrementArmorStatusMultiplyPerLevel = 0.02f;
     public static int smithingMaxLevel = 999;
     public static double smithingSubLevelEXPMultiply = 3.0;
+
+    private static Dictionary<string, object> BuildSmithingDefaultConfig() => new()
+    {
+        ["smithingEXPPerLevelBase"] = (long)smithingEXPPerLevelBase,
+        ["smithingEXPMultiplyPerLevel"] = smithingEXPMultiplyPerLevel,
+        ["smithingBaseDurabilityMultiply"] = (double)smithingBaseDurabilityMultiply,
+        ["smithingIncrementDurabilityMultiplyPerLevel"] = (double)smithingIncrementDurabilityMultiplyPerLevel,
+        ["smithingBaseAttackPowerMultiply"] = (double)smithingBaseAttackPowerMultiply,
+        ["smithingIncrementAttackPowerMultiplyPerLevel"] = (double)smithingIncrementAttackPowerMultiplyPerLevel,
+        ["smithingBaseMiningSpeedMultiply"] = (double)smithingBaseMiningSpeedMultiply,
+        ["smithingIncrementMiningSpeedMultiplyPerLevel"] = (double)smithingIncrementMiningSpeedMultiplyPerLevel,
+        ["smithingBaseArmorProtectionMultiply"] = (double)smithingBaseArmorProtectionMultiply,
+        ["smithingIncrementArmorProtectionMultiplyPerLevel"] = (double)smithingIncrementArmorProtectionMultiplyPerLevel,
+        ["smithingBaseArmorStatusMultiply"] = (double)smithingBaseArmorStatusMultiply,
+        ["smithingIncrementArmorStatusMultiplyPerLevel"] = (double)smithingIncrementArmorStatusMultiplyPerLevel,
+        ["smithingMaxLevel"] = (long)smithingMaxLevel,
+        ["smithingSubLevelEXPMultiply"] = smithingSubLevelEXPMultiply,
+    };
+
+    private static Dictionary<string, object> BuildSmithingCraftsDefaultConfig() => new()
+    {
+        // Tools
+        ["game:pickaxe-copper"] = (long)200,
+        ["game:pickaxe-tinbronze"] = (long)300,
+        ["game:pickaxe-bismuthbronze"] = (long)400,
+        ["game:pickaxe-blackbronze"] = (long)500,
+        ["game:pickaxe-gold"] = (long)600,
+        ["game:pickaxe-silver"] = (long)700,
+        ["game:pickaxe-iron"] = (long)500,
+        ["game:pickaxe-meteoriciron"] = (long)800,
+        ["game:pickaxe-steel"] = (long)1000,
+        ["game:shovel-chert"] = (long)20,
+        ["game:shovel-granite"] = (long)20,
+        ["game:shovel-andesite"] = (long)20,
+        ["game:shovel-basalt"] = (long)20,
+        ["game:shovel-obsidian"] = (long)50,
+        ["game:shovel-peridotite"] = (long)20,
+        ["game:shovel-flint"] = (long)20,
+        ["game:shovel-copper"] = (long)200,
+        ["game:shovel-tinbronze"] = (long)300,
+        ["game:shovel-bismuthbronze"] = (long)400,
+        ["game:shovel-blackbronze"] = (long)500,
+        ["game:shovel-gold"] = (long)600,
+        ["game:shovel-silver"] = (long)700,
+        ["game:shovel-iron"] = (long)500,
+        ["game:shovel-meteoriciron"] = (long)800,
+        ["game:shovel-steel"] = (long)1000,
+        ["game:axe-chert"] = (long)20,
+        ["game:axe-granite"] = (long)20,
+        ["game:axe-andesite"] = (long)20,
+        ["game:axe-basalt"] = (long)20,
+        ["game:axe-obsidian"] = (long)50,
+        ["game:axe-peridotite"] = (long)20,
+        ["game:axe-flint"] = (long)20,
+        ["game:axe-bone-chert"] = (long)40,
+        ["game:axe-bone-granite"] = (long)40,
+        ["game:axe-bone-andesite"] = (long)40,
+        ["game:axe-bone-basalt"] = (long)40,
+        ["game:axe-bone-obsidian"] = (long)100,
+        ["game:axe-bone-peridotite"] = (long)40,
+        ["game:axe-bone-flint"] = (long)40,
+        ["game:axe-felling-copper"] = (long)200,
+        ["game:axe-felling-tinbronze"] = (long)300,
+        ["game:axe-felling-bismuthbronze"] = (long)400,
+        ["game:axe-felling-blackbronze"] = (long)500,
+        ["game:axe-felling-gold"] = (long)600,
+        ["game:axe-felling-silver"] = (long)700,
+        ["game:axe-felling-iron"] = (long)500,
+        ["game:axe-felling-meteoriciron"] = (long)800,
+        ["game:axe-felling-steel"] = (long)1000,
+        ["game:blade-falx-copper"] = (long)200,
+        ["game:blade-falx-tinbronze"] = (long)300,
+        ["game:blade-falx-bismuthbronze"] = (long)400,
+        ["game:blade-falx-blackbronze"] = (long)500,
+        ["game:blade-falx-gold"] = (long)600,
+        ["game:blade-falx-silver"] = (long)700,
+        ["game:blade-falx-iron"] = (long)500,
+        ["game:blade-blackguard-iron"] = (long)600,
+        ["game:blade-falx-meteoriciron"] = (long)800,
+        ["game:blade-falx-steel"] = (long)1000,
+        ["game:knife-generic-chert"] = (long)20,
+        ["game:knife-generic-granite"] = (long)20,
+        ["game:knife-generic-andesite"] = (long)20,
+        ["game:knife-generic-basalt"] = (long)20,
+        ["game:knife-generic-obsidian"] = (long)50,
+        ["game:knife-generic-peridotite"] = (long)20,
+        ["game:knife-generic-flint"] = (long)20,
+        ["game:knife-generic-bonechert"] = (long)40,
+        ["game:knife-generic-bonegranite"] = (long)40,
+        ["game:knife-generic-boneandesite"] = (long)40,
+        ["game:knife-generic-bonebasalt"] = (long)40,
+        ["game:knife-generic-boneobsidian"] = (long)100,
+        ["game:knife-generic-boneperidotite"] = (long)40,
+        ["game:knife-generic-boneflint"] = (long)40,
+        ["game:knife-generic-copper"] = (long)200,
+        ["game:knife-generic-tinbronze"] = (long)300,
+        ["game:knife-generic-bismuthbronze"] = (long)400,
+        ["game:knife-generic-blackbronze"] = (long)500,
+        ["game:knife-generic-gold"] = (long)600,
+        ["game:knife-generic-silver"] = (long)700,
+        ["game:knife-generic-iron"] = (long)500,
+        ["game:knife-generic-meteoriciron"] = (long)800,
+        ["game:knife-generic-steel"] = (long)1000,
+        ["game:hoe-chert"] = (long)20,
+        ["game:hoe-granite"] = (long)20,
+        ["game:hoe-andesite"] = (long)20,
+        ["game:hoe-basalt"] = (long)20,
+        ["game:hoe-obsidian"] = (long)50,
+        ["game:hoe-peridotite"] = (long)20,
+        ["game:hoe-flint"] = (long)20,
+        ["game:hoe-copper"] = (long)200,
+        ["game:hoe-tinbronze"] = (long)300,
+        ["game:hoe-bismuthbronze"] = (long)400,
+        ["game:hoe-blackbronze"] = (long)500,
+        ["game:hoe-gold"] = (long)600,
+        ["game:hoe-silver"] = (long)700,
+        ["game:hoe-iron"] = (long)500,
+        ["game:hoe-meteoriciron"] = (long)800,
+        ["game:hoe-steel"] = (long)1000,
+        ["game:hammer-copper"] = (long)200,
+        ["game:hammer-tinbronze"] = (long)300,
+        ["game:hammer-bismuthbronze"] = (long)400,
+        ["game:hammer-blackbronze"] = (long)500,
+        ["game:hammer-gold"] = (long)600,
+        ["game:hammer-silver"] = (long)700,
+        ["game:hammer-iron"] = (long)500,
+        ["game:hammer-meteoriciron"] = (long)800,
+        ["game:hammer-steel"] = (long)1000,
+        ["game:spear-generic-chert"] = (long)20,
+        ["game:spear-generic-granite"] = (long)20,
+        ["game:spear-generic-andesite"] = (long)20,
+        ["game:spear-generic-basalt"] = (long)20,
+        ["game:spear-generic-obsidian"] = (long)50,
+        ["game:spear-generic-peridotite"] = (long)20,
+        ["game:spear-generic-copper"] = (long)100,
+        ["game:spear-generic-tinbronze"] = (long)150,
+        ["game:spear-generic-bismuthbronze"] = (long)200,
+        ["game:spear-generic-blackbronze"] = (long)250,
+        ["game:spear-generic-ornategold"] = (long)300,
+        ["game:spear-generic-ornatesilver"] = (long)300,
+        ["game:bow-simple"] = (long)100,
+        ["game:bow-crude"] = (long)200,
+        ["game:bow-long"] = (long)300,
+        ["game:bow-recurve"] = (long)400,
+        // Tools Utils
+        ["game:shears-copper"] = (long)100,
+        ["game:shears-tinbronze"] = (long)200,
+        ["game:shears-bismuthbronze"] = (long)300,
+        ["game:shears-blackbronze"] = (long)400,
+        ["game:shears-gold"] = (long)500,
+        ["game:shears-silver"] = (long)600,
+        ["game:shears-iron"] = (long)400,
+        ["game:shears-meteoriciron"] = (long)700,
+        ["game:shears-steel"] = (long)900,
+        ["game:chisel-copper"] = (long)100,
+        ["game:chisel-tinbronze"] = (long)200,
+        ["game:chisel-bismuthbronze"] = (long)300,
+        ["game:chisel-blackbronze"] = (long)400,
+        ["game:chisel-gold"] = (long)500,
+        ["game:chisel-silver"] = (long)600,
+        ["game:chisel-iron"] = (long)400,
+        ["game:chisel-meteoriciron"] = (long)700,
+        ["game:chisel-steel"] = (long)900,
+        ["game:wrench-copper"] = (long)100,
+        ["game:wrench-tinbronze"] = (long)200,
+        ["game:wrench-bismuthbronze"] = (long)300,
+        ["game:wrench-blackbronze"] = (long)400,
+        ["game:wrench-gold"] = (long)500,
+        ["game:wrench-silver"] = (long)600,
+        ["game:wrench-iron"] = (long)400,
+        ["game:wrench-meteoriciron"] = (long)700,
+        ["game:wrench-steel"] = (long)900,
+        ["game:saw-copper"] = (long)100,
+        ["game:saw-tinbronze"] = (long)200,
+        ["game:saw-bismuthbronze"] = (long)300,
+        ["game:saw-blackbronze"] = (long)400,
+        ["game:saw-gold"] = (long)500,
+        ["game:saw-silver"] = (long)600,
+        ["game:saw-iron"] = (long)400,
+        ["game:saw-meteoriciron"] = (long)700,
+        ["game:saw-steel"] = (long)900,
+        ["game:scythe-copper"] = (long)100,
+        ["game:scythe-tinbronze"] = (long)200,
+        ["game:scythe-bismuthbronze"] = (long)300,
+        ["game:scythe-blackbronze"] = (long)400,
+        ["game:scythe-gold"] = (long)500,
+        ["game:scythe-silver"] = (long)600,
+        ["game:scythe-iron"] = (long)400,
+        ["game:scythe-meteoriciron"] = (long)700,
+        ["game:scythe-steel"] = (long)900,
+        ["game:cleaver-copper"] = (long)100,
+        ["game:cleaver-tinbronze"] = (long)200,
+        ["game:cleaver-bismuthbronze"] = (long)300,
+        ["game:cleaver-blackbronze"] = (long)400,
+        ["game:cleaver-gold"] = (long)500,
+        ["game:cleaver-silver"] = (long)600,
+        ["game:cleaver-iron"] = (long)400,
+        ["game:cleaver-meteoriciron"] = (long)700,
+        ["game:cleaver-steel"] = (long)900,
+        ["game:arrow-crude"] = (long)10,
+        ["game:arrow-flint"] = (long)10,
+        ["game:arrow-copper"] = (long)20,
+        ["game:arrow-tinbronze"] = (long)30,
+        ["game:arrow-bismuthbronze"] = (long)40,
+        ["game:arrow-blackbronze"] = (long)50,
+        ["game:arrow-gold"] = (long)60,
+        ["game:arrow-silver"] = (long)70,
+        ["game:arrow-iron"] = (long)80,
+        ["game:arrow-meteoriciron"] = (long)90,
+        ["game:arrow-steel"] = (long)100,
+        // Armors Below (Armors needs to have the level type before the code, so the mod can understand which type is the armor from)
+        // Brigandine Armor    
+        ["BrigandineArmor?game:armor-head-brigandine-copper"] = (long)100,
+        ["BrigandineArmor?game:armor-body-brigandine-copper"] = (long)100,
+        ["BrigandineArmor?game:armor-legs-brigandine-copper"] = (long)100,
+        ["BrigandineArmor?game:armor-head-brigandine-tinbronze"] = (long)200,
+        ["BrigandineArmor?game:armor-body-brigandine-tinbronze"] = (long)200,
+        ["BrigandineArmor?game:armor-legs-brigandine-tinbronze"] = (long)200,
+        ["BrigandineArmor?game:armor-head-brigandine-bismuthbronze"] = (long)300,
+        ["BrigandineArmor?game:armor-body-brigandine-bismuthbronze"] = (long)300,
+        ["BrigandineArmor?game:armor-legs-brigandine-bismuthbronze"] = (long)300,
+        ["BrigandineArmor?game:armor-head-brigandine-blackbronze"] = (long)400,
+        ["BrigandineArmor?game:armor-body-brigandine-blackbronze"] = (long)400,
+        ["BrigandineArmor?game:armor-legs-brigandine-blackbronze"] = (long)400,
+        ["BrigandineArmor?game:armor-head-brigandine-iron"] = (long)500,
+        ["BrigandineArmor?game:armor-body-brigandine-iron"] = (long)500,
+        ["BrigandineArmor?game:armor-legs-brigandine-iron"] = (long)500,
+        ["BrigandineArmor?game:armor-head-brigandine-meteoriciron"] = (long)600,
+        ["BrigandineArmor?game:armor-body-brigandine-meteoriciron"] = (long)600,
+        ["BrigandineArmor?game:armor-legs-brigandine-meteoriciron"] = (long)600,
+        ["BrigandineArmor?game:armor-head-brigandine-steel"] = (long)1000,
+        ["BrigandineArmor?game:armor-body-brigandine-steel"] = (long)1000,
+        ["BrigandineArmor?game:armor-legs-brigandine-steel"] = (long)1000,
+        // Chain Armor
+        ["ChainArmor?game:armor-head-chain-copper"] = (long)100,
+        ["ChainArmor?game:armor-body-chain-copper"] = (long)100,
+        ["ChainArmor?game:armor-legs-chain-copper"] = (long)100,
+        ["ChainArmor?game:armor-head-chain-tinbronze"] = (long)200,
+        ["ChainArmor?game:armor-body-chain-tinbronze"] = (long)200,
+        ["ChainArmor?game:armor-legs-chain-tinbronze"] = (long)200,
+        ["ChainArmor?game:armor-head-chain-bismuthbronze"] = (long)300,
+        ["ChainArmor?game:armor-body-chain-bismuthbronze"] = (long)300,
+        ["ChainArmor?game:armor-legs-chain-bismuthbronze"] = (long)300,
+        ["ChainArmor?game:armor-head-chain-blackbronze"] = (long)400,
+        ["ChainArmor?game:armor-body-chain-blackbronze"] = (long)400,
+        ["ChainArmor?game:armor-legs-chain-blackbronze"] = (long)400,
+        ["ChainArmor?game:armor-head-chain-iron"] = (long)500,
+        ["ChainArmor?game:armor-body-chain-iron"] = (long)500,
+        ["ChainArmor?game:armor-legs-chain-iron"] = (long)500,
+        ["ChainArmor?game:armor-head-chain-meteoriciron"] = (long)600,
+        ["ChainArmor?game:armor-body-chain-meteoriciron"] = (long)600,
+        ["ChainArmor?game:armor-legs-chain-meteoriciron"] = (long)600,
+        ["ChainArmor?game:armor-head-chain-steel"] = (long)1000,
+        ["ChainArmor?game:armor-body-chain-steel"] = (long)1000,
+        ["ChainArmor?game:armor-legs-chain-steel"] = (long)1000,
+        ["ChainArmor?game:armor-head-chain-gold"] = (long)700,
+        ["ChainArmor?game:armor-body-chain-gold"] = (long)700,
+        ["ChainArmor?game:armor-legs-chain-gold"] = (long)700,
+        ["ChainArmor?game:armor-head-chain-silver"] = (long)700,
+        ["ChainArmor?game:armor-body-chain-silver"] = (long)700,
+        ["ChainArmor?game:armor-legs-chain-silver"] = (long)700,
+        // Leather Armor    
+        ["LeatherArmor?game:armor-head-sewn-leather"] = (long)150,
+        ["LeatherArmor?game:armor-body-sewn-leather"] = (long)200,
+        ["LeatherArmor?game:armor-legs-sewn-leather"] = (long)150,
+        ["LeatherArmor?game:clothes-shoulder-stained-leather-poncho"] = (long)100,
+        ["LeatherArmor?game:clothes-hand-heavy-leather-gloves"] = (long)100,
+        ["LeatherArmor?game:clothes-upperbodyover-malefactor-tunic"] = (long)100,
+        ["LeatherArmor?game:armor-body-jerkin-leather"] = (long)50,
+        ["LeatherArmor?game:armor-legs-jerkin-leather"] = (long)50,
+        ["LeatherArmor?game:clothes-foot-high-leather-boots"] = (long)75,
+        ["LeatherArmor?game:clothes-upperbody-raw-hide-mantle"] = (long)75,
+        ["LeatherArmor?game:clothes-lowerbody-raw-hide-trousers"] = (long)75,
+        ["LeatherArmor?game:clothes-foot-knee-high-fur-boots"] = (long)75,
+        ["LeatherArmor?game:clothes-hand-fur-gloves"] = (long)75,
+        ["LeatherArmor?game:clothes-upperbodyover-fur-coat"] = (long)50,
+        ["LeatherArmor?game:clothes-upperbodyover-warm-robe"] = (long)50,
+        ["LeatherArmor?game:clothes-upperbodyover-reindeer-herder-fur-coat"] = (long)50,
+        ["LeatherArmor?game:clothes-foot-fur-lined-reindeer-herder-shoes"] = (long)50,
+        // Plate Armor    
+        ["PlateArmor?game:armor-head-plate-copper"] = (long)100,
+        ["PlateArmor?game:armor-body-plate-copper"] = (long)100,
+        ["PlateArmor?game:armor-legs-plate-copper"] = (long)100,
+        ["PlateArmor?game:armor-head-plate-tinbronze"] = (long)200,
+        ["PlateArmor?game:armor-body-plate-tinbronze"] = (long)200,
+        ["PlateArmor?game:armor-legs-plate-tinbronze"] = (long)200,
+        ["PlateArmor?game:armor-head-plate-bismuthbronze"] = (long)300,
+        ["PlateArmor?game:armor-body-plate-bismuthbronze"] = (long)300,
+        ["PlateArmor?game:armor-legs-plate-bismuthbronze"] = (long)300,
+        ["PlateArmor?game:armor-head-plate-blackbronze"] = (long)400,
+        ["PlateArmor?game:armor-body-plate-blackbronze"] = (long)400,
+        ["PlateArmor?game:armor-legs-plate-blackbronze"] = (long)400,
+        ["PlateArmor?game:armor-head-plate-iron"] = (long)500,
+        ["PlateArmor?game:armor-body-plate-iron"] = (long)500,
+        ["PlateArmor?game:armor-legs-plate-iron"] = (long)500,
+        ["PlateArmor?game:armor-head-plate-meteoriciron"] = (long)600,
+        ["PlateArmor?game:armor-body-plate-meteoriciron"] = (long)600,
+        ["PlateArmor?game:armor-legs-plate-meteoriciron"] = (long)600,
+        ["PlateArmor?game:armor-head-plate-steel"] = (long)1000,
+        ["PlateArmor?game:armor-body-plate-steel"] = (long)1000,
+        ["PlateArmor?game:armor-legs-plate-steel"] = (long)1000,
+        ["PlateArmor?game:armor-head-plate-gold"] = (long)700,
+        ["PlateArmor?game:armor-body-plate-gold"] = (long)700,
+        ["PlateArmor?game:armor-legs-plate-gold"] = (long)700,
+        ["PlateArmor?game:armor-head-plate-silver"] = (long)700,
+        ["PlateArmor?game:armor-body-plate-silver"] = (long)700,
+        ["PlateArmor?game:armor-legs-plate-silver"] = (long)700,
+        // Scale Armor
+        ["ScaleArmor?game:armor-head-scale-copper"] = (long)100,
+        ["ScaleArmor?game:armor-body-scale-copper"] = (long)100,
+        ["ScaleArmor?game:armor-legs-scale-copper"] = (long)100,
+        ["ScaleArmor?game:armor-head-scale-tinbronze"] = (long)200,
+        ["ScaleArmor?game:armor-body-scale-tinbronze"] = (long)200,
+        ["ScaleArmor?game:armor-legs-scale-tinbronze"] = (long)200,
+        ["ScaleArmor?game:armor-head-scale-bismuthbronze"] = (long)300,
+        ["ScaleArmor?game:armor-body-scale-bismuthbronze"] = (long)300,
+        ["ScaleArmor?game:armor-legs-scale-bismuthbronze"] = (long)300,
+        ["ScaleArmor?game:armor-head-scale-blackbronze"] = (long)400,
+        ["ScaleArmor?game:armor-body-scale-blackbronze"] = (long)400,
+        ["ScaleArmor?game:armor-legs-scale-blackbronze"] = (long)400,
+        ["ScaleArmor?game:armor-head-scale-iron"] = (long)500,
+        ["ScaleArmor?game:armor-body-scale-iron"] = (long)500,
+        ["ScaleArmor?game:armor-legs-scale-iron"] = (long)500,
+        ["ScaleArmor?game:armor-head-scale-meteoriciron"] = (long)600,
+        ["ScaleArmor?game:armor-body-scale-meteoriciron"] = (long)600,
+        ["ScaleArmor?game:armor-legs-scale-meteoriciron"] = (long)600,
+        ["ScaleArmor?game:armor-head-scale-steel"] = (long)1000,
+        ["ScaleArmor?game:armor-body-scale-steel"] = (long)1000,
+        ["ScaleArmor?game:armor-legs-scale-steel"] = (long)1000,
+        // Shield generic
+        ["Shield?game:shield*"] = (long)100,
+    };
 
     public static void PopulateSmithingConfiguration(ICoreAPI api)
     {
@@ -3326,7 +7439,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "smithing",
-            "levelup:config/levelstats/smithing.json");
+            BuildSmithingDefaultConfig());
         { //smithingEXPPerLevelBase
             if (smithingLevelStats.TryGetValue("smithingEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: smithingEXPPerLevelBase is null");
@@ -3433,7 +7546,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "smithingcrafts",
-            "levelup:config/levelstats/smithingcrafts.json");
+            BuildSmithingCraftsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpPerCraftSmithing)
         {
             if (pair.Value is long value) expPerCraftSmithing.Add(pair.Key, (int)value);
@@ -3504,7 +7617,7 @@ public static class Configuration
     #region vitality
     private static int vitalityEXPPerReceiveHit = 10;
     private static float vitalityEXPMultiplyByDamage = 0.3f;
-    private static int vitalityEXPIncreaseByAmountDamage = 20;
+    private static int vitalityEXPIncreaseByAmountDamage = 2;
     private static int vitalityEXPPerLevelBase = 500;
     private static double vitalityEXPMultiplyPerLevel = 1.2;
     private static float vitalityBaseHP = 15.0f;
@@ -3518,13 +7631,28 @@ public static class Configuration
     public static float BaseHPVitality => vitalityBaseHP;
     public static float BaseHPRegenVitality => vitalityBaseHPRegen;
 
+    private static Dictionary<string, object> BuildVitalityDefaultConfig() => new()
+    {
+        ["vitalityEXPPerLevelBase"] = (long)vitalityEXPPerLevelBase,
+        ["vitalityEXPMultiplyPerLevel"] = vitalityEXPMultiplyPerLevel,
+        ["vitalityEXPPerReceiveHit"] = (long)vitalityEXPPerReceiveHit,
+        ["vitalityEXPMultiplyByDamage"] = (double)vitalityEXPMultiplyByDamage,
+        ["vitalityHPIncreasePerLevel"] = (double)vitalityHPIncreasePerLevel,
+        ["vitalityBaseHP"] = (double)vitalityBaseHP,
+        ["vitalityEXPIncreaseByAmountDamage"] = (long)vitalityEXPIncreaseByAmountDamage,
+        ["vitalityBaseHPRegen"] = (double)vitalityBaseHPRegen,
+        ["vitalityHPRegenIncreasePerLevel"] = (double)vitalityHPRegenIncreasePerLevel,
+        ["vitalityDamageLimit"] = (long)vitalityDamageLimit,
+        ["vitalityMaxLevel"] = (long)vitalityMaxLevel,
+    };
+
     public static void PopulateVitalityConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> vitalityLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "vitality",
-            "levelup:config/levelstats/vitality.json");
+            BuildVitalityDefaultConfig());
         { //vitalityEXPPerLevelBase
             if (vitalityLevelStats.TryGetValue("vitalityEXPPerLevelBase", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: vitalityEXPPerLevelBase is null");
@@ -3666,7 +7794,7 @@ public static class Configuration
     private static int metabolismEXPPerSaturationLost = 5;
     private static int metabolismEXPPerLevelBase = 200;
     private static double metabolismEXPMultiplyPerLevel = 2.0;
-    private static float metabolismSaturationIncreasePerLevel = 100.0f;
+    private static float metabolismSaturationIncreasePerLevel = 50.0f;
     private static float metabolismBaseSaturation = 1500.0f;
     private static float metabolismBaseSaturationReceiveMultiply = 1.0f;
     private static float metabolismSaturationReceiveMultiplyPerLevel = 0.05f;
@@ -3679,13 +7807,28 @@ public static class Configuration
 
     public static float BaseSaturationMetabolism => metabolismBaseSaturation;
 
+    private static Dictionary<string, object> BuildMetabolismDefaultConfig() => new()
+    {
+        ["metabolismEXPPerReceiveHit"] = (long)metabolismEXPPerReceiveHit,
+        ["metabolismEXPPerSaturationLost"] = (long)metabolismEXPPerSaturationLost,
+        ["metabolismEXPPerLevelBase"] = (long)metabolismEXPPerLevelBase,
+        ["metabolismEXPMultiplyPerLevel"] = metabolismEXPMultiplyPerLevel,
+        ["metabolismSaturationIncreasePerLevel"] = (double)metabolismSaturationIncreasePerLevel,
+        ["metabolismBaseSaturation"] = (double)metabolismBaseSaturation,
+        ["metabolismBaseSaturationReceiveMultiply"] = (double)metabolismBaseSaturationReceiveMultiply,
+        ["metabolismSaturationReceiveMultiplyPerLevel"] = (double)metabolismSaturationReceiveMultiplyPerLevel,
+        ["metabolismSaturationReceiveMultiplyReductionEveryLevel"] = (long)metabolismSaturationReceiveMultiplyReductionEveryLevel,
+        ["metabolismSaturationReceiveMultiplyReductionPerReduce"] = (double)metabolismSaturationReceiveMultiplyReductionPerReduce,
+        ["metabolismMaxLevel"] = (long)metabolismMaxLevel,
+    };
+
     public static void PopulateMetabolismConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> metabolismLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "metabolism",
-            "levelup:config/levelstats/metabolism.json");
+            BuildMetabolismDefaultConfig());
         { //metabolismEXPPerReceiveHit
             if (metabolismLevelStats.TryGetValue("metabolismEXPPerReceiveHit", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerReceiveHit is null");
@@ -3742,6 +7885,20 @@ public static class Configuration
                 else if (value is not double) Debug.Log($"CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyPerLevel is not double is {value.GetType()}");
                 else metabolismSaturationReceiveMultiplyPerLevel = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyPerLevel not set");
+        }
+        { //metabolismSaturationReceiveMultiplyReductionEveryLevel
+            if (metabolismLevelStats.TryGetValue("metabolismSaturationReceiveMultiplyReductionEveryLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyReductionEveryLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyReductionEveryLevel is not int is {value.GetType()}");
+                else metabolismSaturationReceiveMultiplyReductionEveryLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyReductionEveryLevel not set");
+        }
+        { //metabolismSaturationReceiveMultiplyReductionPerReduce
+            if (metabolismLevelStats.TryGetValue("metabolismSaturationReceiveMultiplyReductionPerReduce", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyReductionPerReduce is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyReductionPerReduce is not double is {value.GetType()}");
+                else metabolismSaturationReceiveMultiplyReductionPerReduce = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: metabolismSaturationReceiveMultiplyReductionPerReduce not set");
         }
         { //metabolismMaxLevel
             if (metabolismLevelStats.TryGetValue("metabolismMaxLevel", out object value))
@@ -3813,7 +7970,7 @@ public static class Configuration
     public static Dictionary<string, double> expMultiplyHitLeatherArmor = [];
     private static int leatherArmorEXPPerReceiveHit = 10;
     private static float leatherArmorEXPMultiplyByDamage = 0.3f;
-    private static int leatherArmorEXPIncreaseByAmountDamage = 20;
+    private static int leatherArmorEXPIncreaseByAmountDamage = 2;
     private static int leatherArmorEXPPerLevelBase = 500;
     private static double leatherArmorEXPMultiplyPerLevel = 1.2;
 
@@ -3855,13 +8012,73 @@ public static class Configuration
     public static int leatherArmorMaxLevel = 999;
     public static double leatherArmorSubLevelEXPMultiply = 3.0;
 
+    private static Dictionary<string, object> BuildLeatherArmorDefaultConfig() => new()
+    {
+        ["leatherArmorEXPPerReceiveHit"] = (long)leatherArmorEXPPerReceiveHit,
+        ["leatherArmorEXPMultiplyByDamage"] = (double)leatherArmorEXPMultiplyByDamage,
+        ["leatherArmorEXPIncreaseByAmountDamage"] = (long)leatherArmorEXPIncreaseByAmountDamage,
+        ["leatherArmorEXPPerLevelBase"] = (long)leatherArmorEXPPerLevelBase,
+        ["leatherArmorEXPMultiplyPerLevel"] = leatherArmorEXPMultiplyPerLevel,
+        ["leatherArmorRelativeProtectionMultiply"] = (double)leatherArmorRelativeProtectionMultiply,
+        ["leatherArmorRelativeProtectionMultiplyPerLevel"] = (double)leatherArmorRelativeProtectionMultiplyPerLevel,
+        ["leatherArmorRelativeProtectionMultiplyReductionEveryLevel"] = (long)leatherArmorRelativeProtectionMultiplyReductionEveryLevel,
+        ["leatherArmorRelativeProtectionMultiplyReductionPerReduce"] = (double)leatherArmorRelativeProtectionMultiplyReductionPerReduce,
+        ["leatherArmorFlatDamageReductionMultiply"] = (double)leatherArmorFlatDamageReductionMultiply,
+        ["leatherArmorFlatDamageReductionMultiplyPerLevel"] = (double)leatherArmorFlatDamageReductionMultiplyPerLevel,
+        ["leatherArmorFlatDamageReductionMultiplyReductionEveryLevel"] = (long)leatherArmorFlatDamageReductionMultiplyReductionEveryLevel,
+        ["leatherArmorFlatDamageReductionMultiplyReductionPerReduce"] = (double)leatherArmorFlatDamageReductionMultiplyReductionPerReduce,
+        ["leatherArmorHealingEffectivnessMultiply"] = (double)leatherArmorHealingEffectivnessMultiply,
+        ["leatherArmorHealingEffectivnessMultiplyPerLevel"] = (double)leatherArmorHealingEffectivnessMultiplyPerLevel,
+        ["leatherArmorHealingEffectivnessMultiplyReductionEveryLevel"] = (long)leatherArmorHealingEffectivnessMultiplyReductionEveryLevel,
+        ["leatherArmorHealingEffectivnessMultiplyReductionPerReduce"] = (double)leatherArmorHealingEffectivnessMultiplyReductionPerReduce,
+        ["leatherArmorHungerRateMultiply"] = (double)leatherArmorHungerRateMultiply,
+        ["leatherArmorHungerRateMultiplyPerLevel"] = (double)leatherArmorHungerRateMultiplyPerLevel,
+        ["leatherArmorHungerRateMultiplyReductionEveryLevel"] = (long)leatherArmorHungerRateMultiplyReductionEveryLevel,
+        ["leatherArmorHungerRateMultiplyReductionPerReduce"] = (double)leatherArmorHungerRateMultiplyReductionPerReduce,
+        ["leatherArmorRangedWeaponsAccuracyMultiply"] = (double)leatherArmorRangedWeaponsAccuracyMultiply,
+        ["leatherArmorRangedWeaponsAccuracyMultiplyPerLevel"] = (double)leatherArmorRangedWeaponsAccuracyMultiplyPerLevel,
+        ["leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel"] = (long)leatherArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel,
+        ["leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce"] = (double)leatherArmorRangedWeaponsAccuracyMultiplyReductionPerReduce,
+        ["leatherArmorRangedWeaponsSpeedMultiply"] = (double)leatherArmorRangedWeaponsSpeedMultiply,
+        ["leatherArmorRangedWeaponsSpeedMultiplyPerLevel"] = (double)leatherArmorRangedWeaponsSpeedMultiplyPerLevel,
+        ["leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel"] = (long)leatherArmorRangedWeaponsSpeedMultiplyReductionEveryLevel,
+        ["leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce"] = (double)leatherArmorRangedWeaponsSpeedMultiplyReductionPerReduce,
+        ["leatherArmorWalkSpeedMultiply"] = (double)leatherArmorWalkSpeedMultiply,
+        ["leatherArmorWalkSpeedMultiplyPerLevel"] = (double)leatherArmorWalkSpeedMultiplyPerLevel,
+        ["leatherArmorWalkSpeedMultiplyReductionEveryLevel"] = (long)leatherArmorWalkSpeedMultiplyReductionEveryLevel,
+        ["leatherArmorWalkSpeedMultiplyReductionPerReduce"] = (double)leatherArmorWalkSpeedMultiplyReductionPerReduce,
+        ["leatherArmorMaxLevel"] = (long)leatherArmorMaxLevel,
+        ["leatherArmorSubLevelEXPMultiply"] = leatherArmorSubLevelEXPMultiply,
+    };
+
+    private static Dictionary<string, object> BuildLeatherArmorItemsDefaultConfig() => new()
+    {
+        ["game:armor-head-sewn-leather"] = 0.2,
+        ["game:armor-body-sewn-leather"] = 0.5,
+        ["game:armor-legs-sewn-leather"] = 0.2,
+        ["game:armor-body-jerkin-leather"] = 0.4,
+        ["game:armor-legs-jerkin-leather"] = 0.2,
+        ["game:armor-head-hide-bear-black"] = 0.3,
+        ["game:armor-body-hide-bear-black"] = 0.5,
+        ["game:armor-legs-hide-bear-black"] = 0.2,
+        ["game:armor-head-hide-bear-brown"] = 0.3,
+        ["game:armor-body-hide-bear-brown"] = 0.5,
+        ["game:armor-legs-hide-bear-brown"] = 0.2,
+        ["game:armor-head-hide-bear-polar"] = 0.3,
+        ["game:armor-body-hide-bear-polar"] = 0.5,
+        ["game:armor-legs-hide-bear-polar"] = 0.2,
+        ["game:armor-head-hide-bear-sun"] = 0.3,
+        ["game:armor-body-hide-bear-sun"] = 0.5,
+        ["game:armor-legs-hide-bear-sun"] = 0.2,
+    };
+
     public static void PopulateLeatherArmorConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> leatherArmorLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "leatherarmor",
-            "levelup:config/levelstats/leatherarmor.json");
+            BuildLeatherArmorDefaultConfig());
         { //leatherArmorEXPPerReceiveHit
             if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPPerReceiveHit", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPPerReceiveHit is null");
@@ -3890,13 +8107,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else leatherArmorEXPPerLevelBase = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPPerLevelBase not set");
-        }
-        { //leatherArmorEXPMultiplyPerLevel
-            if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
-                else leatherArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: leatherArmorEXPMultiplyPerLevel not set");
         }
         { //leatherArmorEXPMultiplyPerLevel
             if (leatherArmorLevelStats.TryGetValue("leatherArmorEXPMultiplyPerLevel", out object value))
@@ -4130,7 +8340,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "leatherarmoritems",
-            "levelup:config/levelstats/leatherarmoritems.json");
+            BuildLeatherArmorItemsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitLeatherArmor)
         {
             if (pair.Value is double value) expMultiplyHitLeatherArmor.Add(pair.Key, (double)value);
@@ -4291,7 +8501,7 @@ public static class Configuration
     public static Dictionary<string, double> expMultiplyHitChainArmor = [];
     private static int chainArmorEXPPerReceiveHit = 10;
     private static float chainArmorEXPMultiplyByDamage = 0.3f;
-    private static int chainArmorEXPIncreaseByAmountDamage = 20;
+    private static int chainArmorEXPIncreaseByAmountDamage = 2;
     private static int chainArmorEXPPerLevelBase = 500;
     private static double chainArmorEXPMultiplyPerLevel = 1.2;
 
@@ -4333,13 +8543,83 @@ public static class Configuration
     public static int chainArmorMaxLevel = 999;
     public static double chainArmorSubLevelEXPMultiply = 3.0;
 
+    private static Dictionary<string, object> BuildChainArmorDefaultConfig() => new()
+    {
+        ["chainArmorEXPPerReceiveHit"] = (long)chainArmorEXPPerReceiveHit,
+        ["chainArmorEXPMultiplyByDamage"] = (double)chainArmorEXPMultiplyByDamage,
+        ["chainArmorEXPIncreaseByAmountDamage"] = (long)chainArmorEXPIncreaseByAmountDamage,
+        ["chainArmorEXPPerLevelBase"] = (long)chainArmorEXPPerLevelBase,
+        ["chainArmorEXPMultiplyPerLevel"] = chainArmorEXPMultiplyPerLevel,
+        ["chainArmorRelativeProtectionMultiply"] = (double)chainArmorRelativeProtectionMultiply,
+        ["chainArmorRelativeProtectionMultiplyPerLevel"] = (double)chainArmorRelativeProtectionMultiplyPerLevel,
+        ["chainArmorRelativeProtectionMultiplyReductionEveryLevel"] = (long)chainArmorRelativeProtectionMultiplyReductionEveryLevel,
+        ["chainArmorRelativeProtectionMultiplyReductionPerReduce"] = (double)chainArmorRelativeProtectionMultiplyReductionPerReduce,
+        ["chainArmorFlatDamageReductionMultiply"] = (double)chainArmorFlatDamageReductionMultiply,
+        ["chainArmorFlatDamageReductionMultiplyPerLevel"] = (double)chainArmorFlatDamageReductionMultiplyPerLevel,
+        ["chainArmorFlatDamageReductionMultiplyReductionEveryLevel"] = (long)chainArmorFlatDamageReductionMultiplyReductionEveryLevel,
+        ["chainArmorFlatDamageReductionMultiplyReductionPerReduce"] = (double)chainArmorFlatDamageReductionMultiplyReductionPerReduce,
+        ["chainArmorHealingEffectivnessMultiply"] = (double)chainArmorHealingEffectivnessMultiply,
+        ["chainArmorHealingEffectivnessMultiplyPerLevel"] = (double)chainArmorHealingEffectivnessMultiplyPerLevel,
+        ["chainArmorHealingEffectivnessMultiplyReductionEveryLevel"] = (long)chainArmorHealingEffectivnessMultiplyReductionEveryLevel,
+        ["chainArmorHealingEffectivnessMultiplyReductionPerReduce"] = (double)chainArmorHealingEffectivnessMultiplyReductionPerReduce,
+        ["chainArmorHungerRateMultiply"] = (double)chainArmorHungerRateMultiply,
+        ["chainArmorHungerRateMultiplyPerLevel"] = (double)chainArmorHungerRateMultiplyPerLevel,
+        ["chainArmorHungerRateMultiplyReductionEveryLevel"] = (long)chainArmorHungerRateMultiplyReductionEveryLevel,
+        ["chainArmorHungerRateMultiplyReductionPerReduce"] = (double)chainArmorHungerRateMultiplyReductionPerReduce,
+        ["chainArmorRangedWeaponsAccuracyMultiply"] = (double)chainArmorRangedWeaponsAccuracyMultiply,
+        ["chainArmorRangedWeaponsAccuracyMultiplyPerLevel"] = (double)chainArmorRangedWeaponsAccuracyMultiplyPerLevel,
+        ["chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel"] = (long)chainArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel,
+        ["chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce"] = (double)chainArmorRangedWeaponsAccuracyMultiplyReductionPerReduce,
+        ["chainArmorRangedWeaponsSpeedMultiply"] = (double)chainArmorRangedWeaponsSpeedMultiply,
+        ["chainArmorRangedWeaponsSpeedMultiplyPerLevel"] = (double)chainArmorRangedWeaponsSpeedMultiplyPerLevel,
+        ["chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel"] = (long)chainArmorRangedWeaponsSpeedMultiplyReductionEveryLevel,
+        ["chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce"] = (double)chainArmorRangedWeaponsSpeedMultiplyReductionPerReduce,
+        ["chainArmorWalkSpeedMultiply"] = (double)chainArmorWalkSpeedMultiply,
+        ["chainArmorWalkSpeedMultiplyPerLevel"] = (double)chainArmorWalkSpeedMultiplyPerLevel,
+        ["chainArmorWalkSpeedMultiplyReductionEveryLevel"] = (long)chainArmorWalkSpeedMultiplyReductionEveryLevel,
+        ["chainArmorWalkSpeedMultiplyReductionPerReduce"] = (double)chainArmorWalkSpeedMultiplyReductionPerReduce,
+        ["chainArmorMaxLevel"] = (long)chainArmorMaxLevel,
+        ["chainArmorSubLevelEXPMultiply"] = chainArmorSubLevelEXPMultiply,
+    };
+
+    private static Dictionary<string, object> BuildChainArmorItemsDefaultConfig() => new()
+    {
+        ["game:armor-head-chain-copper"] = 0.3,
+        ["game:armor-body-chain-copper"] = 0.5,
+        ["game:armor-legs-chain-copper"] = 0.2,
+        ["game:armor-head-chain-tinbronze"] = 0.3,
+        ["game:armor-body-chain-tinbronze"] = 0.5,
+        ["game:armor-legs-chain-tinbronze"] = 0.2,
+        ["game:armor-head-chain-bismuthbronze"] = 0.3,
+        ["game:armor-body-chain-bismuthbronze"] = 0.5,
+        ["game:armor-legs-chain-bismuthbronze"] = 0.2,
+        ["game:armor-head-chain-blackbronze"] = 0.3,
+        ["game:armor-body-chain-blackbronze"] = 0.5,
+        ["game:armor-legs-chain-blackbronze"] = 0.2,
+        ["game:armor-head-chain-iron"] = 0.3,
+        ["game:armor-body-chain-iron"] = 0.5,
+        ["game:armor-legs-chain-iron"] = 0.2,
+        ["game:armor-head-chain-meteoriciron"] = 0.3,
+        ["game:armor-body-chain-meteoriciron"] = 0.5,
+        ["game:armor-legs-chain-meteoriciron"] = 0.2,
+        ["game:armor-head-chain-steel"] = 0.3,
+        ["game:armor-body-chain-steel"] = 0.5,
+        ["game:armor-legs-chain-steel"] = 0.2,
+        ["game:armor-head-chain-gold"] = 0.3,
+        ["game:armor-body-chain-gold"] = 0.5,
+        ["game:armor-legs-chain-gold"] = 0.2,
+        ["game:armor-head-chain-silver"] = 0.3,
+        ["game:armor-body-chain-silver"] = 0.5,
+        ["game:armor-legs-chain-silver"] = 0.2,
+    };
+
     public static void PopulateChainArmorConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> chainArmorLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "chainarmor",
-            "levelup:config/levelstats/chainarmor.json");
+            BuildChainArmorDefaultConfig());
         { //chainArmorEXPPerReceiveHit
             if (chainArmorLevelStats.TryGetValue("chainArmorEXPPerReceiveHit", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorEXPPerReceiveHit is null");
@@ -4368,13 +8648,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else chainArmorEXPPerLevelBase = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPPerLevelBase not set");
-        }
-        { //chainArmorEXPMultiplyPerLevel
-            if (chainArmorLevelStats.TryGetValue("chainArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
-                else chainArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: chainArmorEXPMultiplyPerLevel not set");
         }
         { //chainArmorEXPMultiplyPerLevel
             if (chainArmorLevelStats.TryGetValue("chainArmorEXPMultiplyPerLevel", out object value))
@@ -4608,7 +8881,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "chainarmoritems",
-            "levelup:config/levelstats/chainarmoritems.json");
+            BuildChainArmorItemsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitChainArmor)
         {
             if (pair.Value is double value) expMultiplyHitChainArmor.Add(pair.Key, (double)value);
@@ -4769,7 +9042,7 @@ public static class Configuration
     public static Dictionary<string, double> expMultiplyHitBrigandineArmor = [];
     private static int brigandineArmorEXPPerReceiveHit = 10;
     private static float brigandineArmorEXPMultiplyByDamage = 0.3f;
-    private static int brigandineArmorEXPIncreaseByAmountDamage = 20;
+    private static int brigandineArmorEXPIncreaseByAmountDamage = 2;
     private static int brigandineArmorEXPPerLevelBase = 500;
     private static double brigandineArmorEXPMultiplyPerLevel = 1.2;
 
@@ -4811,13 +9084,77 @@ public static class Configuration
     public static int brigandineArmorMaxLevel = 999;
     public static double brigandineArmorSubLevelEXPMultiply = 3.0;
 
+    private static Dictionary<string, object> BuildBrigandineArmorDefaultConfig() => new()
+    {
+        ["brigandineArmorEXPPerReceiveHit"] = (long)brigandineArmorEXPPerReceiveHit,
+        ["brigandineArmorEXPMultiplyByDamage"] = (double)brigandineArmorEXPMultiplyByDamage,
+        ["brigandineArmorEXPIncreaseByAmountDamage"] = (long)brigandineArmorEXPIncreaseByAmountDamage,
+        ["brigandineArmorEXPPerLevelBase"] = (long)brigandineArmorEXPPerLevelBase,
+        ["brigandineArmorEXPMultiplyPerLevel"] = brigandineArmorEXPMultiplyPerLevel,
+        ["brigandineArmorRelativeProtectionMultiply"] = (double)brigandineArmorRelativeProtectionMultiply,
+        ["brigandineArmorRelativeProtectionMultiplyPerLevel"] = (double)brigandineArmorRelativeProtectionMultiplyPerLevel,
+        ["brigandineArmorRelativeProtectionMultiplyReductionEveryLevel"] = (long)brigandineArmorRelativeProtectionMultiplyReductionEveryLevel,
+        ["brigandineArmorRelativeProtectionMultiplyReductionPerReduce"] = (double)brigandineArmorRelativeProtectionMultiplyReductionPerReduce,
+        ["brigandineArmorFlatDamageReductionMultiply"] = (double)brigandineArmorFlatDamageReductionMultiply,
+        ["brigandineArmorFlatDamageReductionMultiplyPerLevel"] = (double)brigandineArmorFlatDamageReductionMultiplyPerLevel,
+        ["brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel"] = (long)brigandineArmorFlatDamageReductionMultiplyReductionEveryLevel,
+        ["brigandineArmorFlatDamageReductionMultiplyReductionPerReduce"] = (double)brigandineArmorFlatDamageReductionMultiplyReductionPerReduce,
+        ["brigandineArmorHealingEffectivnessMultiply"] = (double)brigandineArmorHealingEffectivnessMultiply,
+        ["brigandineArmorHealingEffectivnessMultiplyPerLevel"] = (double)brigandineArmorHealingEffectivnessMultiplyPerLevel,
+        ["brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel"] = (long)brigandineArmorHealingEffectivnessMultiplyReductionEveryLevel,
+        ["brigandineArmorHealingEffectivnessMultiplyReductionPerReduce"] = (double)brigandineArmorHealingEffectivnessMultiplyReductionPerReduce,
+        ["brigandineArmorHungerRateMultiply"] = (double)brigandineArmorHungerRateMultiply,
+        ["brigandineArmorHungerRateMultiplyPerLevel"] = (double)brigandineArmorHungerRateMultiplyPerLevel,
+        ["brigandineArmorHungerRateMultiplyReductionEveryLevel"] = (long)brigandineArmorHungerRateMultiplyReductionEveryLevel,
+        ["brigandineArmorHungerRateMultiplyReductionPerReduce"] = (double)brigandineArmorHungerRateMultiplyReductionPerReduce,
+        ["brigandineArmorRangedWeaponsAccuracyMultiply"] = (double)brigandineArmorRangedWeaponsAccuracyMultiply,
+        ["brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel"] = (double)brigandineArmorRangedWeaponsAccuracyMultiplyPerLevel,
+        ["brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel"] = (long)brigandineArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel,
+        ["brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce"] = (double)brigandineArmorRangedWeaponsAccuracyMultiplyReductionPerReduce,
+        ["brigandineArmorRangedWeaponsSpeedMultiply"] = (double)brigandineArmorRangedWeaponsSpeedMultiply,
+        ["brigandineArmorRangedWeaponsSpeedMultiplyPerLevel"] = (double)brigandineArmorRangedWeaponsSpeedMultiplyPerLevel,
+        ["brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel"] = (long)brigandineArmorRangedWeaponsSpeedMultiplyReductionEveryLevel,
+        ["brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce"] = (double)brigandineArmorRangedWeaponsSpeedMultiplyReductionPerReduce,
+        ["brigandineArmorWalkSpeedMultiply"] = (double)brigandineArmorWalkSpeedMultiply,
+        ["brigandineArmorWalkSpeedMultiplyPerLevel"] = (double)brigandineArmorWalkSpeedMultiplyPerLevel,
+        ["brigandineArmorWalkSpeedMultiplyReductionEveryLevel"] = (long)brigandineArmorWalkSpeedMultiplyReductionEveryLevel,
+        ["brigandineArmorWalkSpeedMultiplyReductionPerReduce"] = (double)brigandineArmorWalkSpeedMultiplyReductionPerReduce,
+        ["brigandineArmorMaxLevel"] = (long)brigandineArmorMaxLevel,
+        ["brigandineArmorSubLevelEXPMultiply"] = brigandineArmorSubLevelEXPMultiply,
+    };
+
+    private static Dictionary<string, object> BuildBrigandineArmorItemsDefaultConfig() => new()
+    {
+        ["game:armor-head-brigandine-copper"] = 0.3,
+        ["game:armor-body-brigandine-copper"] = 0.5,
+        ["game:armor-legs-brigandine-copper"] = 0.2,
+        ["game:armor-head-brigandine-tinbronze"] = 0.3,
+        ["game:armor-body-brigandine-tinbronze"] = 0.5,
+        ["game:armor-legs-brigandine-tinbronze"] = 0.2,
+        ["game:armor-head-brigandine-bismuthbronze"] = 0.3,
+        ["game:armor-body-brigandine-bismuthbronze"] = 0.5,
+        ["game:armor-legs-brigandine-bismuthbronze"] = 0.2,
+        ["game:armor-head-brigandine-blackbronze"] = 0.3,
+        ["game:armor-body-brigandine-blackbronze"] = 0.5,
+        ["game:armor-legs-brigandine-blackbronze"] = 0.2,
+        ["game:armor-head-brigandine-iron"] = 0.3,
+        ["game:armor-body-brigandine-iron"] = 0.5,
+        ["game:armor-legs-brigandine-iron"] = 0.2,
+        ["game:armor-head-brigandine-meteoriciron"] = 0.3,
+        ["game:armor-body-brigandine-meteoriciron"] = 0.5,
+        ["game:armor-legs-brigandine-meteoriciron"] = 0.2,
+        ["game:armor-head-brigandine-steel"] = 0.3,
+        ["game:armor-body-brigandine-steel"] = 0.5,
+        ["game:armor-legs-brigandine-steel"] = 0.2,
+    };
+
     public static void PopulateBrigandineArmorConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> brigandineArmorLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "brigandinearmor",
-            "levelup:config/levelstats/brigandinearmor.json");
+            BuildBrigandineArmorDefaultConfig());
         { //brigandineArmorEXPPerReceiveHit
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPPerReceiveHit", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPPerReceiveHit is null");
@@ -4846,13 +9183,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else brigandineArmorEXPPerLevelBase = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPPerLevelBase not set");
-        }
-        { //brigandineArmorEXPMultiplyPerLevel
-            if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
-                else brigandineArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: brigandineArmorEXPMultiplyPerLevel not set");
         }
         { //brigandineArmorEXPMultiplyPerLevel
             if (brigandineArmorLevelStats.TryGetValue("brigandineArmorEXPMultiplyPerLevel", out object value))
@@ -5086,7 +9416,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "brigandinearmoritems",
-            "levelup:config/levelstats/brigandinearmoritems.json");
+            BuildBrigandineArmorItemsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitBrigandineArmor)
         {
             if (pair.Value is double value) expMultiplyHitBrigandineArmor.Add(pair.Key, (double)value);
@@ -5247,7 +9577,7 @@ public static class Configuration
     public static Dictionary<string, double> expMultiplyHitLamellarArmor = [];
     private static int lamellarArmorEXPPerReceiveHit = 10;
     private static float lamellarArmorEXPMultiplyByDamage = 0.3f;
-    private static int lamellarArmorEXPIncreaseByAmountDamage = 20;
+    private static int lamellarArmorEXPIncreaseByAmountDamage = 2;
     private static int lamellarArmorEXPPerLevelBase = 500;
     private static double lamellarArmorEXPMultiplyPerLevel = 1.2;
 
@@ -5289,13 +9619,71 @@ public static class Configuration
     public static int lamellarArmorMaxLevel = 999;
     public static double lamellarArmorSubLevelEXPMultiply = 3.0;
 
+    private static Dictionary<string, object> BuildLamellarArmorDefaultConfig() => new()
+    {
+        ["lamellarArmorEXPPerReceiveHit"] = (long)lamellarArmorEXPPerReceiveHit,
+        ["lamellarArmorEXPMultiplyByDamage"] = (double)lamellarArmorEXPMultiplyByDamage,
+        ["lamellarArmorEXPIncreaseByAmountDamage"] = (long)lamellarArmorEXPIncreaseByAmountDamage,
+        ["lamellarArmorEXPPerLevelBase"] = (long)lamellarArmorEXPPerLevelBase,
+        ["lamellarArmorEXPMultiplyPerLevel"] = lamellarArmorEXPMultiplyPerLevel,
+        ["lamellarArmorRelativeProtectionMultiply"] = (double)lamellarArmorRelativeProtectionMultiply,
+        ["lamellarArmorRelativeProtectionMultiplyPerLevel"] = (double)lamellarArmorRelativeProtectionMultiplyPerLevel,
+        ["lamellarArmorRelativeProtectionMultiplyReductionEveryLevel"] = (long)lamellarArmorRelativeProtectionMultiplyReductionEveryLevel,
+        ["lamellarArmorRelativeProtectionMultiplyReductionPerReduce"] = (double)lamellarArmorRelativeProtectionMultiplyReductionPerReduce,
+        ["lamellarArmorFlatDamageReductionMultiply"] = (double)lamellarArmorFlatDamageReductionMultiply,
+        ["lamellarArmorFlatDamageReductionMultiplyPerLevel"] = (double)lamellarArmorFlatDamageReductionMultiplyPerLevel,
+        ["lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel"] = (long)lamellarArmorFlatDamageReductionMultiplyReductionEveryLevel,
+        ["lamellarArmorFlatDamageReductionMultiplyReductionPerReduce"] = (double)lamellarArmorFlatDamageReductionMultiplyReductionPerReduce,
+        ["lamellarArmorHealingEffectivnessMultiply"] = (double)lamellarArmorHealingEffectivnessMultiply,
+        ["lamellarArmorHealingEffectivnessMultiplyPerLevel"] = (double)lamellarArmorHealingEffectivnessMultiplyPerLevel,
+        ["lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel"] = (long)lamellarArmorHealingEffectivnessMultiplyReductionEveryLevel,
+        ["lamellarArmorHealingEffectivnessMultiplyReductionPerReduce"] = (double)lamellarArmorHealingEffectivnessMultiplyReductionPerReduce,
+        ["lamellarArmorHungerRateMultiply"] = (double)lamellarArmorHungerRateMultiply,
+        ["lamellarArmorHungerRateMultiplyPerLevel"] = (double)lamellarArmorHungerRateMultiplyPerLevel,
+        ["lamellarArmorHungerRateMultiplyReductionEveryLevel"] = (long)lamellarArmorHungerRateMultiplyReductionEveryLevel,
+        ["lamellarArmorHungerRateMultiplyReductionPerReduce"] = (double)lamellarArmorHungerRateMultiplyReductionPerReduce,
+        ["lamellarArmorRangedWeaponsAccuracyMultiply"] = (double)lamellarArmorRangedWeaponsAccuracyMultiply,
+        ["lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel"] = (double)lamellarArmorRangedWeaponsAccuracyMultiplyPerLevel,
+        ["lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel"] = (long)lamellarArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel,
+        ["lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce"] = (double)lamellarArmorRangedWeaponsAccuracyMultiplyReductionPerReduce,
+        ["lamellarArmorRangedWeaponsSpeedMultiply"] = (double)lamellarArmorRangedWeaponsSpeedMultiply,
+        ["lamellarArmorRangedWeaponsSpeedMultiplyPerLevel"] = (double)lamellarArmorRangedWeaponsSpeedMultiplyPerLevel,
+        ["lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel"] = (long)lamellarArmorRangedWeaponsSpeedMultiplyReductionEveryLevel,
+        ["lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce"] = (double)lamellarArmorRangedWeaponsSpeedMultiplyReductionPerReduce,
+        ["lamellarArmorWalkSpeedMultiply"] = (double)lamellarArmorWalkSpeedMultiply,
+        ["lamellarArmorWalkSpeedMultiplyPerLevel"] = (double)lamellarArmorWalkSpeedMultiplyPerLevel,
+        ["lamellarArmorWalkSpeedMultiplyReductionEveryLevel"] = (long)lamellarArmorWalkSpeedMultiplyReductionEveryLevel,
+        ["lamellarArmorWalkSpeedMultiplyReductionPerReduce"] = (double)lamellarArmorWalkSpeedMultiplyReductionPerReduce,
+        ["lamellarArmorMaxLevel"] = (long)lamellarArmorMaxLevel,
+        ["lamellarArmorSubLevelEXPMultiply"] = lamellarArmorSubLevelEXPMultiply,
+    };
+
+    private static Dictionary<string, object> BuildLamellarArmorItemsDefaultConfig() => new()
+    {
+        ["game:armor-head-lamellar-wood"] = 0.3,
+        ["game:armor-body-lamellar-wood"] = 0.5,
+        ["game:armor-legs-lamellar-wood"] = 0.2,
+        ["game:armor-head-lamellar-copper"] = 0.3,
+        ["game:armor-body-lamellar-copper"] = 0.5,
+        ["game:armor-legs-lamellar-copper"] = 0.2,
+        ["game:armor-head-lamellar-tinbronze"] = 0.3,
+        ["game:armor-body-lamellar-tinbronze"] = 0.5,
+        ["game:armor-legs-lamellar-tinbronze"] = 0.2,
+        ["game:armor-head-lamellar-blackbronze"] = 0.3,
+        ["game:armor-body-lamellar-blackbronze"] = 0.5,
+        ["game:armor-legs-lamellar-blackbronze"] = 0.2,
+        ["game:armor-head-lamellar-bismuthbronze"] = 0.3,
+        ["game:armor-body-lamellar-bismuthbronze"] = 0.5,
+        ["game:armor-legs-lamellar-bismuthbronze"] = 0.2,
+    };
+
     public static void PopulateLamellarArmorConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> lamellarArmorLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "lamellararmor",
-            "levelup:config/levelstats/lamellararmor.json");
+            BuildLamellarArmorDefaultConfig());
         { //lamellarArmorEXPPerReceiveHit
             if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPPerReceiveHit", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPPerReceiveHit is null");
@@ -5324,13 +9712,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else lamellarArmorEXPPerLevelBase = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPPerLevelBase not set");
-        }
-        { //lamellarArmorEXPMultiplyPerLevel
-            if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
-                else lamellarArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: lamellarArmorEXPMultiplyPerLevel not set");
         }
         { //lamellarArmorEXPMultiplyPerLevel
             if (lamellarArmorLevelStats.TryGetValue("lamellarArmorEXPMultiplyPerLevel", out object value))
@@ -5564,7 +9945,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "lamellararmoritems",
-            "levelup:config/levelstats/lamellararmoritems.json");
+            BuildLamellarArmorItemsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitLamellarArmor)
         {
             if (pair.Value is double value) expMultiplyHitLamellarArmor.Add(pair.Key, (double)value);
@@ -5725,7 +10106,7 @@ public static class Configuration
     public static Dictionary<string, double> expMultiplyHitPlateArmor = [];
     private static int plateArmorEXPPerReceiveHit = 10;
     private static float plateArmorEXPMultiplyByDamage = 0.3f;
-    private static int plateArmorEXPIncreaseByAmountDamage = 20;
+    private static int plateArmorEXPIncreaseByAmountDamage = 2;
     private static int plateArmorEXPPerLevelBase = 500;
     private static double plateArmorEXPMultiplyPerLevel = 1.2;
 
@@ -5767,13 +10148,83 @@ public static class Configuration
     public static int plateArmorMaxLevel = 999;
     public static double plateArmorSubLevelEXPMultiply = 3.0;
 
+    private static Dictionary<string, object> BuildPlateArmorDefaultConfig() => new()
+    {
+        ["plateArmorEXPPerReceiveHit"] = (long)plateArmorEXPPerReceiveHit,
+        ["plateArmorEXPMultiplyByDamage"] = (double)plateArmorEXPMultiplyByDamage,
+        ["plateArmorEXPIncreaseByAmountDamage"] = (long)plateArmorEXPIncreaseByAmountDamage,
+        ["plateArmorEXPPerLevelBase"] = (long)plateArmorEXPPerLevelBase,
+        ["plateArmorEXPMultiplyPerLevel"] = plateArmorEXPMultiplyPerLevel,
+        ["plateArmorRelativeProtectionMultiply"] = (double)plateArmorRelativeProtectionMultiply,
+        ["plateArmorRelativeProtectionMultiplyPerLevel"] = (double)plateArmorRelativeProtectionMultiplyPerLevel,
+        ["plateArmorRelativeProtectionMultiplyReductionEveryLevel"] = (long)plateArmorRelativeProtectionMultiplyReductionEveryLevel,
+        ["plateArmorRelativeProtectionMultiplyReductionPerReduce"] = (double)plateArmorRelativeProtectionMultiplyReductionPerReduce,
+        ["plateArmorFlatDamageReductionMultiply"] = (double)plateArmorFlatDamageReductionMultiply,
+        ["plateArmorFlatDamageReductionMultiplyPerLevel"] = (double)plateArmorFlatDamageReductionMultiplyPerLevel,
+        ["plateArmorFlatDamageReductionMultiplyReductionEveryLevel"] = (long)plateArmorFlatDamageReductionMultiplyReductionEveryLevel,
+        ["plateArmorFlatDamageReductionMultiplyReductionPerReduce"] = (double)plateArmorFlatDamageReductionMultiplyReductionPerReduce,
+        ["plateArmorHealingEffectivnessMultiply"] = (double)plateArmorHealingEffectivnessMultiply,
+        ["plateArmorHealingEffectivnessMultiplyPerLevel"] = (double)plateArmorHealingEffectivnessMultiplyPerLevel,
+        ["plateArmorHealingEffectivnessMultiplyReductionEveryLevel"] = (long)plateArmorHealingEffectivnessMultiplyReductionEveryLevel,
+        ["plateArmorHealingEffectivnessMultiplyReductionPerReduce"] = (double)plateArmorHealingEffectivnessMultiplyReductionPerReduce,
+        ["plateArmorHungerRateMultiply"] = (double)plateArmorHungerRateMultiply,
+        ["plateArmorHungerRateMultiplyPerLevel"] = (double)plateArmorHungerRateMultiplyPerLevel,
+        ["plateArmorHungerRateMultiplyReductionEveryLevel"] = (long)plateArmorHungerRateMultiplyReductionEveryLevel,
+        ["plateArmorHungerRateMultiplyReductionPerReduce"] = (double)plateArmorHungerRateMultiplyReductionPerReduce,
+        ["plateArmorRangedWeaponsAccuracyMultiply"] = (double)plateArmorRangedWeaponsAccuracyMultiply,
+        ["plateArmorRangedWeaponsAccuracyMultiplyPerLevel"] = (double)plateArmorRangedWeaponsAccuracyMultiplyPerLevel,
+        ["plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel"] = (long)plateArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel,
+        ["plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce"] = (double)plateArmorRangedWeaponsAccuracyMultiplyReductionPerReduce,
+        ["plateArmorRangedWeaponsSpeedMultiply"] = (double)plateArmorRangedWeaponsSpeedMultiply,
+        ["plateArmorRangedWeaponsSpeedMultiplyPerLevel"] = (double)plateArmorRangedWeaponsSpeedMultiplyPerLevel,
+        ["plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel"] = (long)plateArmorRangedWeaponsSpeedMultiplyReductionEveryLevel,
+        ["plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce"] = (double)plateArmorRangedWeaponsSpeedMultiplyReductionPerReduce,
+        ["plateArmorWalkSpeedMultiply"] = (double)plateArmorWalkSpeedMultiply,
+        ["plateArmorWalkSpeedMultiplyPerLevel"] = (double)plateArmorWalkSpeedMultiplyPerLevel,
+        ["plateArmorWalkSpeedMultiplyReductionEveryLevel"] = (long)plateArmorWalkSpeedMultiplyReductionEveryLevel,
+        ["plateArmorWalkSpeedMultiplyReductionPerReduce"] = (double)plateArmorWalkSpeedMultiplyReductionPerReduce,
+        ["plateArmorMaxLevel"] = (long)plateArmorMaxLevel,
+        ["plateArmorSubLevelEXPMultiply"] = plateArmorSubLevelEXPMultiply,
+    };
+
+    private static Dictionary<string, object> BuildPlateArmorItemsDefaultConfig() => new()
+    {
+        ["game:armor-head-plate-copper"] = 0.3,
+        ["game:armor-body-plate-copper"] = 0.5,
+        ["game:armor-legs-plate-copper"] = 0.2,
+        ["game:armor-head-plate-tinbronze"] = 0.3,
+        ["game:armor-body-plate-tinbronze"] = 0.5,
+        ["game:armor-legs-plate-tinbronze"] = 0.2,
+        ["game:armor-head-plate-bismuthbronze"] = 0.3,
+        ["game:armor-body-plate-bismuthbronze"] = 0.5,
+        ["game:armor-legs-plate-bismuthbronze"] = 0.2,
+        ["game:armor-head-plate-blackbronze"] = 0.3,
+        ["game:armor-body-plate-blackbronze"] = 0.5,
+        ["game:armor-legs-plate-blackbronze"] = 0.2,
+        ["game:armor-head-plate-iron"] = 0.3,
+        ["game:armor-body-plate-iron"] = 0.5,
+        ["game:armor-legs-plate-iron"] = 0.2,
+        ["game:armor-head-plate-meteoriciron"] = 0.3,
+        ["game:armor-body-plate-meteoriciron"] = 0.5,
+        ["game:armor-legs-plate-meteoriciron"] = 0.2,
+        ["game:armor-head-plate-steel"] = 0.3,
+        ["game:armor-body-plate-steel"] = 0.5,
+        ["game:armor-legs-plate-steel"] = 0.2,
+        ["game:armor-head-plate-gold"] = 0.3,
+        ["game:armor-body-plate-gold"] = 0.5,
+        ["game:armor-legs-plate-gold"] = 0.2,
+        ["game:armor-head-plate-silver"] = 0.3,
+        ["game:armor-body-plate-silver"] = 0.5,
+        ["game:armor-legs-plate-silver"] = 0.2,
+    };
+
     public static void PopulatePlateArmorConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> plateArmorLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "platearmor",
-            "levelup:config/levelstats/platearmor.json");
+            BuildPlateArmorDefaultConfig());
         { //plateArmorEXPPerReceiveHit
             if (plateArmorLevelStats.TryGetValue("plateArmorEXPPerReceiveHit", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorEXPPerReceiveHit is null");
@@ -5802,13 +10253,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else plateArmorEXPPerLevelBase = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPPerLevelBase not set");
-        }
-        { //plateArmorEXPMultiplyPerLevel
-            if (plateArmorLevelStats.TryGetValue("plateArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
-                else plateArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: plateArmorEXPMultiplyPerLevel not set");
         }
         { //plateArmorEXPMultiplyPerLevel
             if (plateArmorLevelStats.TryGetValue("plateArmorEXPMultiplyPerLevel", out object value))
@@ -6042,7 +10486,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "platearmoritems",
-            "levelup:config/levelstats/platearmoritems.json");
+            BuildPlateArmorItemsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitPlateArmor)
         {
             if (pair.Value is double value) expMultiplyHitPlateArmor.Add(pair.Key, (double)value);
@@ -6203,7 +10647,7 @@ public static class Configuration
     public static Dictionary<string, double> expMultiplyHitScaleArmor = [];
     private static int scaleArmorEXPPerReceiveHit = 10;
     private static float scaleArmorEXPMultiplyByDamage = 0.3f;
-    private static int scaleArmorEXPIncreaseByAmountDamage = 20;
+    private static int scaleArmorEXPIncreaseByAmountDamage = 2;
     private static int scaleArmorEXPPerLevelBase = 500;
     private static double scaleArmorEXPMultiplyPerLevel = 1.2;
 
@@ -6245,13 +10689,77 @@ public static class Configuration
     public static int scaleArmorMaxLevel = 999;
     public static double scaleArmorSubLevelEXPMultiply = 3.0;
 
+    private static Dictionary<string, object> BuildScaleArmorDefaultConfig() => new()
+    {
+        ["scaleArmorEXPPerReceiveHit"] = (long)scaleArmorEXPPerReceiveHit,
+        ["scaleArmorEXPMultiplyByDamage"] = (double)scaleArmorEXPMultiplyByDamage,
+        ["scaleArmorEXPIncreaseByAmountDamage"] = (long)scaleArmorEXPIncreaseByAmountDamage,
+        ["scaleArmorEXPPerLevelBase"] = (long)scaleArmorEXPPerLevelBase,
+        ["scaleArmorEXPMultiplyPerLevel"] = scaleArmorEXPMultiplyPerLevel,
+        ["scaleArmorRelativeProtectionMultiply"] = (double)scaleArmorRelativeProtectionMultiply,
+        ["scaleArmorRelativeProtectionMultiplyPerLevel"] = (double)scaleArmorRelativeProtectionMultiplyPerLevel,
+        ["scaleArmorRelativeProtectionMultiplyReductionEveryLevel"] = (long)scaleArmorRelativeProtectionMultiplyReductionEveryLevel,
+        ["scaleArmorRelativeProtectionMultiplyReductionPerReduce"] = (double)scaleArmorRelativeProtectionMultiplyReductionPerReduce,
+        ["scaleArmorFlatDamageReductionMultiply"] = (double)scaleArmorFlatDamageReductionMultiply,
+        ["scaleArmorFlatDamageReductionMultiplyPerLevel"] = (double)scaleArmorFlatDamageReductionMultiplyPerLevel,
+        ["scaleArmorFlatDamageReductionMultiplyReductionEveryLevel"] = (long)scaleArmorFlatDamageReductionMultiplyReductionEveryLevel,
+        ["scaleArmorFlatDamageReductionMultiplyReductionPerReduce"] = (double)scaleArmorFlatDamageReductionMultiplyReductionPerReduce,
+        ["scaleArmorHealingEffectivnessMultiply"] = (double)scaleArmorHealingEffectivnessMultiply,
+        ["scaleArmorHealingEffectivnessMultiplyPerLevel"] = (double)scaleArmorHealingEffectivnessMultiplyPerLevel,
+        ["scaleArmorHealingEffectivnessMultiplyReductionEveryLevel"] = (long)scaleArmorHealingEffectivnessMultiplyReductionEveryLevel,
+        ["scaleArmorHealingEffectivnessMultiplyReductionPerReduce"] = (double)scaleArmorHealingEffectivnessMultiplyReductionPerReduce,
+        ["scaleArmorHungerRateMultiply"] = (double)scaleArmorHungerRateMultiply,
+        ["scaleArmorHungerRateMultiplyPerLevel"] = (double)scaleArmorHungerRateMultiplyPerLevel,
+        ["scaleArmorHungerRateMultiplyReductionEveryLevel"] = (long)scaleArmorHungerRateMultiplyReductionEveryLevel,
+        ["scaleArmorHungerRateMultiplyReductionPerReduce"] = (double)scaleArmorHungerRateMultiplyReductionPerReduce,
+        ["scaleArmorRangedWeaponsAccuracyMultiply"] = (double)scaleArmorRangedWeaponsAccuracyMultiply,
+        ["scaleArmorRangedWeaponsAccuracyMultiplyPerLevel"] = (double)scaleArmorRangedWeaponsAccuracyMultiplyPerLevel,
+        ["scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel"] = (long)scaleArmorRangedWeaponsAccuracyMultiplyReductionEveryLevel,
+        ["scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce"] = (double)scaleArmorRangedWeaponsAccuracyMultiplyReductionPerReduce,
+        ["scaleArmorRangedWeaponsSpeedMultiply"] = (double)scaleArmorRangedWeaponsSpeedMultiply,
+        ["scaleArmorRangedWeaponsSpeedMultiplyPerLevel"] = (double)scaleArmorRangedWeaponsSpeedMultiplyPerLevel,
+        ["scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel"] = (long)scaleArmorRangedWeaponsSpeedMultiplyReductionEveryLevel,
+        ["scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce"] = (double)scaleArmorRangedWeaponsSpeedMultiplyReductionPerReduce,
+        ["scaleArmorWalkSpeedMultiply"] = (double)scaleArmorWalkSpeedMultiply,
+        ["scaleArmorWalkSpeedMultiplyPerLevel"] = (double)scaleArmorWalkSpeedMultiplyPerLevel,
+        ["scaleArmorWalkSpeedMultiplyReductionEveryLevel"] = (long)scaleArmorWalkSpeedMultiplyReductionEveryLevel,
+        ["scaleArmorWalkSpeedMultiplyReductionPerReduce"] = (double)scaleArmorWalkSpeedMultiplyReductionPerReduce,
+        ["scaleArmorMaxLevel"] = (long)scaleArmorMaxLevel,
+        ["scaleArmorSubLevelEXPMultiply"] = scaleArmorSubLevelEXPMultiply,
+    };
+
+    private static Dictionary<string, object> BuildScaleArmorItemsDefaultConfig() => new()
+    {
+        ["game:armor-head-scale-copper"] = 0.3,
+        ["game:armor-body-scale-copper"] = 0.5,
+        ["game:armor-legs-scale-copper"] = 0.2,
+        ["game:armor-head-scale-tinbronze"] = 0.3,
+        ["game:armor-body-scale-tinbronze"] = 0.5,
+        ["game:armor-legs-scale-tinbronze"] = 0.2,
+        ["game:armor-head-scale-bismuthbronze"] = 0.3,
+        ["game:armor-body-scale-bismuthbronze"] = 0.5,
+        ["game:armor-legs-scale-bismuthbronze"] = 0.2,
+        ["game:armor-head-scale-blackbronze"] = 0.3,
+        ["game:armor-body-scale-blackbronze"] = 0.5,
+        ["game:armor-legs-scale-blackbronze"] = 0.2,
+        ["game:armor-head-scale-iron"] = 0.3,
+        ["game:armor-body-scale-iron"] = 0.5,
+        ["game:armor-legs-scale-iron"] = 0.2,
+        ["game:armor-head-scale-meteoriciron"] = 0.3,
+        ["game:armor-body-scale-meteoriciron"] = 0.5,
+        ["game:armor-legs-scale-meteoriciron"] = 0.2,
+        ["game:armor-head-scale-steel"] = 0.3,
+        ["game:armor-body-scale-steel"] = 0.5,
+        ["game:armor-legs-scale-steel"] = 0.2,
+    };
+
     public static void PopulateScaleArmorConfiguration(ICoreAPI api)
     {
         Dictionary<string, object> scaleArmorLevelStats = LoadConfigurationByDirectoryAndName(
             api,
             "ModConfig/LevelUP/config/levelstats",
             "scalearmor",
-            "levelup:config/levelstats/scalearmor.json");
+            BuildScaleArmorDefaultConfig());
         { //scaleArmorEXPPerReceiveHit
             if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPPerReceiveHit", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPPerReceiveHit is null");
@@ -6280,13 +10788,6 @@ public static class Configuration
                 else if (value is not long) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPPerLevelBase is not int is {value.GetType()}");
                 else scaleArmorEXPPerLevelBase = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPPerLevelBase not set");
-        }
-        { //scaleArmorEXPMultiplyPerLevel
-            if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPMultiplyPerLevel", out object value))
-                if (value is null) Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is null");
-                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel is not double is {value.GetType()}");
-                else scaleArmorEXPMultiplyPerLevel = (float)(double)value;
-            else Debug.LogError("CONFIGURATION ERROR: scaleArmorEXPMultiplyPerLevel not set");
         }
         { //scaleArmorEXPMultiplyPerLevel
             if (scaleArmorLevelStats.TryGetValue("scaleArmorEXPMultiplyPerLevel", out object value))
@@ -6520,7 +11021,7 @@ public static class Configuration
             api,
             "ModConfig/LevelUP/config/levelstats",
             "scalearmoritems",
-            "levelup:config/levelstats/scalearmoritems.json");
+            BuildScaleArmorItemsDefaultConfig());
         foreach (KeyValuePair<string, object> pair in tmpexpMultiplyHitScaleArmor)
         {
             if (pair.Value is double value) expMultiplyHitScaleArmor.Add(pair.Key, (double)value);
@@ -6714,6 +11215,174 @@ public static class Configuration
         return 1.0f;
     }
 
+    private static Dictionary<string, object> BuildHunterClassDefaultConfig() => new()
+    {
+        ["classHunterLevelMultiply"] = 2.0,
+        ["classBowLevelMultiply"] = 2.5,
+        ["classSlingshotLevelMultiply"] = 0.9,
+        ["classKnifeLevelMultiply"] = 1.5,
+        ["classAxeLevelMultiply"] = 0.7,
+        ["classPickaxeLevelMultiply"] = 0.5,
+        ["classShovelLevelMultiply"] = 0.5,
+        ["classSpearLevelMultiply"] = 1.8,
+        ["classHammerLevelMultiply"] = 0.7,
+        ["classSwordLevelMultiply"] = 1.0,
+        ["classShieldLevelMultiply"] = 0.9,
+        ["classHandLevelMultiply"] = 1.0,
+        ["classFarmingLevelMultiply"] = 0.7,
+        ["classCookingLevelMultiply"] = 0.6,
+        ["classPanningLevelMultiply"] = 0.5,
+        ["classVitalityLevelMultiply"] = 0.5,
+        ["classMetabolismLevelMultiply"] = 2.0,
+        ["classLeatherArmorLevelMultiply"] = 2.0,
+        ["classChainArmorLevelMultiply"] = 0.4,
+        ["classBrigandineArmorLevelMultiply"] = 1.0,
+        ["classPlateArmorLevelMultiply"] = 1.0,
+        ["classScaleArmorLevelMultiply"] = 1.0,
+        ["classLamellarArmorLevelMultiply"] = 1.0,
+        ["classSmithingLevelMultiply"] = 0.5,
+    };
+
+    private static Dictionary<string, object> BuildCommonerClassDefaultConfig() => new()
+    {
+        ["classHunterLevelMultiply"] = 1.0,
+        ["classBowLevelMultiply"] = 1.0,
+        ["classSlingshotLevelMultiply"] = 1.0,
+        ["classKnifeLevelMultiply"] = 1.0,
+        ["classAxeLevelMultiply"] = 1.0,
+        ["classPickaxeLevelMultiply"] = 1.0,
+        ["classShovelLevelMultiply"] = 1.0,
+        ["classSpearLevelMultiply"] = 1.0,
+        ["classHammerLevelMultiply"] = 1.0,
+        ["classSwordLevelMultiply"] = 1.0,
+        ["classShieldLevelMultiply"] = 1.0,
+        ["classHandLevelMultiply"] = 1.0,
+        ["classFarmingLevelMultiply"] = 1.0,
+        ["classCookingLevelMultiply"] = 1.0,
+        ["classPanningLevelMultiply"] = 1.0,
+        ["classVitalityLevelMultiply"] = 1.0,
+        ["classMetabolismLevelMultiply"] = 1.0,
+        ["classLeatherArmorLevelMultiply"] = 1.0,
+        ["classChainArmorLevelMultiply"] = 1.0,
+        ["classBrigandineArmorLevelMultiply"] = 1.0,
+        ["classPlateArmorLevelMultiply"] = 1.0,
+        ["classScaleArmorLevelMultiply"] = 1.0,
+        ["classLamellarArmorLevelMultiply"] = 1.0,
+        ["classSmithingLevelMultiply"] = 1.0,
+    };
+
+    private static Dictionary<string, object> BuildBlackguardClassDefaultConfig() => new()
+    {
+        ["classHunterLevelMultiply"] = 0.5,
+        ["classBowLevelMultiply"] = 0.3,
+        ["classSlingshotLevelMultiply"] = 0.5,
+        ["classKnifeLevelMultiply"] = 0.4,
+        ["classAxeLevelMultiply"] = 1.3,
+        ["classPickaxeLevelMultiply"] = 2.0,
+        ["classShovelLevelMultiply"] = 2.0,
+        ["classSpearLevelMultiply"] = 0.6,
+        ["classHammerLevelMultiply"] = 1.0,
+        ["classSwordLevelMultiply"] = 2.5,
+        ["classShieldLevelMultiply"] = 2.0,
+        ["classHandLevelMultiply"] = 2.0,
+        ["classFarmingLevelMultiply"] = 0.7,
+        ["classCookingLevelMultiply"] = 0.5,
+        ["classPanningLevelMultiply"] = 0.5,
+        ["classVitalityLevelMultiply"] = 1.5,
+        ["classMetabolismLevelMultiply"] = 0.5,
+        ["classLeatherArmorLevelMultiply"] = 1.0,
+        ["classChainArmorLevelMultiply"] = 1.0,
+        ["classBrigandineArmorLevelMultiply"] = 1.0,
+        ["classPlateArmorLevelMultiply"] = 1.0,
+        ["classScaleArmorLevelMultiply"] = 1.0,
+        ["classLamellarArmorLevelMultiply"] = 1.0,
+        ["classSmithingLevelMultiply"] = 1.5,
+    };
+
+    private static Dictionary<string, object> BuildClockmakerClassDefaultConfig() => new()
+    {
+        ["classHunterLevelMultiply"] = 0.8,
+        ["classBowLevelMultiply"] = 0.7,
+        ["classSlingshotLevelMultiply"] = 1.0,
+        ["classKnifeLevelMultiply"] = 1.0,
+        ["classAxeLevelMultiply"] = 1.5,
+        ["classPickaxeLevelMultiply"] = 2.0,
+        ["classShovelLevelMultiply"] = 2.0,
+        ["classSpearLevelMultiply"] = 0.7,
+        ["classHammerLevelMultiply"] = 1.5,
+        ["classSwordLevelMultiply"] = 0.4,
+        ["classShieldLevelMultiply"] = 0.6,
+        ["classHandLevelMultiply"] = 0.5,
+        ["classFarmingLevelMultiply"] = 1.2,
+        ["classCookingLevelMultiply"] = 1.0,
+        ["classPanningLevelMultiply"] = 1.4,
+        ["classVitalityLevelMultiply"] = 0.7,
+        ["classMetabolismLevelMultiply"] = 1.3,
+        ["classLeatherArmorLevelMultiply"] = 1.0,
+        ["classChainArmorLevelMultiply"] = 1.0,
+        ["classBrigandineArmorLevelMultiply"] = 1.0,
+        ["classPlateArmorLevelMultiply"] = 1.0,
+        ["classScaleArmorLevelMultiply"] = 1.0,
+        ["classLamellarArmorLevelMultiply"] = 1.0,
+        ["classSmithingLevelMultiply"] = 2.0,
+    };
+
+    private static Dictionary<string, object> BuildMalefactorClassDefaultConfig() => new()
+    {
+        ["classHunterLevelMultiply"] = 1.2,
+        ["classBowLevelMultiply"] = 0.6,
+        ["classSlingshotLevelMultiply"] = 2.5,
+        ["classKnifeLevelMultiply"] = 1.5,
+        ["classAxeLevelMultiply"] = 1.0,
+        ["classPickaxeLevelMultiply"] = 1.0,
+        ["classShovelLevelMultiply"] = 1.0,
+        ["classSpearLevelMultiply"] = 1.0,
+        ["classHammerLevelMultiply"] = 1.0,
+        ["classSwordLevelMultiply"] = 1.0,
+        ["classShieldLevelMultiply"] = 1.0,
+        ["classHandLevelMultiply"] = 1.5,
+        ["classFarmingLevelMultiply"] = 1.5,
+        ["classCookingLevelMultiply"] = 2.0,
+        ["classPanningLevelMultiply"] = 1.8,
+        ["classVitalityLevelMultiply"] = 0.5,
+        ["classMetabolismLevelMultiply"] = 1.0,
+        ["classLeatherArmorLevelMultiply"] = 1.5,
+        ["classChainArmorLevelMultiply"] = 1.5,
+        ["classBrigandineArmorLevelMultiply"] = 1.0,
+        ["classPlateArmorLevelMultiply"] = 1.0,
+        ["classScaleArmorLevelMultiply"] = 1.0,
+        ["classLamellarArmorLevelMultiply"] = 1.0,
+        ["classSmithingLevelMultiply"] = 0.7,
+    };
+
+    private static Dictionary<string, object> BuildTailorClassDefaultConfig() => new()
+    {
+        ["classHunterLevelMultiply"] = 0.7,
+        ["classBowLevelMultiply"] = 1.8,
+        ["classSlingshotLevelMultiply"] = 1.0,
+        ["classKnifeLevelMultiply"] = 1.8,
+        ["classAxeLevelMultiply"] = 1.7,
+        ["classPickaxeLevelMultiply"] = 1.4,
+        ["classShovelLevelMultiply"] = 1.6,
+        ["classSpearLevelMultiply"] = 1.0,
+        ["classHammerLevelMultiply"] = 1.0,
+        ["classSwordLevelMultiply"] = 0.6,
+        ["classShieldLevelMultiply"] = 0.6,
+        ["classHandLevelMultiply"] = 0.4,
+        ["classFarmingLevelMultiply"] = 2.0,
+        ["classCookingLevelMultiply"] = 2.0,
+        ["classPanningLevelMultiply"] = 2.5,
+        ["classVitalityLevelMultiply"] = 0.3,
+        ["classMetabolismLevelMultiply"] = 1.5,
+        ["classLeatherArmorLevelMultiply"] = 2.0,
+        ["classChainArmorLevelMultiply"] = 2.0,
+        ["classBrigandineArmorLevelMultiply"] = 1.0,
+        ["classPlateArmorLevelMultiply"] = 1.0,
+        ["classScaleArmorLevelMultiply"] = 1.0,
+        ["classLamellarArmorLevelMultiply"] = 1.0,
+        ["classSmithingLevelMultiply"] = 2.0,
+    };
+
     public static void PopulateClassConfigurations(ICoreAPI api)
     {
         ClassExperience.Clear();
@@ -6740,7 +11409,7 @@ public static class Configuration
                     ;
 
                     // Get the configuration for the respective file
-                    Dictionary<string, object> configClass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", configname, null);
+                    Dictionary<string, object> configClass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", configname, new Dictionary<string, object>());
                     foreach (KeyValuePair<string, object> configuration in configClass)
                     {
                         // Configuration addition
@@ -6761,37 +11430,37 @@ public static class Configuration
         {
             Debug.LogWarn("WARNING: Server configuration classes directory doesn't exist, creating default classes");
 
-            Dictionary<string, object> hunterclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "hunterclass", "levelup:config/classexp/hunterclass.json");
+            Dictionary<string, object> hunterclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "hunterclass", BuildHunterClassDefaultConfig());
             foreach (KeyValuePair<string, object> pair in hunterclass)
             {
                 RegisterNewClassLevel("hunterclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
-            Dictionary<string, object> commonerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "commonerclass", "levelup:config/classexp/commonerclass.json");
+            Dictionary<string, object> commonerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "commonerclass", BuildCommonerClassDefaultConfig());
             foreach (KeyValuePair<string, object> pair in commonerclass)
             {
                 RegisterNewClassLevel("commonerclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
-            Dictionary<string, object> blackguardclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "blackguardclass", "levelup:config/classexp/blackguardclass.json");
+            Dictionary<string, object> blackguardclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "blackguardclass", BuildBlackguardClassDefaultConfig());
             foreach (KeyValuePair<string, object> pair in blackguardclass)
             {
                 RegisterNewClassLevel("blackguardclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
-            Dictionary<string, object> clockmakerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "clockmakerclass", "levelup:config/classexp/clockmakerclass.json");
+            Dictionary<string, object> clockmakerclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "clockmakerclass", BuildClockmakerClassDefaultConfig());
             foreach (KeyValuePair<string, object> pair in clockmakerclass)
             {
                 RegisterNewClassLevel("clockmakerclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
-            Dictionary<string, object> malefactorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "malefactorclass", "levelup:config/classexp/malefactorclass.json");
+            Dictionary<string, object> malefactorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "malefactorclass", BuildMalefactorClassDefaultConfig());
             foreach (KeyValuePair<string, object> pair in malefactorclass)
             {
                 RegisterNewClassLevel("malefactorclass", pair.Key, Convert.ToSingle(pair.Value));
             }
 
-            Dictionary<string, object> tailorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "tailorclass", "levelup:config/classexp/tailorclass.json");
+            Dictionary<string, object> tailorclass = LoadConfigurationByDirectoryAndName(api, "ModConfig/LevelUP/config/classexp", "tailorclass", BuildTailorClassDefaultConfig());
             foreach (KeyValuePair<string, object> pair in tailorclass)
             {
                 RegisterNewClassLevel("tailorclass", pair.Key, Convert.ToSingle(pair.Value));

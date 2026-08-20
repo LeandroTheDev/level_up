@@ -2,16 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Reflection.Emit;
 using System.Text;
 using HarmonyLib;
 using LevelUP.Client;
-using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
-using Vintagestory.API.Datastructures;
-using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -135,7 +131,6 @@ class LevelMetabolism
         }
 
         playerStats.MaxSaturation = playerMaxSaturation;
-        player.Entity.WatchedAttributes.SetFloat("maxsaturation", playerStats.MaxSaturation);
 
         playerStats.UpdateNutrientHealthBoost();
 
@@ -170,113 +165,11 @@ class LevelMetabolism
             return 1f;
         }
 
-        [HarmonyTranspiler]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
-        internal static IEnumerable<CodeInstruction> ConsumeSaturationTranspiler(IEnumerable<CodeInstruction> instructions)
+        internal static void ConsumeSaturationPrefix(EntityBehaviorHunger instance, ref float amount)
         {
-            var getReducerMethod = AccessTools.Method(typeof(LevelMetabolismPatch), nameof(GetReducerForPlayer));
-
-            foreach (var code in instructions)
-            {
-                // Whenever you find ldarg.1, replace it with the multiplier.
-                if (code.opcode == OpCodes.Ldarg_1)
-                {
-                    // ldarg.0 (this)
-                    yield return new CodeInstruction(OpCodes.Ldarg_0);
-
-                    // call GetReducerForPlayer
-                    yield return new CodeInstruction(OpCodes.Call, getReducerMethod);
-
-                    // ldarg.1 (amount)
-                    yield return new CodeInstruction(OpCodes.Ldarg_1);
-
-                    // mul  (amount * reducer)
-                    yield return new CodeInstruction(OpCodes.Mul);
-
-                    continue;
-                }
-
-                yield return code;
-            }
-        }
-
-        // I don't know the reason, but some random function is changing the maxsaturation to default value randomly
-        [HarmonyTranspiler] // Client side
-        [HarmonyPatch(typeof(HudStatbar), "UpdateSaturation")]
-        internal static IEnumerable<CodeInstruction> UpdateSaturationTranspiler(IEnumerable<CodeInstruction> instructions)
-        {
-            static bool IsStloc(CodeInstruction c)
-            {
-                return c.opcode == OpCodes.Stloc_0
-                    || c.opcode == OpCodes.Stloc_1
-                    || c.opcode == OpCodes.Stloc_2
-                    || c.opcode == OpCodes.Stloc_3
-                    || c.opcode == OpCodes.Stloc_S
-                    || c.opcode == OpCodes.Stloc;
-            }
-
-            var nullableCtor = typeof(float?)
-                .GetConstructor([typeof(float)]);
-
-            var getFloatMethod = AccessTools.Method(
-                typeof(ITreeAttribute),
-                "GetFloat",
-                [typeof(string), typeof(float)]
-            );
-
-            var getWorld = AccessTools.PropertyGetter(typeof(ICoreClientAPI), "World");
-            var getPlayer = AccessTools.PropertyGetter(typeof(IClientWorldAccessor), "Player");
-            var getEntity = AccessTools.PropertyGetter(typeof(IPlayer), "Entity");
-
-            var watchedAttributesField =
-                AccessTools.Field(typeof(Entity), "WatchedAttributes");
-
-            CodeInstruction prev = null;
-            CodeInstruction prevPrev = null;
-
-            foreach (var code in instructions)
-            {
-                // ldstr "maxsaturation" -> callvirt TryGetFloat -> stloc.*
-                if (prevPrev != null &&
-                    prev != null &&
-                    prevPrev.opcode == OpCodes.Ldstr &&
-                    prevPrev.operand is string s &&
-                    s == "maxsaturation" &&
-                    prev.opcode == OpCodes.Callvirt &&
-                    IsStloc(code))
-                {
-                    // keep original store
-                    yield return code;
-
-                    // capi.World.Player.Entity.WatchedAttributes
-                    yield return new CodeInstruction(OpCodes.Ldarg_0);
-                    yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(GuiDialog), "capi"));
-                    yield return new CodeInstruction(OpCodes.Callvirt, getWorld);
-                    yield return new CodeInstruction(OpCodes.Callvirt, getPlayer);
-                    yield return new CodeInstruction(OpCodes.Callvirt, getEntity);
-                    yield return new CodeInstruction(OpCodes.Ldfld, watchedAttributesField);
-
-                    // GetFloat("maxsaturation", 1500f)
-                    yield return new CodeInstruction(OpCodes.Ldstr, "maxsaturation");
-                    yield return new CodeInstruction(OpCodes.Ldc_R4, 1500f);
-                    yield return new CodeInstruction(OpCodes.Callvirt, getFloatMethod);
-
-                    // new float?(result)
-                    yield return new CodeInstruction(OpCodes.Newobj, nullableCtor);
-
-                    // store back into maxSaturation
-                    yield return new CodeInstruction(code.opcode, code.operand);
-
-                    prevPrev = prev;
-                    prev = code;
-                    continue;
-                }
-
-                yield return code;
-
-                prevPrev = prev;
-                prev = code;
-            }
+            amount *= GetReducerForPlayer(instance);
         }
     }
 }

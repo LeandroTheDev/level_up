@@ -1,9 +1,5 @@
 .vscode
-CakeBuild
 Releases
-LevelUP/bin
-LevelUP/obj
-LevelUP/Properties
-LevelUP.sln
-build.ps1
+**/bin/
+**/obj/
 .claude
