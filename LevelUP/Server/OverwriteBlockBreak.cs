@@ -98,7 +98,8 @@ class OverwriteBlockBreak
         return list;
     }
 
-    [HarmonyPostfix] // Client Side
+    // Runs even if the original method throws, to guarantee the reset
+    [HarmonyFinalizer] // Client Side
     [HarmonyPatch(typeof(CollectibleObject), "GetMiningSpeed")]
     [HarmonyPriority(Priority.VeryLow)]
     internal static void GetMiningSpeedFinish(CollectibleObject __instance, IItemStack itemstack, BlockSelection blockSel, Block block, IPlayer forPlayer)
@@ -120,7 +121,8 @@ class OverwriteBlockBreak
             OverwriteBlockBreakEvents.ExecuteMiningSpeedAttributeWithPlayer(capi.World.Player, inSlot.Itemstack);
     }
 
-    [HarmonyPostfix] // Client Side
+    // Runs even if the original method throws, to guarantee the reset
+    [HarmonyFinalizer] // Client Side
     [HarmonyPatch(typeof(CollectibleObject), "GetHeldItemInfo")]
     internal static void GetHeldItemInfoFinish(CollectibleObject __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
     {

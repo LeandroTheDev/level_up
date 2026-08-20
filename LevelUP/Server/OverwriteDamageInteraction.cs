@@ -204,6 +204,32 @@ class OverwriteDamageInteraction
         }
     }
 
+    // Guarantees the reset runs even if the original method or an earlier patch throws.
+    // Reset is idempotent, so it running again after HandleDamagedFinish on the success path is harmless.
+    [HarmonyFinalizer]
+    [HarmonyPatch(typeof(ModSystemWearableStats), "handleDamaged")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void HandleDamagedCleanup(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
+    {
+        if (dmgSource.Type == EnumDamageType.Heal) return;
+        if (dmgSource.Type == EnumDamageType.Hunger) return;
+        if (dmgSource.Source == EnumDamageSource.Fall) return;
+        if (dmgSource.Source == EnumDamageSource.Revive) return;
+
+        IInventory inv = player.InventoryManager.GetOwnInventory("character");
+
+        // The inventory codes: 12,13,14 is reserved to store armor
+        for (int i = 12; i <= 14; i++)
+        {
+            ItemSlot armorSlot = inv[i];
+            CollectibleBehaviorWearable armorBehavior = armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
+            if (armorBehavior != null)
+            {
+                Shared.Instance.ResetArmorAttributes(armorSlot, armorBehavior);
+            }
+        }
+    }
+
     // Handle Status:
     // healingeffectivness
     // hungerrate
@@ -258,6 +284,25 @@ class OverwriteDamageInteraction
         }
     }
 
+    // Guarantees the reset runs even if the original method or an earlier patch throws.
+    // Reset is idempotent, so it running again after UpdateWearableStatsFinish on the success path is harmless.
+    [HarmonyFinalizer]
+    [HarmonyPatch(typeof(ModSystemWearableStats), "updateWearableStats")]
+    [HarmonyPriority(Priority.VeryLow)]
+    internal static void UpdateWearableStatsCleanup(ModSystemWearableStats __instance, InventoryBase inv, IServerPlayer player)
+    {
+        // The inventory codes: 12,13,14 is reserved to store armor
+        for (int i = 12; i <= 14; i++)
+        {
+            ItemSlot armorSlot = inv[i];
+            CollectibleBehaviorWearable armorBehavior = armorSlot.Itemstack?.Item?.GetCollectibleBehavior<CollectibleBehaviorWearable>(true);
+            if (armorBehavior != null)
+            {
+                Shared.Instance.ResetArmorAttributes(armorSlot, armorBehavior);
+            }
+        }
+    }
+
     // Update visual protections and stats
     [HarmonyPrefix] // Client Side
     [HarmonyPatch(typeof(CollectibleBehaviorWearable), "GetHeldItemInfo")]
@@ -271,8 +316,8 @@ class OverwriteDamageInteraction
         }
     }
 
-    // Update visual protections and stats
-    [HarmonyPostfix] // Client Side
+    // Update visual protections and stats, runs even if the original method throws
+    [HarmonyFinalizer] // Client Side
     [HarmonyPatch(typeof(CollectibleBehaviorWearable), "GetHeldItemInfo")]
     [HarmonyPriority(Priority.VeryLow)]
     internal static void GetHeldItemInfoFinish(CollectibleBehaviorWearable __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)

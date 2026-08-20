@@ -72,7 +72,7 @@ class LevelShield
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_active",
-                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetPassiveByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
+                Utils.GetPorcentageFromFloatsStart1(Configuration.ShieldGetActiveByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Shield")))
             )
         );
 
@@ -129,8 +129,8 @@ class LevelShield
                 smithingBaseMultiply * damageAbsorption);
         }
 
-        // Post function call, reset the shield to default
-        [HarmonyPostfix] // Client Side
+        // Reset the shield to default, runs even if the original method throws
+        [HarmonyFinalizer] // Client Side
         [HarmonyPatch(typeof(ItemShield), "GetHeldItemInfo")]
         internal static void GetHeldItemInfoFinish(ItemShield __instance, ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
         {
@@ -182,8 +182,8 @@ class LevelShield
             }
         }
 
-        // Post function call, reset the shield to default
-        [HarmonyPostfix]
+        // Reset the shield to default, runs even if the original method throws
+        [HarmonyFinalizer]
         [HarmonyPatch(typeof(ModSystemWearableStats), "applyShieldProtection")]
         internal static void ApplyShieldProtectionFinish(ModSystemWearableStats __instance, IPlayer player, ref float damage, DamageSource dmgSource)
         {
