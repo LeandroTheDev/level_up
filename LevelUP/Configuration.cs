@@ -188,7 +188,7 @@ public static class Configuration
     public static bool enableLevelCooking = true;
     public static bool enableLevelPanning = true;
     public static bool enableLevelVitality = true;
-    public static bool enableLevelMetabolism = false;
+    public static bool enableLevelMetabolism = true;
     public static bool enableLevelLeatherArmor = true;
     public static bool enableLevelChainArmor = true;
     public static bool enableLevelBrigandineArmor = true;
@@ -7790,10 +7790,10 @@ public static class Configuration
     #endregion
 
     #region metabolism
-    private static int metabolismEXPPerReceiveHit = 30;
-    private static int metabolismEXPPerSaturationLost = 5;
-    private static int metabolismEXPPerLevelBase = 200;
-    private static double metabolismEXPMultiplyPerLevel = 2.0;
+    private static int metabolismEXPPerReceiveHit = 100;
+    private static float metabolismEXPPerSaturationLost = 0.11f;
+    private static int metabolismEXPPerLevelBase = 500;
+    private static double metabolismEXPMultiplyPerLevel = 1.33;
     private static float metabolismSaturationIncreasePerLevel = 50.0f;
     private static float metabolismBaseSaturation = 1500.0f;
     private static float metabolismBaseSaturationReceiveMultiply = 1.0f;
@@ -7803,14 +7803,14 @@ public static class Configuration
     public static int metabolismMaxLevel = 999;
 
     public static int EXPPerHitMetabolism => metabolismEXPPerReceiveHit;
-    public static int EXPPerSaturationLostMetabolism => metabolismEXPPerSaturationLost;
+    public static float EXPPerSaturationLostMetabolism => metabolismEXPPerSaturationLost;
 
     public static float BaseSaturationMetabolism => metabolismBaseSaturation;
 
     private static Dictionary<string, object> BuildMetabolismDefaultConfig() => new()
     {
         ["metabolismEXPPerReceiveHit"] = (long)metabolismEXPPerReceiveHit,
-        ["metabolismEXPPerSaturationLost"] = (long)metabolismEXPPerSaturationLost,
+        ["metabolismEXPPerSaturationLost"] = (double)metabolismEXPPerSaturationLost,
         ["metabolismEXPPerLevelBase"] = (long)metabolismEXPPerLevelBase,
         ["metabolismEXPMultiplyPerLevel"] = metabolismEXPMultiplyPerLevel,
         ["metabolismSaturationIncreasePerLevel"] = (double)metabolismSaturationIncreasePerLevel,
@@ -7840,8 +7840,8 @@ public static class Configuration
         { //metabolismEXPPerSaturationLost
             if (metabolismLevelStats.TryGetValue("metabolismEXPPerSaturationLost", out object value))
                 if (value is null) Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerSaturationLost is null");
-                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: metabolismEXPPerSaturationLost is not int is {value.GetType()}");
-                else metabolismEXPPerSaturationLost = (int)(long)value;
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: metabolismEXPPerSaturationLost is not double is {value.GetType()}");
+                else metabolismEXPPerSaturationLost = (float)(double)value;
             else Debug.LogError("CONFIGURATION ERROR: metabolismEXPPerSaturationLost not set");
         }
         { //metabolismEXPPerLevelBase

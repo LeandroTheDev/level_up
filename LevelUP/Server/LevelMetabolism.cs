@@ -34,10 +34,16 @@ class LevelMetabolism
     public static readonly IReadOnlyDictionary<string, float> PlayerLoadedMetabolismReceiveMultiply
         = new ReadOnlyDictionary<string, float>(_playerLoadedMetabolismReceiveMultiply);
 
+    private static readonly Dictionary<string, float> _previousSaturation = [];
+
     public void Init()
     {
         Instance.api.Event.PlayerJoin += (player) => RefreshSaturationReceiveMultiply(player);
-        Instance.api.Event.PlayerDisconnect += (player) => _playerLoadedMetabolismReceiveMultiply.Remove(player.PlayerUID);
+        Instance.api.Event.PlayerDisconnect += (player) =>
+        {
+            _playerLoadedMetabolismReceiveMultiply.Remove(player.PlayerUID);
+            _previousSaturation.Remove(player.PlayerUID);
+        };
         Instance.api.Event.RegisterGameTickListener(OnGameTick, 1000, 10000);
         OverwriteDamageInteractionEvents.OnPlayerReceiveDamageUnkown += HandleUnkownDamage;
         Configuration.RegisterNewLevel("Metabolism");
@@ -89,6 +95,7 @@ class LevelMetabolism
     {
         foreach (IPlayer player in Instance.api.World.AllOnlinePlayers)
         {
+            if (player.Entity == null) continue;
             var stats = player.Entity.GetBehavior<EntityBehaviorHunger>();
             if (stats == null)
             {
@@ -96,10 +103,19 @@ class LevelMetabolism
                 continue;
             }
 
-            float expMultiply = 1.5f - (stats.Saturation / stats.MaxSaturation);
-            ulong exp = (ulong)Math.Round(
-                Configuration.EXPPerSaturationLostMetabolism * expMultiply
-            );
+            string uid = player.PlayerUID;
+            if (!_previousSaturation.TryGetValue(uid, out float prevSaturation))
+            {
+                _previousSaturation[uid] = stats.Saturation;
+                continue;
+            }
+
+            float saturationLost = prevSaturation - stats.Saturation;
+            _previousSaturation[uid] = stats.Saturation;
+
+            if (saturationLost <= 0f) continue;
+
+            ulong exp = (ulong)Math.Round(Configuration.EXPPerSaturationLostMetabolism * saturationLost);
 
             Experience.IncreaseExperience(player, "Metabolism", exp);
         }
@@ -167,9 +183,9 @@ class LevelMetabolism
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EntityBehaviorHunger), "ConsumeSaturation")]
-        internal static void ConsumeSaturationPrefix(EntityBehaviorHunger instance, ref float amount)
+        internal static void ConsumeSaturationPrefix(EntityBehaviorHunger __instance, ref float amount)
         {
-            amount *= GetReducerForPlayer(instance);
+            amount *= GetReducerForPlayer(__instance);
         }
     }
 }
