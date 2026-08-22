@@ -6,7 +6,7 @@ Makes you feels progress through the gameplay.
 - Consider always making backup for your world ESPECIALLY IF YOU ARE UPDATING THE MOD, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
 - Is not safe to remove levelup after installation, full player wipe is required
 - Strongly recommended to backup your world on level up major updates
-- Metabolism can lag you server, because of this reason is disabled by default. it happens because the game doesn't like you to change the player max saturation dynamically, once activated, you cannot revert without a player wipe, test it before enabling.
+- If you don't change the configurations manually consider deleting it in every update sometimes the updates comes with balance changes you can find the configuration in ``C:\Users\username\AppData\Roaming\VintagestoryData\ModConfig\LevelUP`` or linux: ``/home/user/.config/VintagestoryData/ModConfig/LevelUP``
 
 Features:
 - Fully configurable
