@@ -1,7 +1,7 @@
 {
     "$schema": "https://moddbcdn.vintagestory.at/schema/modinfo.latest.json",
     "type": "Code",
-    "modid": "levelup_aldisrileyclasspatch",
+    "modid": "levelupaldisrileyclasspatch",
     "name": "LevelUP Aldi's & Riley's Class Patch",
     "authors": [
         "BoboDev"
