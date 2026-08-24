@@ -63,7 +63,8 @@ class LevelPlateArmor
         { "-meteoriciron-", "MeteoricIron" },
         { "-steel-", "Steel" },
         { "-gold-", "Gold" },
-        { "-silver-", "Silver" }
+        { "-silver-", "Silver" },
+        { "-forlorn-", "Forlorn" }
     };
 
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
