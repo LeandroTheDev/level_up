@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using LevelUP;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Common;
 
@@ -25,6 +26,12 @@ namespace LevelUP_AldisRileyClassPatch;
 /// If the target file already exists, it is never overwritten - but keys present in the
 /// asset json that are missing from the existing file (e.g. added by a mod update) are
 /// backfilled in, so server owners keep their manual edits while still getting new keys.
+///
+/// Since this mod depends on LevelUP, LevelUP's own AssetsLoaded (which reads classexp/
+/// and populates its in-memory class configs) runs BEFORE this one. So on a fresh server,
+/// or the first boot after adding a new class, LevelUP would only pick up the file we just
+/// wrote on the NEXT restart. To avoid that, we re-run LevelUP.Configuration.PopulateClassConfigurations
+/// ourselves after writing/backfilling anything, so the new class is live immediately.
 /// </summary>
 public class LevelUP_AldisRileyClassPatchModSystem : ModSystem
 {
@@ -40,6 +47,8 @@ public class LevelUP_AldisRileyClassPatchModSystem : ModSystem
         string targetDir = Path.Combine(api.DataBasePath, ClassExpConfigSubPath);
         Directory.CreateDirectory(targetDir);
 
+        bool anyFileChanged = false;
+
         List<IAsset> classAssets = api.Assets.GetMany(ClassExpAssetPath);
         foreach (IAsset asset in classAssets)
         {
@@ -49,13 +58,14 @@ public class LevelUP_AldisRileyClassPatchModSystem : ModSystem
 
             if (File.Exists(targetFile))
             {
-                BackfillMissingKeys(api, targetFile, className, assetJson);
+                anyFileChanged |= BackfillMissingKeys(api, targetFile, className, assetJson);
                 continue;
             }
 
             try
             {
                 File.WriteAllText(targetFile, assetJson);
+                anyFileChanged = true;
                 api.Logger.Notification($"[LevelUP_AldisRileyClassPatch] {className}.json created from {asset.Location} (mod: {asset.Location.Domain})");
             }
             catch (Exception ex)
@@ -63,13 +73,16 @@ public class LevelUP_AldisRileyClassPatchModSystem : ModSystem
                 api.Logger.Error($"[LevelUP_AldisRileyClassPatch] Failed to write {targetFile}: {ex.Message}");
             }
         }
+
+        if (anyFileChanged) Configuration.PopulateClassConfigurations(api);
     }
 
     /// <summary>
     /// Adds keys from the asset json that are missing from the existing file, without
     /// touching keys the server owner already has (default or manually edited).
+    /// Returns whether the file was changed.
     /// </summary>
-    private static void BackfillMissingKeys(ICoreAPI api, string targetFile, string className, string assetJson)
+    private static bool BackfillMissingKeys(ICoreAPI api, string targetFile, string className, string assetJson)
     {
         try
         {
@@ -86,14 +99,16 @@ public class LevelUP_AldisRileyClassPatchModSystem : ModSystem
                 api.Logger.Notification($"[LevelUP_AldisRileyClassPatch] Key '{property.Name}' missing from {className}.json, adding it with its default value");
             }
 
-            if (!missingKeyAdded) return;
+            if (!missingKeyAdded) return false;
 
             File.WriteAllText(targetFile, existing.ToString());
             api.Logger.Notification($"[LevelUP_AldisRileyClassPatch] {className}.json updated with new default keys");
+            return true;
         }
         catch (Exception ex)
         {
             api.Logger.Error($"[LevelUP_AldisRileyClassPatch] Failed to backfill keys for {targetFile}: {ex.Message}");
+            return false;
         }
     }
 }

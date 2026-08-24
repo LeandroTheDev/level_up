@@ -7,7 +7,7 @@
         "BoboDev"
     ],
     "description": "Patch levelup config to add Aldi's & Riley's classes",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "dependencies": {
         "game": "1.21.0",
         "levelup": ""
