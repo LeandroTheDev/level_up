@@ -1,0 +1,15 @@
+{
+    "$schema": "https://moddbcdn.vintagestory.at/schema/modinfo.latest.json",
+    "type": "Code",
+    "modid": "levelup_aldisrileyclasspatch",
+    "name": "LevelUP Aldi's & Riley's Class Patch",
+    "authors": [
+        "BoboDev"
+    ],
+    "description": "Patch levelup config to add Aldi's & Riley's classes",
+    "version": "1.0.0",
+    "dependencies": {
+        "game": "1.21.0",
+        "levelup": ""
+    }
+}
