@@ -10216,6 +10216,15 @@ public static class Configuration
         ["game:armor-head-plate-silver"] = 0.3,
         ["game:armor-body-plate-silver"] = 0.5,
         ["game:armor-legs-plate-silver"] = 0.2,
+        ["game:armor-head-antique-forlorn-pristine"] = 0.3,
+        ["game:armor-body-antique-forlorn-pristine"] = 0.5,
+        ["game:armor-legs-antique-forlorn-pristine"] = 0.2,
+        ["game:armor-head-antique-forlorn-damaged"] = 0.3,
+        ["game:armor-body-antique-forlorn-damaged"] = 0.5,
+        ["game:armor-legs-antique-forlorn-damaged"] = 0.2,
+        ["game:armor-head-antique-forlorn-broken"] = 0.3,
+        ["game:armor-body-antique-forlorn-broken"] = 0.5,
+        ["game:armor-legs-antique-forlorn-broken"] = 0.2,
     };
 
     public static void PopulatePlateArmorConfiguration(ICoreAPI api)
