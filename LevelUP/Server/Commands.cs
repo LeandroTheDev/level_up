@@ -152,11 +152,11 @@ class Commands
         {
             switch (args[2])
             {
-                case "oreDropRate": player.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f); break;
-                case "animalLootDropRate": player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f); break;
+                case "animalLootDropRate": ResetLevelUpStat(player, "animalLootDropRate", ["levelup_knife"]); break;
                 case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f); break;
-                case "forageDropRate": player.Entity.Stats.Set("forageDropRate", "forageDropRate", 1.0f); break;
                 case "regenSpeed": player.Entity.WatchedAttributes.SetFloat("regenSpeed", 1.0f); break;
+                case "rangedWeaponsAcc": ResetLevelUpStat(player, "rangedWeaponsAcc", ["levelup_bow", "levelup_spear"]); break;
+                case "rangedWeaponsSpeed": ResetLevelUpStat(player, "rangedWeaponsSpeed", ["levelup_bow", "levelup_spear"]); break;
                 default: return TextCommandResult.Success($"Invalid status", "16");
             }
             return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to vanilla default", "17");
@@ -166,28 +166,41 @@ class Commands
         {
             switch (args[2])
             {
-                case "oreDropRate": player.Entity.Stats.Set("oreDropRate", "oreDropRate", UtilsCulture.ParseFloatCulturized(args[3])); break;
-                case "animalLootDropRate": player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", UtilsCulture.ParseFloatCulturized(args[3])); break;
+                case "animalLootDropRate": ResetLevelUpStat(player, "animalLootDropRate", ["levelup_knife"], UtilsCulture.ParseFloatCulturized(args[3])); break;
                 case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", UtilsCulture.ParseFloatCulturized(args[3])); break;
-                case "forageDropRate": player.Entity.Stats.Set("forageDropRate", "forageDropRate", UtilsCulture.ParseFloatCulturized(args[3])); break;
                 case "regenSpeed": player.Entity.WatchedAttributes.SetFloat("regenSpeed", UtilsCulture.ParseFloatCulturized(args[3])); break;
+                case "rangedWeaponsAcc": ResetLevelUpStat(player, "rangedWeaponsAcc", ["levelup_bow", "levelup_spear"], UtilsCulture.ParseFloatCulturized(args[3])); break;
+                case "rangedWeaponsSpeed": ResetLevelUpStat(player, "rangedWeaponsSpeed", ["levelup_bow", "levelup_spear"], UtilsCulture.ParseFloatCulturized(args[3])); break;
                 default: return TextCommandResult.Success($"Invalid status", "16");
             }
             return TextCommandResult.Success($"{args[1]} {args[2]} has been reseted to {args[3]}", "18");
         }
 
         // Nothing specific change everthing to default value
-        player.Entity.Stats.Set("oreDropRate", "oreDropRate", 0.5f);
-        player.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", 0.5f);
+        ResetLevelUpStat(player, "animalLootDropRate", ["levelup_knife"]);
         player.Entity.Attributes.SetFloat("aimingAccuracy", 0.7f);
-        player.Entity.Stats.Set("forageDropRate", "forageDropRate", 1.0f);
         player.Entity.WatchedAttributes.SetFloat("regenSpeed", 1.0f);
+        ResetLevelUpStat(player, "rangedWeaponsAcc", ["levelup_bow", "levelup_spear"]);
+        ResetLevelUpStat(player, "rangedWeaponsSpeed", ["levelup_bow", "levelup_spear"]);
 
         // Refresh player levels
         Instance.UpdatePlayerLevels(player, Instance.api);
         Instance.RefreshStatus(player, args[1]);
 
         return TextCommandResult.Success($"{args[1]} status has been reseted to vanilla default", "13");
+    }
+
+    // Every LevelUP source contributes to its stat category under its own "levelup_<levelname>" code
+    // (e.g. LevelBow/LevelSpear both feed rangedWeaponsAcc, LevelKnife feeds animalLootDropRate), so
+    // Set-ing the category name itself wouldn't clear those - it would just add an extra entry on top.
+    // Remove every known contributor code, then optionally pin an override value on top.
+    private static void ResetLevelUpStat(IServerPlayer player, string category, string[] codes, float? overrideValue = null)
+    {
+        foreach (string code in codes)
+            player.Entity.Stats.Remove(category, code);
+
+        if (overrideValue.HasValue)
+            player.Entity.Stats.Set(category, category, overrideValue.Value);
     }
 
     private TextCommandResult ResetPlayerLevels(string[] args)

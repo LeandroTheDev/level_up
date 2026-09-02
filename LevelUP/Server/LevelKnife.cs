@@ -34,12 +34,22 @@ class LevelKnife
     {
         Instance.api.Event.OnEntityDeath += OnEntityDeath;
         Instance.api.Event.BreakBlock += OnBreakBlock;
+        Instance.api.Event.PlayerJoin += RemoveLegacyAnimalLootDropRateStat;
         OverwriteDamageInteractionEvents.OnPlayerMeleeDoDamageStart += HandleDamage;
         Configuration.RegisterNewLevel("Knife");
         Configuration.RegisterNewLevelTypeEXP("Knife", Configuration.KnifeGetLevelByEXP);
         Configuration.RegisterNewEXPLevelType("Knife", Configuration.KnifeGetExpByLevel);
 
         Debug.Log("Level Knife initialized");
+    }
+
+    // Migration cleanup: older LevelUP versions wrote the animalLootDropRate stat under the code
+    // "animalLootDropRate" (same as the category) instead of "levelup_knife". Remove that leftover
+    // entry on join so it doesn't linger in old player saves and stack on top of the current one.
+    // TODO: safe to remove this once enough time has passed for old saves to no longer carry it.
+    private static void RemoveLegacyAnimalLootDropRateStat(IPlayer player)
+    {
+        player.Entity.Stats.Remove("animalLootDropRate", "animalLootDropRate");
     }
 
     public void InitClient()
@@ -180,7 +190,7 @@ class LevelKnife
             dropRate = LevelKnifeEvents.GetExternalKnifeHarvest(byPlayer, __instance.entity, dropRate);
 
             // Don't worry, it will be reseted automatically by the game
-            byPlayer.Entity.Stats.Set("animalLootDropRate", "animalLootDropRate", dropRate);
+            byPlayer.Entity.Stats.Set("animalLootDropRate", "levelup_knife", dropRate);
 
             // Earn xp by harvesting the entity
             Experience.IncreaseExperience(byPlayer, "Knife", "Harvest");

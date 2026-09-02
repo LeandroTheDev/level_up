@@ -152,67 +152,10 @@ class LevelFarming
             }
         }
 
-        // Overwrite Berry Forage while breaking
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(BlockBerryBush), "GetDrops")]
-        internal static void GetDropsBerryBushFinish(BlockBerryBush __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref float dropQuantityMultiplier)
-        {
-            if (!Configuration.enableLevelFarming) return;
-            if (byPlayer == null || world.Side != EnumAppSide.Server) return;
-
-            // Increasing the quantity drop multiply by the farming level
-            float multiply = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
-
-            Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.Code}, by breaking multiply of: {multiply}");
-
-            ulong exp = 0;
-
-            // Check the berry existence
-            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int intExp))
-                exp = (ulong)intExp;
-
-            LevelFarmingEvents.UpdateFromExternalFarmForage(byPlayer, __instance.Code.ToString(), ref exp, ref multiply);
-
-            if (exp > 0)
-                Experience.IncreaseExperience(byPlayer, "Farming", exp);
-
-            // Don't worry, it will be reseted automatically by the game
-            // For some reason the -1 is necessary for this Set function so it will calculated at 0
-            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", multiply - 1f);
-
-        }
-
-        // Overwrite Berry Forage while interacting
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(BlockBehaviorHarvestable), "OnBlockInteractStop")]
-        internal static void OnBlockInteractStopStart(BlockBehaviorHarvestable __instance, float secondsUsed, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handled)
-        {
-            if (!Configuration.enableLevelFarming) return;
-            if (byPlayer != null && world.Side != EnumAppSide.Server) return;
-
-            ulong exp = 0;
-            float multiply = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
-
-            // Check the berry existence
-            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.block.Code.ToString(), out int intExp))
-                exp = (ulong)intExp;
-
-            LevelFarmingEvents.UpdateFromExternalFarmForage(byPlayer, __instance.block.Code.ToString(), ref exp, ref multiply);
-
-            if (exp > 0)
-                Experience.IncreaseExperience(byPlayer, "Farming", exp);
-
-            // Don't worry, it will be reseted automatically by the game
-            // For some reason the -1 is necessary for this Set function so it will calculated at 0
-            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", multiply - 1f);
-
-            Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.block.Code}, by right clicking multiply of: {multiply}/{byPlayer.Entity.Stats.GetBlended("forageDropRate")}");
-        }
-
         // Overwrite Mushroom Forage
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BlockMushroom), "GetDrops")]
-        internal static void GetDropsMushroomFinish(BlockMushroom __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref float dropQuantityMultiplier)
+        internal static void GetDropsMushroomFinish(ItemStack[] __result, BlockMushroom __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer)
         {
             if (!Configuration.enableLevelFarming) return;
             if (byPlayer == null || world.Side != EnumAppSide.Server) return;
@@ -221,7 +164,7 @@ class LevelFarming
             ulong exp = 0;
             float multiply = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
 
-            // Check the berry existence
+            // Check the mushroom existence
             if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Code.ToString(), out int intExp))
                 exp = (ulong)intExp;
 
@@ -230,11 +173,68 @@ class LevelFarming
             if (exp > 0)
                 Experience.IncreaseExperience(byPlayer, "Farming", exp);
 
-            // Don't worry, it will be reseted automatically by the game
-            // For some reason the -1 is necessary for this Set function so it will calculated at 0
-            byPlayer.Entity.Stats.Set("forageDropRate", "forageDropRate", multiply - 1f);
+            // Multiply the drop directly instead of relying on the game's forageDropRate stat:
+            // that stat is only read by blocks flagged forageStatAffected, and being set here in a
+            // Postfix it would only take effect on the player's *next* forage action, not this one
+            foreach (ItemStack itemStack in __result)
+            {
+                itemStack.StackSize = (int)Math.Round(itemStack.StackSize * multiply);
+            }
 
-            Debug.LogDebug($"{byPlayer.PlayerName} bush harvest: {__instance.Code} multiply: {multiply}/{byPlayer.Entity.Stats.GetBlended("forageDropRate")}");
+            Debug.LogDebug($"{byPlayer.PlayerName} mushroom harvest: {__instance.Code} multiply: {multiply}");
+        }
+
+        // Overwrite Fruiting Bush Forage (right-click harvest)
+        // Capture the growth state before the harvest so the postfix can tell whether it actually completed
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BEBehaviorFruitingBush), "OnBlockInteractStop")]
+        internal static void FruitingBushInteractStopStart(BEBehaviorFruitingBush __instance, out EnumFruitingBushGrowthState __state)
+        {
+            __state = __instance.BState.Growthstate;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BEBehaviorFruitingBush), "OnBlockInteractStop")]
+        internal static void FruitingBushInteractStopFinish(BEBehaviorFruitingBush __instance, IWorldAccessor world, IPlayer byPlayer, EnumFruitingBushGrowthState __state)
+        {
+            if (!Configuration.enableLevelFarming) return;
+            if (byPlayer == null || world.Side != EnumAppSide.Server) return;
+
+            // Only reward if a harvest actually completed this call (state transitions Ripe -> Mature)
+            if (__state != EnumFruitingBushGrowthState.Ripe || __instance.BState.Growthstate != EnumFruitingBushGrowthState.Mature) return;
+
+            ulong exp = 0;
+            float multiply = Configuration.FarmingGetForageMultiplyByLevel(byPlayer.Entity.WatchedAttributes.GetInt("LevelUP_Level_Farming"));
+
+            // Check the fruiting bush existence
+            if (Configuration.expPerHarvestFarming.TryGetValue(__instance.Block.Code.ToString(), out int intExp))
+                exp = (ulong)intExp;
+
+            LevelFarmingEvents.UpdateFromExternalFarmForage(byPlayer, __instance.Block.Code.ToString(), ref exp, ref multiply);
+
+            if (exp > 0)
+                Experience.IncreaseExperience(byPlayer, "Farming", exp);
+
+            // Unlike BlockCrop/BlockMushroom, this method hands the base drops straight to the player's
+            // inventory instead of returning an ItemStack[], so we can't postfix-multiply the result.
+            // Instead we top up the difference ourselves, using GetRipeDrops() (public API) as a
+            // reference for what the base harvest looks like, without touching any vanilla game asset.
+            float bonus = multiply - 1f;
+            if (bonus > 0f)
+            {
+                foreach (ItemStack baseStack in __instance.GetRipeDrops(byPlayer) ?? [])
+                {
+                    int bonusAmount = (int)Math.Round(baseStack.StackSize * bonus);
+                    if (bonusAmount <= 0) continue;
+
+                    ItemStack bonusStack = baseStack.Clone();
+                    bonusStack.StackSize = bonusAmount;
+                    if (!byPlayer.InventoryManager.TryGiveItemstack(bonusStack))
+                        world.SpawnItemEntity(bonusStack, __instance.Position);
+                }
+            }
+
+            Debug.LogDebug($"{byPlayer.PlayerName} fruiting bush harvest: {__instance.Block.Code}, multiply: {multiply}, exp: {exp}");
         }
     }
 }
