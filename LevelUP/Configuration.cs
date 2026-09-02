@@ -1959,9 +1959,12 @@ public static class Configuration
         return finalChance;
     }
 
+    // This is a dispersionFactor value fed directly into EntityProjectileBase.SpawnProjectile - lower means
+    // less random spread (more accurate). So leveling up must SUBTRACT from the base, not add to it, and the
+    // result is floored so it can never reach zero/negative (which would collapse to zero spread or flip sign).
     public static float SlingshotGetAimAccuracyByLevel(int level)
     {
-        return slingshotBaseAimAccuracy + slingshotIncreaseAimAccuracyPerLevel * level;
+        return Math.Max(0.05f, slingshotBaseAimAccuracy - slingshotIncreaseAimAccuracyPerLevel * level);
     }
 
     #endregion

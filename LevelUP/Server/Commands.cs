@@ -153,7 +153,6 @@ class Commands
             switch (args[2])
             {
                 case "animalLootDropRate": ResetLevelUpStat(player, "animalLootDropRate", ["levelup_knife"]); break;
-                case "aimingAccuracy": player.Entity.Attributes.RemoveAttribute("aimingAccuracy"); break;
                 case "regenSpeed": ResetLevelUpStat(player, "regenSpeed", ["levelup_vitality"]); break;
                 case "rangedWeaponsAcc": ResetLevelUpStat(player, "rangedWeaponsAcc", ["levelup_bow", "levelup_spear"]); break;
                 case "rangedWeaponsSpeed": ResetLevelUpStat(player, "rangedWeaponsSpeed", ["levelup_bow", "levelup_spear"]); break;
@@ -167,7 +166,6 @@ class Commands
             switch (args[2])
             {
                 case "animalLootDropRate": ResetLevelUpStat(player, "animalLootDropRate", ["levelup_knife"], UtilsCulture.ParseFloatCulturized(args[3])); break;
-                case "aimingAccuracy": player.Entity.Attributes.SetFloat("aimingAccuracy", UtilsCulture.ParseFloatCulturized(args[3])); break;
                 case "regenSpeed": ResetLevelUpStat(player, "regenSpeed", ["levelup_vitality"], UtilsCulture.ParseFloatCulturized(args[3])); break;
                 case "rangedWeaponsAcc": ResetLevelUpStat(player, "rangedWeaponsAcc", ["levelup_bow", "levelup_spear"], UtilsCulture.ParseFloatCulturized(args[3])); break;
                 case "rangedWeaponsSpeed": ResetLevelUpStat(player, "rangedWeaponsSpeed", ["levelup_bow", "levelup_spear"], UtilsCulture.ParseFloatCulturized(args[3])); break;
@@ -178,7 +176,6 @@ class Commands
 
         // Nothing specific change everthing to default value
         ResetLevelUpStat(player, "animalLootDropRate", ["levelup_knife"]);
-        player.Entity.Attributes.RemoveAttribute("aimingAccuracy");
         ResetLevelUpStat(player, "regenSpeed", ["levelup_vitality"]);
         ResetLevelUpStat(player, "rangedWeaponsAcc", ["levelup_bow", "levelup_spear"]);
         ResetLevelUpStat(player, "rangedWeaponsSpeed", ["levelup_bow", "levelup_spear"]);

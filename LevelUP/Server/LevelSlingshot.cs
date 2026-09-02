@@ -75,7 +75,9 @@ class LevelSlingshot
 
         stringBuilder.AppendLine(
             Lang.Get("levelup:status_accuracy",
-                Utils.GetPorcentageFromFloatsStart0(Configuration.SlingshotGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot")) - Configuration.BaseAimAccuracySlingshot)
+                // SlingshotGetAimAccuracyByLevel is a dispersionFactor (lower = more accurate), so the
+                // player-facing bonus is how much lower than the base it got, not the other way around
+                Utils.GetPorcentageFromFloatsStart0(Configuration.BaseAimAccuracySlingshot - Configuration.SlingshotGetAimAccuracyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot")))
             )
         );
 
@@ -126,61 +128,29 @@ class LevelSlingshot
     [HarmonyPatchCategory("levelup_slingshot")]
     private class LevelSlingshotPatch
     {
-        // Overwrite Stone shot (stone throw now uses CollectibleBehaviorThrowable)
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(CollectibleBehaviorThrowable), "OnHeldInteractStop")]
-        internal static void OnHeldInteractSlingshotStoneStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
-        {
-            if (byEntity.Api.Side != EnumAppSide.Server) return;
-
-            if (byEntity is EntityPlayer)
-            {
-                float chance = Configuration.SlingshotGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0));
-
-                // Integration
-                chance = LevelSlingshotEvents.GetExternalSlingshotAiming((byEntity as EntityPlayer).Player, chance);
-
-                // Store in entity attribute — read by GetProjectileDirection as (1 - aimingAccuracy) spread factor
-                byEntity.Attributes.SetFloat("aimingAccuracy", chance);
-
-                Debug.LogDebug($"Stone throw: level={byEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0)} aimingAccuracy={chance:F3} (spread factor={(1f - chance):F3})");
-            }
-        }
-
-        // Override dispersionFactor in SpawnProjectile when aimingAccuracy was set by a slingshot/stone patch
+        // Overwrite dispersionFactor only for thrown-stone/slingshot projectiles (both CollectibleBehaviorThrowable's
+        // stone throw and ItemSling spawn an EntityThrownStone), computed fresh right here instead of bridging
+        // through the "aimingAccuracy" entity attribute. That attribute is also read natively by
+        // GetProjectileDirection (called inside SpawnProjectile) for every projectile type (bow, spear, snowball,
+        // beenade, ...) and is never cleared after use, so writing to it leaked the slingshot's last computed
+        // accuracy into unrelated weapons' throws afterward. Gating on the projectile's own entity type instead
+        // needs no shared state at all - nothing to leak, nothing to clear.
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EntityProjectileBase), "SpawnProjectile")]
-        internal static void SpawnProjectilePrefix(EntityAgent byEntity, ref double dispersionFactor)
-        {
-            float aimingAccuracy = byEntity.Attributes.GetFloat("aimingAccuracy", -1f);
-            if (aimingAccuracy >= 0f)
-            {
-                // Do NOT clear aimingAccuracy here — GetProjectileDirection (called inside SpawnProjectile)
-                // also reads this attribute: num = 1 - aimingAccuracy. Clearing to -1f causes num = 2.0 → huge spread.
-                Debug.LogDebug($"SpawnProjectile: aimingAccuracy={aimingAccuracy:F3}, dispersionFactor {dispersionFactor:F3} → {aimingAccuracy:F3}");
-                dispersionFactor = aimingAccuracy;
-            }
-        }
-
-        // Overwrite Slingshot shot
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(ItemSling), "OnHeldInteractStop")]
-        internal static void OnHeldInteractSlingshotStop(float secondsUsed, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel)
+        internal static void SpawnProjectilePrefix(Entity entity, EntityAgent byEntity, ref double dispersionFactor)
         {
             if (byEntity.Api.Side != EnumAppSide.Server) return;
+            if (entity is not EntityThrownStone) return;
+            if (byEntity is not EntityPlayer playerEntity) return;
 
-            if (byEntity is EntityPlayer)
-            {
-                float chance = Configuration.SlingshotGetAimAccuracyByLevel(byEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0));
+            float chance = Configuration.SlingshotGetAimAccuracyByLevel(playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0));
 
-                // Integration
-                chance = LevelSlingshotEvents.GetExternalSlingshotAiming((byEntity as EntityPlayer).Player, chance);
+            // Integration
+            chance = LevelSlingshotEvents.GetExternalSlingshotAiming(playerEntity.Player, chance);
 
-                // Store in entity attribute — read by GetProjectileDirection as (1 - aimingAccuracy) spread factor
-                byEntity.Attributes.SetFloat("aimingAccuracy", chance);
+            dispersionFactor = chance;
 
-                Debug.LogDebug($"Slingshot: level={byEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0)} aimingAccuracy={chance:F3} (spread factor={(1f - chance):F3})");
-            }
+            Debug.LogDebug($"Thrown stone: level={playerEntity.WatchedAttributes.GetInt("LevelUP_Level_Slingshot", 0)} dispersionFactor={chance:F3}");
         }
 
         // Disable stone tickrate if damage already done
