@@ -24,14 +24,15 @@ namespace LevelUP_LongTermFoodsPatch;
 /// {"modid:crop-code": expAmount, ...} .json at that asset path (in your own mod/resourcepack) -
 /// no need to edit C# or touch the data folder.
 ///
-/// Keys the server owner already has (default or manually edited) are never overwritten - only
-/// keys missing from the existing file are added, so manual tuning survives mod updates.
+/// If the target file already exists, it is never overwritten - but keys present in the
+/// asset json that are missing from the existing file (e.g. added by a mod update) are
+/// backfilled in, so server owners keep their manual edits while still getting new keys.
 ///
-/// Since this mod depends on LevelUP, LevelUP's own AssetsLoaded (which reads farmingcrops.json
-/// and populates its in-memory exp table) runs BEFORE this one. So on a fresh server, or the first
-/// boot after adding a new crop, LevelUP would only pick up the keys we just wrote on the NEXT
-/// restart. To avoid that, we re-run LevelUP.Configuration.PopulateFarmingConfiguration ourselves
-/// after writing/backfilling anything, so the new crops are live immediately.
+/// Since this mod depends on LevelUP, LevelUP's own AssetsLoaded (which reads classexp/
+/// and populates its in-memory class configs) runs BEFORE this one. So on a fresh server,
+/// or the first boot after adding a new class, LevelUP would only pick up the file we just
+/// wrote on the NEXT restart. To avoid that, we re-run LevelUP.Configuration.PopulateClassConfigurations
+/// ourselves after writing/backfilling anything, so the new class is live immediately.
 /// </summary>
 public class LevelUP_LongTermFoodsPatchModSystem : ModSystem
 {
