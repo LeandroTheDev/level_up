@@ -87,6 +87,10 @@
     "levelupdocs-smithing-title": "Níveis: Ferraria",
     "levelupdocs-smithing-text": "<strong>Ferraria</strong><br><i>Ferraria: Forjador</i><br><br>Quando você craftar ferramentas ou armaduras você irá obter experiência, dependendo do craft você recebera mais experiência.<br><br><strong>Melhorias</strong><br>Ferraria irá garantir ferramentas e armadura com durabilidade, dano, velocidade de mineração maior e aumento de proteção nas armaduras, ferraria tem sub níveis, quanto mais você craftar uma ferramenta ou armadura mais forte será, dependerá do quanto você crafta ela.",
 
+    "levelupdocs-quenching": "Sobre a Têmpera",
+    "levelupdocs-quenching-title": "Níveis: Têmpera",
+    "levelupdocs-quenching-text": "<strong>Têmpera</strong><br><i>Têmpera: Têmpera-mestre</i><br><br>Quenchar ou temperar com sucesso uma cabeça de ferramenta/arma de ferro, ferro meteórico ou aço concede experiência de têmpera, o metal trabalhado também concede proficiência específica com aquele metal.<br><br><strong>Melhorias</strong><br>Níveis de têmpera reduzem a chance de estilhaçar adicionada a cada quench, aumentam o bônus de poder/durabilidade ganho num quench bem-sucedido, e melhoram o quanto uma têmpera bem-sucedida reduz a chance de estilhaçar. Têmpera tem sub níveis por metal (Ferro, Ferro Meteórico, Aço), quanto mais você quenchar um metal específico, melhor você fica trabalhando com ele.",
+
     "levelupdocs-metabolism": "Sobre o Metabolismo",
     "levelupdocs-metabolism-title": "Níveis: Metabolismo",
     "levelupdocs-metabolism-text": "<strong>Metabolismo</strong><br><i>Metabolismo: Sobrevivencialista </i><br><br>Estar com fome e perder saturação irão fazer você obter experiência com metabolismo.<br><br><strong>Melhorias</strong><br>Metabolismo irá garantir um aumento de saturação e redução de consumo.",

@@ -35,6 +35,7 @@ class Instance
     internal static LevelPlateArmor levelPlateArmor = new();
     internal static LevelScaleArmor levelScaleArmor = new();
     internal static LevelSmithing levelSmithing = new();
+    internal static LevelQuenching levelQuenching = new();
 
     internal static OverwriteBlockBreak overwriteBlockBreak = new();
     internal static OverwriteDamageInteraction overwriteDamageInteraction = new();
@@ -158,6 +159,12 @@ class Instance
             else if (api.Side == EnumAppSide.Client) levelSmithing.InitClient();
             levelSmithing.Patch();
         }
+        if (Configuration.enableLevelQuenching)
+        {
+            if (api.Side == EnumAppSide.Server) levelQuenching.Init();
+            else if (api.Side == EnumAppSide.Client) levelQuenching.InitClient();
+            levelQuenching.Patch();
+        }
         if (Configuration.enableLevelShield)
         {
             if (api.Side == EnumAppSide.Server) levelShield.Init();
@@ -256,6 +263,8 @@ class Instance
         levelScaleArmor.Dispose();
         levelSmithing.Unpatch();
         levelSmithing.Dispose();
+        levelQuenching.Unpatch();
+        levelQuenching.Dispose();
     }
 
     /// <summary>

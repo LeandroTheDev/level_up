@@ -42,6 +42,9 @@
     "status_active": "Active Block: {0}%",
     "status_projectiledamageabsorption": "Projectile Damage Absorption: {0}%",
     "status_damageabsorption": "Damage Absorption: {0}%",
+    "status_quenching_shatterchance": "Quench Shatter Chance Added: {0}%",
+    "status_quenching_powergain": "Quench Power/Durability Gain: {0}%",
+    "status_quenching_temperefficiency": "Temper Efficiency: {0}%",
 
     "axe": "Axt",
     "pickaxe": "Spitzhacke",
@@ -52,6 +55,7 @@
     "knife": "Messer",
     "hammer": "Hammer",
     "smithing": "Smithing",
+    "quenching": "Quenching",
     "sword": "Schwert",
     "shield": "Schild",
     "hand": "Fäuste",

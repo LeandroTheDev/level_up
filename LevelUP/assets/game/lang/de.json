@@ -87,6 +87,10 @@
     "levelupdocs-smithing-title": "Level: Smithing",
     "levelupdocs-smithing-text": "<strong>Smithing</strong><br><i>Smithing: Forger</i><br><br>When you craft tools/armors you will gain experience with smithing, depending on the craft you might earn more experience.<br><br><strong>Upgrades</strong><br>Smithing will garant more durability, attack power, mining speed for your tools and protection for your armors, smithing have sub levels, specific tools and armors will be better than others, depending on how much you craft the specific tool or armor.",
 
+    "levelupdocs-quenching": "About the Quenching",
+    "levelupdocs-quenching-title": "Level: Quenching",
+    "levelupdocs-quenching-text": "<strong>Quenching</strong><br><i>Quenching: Tempersmith</i><br><br>Successfully quenching or tempering an iron, meteoric iron or steel tool/weapon head will grant you experience with quenching, the metal being worked also grants proficiency towards that specific metal.<br><br><strong>Upgrades</strong><br>Quenching levels reduce the shatter chance added by every quench, increase the power/durability bonus gained from a successful quench, and improve how much shatter chance a successful temper removes. Quenching has sub levels per metal (Iron, Meteoric Iron, Steel), the more you quench a specific metal the better you become at working it.",
+
     "levelupdocs-metabolism": "About the Metabolism",
     "levelupdocs-metabolism-title": "Level: Metabolism",
     "levelupdocs-metabolism-text": "<strong>Metabolism</strong><br><i>Metabolism: Survivalist</i><br><br>Been hungry and losing saturation will make you earn experience with metabolism.<br><br><strong>Upgrades</strong><br>Metabolism will garant more saturation and less saturation consume.",

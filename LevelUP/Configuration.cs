@@ -196,6 +196,7 @@ public static class Configuration
     public static bool enableLevelPlateArmor = true;
     public static bool enableLevelScaleArmor = true;
     public static bool enableLevelSmithing = true;
+    public static bool enableLevelQuenching = true;
     public static int minimumEXPEarned = 1;
     public static bool enableLevelUPUIDSecurity = false;
     public static bool enableLevelUpChatMessages = true;
@@ -236,6 +237,7 @@ public static class Configuration
         ["enableLevelPlateArmor"] = enableLevelPlateArmor,
         ["enableLevelScaleArmor"] = enableLevelScaleArmor,
         ["enableLevelSmithing"] = enableLevelSmithing,
+        ["enableLevelQuenching"] = enableLevelQuenching,
         ["minimumEXPEarned"] = (long)minimumEXPEarned,
         ["enableLevelUPUIDSecurity"] = enableLevelUPUIDSecurity,
         ["enableLevelUpChatMessages"] = enableLevelUpChatMessages,
@@ -452,6 +454,13 @@ public static class Configuration
                 else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelSmithing is not boolean is {value.GetType()}");
                 else enableLevelSmithing = (bool)value;
             else Debug.LogError("CONFIGURATION ERROR: enableLevelSmithing not set");
+        }
+        { //enableLevelQuenching
+            if (baseConfigs.TryGetValue("enableLevelQuenching", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: enableLevelQuenching is null");
+                else if (value is not bool) Debug.Log($"CONFIGURATION ERROR: enableLevelQuenching is not boolean is {value.GetType()}");
+                else enableLevelQuenching = (bool)value;
+            else Debug.LogError("CONFIGURATION ERROR: enableLevelQuenching not set");
         }
         { //minimumEXPEarned
             if (baseConfigs.TryGetValue("minimumEXPEarned", out object value))
@@ -7625,6 +7634,200 @@ public static class Configuration
     public static float SmithingGetArmorStatusMultiplyByLevel(int level)
     {
         return smithingBaseArmorStatusMultiply * (1 + smithingIncrementArmorStatusMultiplyPerLevel * level);
+    }
+    #endregion
+
+    #region quenching
+    private static int quenchingEXPPerLevelBase = 300;
+    private static double quenchingEXPMultiplyPerLevel = 1.1;
+    public static ulong quenchingBaseExpPerQuench = 50;
+    public static ulong quenchingBaseExpPerTemper = 40;
+    private static float quenchingBaseShatterChanceAddedMultiply = 1.0f;
+    private static float quenchingReduceShatterChanceAddedMultiplyPerLevel = 0.01f;
+    private static float quenchingMinShatterChanceAddedMultiply = 0.1f;
+    private static float quenchingBasePowerGainMultiply = 1.0f;
+    private static float quenchingIncrementPowerGainMultiplyPerLevel = 0.01f;
+    private static float quenchingBaseTemperEfficiencyMultiply = 1.0f;
+    private static float quenchingIncrementTemperEfficiencyMultiplyPerLevel = 0.01f;
+    public static int quenchingMaxLevel = 999;
+    public static double quenchingSubLevelEXPMultiply = 3.0;
+
+    private static Dictionary<string, object> BuildQuenchingDefaultConfig() => new()
+    {
+        ["quenchingEXPPerLevelBase"] = (long)quenchingEXPPerLevelBase,
+        ["quenchingEXPMultiplyPerLevel"] = quenchingEXPMultiplyPerLevel,
+        ["quenchingBaseExpPerQuench"] = (long)quenchingBaseExpPerQuench,
+        ["quenchingBaseExpPerTemper"] = (long)quenchingBaseExpPerTemper,
+        ["quenchingBaseShatterChanceAddedMultiply"] = (double)quenchingBaseShatterChanceAddedMultiply,
+        ["quenchingReduceShatterChanceAddedMultiplyPerLevel"] = (double)quenchingReduceShatterChanceAddedMultiplyPerLevel,
+        ["quenchingMinShatterChanceAddedMultiply"] = (double)quenchingMinShatterChanceAddedMultiply,
+        ["quenchingBasePowerGainMultiply"] = (double)quenchingBasePowerGainMultiply,
+        ["quenchingIncrementPowerGainMultiplyPerLevel"] = (double)quenchingIncrementPowerGainMultiplyPerLevel,
+        ["quenchingBaseTemperEfficiencyMultiply"] = (double)quenchingBaseTemperEfficiencyMultiply,
+        ["quenchingIncrementTemperEfficiencyMultiplyPerLevel"] = (double)quenchingIncrementTemperEfficiencyMultiplyPerLevel,
+        ["quenchingMaxLevel"] = (long)quenchingMaxLevel,
+        ["quenchingSubLevelEXPMultiply"] = quenchingSubLevelEXPMultiply,
+    };
+
+    public static void PopulateQuenchingConfiguration(ICoreAPI api)
+    {
+        Dictionary<string, object> quenchingLevelStats = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "quenching",
+            BuildQuenchingDefaultConfig());
+        { //quenchingEXPPerLevelBase
+            if (quenchingLevelStats.TryGetValue("quenchingEXPPerLevelBase", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingEXPPerLevelBase is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: quenchingEXPPerLevelBase is not int is {value.GetType()}");
+                else quenchingEXPPerLevelBase = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingEXPPerLevelBase not set");
+        }
+        { //quenchingEXPMultiplyPerLevel
+            if (quenchingLevelStats.TryGetValue("quenchingEXPMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingEXPMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingEXPMultiplyPerLevel is not double is {value.GetType()}");
+                else quenchingEXPMultiplyPerLevel = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingEXPMultiplyPerLevel not set");
+        }
+        { //quenchingBaseExpPerQuench
+            if (quenchingLevelStats.TryGetValue("quenchingBaseExpPerQuench", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingBaseExpPerQuench is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: quenchingBaseExpPerQuench is not int is {value.GetType()}");
+                else quenchingBaseExpPerQuench = (ulong)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingBaseExpPerQuench not set");
+        }
+        { //quenchingBaseExpPerTemper
+            if (quenchingLevelStats.TryGetValue("quenchingBaseExpPerTemper", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingBaseExpPerTemper is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: quenchingBaseExpPerTemper is not int is {value.GetType()}");
+                else quenchingBaseExpPerTemper = (ulong)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingBaseExpPerTemper not set");
+        }
+        { //quenchingBaseShatterChanceAddedMultiply
+            if (quenchingLevelStats.TryGetValue("quenchingBaseShatterChanceAddedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingBaseShatterChanceAddedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingBaseShatterChanceAddedMultiply is not double is {value.GetType()}");
+                else quenchingBaseShatterChanceAddedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingBaseShatterChanceAddedMultiply not set");
+        }
+        { //quenchingReduceShatterChanceAddedMultiplyPerLevel
+            if (quenchingLevelStats.TryGetValue("quenchingReduceShatterChanceAddedMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingReduceShatterChanceAddedMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingReduceShatterChanceAddedMultiplyPerLevel is not double is {value.GetType()}");
+                else quenchingReduceShatterChanceAddedMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingReduceShatterChanceAddedMultiplyPerLevel not set");
+        }
+        { //quenchingMinShatterChanceAddedMultiply
+            if (quenchingLevelStats.TryGetValue("quenchingMinShatterChanceAddedMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingMinShatterChanceAddedMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingMinShatterChanceAddedMultiply is not double is {value.GetType()}");
+                else quenchingMinShatterChanceAddedMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingMinShatterChanceAddedMultiply not set");
+        }
+        { //quenchingBasePowerGainMultiply
+            if (quenchingLevelStats.TryGetValue("quenchingBasePowerGainMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingBasePowerGainMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingBasePowerGainMultiply is not double is {value.GetType()}");
+                else quenchingBasePowerGainMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingBasePowerGainMultiply not set");
+        }
+        { //quenchingIncrementPowerGainMultiplyPerLevel
+            if (quenchingLevelStats.TryGetValue("quenchingIncrementPowerGainMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingIncrementPowerGainMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingIncrementPowerGainMultiplyPerLevel is not double is {value.GetType()}");
+                else quenchingIncrementPowerGainMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingIncrementPowerGainMultiplyPerLevel not set");
+        }
+        { //quenchingBaseTemperEfficiencyMultiply
+            if (quenchingLevelStats.TryGetValue("quenchingBaseTemperEfficiencyMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingBaseTemperEfficiencyMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingBaseTemperEfficiencyMultiply is not double is {value.GetType()}");
+                else quenchingBaseTemperEfficiencyMultiply = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingBaseTemperEfficiencyMultiply not set");
+        }
+        { //quenchingIncrementTemperEfficiencyMultiplyPerLevel
+            if (quenchingLevelStats.TryGetValue("quenchingIncrementTemperEfficiencyMultiplyPerLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingIncrementTemperEfficiencyMultiplyPerLevel is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingIncrementTemperEfficiencyMultiplyPerLevel is not double is {value.GetType()}");
+                else quenchingIncrementTemperEfficiencyMultiplyPerLevel = (float)(double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingIncrementTemperEfficiencyMultiplyPerLevel not set");
+        }
+        { //quenchingMaxLevel
+            if (quenchingLevelStats.TryGetValue("quenchingMaxLevel", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingMaxLevel is null");
+                else if (value is not long) Debug.Log($"CONFIGURATION ERROR: quenchingMaxLevel is not int is {value.GetType()}");
+                else quenchingMaxLevel = (int)(long)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingMaxLevel not set");
+        }
+        { //quenchingSubLevelEXPMultiply
+            if (quenchingLevelStats.TryGetValue("quenchingSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: quenchingSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: quenchingSubLevelEXPMultiply is not double is {value.GetType()}");
+                else quenchingSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: quenchingSubLevelEXPMultiply not set");
+        }
+
+        Experience.LoadExperience("Quenching", "Quench", quenchingBaseExpPerQuench);
+        Experience.LoadExperience("Quenching", "Temper", quenchingBaseExpPerTemper);
+
+        Debug.Log("Quenching configuration set");
+    }
+
+    public static int QuenchingGetLevelByEXP(ulong exp)
+    {
+        double baseExp = quenchingEXPPerLevelBase;
+        double multiplier = quenchingEXPMultiplyPerLevel;
+
+        if (multiplier <= 1.0)
+        {
+            return (int)(exp / baseExp);
+        }
+
+        double expDouble = exp;
+
+        double level = Math.Log((expDouble * (multiplier - 1) / baseExp) + 1) / Math.Log(multiplier);
+
+        return Math.Max(0, (int)Math.Floor(level));
+    }
+
+    public static ulong QuenchingGetExpByLevel(int level)
+    {
+        double baseExp = quenchingEXPPerLevelBase;
+        double multiplier = quenchingEXPMultiplyPerLevel;
+
+        if (multiplier == 1.0)
+        {
+            return (ulong)(baseExp * level);
+        }
+
+        double exp = baseExp * (Math.Pow(multiplier, level) - 1) / (multiplier - 1);
+        return (ulong)Math.Floor(exp);
+    }
+
+    /// <summary>
+    /// Multiplier applied on top of the shatterchance delta the vanilla quench just added.
+    /// Decreases with level (safer quenching), floored at quenchingMinShatterChanceAddedMultiply.
+    /// </summary>
+    public static float QuenchingGetShatterChanceAddedMultiplyByLevel(int level)
+    {
+        return Math.Max(quenchingMinShatterChanceAddedMultiply, quenchingBaseShatterChanceAddedMultiply * (1 - quenchingReduceShatterChanceAddedMultiplyPerLevel * level));
+    }
+
+    /// <summary>
+    /// Multiplier applied on top of the power/durability bonus delta the vanilla quench just added.
+    /// </summary>
+    public static float QuenchingGetPowerGainMultiplyByLevel(int level)
+    {
+        return quenchingBasePowerGainMultiply * (1 + quenchingIncrementPowerGainMultiplyPerLevel * level);
+    }
+
+    /// <summary>
+    /// Multiplier applied on top of the (negative) shatterchance delta the vanilla temper just subtracted.
+    /// </summary>
+    public static float QuenchingGetTemperEfficiencyMultiplyByLevel(int level)
+    {
+        return quenchingBaseTemperEfficiencyMultiply * (1 + quenchingIncrementTemperEfficiencyMultiplyPerLevel * level);
     }
     #endregion
 

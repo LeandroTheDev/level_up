@@ -77,6 +77,7 @@ public class Instance
         Shared.Instance.levelPlateArmor.PopulateConfiguration(coreAPI);
         Shared.Instance.levelScaleArmor.PopulateConfiguration(coreAPI);
         Shared.Instance.levelSmithing.PopulateConfiguration(coreAPI);
+        Shared.Instance.levelQuenching.PopulateConfiguration(coreAPI);
 
         // Class Configs
         Configuration.PopulateClassConfigurations(coreAPI);

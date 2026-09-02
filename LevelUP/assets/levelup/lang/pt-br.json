@@ -42,6 +42,9 @@
     "status_active": "Defesa Ativa: {0}%",
     "status_projectiledamageabsorption": "Dano Absorvido Projétil: {0}%",
     "status_damageabsorption": "Dano Absorvido: {0}%",
+    "status_quenching_shatterchance": "Chance de Estilhaçar ao Quenchar: {0}%",
+    "status_quenching_powergain": "Ganho de Poder/Durabilidade ao Quenchar: {0}%",
+    "status_quenching_temperefficiency": "Eficiência da Têmpera: {0}%",
 
     "axe": "Machado",
     "pickaxe": "Picareta",
@@ -52,6 +55,7 @@
     "knife": "Faca",
     "hammer": "Martelo",
     "smithing": "Ferraria",
+    "quenching": "Têmpera",
     "sword": "Espada",
     "shield": "Escudo",
     "hand": "Punhos",
