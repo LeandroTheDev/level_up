@@ -9,7 +9,6 @@ using LevelUP.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
-using Vintagestory.API.Datastructures;
 using Vintagestory.GameContent;
 
 namespace LevelUP.Server;
@@ -126,7 +125,10 @@ class LevelVitality
 
         playerStats.BaseMaxHealth = playerMaxHealth;
         playerStats.MaxHealth = playerMaxHealth;
-        player.Entity.WatchedAttributes.SetFloat("regenSpeed", playerRegen);
+
+        // "base" already contributes 1 to the WeightedSum blend, so only the delta above that
+        // baseline goes in our own code - see the levelup_vitality entry read by the transpiler below
+        player.Entity.Stats.Set("regenSpeed", "levelup_vitality", playerRegen - 1f);
 
         // Refresh for the player
         playerStats.UpdateMaxHealth();
@@ -137,7 +139,7 @@ class LevelVitality
     [HarmonyPatchCategory("levelup_vitality")]
     private class LevelVitalityPatch
     {
-        // Transpiler to edit healthRegenSpeed to receive entity.WatchedAttributes.GetFloat("regenSpeed", 1f)
+        // Transpiler to edit healthRegenSpeed to receive entity.Stats.GetBlended("regenSpeed")
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(EntityBehaviorHealth), "ApplyRegenAndHunger")]
         internal static List<CodeInstruction> ApplyRegenAndHunger_Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -145,8 +147,8 @@ class LevelVitality
             var codes = new List<CodeInstruction>(instructions);
 
             var entityField = AccessTools.Field(typeof(EntityBehaviorHealth), "entity");
-            var watchedAttrField = AccessTools.Field(typeof(Entity), "WatchedAttributes");
-            var getFloat = AccessTools.Method(typeof(SyncedTreeAttribute), "GetFloat", [typeof(string), typeof(float)]);
+            var statsField = AccessTools.Field(typeof(Entity), "Stats");
+            var getBlended = AccessTools.Method(typeof(EntityStats), "GetBlended", [typeof(string)]);
 
             for (int i = 0; i < codes.Count; i++)
             {
@@ -158,17 +160,14 @@ class LevelVitality
                         new(OpCodes.Ldarg_0),
                         new(OpCodes.Ldfld, entityField),
 
-                        // entity.WatchedAttributes
-                        new(OpCodes.Ldfld, watchedAttrField),
+                        // entity.Stats
+                        new(OpCodes.Ldfld, statsField),
 
                         // "regenSpeed"
                         new(OpCodes.Ldstr, "regenSpeed"),
 
-                        // 1f default value
-                        new(OpCodes.Ldc_R4, 1f),
-
-                        // callvirt SyncedTreeAttribute.GetFloat
-                        new(OpCodes.Callvirt, getFloat),
+                        // callvirt EntityStats.GetBlended (returns 1f when the category was never set, same as before)
+                        new(OpCodes.Callvirt, getBlended),
 
                         // Save result into local 2
                         new(OpCodes.Stloc_2)
@@ -177,7 +176,7 @@ class LevelVitality
                     // Insert afterstloc.2 original
                     codes.InsertRange(i + 1, inject);
 
-                    Debug.LogDebug("healthRegenSpeed overwrite by entity.WatchedAttributes.GetFloat(\"regenSpeed\", 1f)");
+                    Debug.LogDebug("healthRegenSpeed overwrite by entity.Stats.GetBlended(\"regenSpeed\")");
                     break;
                 }
             }
