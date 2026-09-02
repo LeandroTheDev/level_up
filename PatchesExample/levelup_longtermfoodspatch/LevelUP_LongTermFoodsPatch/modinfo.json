@@ -1,0 +1,16 @@
+{
+    "$schema": "https://moddbcdn.vintagestory.at/schema/modinfo.latest.json",
+    "type": "Code",
+    "modid": "levelup_longtermfoodspatch",
+    "name": "LevelUP Long-term Food Patch",
+    "authors": [
+        "BoboDev"
+    ],
+    "description": "Patch levelup config to grant farming exp for Long-term Food's crops",
+    "version": "1.0.0",
+    "dependencies": {
+        "game": "1.21.0",
+        "levelup": "",
+        "longtermfood": ""
+    }
+}
