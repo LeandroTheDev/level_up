@@ -6687,6 +6687,7 @@ public static class Configuration
         ["game:claypot-black-cooked"] = 3.0,
         ["game:claypot-brown-cooked"] = 3.0,
         ["game:claypot-cream-cooked"] = 3.0,
+        ["game:claypot-earthyorange-cooked"] = 3.0,
         ["game:claypot-gray-cooked"] = 3.0,
         ["game:claypot-orange-cooked"] = 3.0,
         ["game:claypot-red-cooked"] = 3.0,
