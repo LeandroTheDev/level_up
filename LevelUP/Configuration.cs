@@ -622,7 +622,7 @@ public static class Configuration
     private static int hunterEXPPerLevelBase = 800;
     private static double hunterEXPMultiplyPerLevel = 1.2;
     private static float hunterBaseDamage = 1.0f;
-    private static float hunterIncrementDamagePerLevel = 0.1f;
+    private static float hunterIncrementDamagePerLevel = 0.03f;
     public static int hunterMaxLevel = 999;
 
     private static Dictionary<string, object> BuildHunterDefaultConfig() => new()
@@ -992,8 +992,8 @@ public static class Configuration
     private static int bowEXPPerLevelBase = 500;
     private static double bowEXPMultiplyPerLevel = 1.1;
     private static float bowBaseDamage = 1.0f;
-    private static float bowIncrementDamagePerLevel = 0.1f;
-    private static float bowChanceToNotLoseArrowBaseIncreasePerLevel = 2.0f;
+    private static float bowIncrementDamagePerLevel = 0.05f;
+    private static float bowChanceToNotLoseArrowBaseIncreasePerLevel = 1.0f;
     private static int bowChanceToNotLoseArrowReduceIncreaseEveryLevel = 5;
     private static float bowChanceToNotLoseArrowReduceQuantityEveryLevel = 0.2f;
     private static float bowBaseRangedAccuracy = 0.0f;
@@ -1500,9 +1500,9 @@ public static class Configuration
     private static int slingshotEXPPerLevelBase = 500;
     private static double slingshotEXPMultiplyPerLevel = 1.1;
     private static float slingshotBaseDamage = 1.0f;
-    private static float slingshotIncrementDamagePerLevel = 0.1f;
+    private static float slingshotIncrementDamagePerLevel = 0.08f;
     private static float slingshotBaseChanceToNotLoseRock = 50.0f;
-    private static float slingshotChanceToNotLoseRockBaseIncreasePerLevel = 2.0f;
+    private static float slingshotChanceToNotLoseRockBaseIncreasePerLevel = 0.5f;
     private static int slingshotChanceToNotLoseRockReduceIncreaseEveryLevel = 5;
     private static float slingshotChanceToNotLoseRockReduceQuantityEveryLevel = 0.2f;
     private static float slingshotBaseAimAccuracy = 0.8f;
@@ -1988,7 +1988,7 @@ public static class Configuration
     private static float knifeBaseDamage = 1.0f;
     private static float knifeIncrementDamagePerLevel = 0.03f;
     private static float knifeBaseHarvestMultiply = 0.5f;
-    private static float knifeIncrementHarvestMultiplyPerLevel = 0.1f;
+    private static float knifeIncrementHarvestMultiplyPerLevel = 0.04f;
     private static float knifeBaseMiningSpeed = 1.0f;
     private static float knifeIncrementMiningSpeedMultiplyPerLevel = 0.05f;
     public static int knifeMaxLevel = 999;
@@ -4299,7 +4299,7 @@ public static class Configuration
     private static int spearEXPPerLevelBase = 500;
     private static double spearEXPMultiplyPerLevel = 1.3;
     private static float spearBaseDamage = 1.0f;
-    private static float spearIncrementDamagePerLevel = 0.1f;
+    private static float spearIncrementDamagePerLevel = 0.04f;
     private static float spearBaseRangedAccuracy = 0.0f;
     private static float spearIncrementRangedAccuracyPerLevel = 0.015f;
     private static float spearBaseRangedSpeed = 0.0f;
@@ -4762,7 +4762,7 @@ public static class Configuration
     private static int hammerEXPPerLevelBase = 500;
     private static double hammerEXPMultiplyPerLevel = 1.2;
     private static float hammerBaseDamage = 1.0f;
-    private static float hammerIncrementDamagePerLevel = 0.1f;
+    private static float hammerIncrementDamagePerLevel = 0.08f;
     private static float hammerBaseSmithRetrieveChance = 0.0f;
     private static float hammerSmithRetrieveChancePerLevel = 2.0f;
     private static int hammerSmithRetrieveEveryLevelReduceChance = 10;
@@ -5415,7 +5415,7 @@ public static class Configuration
     private static int swordEXPPerLevelBase = 500;
     private static double swordEXPMultiplyPerLevel = 1.3;
     private static float swordBaseDamage = 1.0f;
-    private static float swordIncrementDamagePerLevel = 0.1f;
+    private static float swordIncrementDamagePerLevel = 0.07f;
     public static int swordMaxLevel = 999;
 
 
@@ -5797,17 +5797,17 @@ public static class Configuration
     private static int shieldEXPPerLevelBase = 600;
     private static double shieldEXPMultiplyPerLevel = 1.5;
     private static float shieldBasePassiveProjectile = 1.0f;
-    private static float shieldPassiveProjectilePerLevel = 0.1f;
+    private static float shieldPassiveProjectilePerLevel = 0.08f;
     private static float shieldBaseActiveProjectile = 1.0f;
-    private static float shieldActiveProjectilePerLevel = 0.1f;
+    private static float shieldActiveProjectilePerLevel = 0.12f;
     private static float shieldBasePassive = 1.0f;
-    private static float shieldPassivePerLevel = 0.1f;
+    private static float shieldPassivePerLevel = 0.07f;
     private static float shieldBaseActive = 1.0f;
     private static float shieldActivePerLevel = 0.1f;
     private static float shieldBaseProjectileDamageAbsorption = 1.0f;
-    private static float shieldProjectileDamageAbsorptionPerLevel = 0.1f;
+    private static float shieldProjectileDamageAbsorptionPerLevel = 0.11f;
     private static float shieldBaseDamageAbsorption = 1.0f;
-    private static float shieldDamageAbsorptionPerLevel = 0.1f;
+    private static float shieldDamageAbsorptionPerLevel = 0.06f;
     public static int shieldMaxLevel = 999;
 
 
@@ -6025,7 +6025,7 @@ public static class Configuration
     private static int handEXPPerLevelBase = 300;
     private static double handEXPMultiplyPerLevel = 1.5;
     private static float handBaseDamage = 1.0f;
-    private static float handIncrementDamagePerLevel = 0.1f;
+    private static float handIncrementDamagePerLevel = 0.2f;
     public static int handMaxLevel = 999;
 
     public static int ExpPerHitHand => handEXPPerHit;
@@ -6404,10 +6404,10 @@ public static class Configuration
     #region farming
     public static Dictionary<string, int> expPerHarvestFarming = [];
     private static int farmingEXPPerTill = 10;
-    private static int farmingEXPPerLevelBase = 100;
-    private static double farmingEXPMultiplyPerLevel = 2.5;
-    private static float farmingBaseHarvestMultiply = 0.5f;
-    private static float farmingIncrementHarvestMultiplyPerLevel = 0.1f;
+    private static int farmingEXPPerLevelBase = 500;
+    private static double farmingEXPMultiplyPerLevel = 1.2;
+    private static float farmingBaseHarvestMultiply = 1.0f;
+    private static float farmingIncrementHarvestMultiplyPerLevel = 0.09f;
     private static float farmingBaseForageMultiply = 1.0f;
     private static float farmingIncrementForageMultiplyPerLevel = 0.08f;
     public static int farmingMaxLevel = 999;
@@ -6646,10 +6646,11 @@ public static class Configuration
     #region cooking
     public static Dictionary<string, double> expMultiplySingleCooking = [];
     public static Dictionary<string, double> expMultiplyPotsCooking = [];
+    public static Dictionary<string, double> expMultiplyOvenCooking = [];
     private static int cookingBaseExpPerCooking = 30;
     private static int cookingEXPPerLevelBase = 100;
     private static double cookingEXPMultiplyPerLevel = 1.3;
-    private static float cookingBaseFreshHoursMultiply = 1.0f;
+    private static float cookingBaseFreshHoursMultiply = 0.5f;
     private static float cookingFreshHoursMultiplyPerLevel = 0.04f;
     private static float cookingBaseChanceToIncreaseServings = 1.0f;
     private static int cookingReduceChanceToIncreaseServings = 5;
@@ -6658,6 +6659,7 @@ public static class Configuration
     private static int cookingBaseRollsChanceToIncreaseServings = 1;
     private static int cookingEarnRollsChanceToIncreaseServingsEveryLevel = 5;
     private static int cookingEarnRollsChanceToIncreaseServingsQuantity = 1;
+    public static double cookingSubLevelEXPMultiply = 3.0;
     public static int cookingMaxLevel = 999;
 
     public static int ExpPerCookingcooking => cookingBaseExpPerCooking;
@@ -6676,6 +6678,7 @@ public static class Configuration
         ["cookingBaseRollsChanceToIncreaseServings"] = (long)cookingBaseRollsChanceToIncreaseServings,
         ["cookingEarnRollsChanceToIncreaseServingsEveryLevel"] = (long)cookingEarnRollsChanceToIncreaseServingsEveryLevel,
         ["cookingEarnRollsChanceToIncreaseServingsQuantity"] = (long)cookingEarnRollsChanceToIncreaseServingsQuantity,
+        ["cookingSubLevelEXPMultiply"] = cookingSubLevelEXPMultiply,
         ["cookingMaxLevel"] = (long)cookingMaxLevel,
     };
 
@@ -6701,6 +6704,18 @@ public static class Configuration
         ["game:claypot-orange-cooked"] = 3.0,
         ["game:claypot-red-cooked"] = 3.0,
         ["game:claypot-tan-cooked"] = 3.0,
+    };
+
+    private static Dictionary<string, object> BuildCookingOvenDefaultConfig() => new()
+    {
+        ["game:bread-spelt-perfect"] = 0.5,
+        ["game:bread-rye-perfect"] = 0.5,
+        ["game:bread-flax-perfect"] = 0.5,
+        ["game:bread-rice-perfect"] = 0.6,
+        ["game:bread-cassava-perfect"] = 0.4,
+        ["game:bread-amaranth-perfect"] = 0.5,
+        ["game:bread-sunflower-perfect"] = 0.5,
+        ["game:pie-perfect"] = 3.0,
     };
 
     public static void PopulateCookingConfiguration(ICoreAPI api)
@@ -6802,6 +6817,13 @@ public static class Configuration
                 else cookingMaxLevel = (int)(long)value;
             else Debug.LogError("CONFIGURATION ERROR: cookingMaxLevel not set");
         }
+        { //cookingSubLevelEXPMultiply
+            if (cookingLevelStats.TryGetValue("cookingSubLevelEXPMultiply", out object value))
+                if (value is null) Debug.LogError("CONFIGURATION ERROR: cookingSubLevelEXPMultiply is null");
+                else if (value is not double) Debug.Log($"CONFIGURATION ERROR: cookingSubLevelEXPMultiply is not double is {value.GetType()}");
+                else cookingSubLevelEXPMultiply = (double)value;
+            else Debug.LogError("CONFIGURATION ERROR: cookingSubLevelEXPMultiply not set");
+        }
 
         // Get single food exp multiply
         expMultiplySingleCooking.Clear();
@@ -6826,6 +6848,18 @@ public static class Configuration
         {
             if (pair.Value is double value) expMultiplyPotsCooking.Add(pair.Key, value);
             else Debug.Log($"CONFIGURATION ERROR: expMultiplyPotsCooking {pair.Key} is not double");
+        }
+        // Get oven food exp multiply
+        expMultiplyOvenCooking.Clear();
+        Dictionary<string, object> tmpexpMultiplyOvenCooking = LoadConfigurationByDirectoryAndName(
+            api,
+            "ModConfig/LevelUP/config/levelstats",
+            "cookingoven",
+            BuildCookingOvenDefaultConfig());
+        foreach (KeyValuePair<string, object> pair in tmpexpMultiplyOvenCooking)
+        {
+            if (pair.Value is double value) expMultiplyOvenCooking.Add(pair.Key, value);
+            else Debug.Log($"CONFIGURATION ERROR: expMultiplyOvenCooking {pair.Key} is not double");
         }
 
         Debug.Log("Cooking configuration set");
@@ -6918,7 +6952,7 @@ public static class Configuration
     private static int panningEXPPerLevelBase = 300;
     private static double panningEXPMultiplyPerLevel = 1.3;
     private static float panningBaseLootMultiply = 0.0f;
-    private static float panningLootMultiplyPerLevel = 0.1f;
+    private static float panningLootMultiplyPerLevel = 0.15f;
     private static float panningBaseChanceToDoubleLoot = 0.0f;
     private static float panningChanceToDoubleLootPerLevel = 0.05f;
     private static float panningBaseChanceToTripleLoot = 0.0f;
@@ -7643,12 +7677,12 @@ public static class Configuration
     public static ulong quenchingBaseExpPerQuench = 50;
     public static ulong quenchingBaseExpPerTemper = 40;
     private static float quenchingBaseShatterChanceAddedMultiply = 1.0f;
-    private static float quenchingReduceShatterChanceAddedMultiplyPerLevel = 0.01f;
-    private static float quenchingMinShatterChanceAddedMultiply = 0.1f;
+    private static float quenchingReduceShatterChanceAddedMultiplyPerLevel = 0.05f;
+    private static float quenchingMinShatterChanceAddedMultiply = 0.15f;
     private static float quenchingBasePowerGainMultiply = 1.0f;
     private static float quenchingIncrementPowerGainMultiplyPerLevel = 0.01f;
     private static float quenchingBaseTemperEfficiencyMultiply = 1.0f;
-    private static float quenchingIncrementTemperEfficiencyMultiplyPerLevel = 0.01f;
+    private static float quenchingIncrementTemperEfficiencyMultiplyPerLevel = 0.012f;
     public static int quenchingMaxLevel = 999;
     public static double quenchingSubLevelEXPMultiply = 3.0;
 

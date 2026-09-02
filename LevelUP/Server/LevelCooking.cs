@@ -51,6 +51,8 @@ class LevelCooking
         StatusViewEvents.OnStatusRequested -= StatusViewRequested;
     }
 
+    public static readonly string[] SubLevelTypes = ["Firepit", "Oven"];
+
     private void StatusViewRequested(IPlayer player, ref StringBuilder stringBuilder, string levelType)
     {
         if (levelType != "Cooking") return;
@@ -72,6 +74,15 @@ class LevelCooking
                 Math.Round(Configuration.CookingGetRollChanceByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking")), 2)
             )
         );
+
+        stringBuilder.AppendLine("");
+
+        stringBuilder.AppendLine(Lang.Get("levelup:status_proficiency"));
+
+        foreach (string subType in SubLevelTypes)
+        {
+            stringBuilder.AppendLine($"{Lang.Get($"levelup:{subType.ToLower()}")}: {player.Entity.WatchedAttributes.GetInt($"LevelUP_Level_Cooking_Sub_{subType}")}");
+        }
     }
 
     public void PopulateConfiguration(ICoreAPI coreAPI)
@@ -145,6 +156,11 @@ class LevelCooking
                         return;
                     }
 
+                    // Firepit sub level, combined multiplicatively with the main Cooking level
+                    int firepitSubLevel = Configuration.CookingGetLevelByEXP(Experience.GetSubExperience(player, "Cooking", "Firepit"));
+                    float firepitFreshHoursMultiply = Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))
+                        * Configuration.CookingGetFreshHoursMultiplyByLevel(firepitSubLevel);
+
                     // For single cooking
                     if (Configuration.expMultiplySingleCooking.TryGetValue(output.Collectible.Code.ToString(), out double expMultiplySingle))
                     {
@@ -156,14 +172,15 @@ class LevelCooking
                             TreeAttribute attribute = output.Attributes["transitionstate"] as TreeAttribute;
                             FloatArrayAttribute freshHours = attribute.GetAttribute("freshHours") as FloatArrayAttribute;
                             Debug.LogDebug($"Cooking: previously fresh hours: {freshHours.value[0]}");
-                            freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"));
+                            freshHours.value[0] *= firepitFreshHoursMultiply;
                             LevelCookingEvents.UpdateFromExternalCookingSingle(player, output.Collectible.Code.ToString(), ref exp, ref freshHours.value[0]);
-                            Debug.LogDebug($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))}");
+                            Debug.LogDebug($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {firepitFreshHoursMultiply}");
                             attribute.SetAttribute("freshHours", freshHours);
                             output.Attributes["transitionstate"] = attribute;
                         }
 
                         Experience.IncreaseExperience(player, "Cooking", exp);
+                        Experience.IncreaseSubExperience(player, "Cooking", "Firepit", (ulong)Math.Round(exp * Configuration.cookingSubLevelEXPMultiply));
                     }
                     // For pots cooking
                     else if (Configuration.expMultiplyPotsCooking.TryGetValue(output.Collectible.Code.ToString(), out double expMultiplyPots))
@@ -190,7 +207,7 @@ class LevelCooking
                                     Debug.LogDebug($"Cooking: previously fresh hours: {freshHours.value[0]}");
 
                                     // Increase fresh hours by levelup
-                                    freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"));
+                                    freshHours.value[0] *= firepitFreshHoursMultiply;
 
                                     // Integration
                                     indexFreshHours.Add(freshHours.value[0]);
@@ -205,8 +222,10 @@ class LevelCooking
 
                                 Debug.LogDebug($"Cooking: previously servings: {servingsQuantity.value}");
 
-                                // Increasing servings quantity
-                                servingsQuantity.value = Configuration.CookingGetServingsByLevelAndServings(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"), (int)servingsQuantity.value); ;
+                                // Increasing servings quantity (main level, then Firepit sub level)
+                                int servings = Configuration.CookingGetServingsByLevelAndServings(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"), (int)servingsQuantity.value);
+                                servings = Configuration.CookingGetServingsByLevelAndServings(firepitSubLevel, servings);
+                                servingsQuantity.value = servings;
 
                                 Debug.LogDebug($"Cooking: servings now: {servingsQuantity.value}");
 
@@ -236,9 +255,9 @@ class LevelCooking
 
                                         // Increase fresh hours
                                         freshHours.value[0] = indexFreshHours[i];
-                                        freshHours.value[0] *= Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"));
+                                        freshHours.value[0] *= firepitFreshHoursMultiply;
 
-                                        Debug.LogDebug($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))}");
+                                        Debug.LogDebug($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {firepitFreshHoursMultiply}");
 
                                         // Updating
                                         itemAttribute.SetAttribute("freshHours", freshHours);
@@ -257,9 +276,82 @@ class LevelCooking
                         }
 
                         Experience.IncreaseExperience(player, "Cooking", exp);
+                        Experience.IncreaseSubExperience(player, "Cooking", "Firepit", (ulong)Math.Round(exp * Configuration.cookingSubLevelEXPMultiply));
                     }
                 });
             }
+        }
+
+        // Overwrite Clay Oven baking (bread, pies, ...)
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BlockEntityOven), "IncrementallyBake")]
+        internal static void IncrementallyBakeStart(BlockEntityOven __instance, int slotIndex, out string __state)
+        {
+            __state = null;
+
+            if (!Configuration.enableLevelCooking) return;
+            if (__instance.Api.World.Side != EnumAppSide.Server) return;
+
+            __state = __instance.Inventory[slotIndex].Itemstack?.Collectible.Code.ToString();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(BlockEntityOven), "IncrementallyBake")]
+        internal static void IncrementallyBakeFinish(BlockEntityOven __instance, int slotIndex, string __state)
+        {
+            if (!Configuration.enableLevelCooking) return;
+            if (__instance.Api.World.Side != EnumAppSide.Server) return;
+            if (__state == null) return;
+
+            ItemStack output = __instance.Inventory[slotIndex].Itemstack;
+            if (output == null) return;
+
+            // Item did not finish transitioning into a new stage this tick
+            string outputCode = output.Collectible.Code.ToString();
+            if (outputCode == __state) return;
+
+            if (!Configuration.expMultiplyOvenCooking.TryGetValue(outputCode, out double expMultiplyOven)) return;
+
+            IPlayer player = __instance.Api.World.NearestPlayer(__instance.Pos.X, __instance.Pos.Y, __instance.Pos.Z);
+
+            // If cannot find the nearest player
+            if (player == null)
+            {
+                Debug.LogDebug("Cooking: player is null, oven experience and stats has been ignored");
+                return;
+            }
+
+            ulong exp = (ulong)Math.Round(Configuration.ExpPerCookingcooking + (Configuration.ExpPerCookingcooking * expMultiplyOven));
+
+            // Oven sub level, combined multiplicatively with the main Cooking level
+            int ovenSubLevel = Configuration.CookingGetLevelByEXP(Experience.GetSubExperience(player, "Cooking", "Oven"));
+            float ovenFreshHoursMultiply = Configuration.CookingGetFreshHoursMultiplyByLevel(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"))
+                * Configuration.CookingGetFreshHoursMultiplyByLevel(ovenSubLevel);
+
+            // Increase the fresh hours based in player experience, if the baked item perishes
+            if (output.Attributes["transitionstate"] is TreeAttribute attribute && attribute.GetAttribute("freshHours") is FloatArrayAttribute freshHours)
+            {
+                Debug.LogDebug($"Cooking: previously fresh hours: {freshHours.value[0]}");
+                freshHours.value[0] *= ovenFreshHoursMultiply;
+                Debug.LogDebug($"Cooking: fresh hours increased to: {freshHours.value[0]} with multiply of {ovenFreshHoursMultiply}");
+                attribute.SetAttribute("freshHours", freshHours);
+                output.Attributes["transitionstate"] = attribute;
+            }
+
+            // Increase servings quantity (main level, then Oven sub level), if the baked item has servings, like a pie
+            if (output.Attributes["quantityServings"] is FloatAttribute servingsQuantity)
+            {
+                Debug.LogDebug($"Cooking: previously servings: {servingsQuantity.value}");
+                int servings = Configuration.CookingGetServingsByLevelAndServings(player.Entity.WatchedAttributes.GetInt("LevelUP_Level_Cooking"), (int)servingsQuantity.value);
+                servings = Configuration.CookingGetServingsByLevelAndServings(ovenSubLevel, servings);
+                servingsQuantity.value = servings;
+                Debug.LogDebug($"Cooking: servings now: {servingsQuantity.value}");
+            }
+
+            Experience.IncreaseExperience(player, "Cooking", exp);
+            Experience.IncreaseSubExperience(player, "Cooking", "Oven", (ulong)Math.Round(exp * Configuration.cookingSubLevelEXPMultiply));
+
+            Debug.LogDebug($"{player.PlayerName} finished baking {outputCode} in the clay oven, experience: {exp}");
         }
     }
 }
