@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -138,7 +138,7 @@ public static partial class Configuration
     public static void PopulateChainArmorConfiguration(ICoreAPI api)
     {
         ChainArmorLevelStatsConfiguration chainArmorLevelStats = ConfigManager.Load<ChainArmorLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "chainarmor", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "chainarmor", Logger(api));
 
         chainArmorEXPPerReceiveHit = chainArmorLevelStats.chainArmorEXPPerReceiveHit;
         Experience.LoadExperience("ChainArmor", "Hit", (ulong)chainArmorEXPPerReceiveHit);
@@ -186,7 +186,7 @@ public static partial class Configuration
         chainArmorSubLevelEXPMultiply = chainArmorLevelStats.chainArmorSubLevelEXPMultiply;
 
         expMultiplyHitChainArmor = ConfigManager.Load<ChainArmorItemsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "chainarmoritems", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "chainarmoritems", Logger(api));
 
         Debug.Log("Chain Armor configuration set");
     }

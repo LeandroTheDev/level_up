@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -126,7 +126,7 @@ public static partial class Configuration
     public static void PopulateLamellarArmorConfiguration(ICoreAPI api)
     {
         LamellarArmorLevelStatsConfiguration lamellarArmorLevelStats = ConfigManager.Load<LamellarArmorLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "lamellararmor", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "lamellararmor", Logger(api));
 
         lamellarArmorEXPPerReceiveHit = lamellarArmorLevelStats.lamellarArmorEXPPerReceiveHit;
         Experience.LoadExperience("LamellarArmor", "Hit", (ulong)lamellarArmorEXPPerReceiveHit);
@@ -174,7 +174,7 @@ public static partial class Configuration
         lamellarArmorSubLevelEXPMultiply = lamellarArmorLevelStats.lamellarArmorSubLevelEXPMultiply;
 
         expMultiplyHitLamellarArmor = ConfigManager.Load<LamellarArmorItemsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "lamellararmoritems", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "lamellararmoritems", Logger(api));
 
         Debug.Log("Lamellar Armor configuration set");
     }

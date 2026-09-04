@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using OpenConfiguration;
 using Vintagestory.API.Common;
 
@@ -86,7 +86,7 @@ public static partial class Configuration
 
     internal static void UpdateBaseConfigurations(ICoreAPI api)
     {
-        BaseLevelStatsConfiguration baseConfigs = ConfigManager.Load<BaseLevelStatsConfiguration>(api, "ModConfig/LevelUP/config", "base", Logger(api));
+        BaseLevelStatsConfiguration baseConfigs = ConfigManager.Load<BaseLevelStatsConfiguration>(api, "ModConfig/LevelUP", "base", Logger(api));
 
         enableHardcore = baseConfigs.enableHardcore;
         hardcoreLosePercentage = baseConfigs.hardcoreLosePercentage;

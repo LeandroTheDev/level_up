@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -128,7 +128,7 @@ public static partial class Configuration
     public static void PopulateLeatherArmorConfiguration(ICoreAPI api)
     {
         LeatherArmorLevelStatsConfiguration leatherArmorLevelStats = ConfigManager.Load<LeatherArmorLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "leatherarmor", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "leatherarmor", Logger(api));
 
         leatherArmorEXPPerReceiveHit = leatherArmorLevelStats.leatherArmorEXPPerReceiveHit;
         Experience.LoadExperience("LeatherArmor", "Hit", (ulong)leatherArmorEXPPerReceiveHit);
@@ -176,7 +176,7 @@ public static partial class Configuration
         leatherArmorSubLevelEXPMultiply = leatherArmorLevelStats.leatherArmorSubLevelEXPMultiply;
 
         expMultiplyHitLeatherArmor = ConfigManager.Load<LeatherArmorItemsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "leatherarmoritems", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "leatherarmoritems", Logger(api));
 
         Debug.Log("Leather Armor configuration set");
     }

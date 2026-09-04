@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -31,7 +31,7 @@ public static partial class Configuration
     public static void PopulateHandConfiguration(ICoreAPI api)
     {
         HandLevelStatsConfiguration handLevelStats = ConfigManager.Load<HandLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "hand", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "hand", Logger(api));
         handEXPPerLevelBase = handLevelStats.handEXPPerLevelBase;
         handEXPMultiplyPerLevel = handLevelStats.handEXPMultiplyPerLevel;
         handBaseDamage = handLevelStats.handBaseDamage;
@@ -41,7 +41,7 @@ public static partial class Configuration
         handMaxLevel = handLevelStats.handMaxLevel;
 
         entityExpHand = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "hand", Logger(api), "levelup:config/entityexp/hand.json");
+            api, "ModConfig/LevelUP/entityexp", "hand", Logger(api), "levelup:config/entityexp/hand.json");
 
         Debug.Log("Hand configuration set");
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -43,7 +43,7 @@ public static partial class Configuration
     public static void PopulatePickaxeConfiguration(ICoreAPI api)
     {
         PickaxeLevelStatsConfiguration pickaxeLevelStats = ConfigManager.Load<PickaxeLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "pickaxe", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "pickaxe", Logger(api));
 
         pickaxeEXPPerLevelBase = pickaxeLevelStats.pickaxeEXPPerLevelBase;
         pickaxeEXPMultiplyPerLevel = pickaxeLevelStats.pickaxeEXPMultiplyPerLevel;
@@ -60,10 +60,10 @@ public static partial class Configuration
         pickaxeMaxLevel = pickaxeLevelStats.pickaxeMaxLevel;
 
         entityExpPickaxe = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "pickaxe", Logger(api), "levelup:config/entityexp/pickaxe.json");
+            api, "ModConfig/LevelUP/entityexp", "pickaxe", Logger(api), "levelup:config/entityexp/pickaxe.json");
 
         oresExpPickaxe = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/levelstats", "pickaxesores", Logger(api), "levelup:config/ores/pickaxe.json");
+            api, "ModConfig/LevelUP/levelstats", "pickaxesores", Logger(api), "levelup:config/ores/pickaxe.json");
 
         Debug.Log("Pickaxe configuration set");
     }

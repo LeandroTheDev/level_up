@@ -57,13 +57,13 @@ English is not my main language, if you encounter any translation problems, plea
 If the weapon doesn't have "tool", add it to fix the problem, levelup support only: ``shovel,axe,spear,sword,pickaxe,hammer,knife``, "but my weapon uses a custom type that levelup does not support what i need to do?" in that case is more complicated, you need to edit your mod and use the [mod api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#levelupserveroverwritedamageinteractionevents) to listen for levelup event (OnPlayerMeleeDoDamageStart and OnPlayerRangedDoDamageStart). full example can be found in [Sword Level Source Code](https://github.com/LeandroTheDev/level_up/blob/main/LevelUP/Server/LevelSword.cs)
 
 
-"But my custom armor also don't work...", if your armor is made of: ``leather/chain/brigandine/plate/scale`` then you are lucky, open the configurations from one of the armor type in ``ModConfig/LevelUP/config/levelstats`` and put the ``item id`` inside it, if not..., well you will need to integrate a custom level in your mod, in that case the [api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#custom-level) will help you. full example can be found in [Leather Armor Level Source Code](https://github.com/LeandroTheDev/level_up/blob/main/LevelUP/Server/LevelLeatherArmor.cs)
+"But my custom armor also don't work...", if your armor is made of: ``leather/chain/brigandine/plate/scale`` then you are lucky, open the configurations from one of the armor type in ``ModConfig/LevelUP/levelstats`` and put the ``item id`` inside it, if not..., well you will need to integrate a custom level in your mod, in that case the [api](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#custom-level) will help you. full example can be found in [Leather Armor Level Source Code](https://github.com/LeandroTheDev/level_up/blob/main/LevelUP/Server/LevelLeatherArmor.cs)
 
 
-"None of my food mods work with levelup!!!!", is very simple to fix that, manually edit ``ModConfig/LevelUP/config/levelstats/cookingsingles.json`` for singular foods and ``ModConfig/LevelUP/config/levelstats/cookingpots.json`` for custom pots.
+"None of my food mods work with levelup!!!!", is very simple to fix that, manually edit ``ModConfig/LevelUP/levelstats/cookingsingles.json`` for singular foods and ``ModConfig/LevelUP/levelstats/cookingpots.json`` for custom pots.
 
 
-"I have custom classes and a lot of warning is called in my console", this is because you need to add your custom classes inside ``ModConfig/LevelUP/config/classexp``.
+"I have custom classes and a lot of warning is called in my console", this is because you need to add your custom classes inside ``ModConfig/LevelUP/classexp``.
 
 ### [Examples in the Wiki](https://github.com/LeandroTheDev/level_up/wiki/Integration-&-Compatibility#examples)
 

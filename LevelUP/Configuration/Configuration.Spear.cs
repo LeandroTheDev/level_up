@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -46,7 +46,7 @@ public static partial class Configuration
     public static void PopulateSpearConfiguration(ICoreAPI api)
     {
         SpearLevelStatsConfiguration spearLevelStats = ConfigManager.Load<SpearLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "spear", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "spear", Logger(api));
 
         spearEXPPerLevelBase = spearLevelStats.spearEXPPerLevelBase;
         spearEXPMultiplyPerLevel = spearLevelStats.spearEXPMultiplyPerLevel;
@@ -68,7 +68,7 @@ public static partial class Configuration
         spearMaxLevel = spearLevelStats.spearMaxLevel;
 
         entityExpSpear = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "spear", Logger(api), "levelup:config/entityexp/spear.json");
+            api, "ModConfig/LevelUP/entityexp", "spear", Logger(api), "levelup:config/entityexp/spear.json");
 
         Debug.Log("Spear configuration set");
     }

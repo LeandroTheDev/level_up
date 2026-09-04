@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,7 +10,7 @@ namespace LevelUP_AldisRileyClassPatch;
 
 /// <summary>
 /// LevelUP writes its per-class multiplier config to
-/// ModConfig/LevelUP/config/classexp/&lt;classCode&gt;class.json and, on every start,
+/// ModConfig/LevelUP/classexp/&lt;classCode&gt;class.json and, on every start,
 /// loads ALL files it finds in that folder (Configuration.PopulateClassConfigurations).
 /// This already allows adding new classes by just dropping a json there - the problem is
 /// that it requires manually touching the server's data folder.
@@ -18,7 +18,7 @@ namespace LevelUP_AldisRileyClassPatch;
 /// This mod solves that by using Vintage Story's asset system: the jsons live in
 /// assets/&lt;domain&gt;/config/levelup-classexp/&lt;classCode&gt;class.json inside ANY installed
 /// mod (not just this one), and here we collect them all with api.Assets.GetMany(...) and copy
-/// them into ModConfig/LevelUP/config/classexp/ if the file doesn't already exist.
+/// them into ModConfig/LevelUP/classexp/ if the file doesn't already exist.
 ///
 /// In other words: to add a new class, just drop a .json at that asset path
 /// (in your own mod/resourcepack) - no need to edit C# or touch the data folder.
@@ -36,7 +36,7 @@ namespace LevelUP_AldisRileyClassPatch;
 public class LevelUP_AldisRileyClassPatchModSystem : ModSystem
 {
     private const string ClassExpAssetPath = "config/levelup-classexp/";
-    private const string ClassExpConfigSubPath = "ModConfig/LevelUP/config/classexp";
+    private const string ClassExpConfigSubPath = "ModConfig/LevelUP/classexp";
 
     public override void AssetsLoaded(ICoreAPI api)
     {

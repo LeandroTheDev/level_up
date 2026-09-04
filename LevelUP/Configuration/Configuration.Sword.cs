@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -31,7 +31,7 @@ public static partial class Configuration
     public static void PopulateSwordConfiguration(ICoreAPI api)
     {
         SwordLevelStatsConfiguration swordLevelStats = ConfigManager.Load<SwordLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "sword", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "sword", Logger(api));
         swordEXPPerLevelBase = swordLevelStats.swordEXPPerLevelBase;
         swordEXPMultiplyPerLevel = swordLevelStats.swordEXPMultiplyPerLevel;
         swordBaseDamage = swordLevelStats.swordBaseDamage;
@@ -41,7 +41,7 @@ public static partial class Configuration
         swordMaxLevel = swordLevelStats.swordMaxLevel;
 
         entityExpSword = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "sword", Logger(api), "levelup:config/entityexp/sword.json");
+            api, "ModConfig/LevelUP/entityexp", "sword", Logger(api), "levelup:config/entityexp/sword.json");
 
         Debug.Log("Sword configuration set");
     }

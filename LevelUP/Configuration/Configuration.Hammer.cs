@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -89,7 +89,7 @@ public static partial class Configuration
     public static void PopulateHammerConfiguration(ICoreAPI api)
     {
         HammerLevelStatsConfiguration hammerLevelStats = ConfigManager.Load<HammerLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "hammer", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "hammer", Logger(api));
 
         hammerEXPPerLevelBase = hammerLevelStats.hammerEXPPerLevelBase;
         hammerEXPMultiplyPerLevel = hammerLevelStats.hammerEXPMultiplyPerLevel;
@@ -122,10 +122,10 @@ public static partial class Configuration
         hammerMaxLevel = hammerLevelStats.hammerMaxLevel;
 
         entityExpHammer = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "hammer", Logger(api), "levelup:config/entityexp/hammer.json");
+            api, "ModConfig/LevelUP/entityexp", "hammer", Logger(api), "levelup:config/entityexp/hammer.json");
 
         smithChanceHammer = ConfigManager.Load<HammerSmithChanceConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "hammersmiths", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "hammersmiths", Logger(api));
 
         Debug.Log("Hammer configuration set");
     }

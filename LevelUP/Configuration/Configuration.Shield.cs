@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LevelUP.Server;
 using OpenConfiguration;
 using Vintagestory.API.Common;
@@ -49,7 +49,7 @@ public static partial class Configuration
     public static void PopulateShieldConfiguration(ICoreAPI api)
     {
         ShieldLevelStatsConfiguration shieldLevelStats = ConfigManager.Load<ShieldLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "shield", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "shield", Logger(api));
         shieldEXPPerLevelBase = shieldLevelStats.shieldEXPPerLevelBase;
         shieldEXPMultiplyPerLevel = shieldLevelStats.shieldEXPMultiplyPerLevel;
         shieldBasePassiveProjectile = shieldLevelStats.shieldBasePassiveProjectile;

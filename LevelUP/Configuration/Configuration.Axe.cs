@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -43,7 +43,7 @@ public static partial class Configuration
     public static void PopulateAxeConfiguration(ICoreAPI api)
     {
         AxeLevelStatsConfiguration axeLevelStats = ConfigManager.Load<AxeLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "axe", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "axe", Logger(api));
 
         axeEXPPerLevelBase = axeLevelStats.axeEXPPerLevelBase;
         axeEXPMultiplyPerLevel = axeLevelStats.axeEXPMultiplyPerLevel;
@@ -60,7 +60,7 @@ public static partial class Configuration
         axeMaxLevel = axeLevelStats.axeMaxLevel;
 
         entityExpAxe = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "axe", Logger(api), "levelup:config/entityexp/axe.json");
+            api, "ModConfig/LevelUP/entityexp", "axe", Logger(api), "levelup:config/entityexp/axe.json");
 
         Debug.Log("Axe configuration set");
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,7 +10,7 @@ namespace LevelUP_LongTermFoodsPatch;
 
 /// <summary>
 /// LevelUP writes its per-crop farming exp config to
-/// ModConfig/LevelUP/config/levelstats/farmingcrops.json (Configuration.PopulateFarmingConfiguration),
+/// ModConfig/LevelUP/levelstats/farmingcrops.json (Configuration.PopulateFarmingConfiguration),
 /// backfilling only the crops it knows about by default (vanilla). Crop blocks added by other mods
 /// (like Long-term Food's "pemmican" crops) are never granted farming exp/level unless a server owner
 /// manually adds them to that file.
@@ -37,7 +37,7 @@ namespace LevelUP_LongTermFoodsPatch;
 public class LevelUP_LongTermFoodsPatchModSystem : ModSystem
 {
     private const string FarmingCropsAssetPath = "config/levelup-farmingcrops/";
-    private const string FarmingCropsConfigSubPath = "ModConfig/LevelUP/config/levelstats";
+    private const string FarmingCropsConfigSubPath = "ModConfig/LevelUP/levelstats";
     private const string FarmingCropsConfigFile = "farmingcrops.json";
 
     public override void AssetsLoaded(ICoreAPI api)

@@ -25,7 +25,7 @@ class Instance
         CommunicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
         CommunicationChannel.SetMessageHandler<ServerMessage>(OnServerMessage);
         // Sync server configurations with client (pushed automatically once this client finishes joining)
-        ConfigManager.RegisterSync(api, Configuration.ConfigSyncKey, SyncConfigurations);
+        ConfigManager.RegisterStaticFieldSync(api, Configuration.ConfigSyncKey, typeof(Configuration), OnConfigurationsSynced, Configuration.Logger(api));
         temporaryTickListener = api.Event.RegisterGameTickListener(OnTick, 1000, 1000);
         Debug.Log("Client side fully initialized");
     }
@@ -56,9 +56,8 @@ class Instance
     }
 
 
-    private void SyncConfigurations(string json)
+    private void OnConfigurationsSynced()
     {
-        Configuration.ConsumeGeneratedClassJsonParameters(json);
         Shared.Instance.PatchAll();
         Debug.LogDebug("Client functions patched!");
     }

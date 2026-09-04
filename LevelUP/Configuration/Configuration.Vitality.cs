@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LevelUP.Server;
 using OpenConfiguration;
 using Vintagestory.API.Common;
@@ -41,7 +41,7 @@ public static partial class Configuration
     public static void PopulateVitalityConfiguration(ICoreAPI api)
     {
         VitalityLevelStatsConfiguration vitalityLevelStats = ConfigManager.Load<VitalityLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "vitality", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "vitality", Logger(api));
 
         vitalityEXPPerLevelBase = vitalityLevelStats.vitalityEXPPerLevelBase;
         vitalityEXPMultiplyPerLevel = vitalityLevelStats.vitalityEXPMultiplyPerLevel;

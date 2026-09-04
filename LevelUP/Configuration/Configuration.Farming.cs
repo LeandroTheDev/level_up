@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -36,7 +36,7 @@ public static partial class Configuration
     public static void PopulateFarmingConfiguration(ICoreAPI api)
     {
         FarmingLevelStatsConfiguration farmingLevelStats = ConfigManager.Load<FarmingLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "farming", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "farming", Logger(api));
         farmingEXPPerLevelBase = farmingLevelStats.farmingEXPPerLevelBase;
         farmingEXPMultiplyPerLevel = farmingLevelStats.farmingEXPMultiplyPerLevel;
         farmingEXPPerTill = farmingLevelStats.farmingEXPPerTill;
@@ -48,7 +48,7 @@ public static partial class Configuration
         farmingMaxLevel = farmingLevelStats.farmingMaxLevel;
 
         expPerHarvestFarming = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/levelstats", "farmingcrops", Logger(api), "levelup:config/crops/farming.json");
+            api, "ModConfig/LevelUP/levelstats", "farmingcrops", Logger(api), "levelup:config/crops/farming.json");
 
         Debug.Log("Farming configuration set");
     }

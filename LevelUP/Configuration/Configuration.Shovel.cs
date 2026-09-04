@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -38,7 +38,7 @@ public static partial class Configuration
     public static void PopulateShovelConfiguration(ICoreAPI api)
     {
         ShovelLevelStatsConfiguration shovelLevelStats = ConfigManager.Load<ShovelLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "shovel", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "shovel", Logger(api));
 
         shovelEXPPerLevelBase = shovelLevelStats.shovelEXPPerLevelBase;
         shovelEXPMultiplyPerLevel = shovelLevelStats.shovelEXPMultiplyPerLevel;
@@ -53,7 +53,7 @@ public static partial class Configuration
         shovelMaxLevel = shovelLevelStats.shovelMaxLevel;
 
         entityExpShovel = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "shovel", Logger(api), "levelup:config/entityexp/shovel.json");
+            api, "ModConfig/LevelUP/entityexp", "shovel", Logger(api), "levelup:config/entityexp/shovel.json");
 
         Debug.Log("Shovel configuration set");
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -97,7 +97,7 @@ public static partial class Configuration
     public static void PopulateCookingConfiguration(ICoreAPI api)
     {
         CookingLevelStatsConfiguration cookingLevelStats = ConfigManager.Load<CookingLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "cooking", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "cooking", Logger(api));
 
         cookingBaseExpPerCooking = cookingLevelStats.cookingBaseExpPerCooking;
         Experience.LoadExperience("Cooking", "Cooking", (ulong)cookingBaseExpPerCooking);
@@ -116,13 +116,13 @@ public static partial class Configuration
         cookingSubLevelEXPMultiply = cookingLevelStats.cookingSubLevelEXPMultiply;
 
         expMultiplySingleCooking = ConfigManager.Load<CookingSinglesConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "cookingsingles", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "cookingsingles", Logger(api));
 
         expMultiplyPotsCooking = ConfigManager.Load<CookingPotsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "cookingpots", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "cookingpots", Logger(api));
 
         expMultiplyOvenCooking = ConfigManager.Load<CookingOvenConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "cookingoven", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "cookingoven", Logger(api));
 
         Debug.Log("Cooking configuration set");
     }

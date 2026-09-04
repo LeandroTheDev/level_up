@@ -32,7 +32,7 @@ public class Instance
         // Update Watched Attributes
         api.Event.PlayerNowPlaying += player => UpdatePlayerLevels(player, api);
         // Sync server configurations with client (pushed automatically once a player finishes joining)
-        ConfigManager.RegisterSync(api, Configuration.ConfigSyncKey, Configuration.GenerateClassJsonParameters);
+        ConfigManager.RegisterStaticFieldSync(api, Configuration.ConfigSyncKey, typeof(Configuration));
 
         Shared.Instance.PatchAll();
         Debug.Log("Server Levels instanciated");

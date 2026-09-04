@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using OpenConfiguration;
 using Vintagestory.API.Common;
@@ -44,7 +44,7 @@ public static partial class Configuration
     public static void PopulateSmithingConfiguration(ICoreAPI api)
     {
         SmithingLevelStatsConfiguration smithingLevelStats = ConfigManager.Load<SmithingLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "smithing", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "smithing", Logger(api));
 
         smithingEXPPerLevelBase = smithingLevelStats.smithingEXPPerLevelBase;
         smithingEXPMultiplyPerLevel = smithingLevelStats.smithingEXPMultiplyPerLevel;
@@ -62,7 +62,7 @@ public static partial class Configuration
         smithingSubLevelEXPMultiply = smithingLevelStats.smithingSubLevelEXPMultiply;
 
         expPerCraftSmithing = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/levelstats", "smithingcrafts", Logger(api), "levelup:config/crafts/smithing.json");
+            api, "ModConfig/LevelUP/levelstats", "smithingcrafts", Logger(api), "levelup:config/crafts/smithing.json");
 
         Debug.Log("Smithing configuration set");
     }

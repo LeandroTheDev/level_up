@@ -1,9 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OpenConfiguration;
 using Vintagestory.API.Common;
 
@@ -17,73 +13,14 @@ public static partial class Configuration
     private static readonly Random Random = new();
 
     /// <summary>Per-mod logger for OpenConfiguration's own diagnostics (missing/invalid keys, IO errors).</summary>
-    private static ModLogger Logger(ICoreAPI api) => new(api.Logger, "LevelUP", enableExtendedLog);
-
-    #region baseconfigs
-    /// <summary>Sync key this mod registers with <see cref="OpenConfiguration.ConfigManager.RegisterSync(Vintagestory.API.Server.ICoreServerAPI, string, Func{string})"/>.</summary>
-    internal const string ConfigSyncKey = "levelup:baseconfig";
+    internal static ModLogger Logger(ICoreAPI api) => new(api.Logger, "LevelUP", enableExtendedLog);
 
     /// <summary>
-    /// Generates a class json to send it to the client and sync configurations
+    /// Sync key this mod registers with <see cref="ConfigManager.RegisterStaticFieldSync(Vintagestory.API.Server.ICoreServerAPI, string, Type)"/>/
+    /// <see cref="ConfigManager.RegisterStaticFieldSync(Vintagestory.API.Client.ICoreClientAPI, string, Type, Action, ModLogger)"/>,
+    /// which sync every static primitive/string/Dictionary&lt;string, double&gt; field on this class from server to client.
     /// </summary>
-    /// <returns></returns>
-    internal static string GenerateClassJsonParameters()
-    {
-        var type = typeof(Configuration);
-
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-            .Where(f => f.FieldType.IsPrimitive || f.FieldType == typeof(string) || f.FieldType == typeof(Dictionary<string, double>));
-        var dict = fields.ToDictionary(
-            f => f.Name,
-            f => f.GetValue(null)
-        );
-
-        return JsonConvert.SerializeObject(dict);
-    }
-
-    /// <summary>
-    /// Consumes the give json from server GenerateClassJsonParameters
-    /// use this function only in client!
-    /// </summary>
-    /// <param name="json"></param>
-    internal static void ConsumeGeneratedClassJsonParameters(string json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            Debug.LogWarn($"Empty json on ConsumeGeneratedClassJsonParameters");
-            return;
-        }
-
-        var type = typeof(Configuration);
-        var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-            .Where(f => f.FieldType.IsPrimitive || f.FieldType == typeof(string) || f.FieldType == typeof(Dictionary<string, double>));
-
-        var data = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(json);
-        if (data == null)
-        {
-            Debug.LogError($"Cannot deserialize class parameters");
-            return;
-        }
-
-        foreach (var field in fields)
-        {
-            if (data.TryGetValue(field.Name, out var token))
-            {
-                try
-                {
-                    var value = token.ToObject(field.FieldType);
-                    field.SetValue(null, value);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"Failed to convert '{field.Name}': {ex.Message}");
-                }
-            }
-        }
-
-        Debug.LogDebug("Configurations json consumed, now i am in sync with the server!");
-    }
-    #endregion
+    internal const string ConfigSyncKey = "levelup:config";
 
     private static Dictionary<string, System.Func<ulong, int>> levelsByLevelTypeEXP = [];
     private static Dictionary<string, System.Func<int, ulong>> expByLevelTypeLevel = [];

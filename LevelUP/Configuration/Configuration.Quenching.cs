@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LevelUP.Server;
 using OpenConfiguration;
 using Vintagestory.API.Common;
@@ -41,7 +41,7 @@ public static partial class Configuration
     public static void PopulateQuenchingConfiguration(ICoreAPI api)
     {
         QuenchingLevelStatsConfiguration quenchingLevelStats = ConfigManager.Load<QuenchingLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "quenching", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "quenching", Logger(api));
 
         quenchingEXPPerLevelBase = quenchingLevelStats.quenchingEXPPerLevelBase;
         quenchingEXPMultiplyPerLevel = quenchingLevelStats.quenchingEXPMultiplyPerLevel;

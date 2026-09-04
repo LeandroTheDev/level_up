@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -47,7 +47,7 @@ public static partial class Configuration
     public static void PopulateKnifeConfiguration(ICoreAPI api)
     {
         KnifeLevelStatsConfiguration knifeLevelStats = ConfigManager.Load<KnifeLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "knife", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "knife", Logger(api));
 
         knifeEXPPerLevelBase = knifeLevelStats.knifeEXPPerLevelBase;
         knifeEXPMultiplyPerLevel = knifeLevelStats.knifeEXPMultiplyPerLevel;
@@ -66,7 +66,7 @@ public static partial class Configuration
         knifeMaxLevel = knifeLevelStats.knifeMaxLevel;
 
         entityExpKnife = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "knife", Logger(api), "levelup:config/entityexp/knife.json");
+            api, "ModConfig/LevelUP/entityexp", "knife", Logger(api), "levelup:config/entityexp/knife.json");
 
         BaseHarvestMultiplyKnife = knifeBaseHarvestMultiply;
         BaseMinigSpeedKnife = knifeBaseMiningSpeed;

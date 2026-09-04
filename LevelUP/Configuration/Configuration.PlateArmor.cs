@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -147,7 +147,7 @@ public static partial class Configuration
     public static void PopulatePlateArmorConfiguration(ICoreAPI api)
     {
         PlateArmorLevelStatsConfiguration plateArmorLevelStats = ConfigManager.Load<PlateArmorLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "platearmor", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "platearmor", Logger(api));
 
         plateArmorEXPPerReceiveHit = plateArmorLevelStats.plateArmorEXPPerReceiveHit;
         Experience.LoadExperience("PlateArmor", "Hit", (ulong)plateArmorEXPPerReceiveHit);
@@ -195,7 +195,7 @@ public static partial class Configuration
         plateArmorSubLevelEXPMultiply = plateArmorLevelStats.plateArmorSubLevelEXPMultiply;
 
         expMultiplyHitPlateArmor = ConfigManager.Load<PlateArmorItemsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "platearmoritems", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "platearmoritems", Logger(api));
 
         Debug.Log("Plate Armor configuration set");
     }

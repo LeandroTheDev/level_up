@@ -5,7 +5,7 @@ mod (domain `pemmican`): corn, potato, sugarbeet, sugarcane, aloe and healbulb.
 
 ## How it works
 
-LevelUP keeps its per-crop farming exp table in `ModConfig/LevelUP/config/levelstats/farmingcrops.json`,
+LevelUP keeps its per-crop farming exp table in `ModConfig/LevelUP/levelstats/farmingcrops.json`,
 populated only with vanilla crops by default. This patch drops its crop exp values at
 `assets/levelup_longtermfoodspatch/config/levelup-farmingcrops/pemmicancrops.json` and, on server start,
 merges any key missing from `farmingcrops.json` in (never overwriting a value the server owner already
@@ -19,7 +19,7 @@ that same asset path (in your own mod or a resourcepack) - no code changes neede
 
 The bundled `pemmicancrops.json` values are a starting point (roughly matching the vanilla crops in
 `Configuration.BuildFarmingCropsDefaultConfig` of similar growth stage count). Once the server has
-generated `ModConfig/LevelUP/config/levelstats/farmingcrops.json`, edit the values there directly -
+generated `ModConfig/LevelUP/levelstats/farmingcrops.json`, edit the values there directly -
 this patch never touches keys that already exist in that file.
 
 ## Building

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LevelUP.Server;
 using OpenConfiguration;
 using Vintagestory.API.Common;
@@ -41,7 +41,7 @@ public static partial class Configuration
     public static void PopulatePanningConfiguration(ICoreAPI api)
     {
         PanningLevelStatsConfiguration panningLevelStats = ConfigManager.Load<PanningLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "panning", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "panning", Logger(api));
         panningBaseExpPerPanning = panningLevelStats.panningBaseExpPerPanning;
         Experience.LoadExperience("Panning", "Panning", (ulong)panningBaseExpPerPanning);
         panningEXPPerLevelBase = panningLevelStats.panningEXPPerLevelBase;

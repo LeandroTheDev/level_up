@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using OpenConfiguration;
@@ -250,7 +250,7 @@ public static partial class Configuration
     public static void PopulateClassConfigurations(ICoreAPI api)
     {
         ClassExperience.Clear();
-        string directoryPath = Path.Combine(api.DataBasePath, "ModConfig/LevelUP/config/classexp");
+        string directoryPath = Path.Combine(api.DataBasePath, "ModConfig/LevelUP/classexp");
         // Classes directory exists
         if (Directory.Exists(directoryPath))
         {
@@ -272,7 +272,7 @@ public static partial class Configuration
 
                     // Get the configuration for the respective file
                     Dictionary<string, double> configClass = ConfigManager.Load<Dictionary<string, double>>(
-                        api, "ModConfig/LevelUP/config/classexp", configname, Logger(api));
+                        api, "ModConfig/LevelUP/classexp", configname, Logger(api));
                     RegisterClassFromDictionary(configname, configClass);
                     Debug.Log($"{configname} configuration set");
                 }
@@ -289,12 +289,12 @@ public static partial class Configuration
         {
             Debug.LogWarn("WARNING: Server configuration classes directory doesn't exist, creating default classes");
 
-            RegisterClassFromDictionary("hunterclass", ConfigManager.Load<HunterClassConfiguration>(api, "ModConfig/LevelUP/config/classexp", "hunterclass", Logger(api)));
-            RegisterClassFromDictionary("commonerclass", ConfigManager.Load<CommonerClassConfiguration>(api, "ModConfig/LevelUP/config/classexp", "commonerclass", Logger(api)));
-            RegisterClassFromDictionary("blackguardclass", ConfigManager.Load<BlackguardClassConfiguration>(api, "ModConfig/LevelUP/config/classexp", "blackguardclass", Logger(api)));
-            RegisterClassFromDictionary("clockmakerclass", ConfigManager.Load<ClockmakerClassConfiguration>(api, "ModConfig/LevelUP/config/classexp", "clockmakerclass", Logger(api)));
-            RegisterClassFromDictionary("malefactorclass", ConfigManager.Load<MalefactorClassConfiguration>(api, "ModConfig/LevelUP/config/classexp", "malefactorclass", Logger(api)));
-            RegisterClassFromDictionary("tailorclass", ConfigManager.Load<TailorClassConfiguration>(api, "ModConfig/LevelUP/config/classexp", "tailorclass", Logger(api)));
+            RegisterClassFromDictionary("hunterclass", ConfigManager.Load<HunterClassConfiguration>(api, "ModConfig/LevelUP/classexp", "hunterclass", Logger(api)));
+            RegisterClassFromDictionary("commonerclass", ConfigManager.Load<CommonerClassConfiguration>(api, "ModConfig/LevelUP/classexp", "commonerclass", Logger(api)));
+            RegisterClassFromDictionary("blackguardclass", ConfigManager.Load<BlackguardClassConfiguration>(api, "ModConfig/LevelUP/classexp", "blackguardclass", Logger(api)));
+            RegisterClassFromDictionary("clockmakerclass", ConfigManager.Load<ClockmakerClassConfiguration>(api, "ModConfig/LevelUP/classexp", "clockmakerclass", Logger(api)));
+            RegisterClassFromDictionary("malefactorclass", ConfigManager.Load<MalefactorClassConfiguration>(api, "ModConfig/LevelUP/classexp", "malefactorclass", Logger(api)));
+            RegisterClassFromDictionary("tailorclass", ConfigManager.Load<TailorClassConfiguration>(api, "ModConfig/LevelUP/classexp", "tailorclass", Logger(api)));
         }
     }
 }

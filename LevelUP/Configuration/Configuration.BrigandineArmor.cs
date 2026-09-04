@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -132,7 +132,7 @@ public static partial class Configuration
     public static void PopulateBrigandineArmorConfiguration(ICoreAPI api)
     {
         BrigandineArmorLevelStatsConfiguration brigandineArmorLevelStats = ConfigManager.Load<BrigandineArmorLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "brigandinearmor", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "brigandinearmor", Logger(api));
 
         brigandineArmorEXPPerReceiveHit = brigandineArmorLevelStats.brigandineArmorEXPPerReceiveHit;
         Experience.LoadExperience("BrigandineArmor", "Hit", (ulong)brigandineArmorEXPPerReceiveHit);
@@ -180,7 +180,7 @@ public static partial class Configuration
         brigandineArmorSubLevelEXPMultiply = brigandineArmorLevelStats.brigandineArmorSubLevelEXPMultiply;
 
         expMultiplyHitBrigandineArmor = ConfigManager.Load<BrigandineArmorItemsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "brigandinearmoritems", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "brigandinearmoritems", Logger(api));
 
         Debug.Log("Brigandine Armor configuration set");
     }

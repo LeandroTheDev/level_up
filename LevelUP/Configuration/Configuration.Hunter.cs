@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using OpenConfiguration;
 using Vintagestory.API.Common;
@@ -26,7 +26,7 @@ public static partial class Configuration
     public static void PopulateHunterConfiguration(ICoreAPI api)
     {
         HunterLevelStatsConfiguration hunterLevelStats = ConfigManager.Load<HunterLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "hunter", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "hunter", Logger(api));
         hunterEXPPerLevelBase = hunterLevelStats.hunterEXPPerLevelBase;
         hunterEXPMultiplyPerLevel = hunterLevelStats.hunterEXPMultiplyPerLevel;
         hunterBaseDamage = hunterLevelStats.hunterBaseDamage;
@@ -34,7 +34,7 @@ public static partial class Configuration
         hunterMaxLevel = hunterLevelStats.hunterMaxLevel;
 
         entityExpHunter = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "hunter", Logger(api), "levelup:config/entityexp/hunter.json");
+            api, "ModConfig/LevelUP/entityexp", "hunter", Logger(api), "levelup:config/entityexp/hunter.json");
 
         Debug.Log("Hunter configuration set");
     }

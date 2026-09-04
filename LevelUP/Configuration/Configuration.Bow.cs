@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -49,7 +49,7 @@ public static partial class Configuration
     public static void PopulateBowConfiguration(ICoreAPI api)
     {
         BowLevelStatsConfiguration bowLevelStats = ConfigManager.Load<BowLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "bow", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "bow", Logger(api));
 
         bowEXPPerLevelBase = bowLevelStats.bowEXPPerLevelBase;
         bowEXPMultiplyPerLevel = bowLevelStats.bowEXPMultiplyPerLevel;
@@ -69,7 +69,7 @@ public static partial class Configuration
         bowMaxLevel = bowLevelStats.bowMaxLevel;
 
         entityExpBow = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "bow", Logger(api), "levelup:config/entityexp/bow.json");
+            api, "ModConfig/LevelUP/entityexp", "bow", Logger(api), "levelup:config/entityexp/bow.json");
 
         Debug.Log("Bow configuration set");
     }

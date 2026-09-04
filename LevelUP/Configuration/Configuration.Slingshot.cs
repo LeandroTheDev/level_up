@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -44,7 +44,7 @@ public static partial class Configuration
     public static void PopulateSlingshotConfiguration(ICoreAPI api)
     {
         SlingshotLevelStatsConfiguration slingshotLevelStats = ConfigManager.Load<SlingshotLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "slingshot", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "slingshot", Logger(api));
 
         slingshotEXPPerLevelBase = slingshotLevelStats.slingshotEXPPerLevelBase;
         slingshotEXPMultiplyPerLevel = slingshotLevelStats.slingshotEXPMultiplyPerLevel;
@@ -61,7 +61,7 @@ public static partial class Configuration
         slingshotMaxLevel = slingshotLevelStats.slingshotMaxLevel;
 
         entityExpSlingshot = ConfigManager.Load<Dictionary<string, int>>(
-            api, "ModConfig/LevelUP/config/entityexp", "slingshot", Logger(api), "levelup:config/entityexp/slingshot.json");
+            api, "ModConfig/LevelUP/entityexp", "slingshot", Logger(api), "levelup:config/entityexp/slingshot.json");
 
         Debug.Log("Slingshot configuration set");
     }

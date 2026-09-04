@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LevelUP.Server;
 using OpenConfiguration;
@@ -132,7 +132,7 @@ public static partial class Configuration
     public static void PopulateScaleArmorConfiguration(ICoreAPI api)
     {
         ScaleArmorLevelStatsConfiguration scaleArmorLevelStats = ConfigManager.Load<ScaleArmorLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "scalearmor", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "scalearmor", Logger(api));
 
         scaleArmorEXPPerReceiveHit = scaleArmorLevelStats.scaleArmorEXPPerReceiveHit;
         Experience.LoadExperience("ScaleArmor", "Hit", (ulong)scaleArmorEXPPerReceiveHit);
@@ -180,7 +180,7 @@ public static partial class Configuration
         scaleArmorSubLevelEXPMultiply = scaleArmorLevelStats.scaleArmorSubLevelEXPMultiply;
 
         expMultiplyHitScaleArmor = ConfigManager.Load<ScaleArmorItemsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "scalearmoritems", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "scalearmoritems", Logger(api));
 
         Debug.Log("Scale Armor configuration set");
     }

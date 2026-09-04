@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LevelUP.Server;
 using OpenConfiguration;
 using Vintagestory.API.Common;
@@ -42,7 +42,7 @@ public static partial class Configuration
     public static void PopulateMetabolismConfiguration(ICoreAPI api)
     {
         MetabolismLevelStatsConfiguration metabolismLevelStats = ConfigManager.Load<MetabolismLevelStatsConfiguration>(
-            api, "ModConfig/LevelUP/config/levelstats", "metabolism", Logger(api));
+            api, "ModConfig/LevelUP/levelstats", "metabolism", Logger(api));
 
         metabolismEXPPerReceiveHit = metabolismLevelStats.metabolismEXPPerReceiveHit;
         Experience.LoadExperience("Metabolism", "Hit", (ulong)metabolismEXPPerReceiveHit);
