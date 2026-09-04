@@ -43,6 +43,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="OpenConfiguration">
+      <HintPath>$(VINTAGE_STORY_MODS)/openconfiguration/OpenConfiguration.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="VSSurvivalMod">
       <HintPath>$(VINTAGE_STORY)/Mods/VSSurvivalMod.dll</HintPath>
       <Private>false</Private>

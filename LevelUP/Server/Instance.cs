@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using OpenConfiguration;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
@@ -30,8 +31,8 @@ public class Instance
 
         // Update Watched Attributes
         api.Event.PlayerNowPlaying += player => UpdatePlayerLevels(player, api);
-        // Sync server configurations with client
-        api.Event.PlayerNowPlaying += SyncPlayerConfigs;
+        // Sync server configurations with client (pushed automatically once a player finishes joining)
+        ConfigManager.RegisterSync(api, Configuration.ConfigSyncKey, Configuration.GenerateClassJsonParameters);
 
         Shared.Instance.PatchAll();
         Debug.Log("Server Levels instanciated");
@@ -211,9 +212,6 @@ public class Instance
             LevelVitality.RefreshMaxHealth(player);
         }
     }
-
-    private static void SyncPlayerConfigs(IServerPlayer player)
-        => CommunicationChannel.SendPacket(new ServerMessage() { message = $"syncconfig&{Configuration.GenerateClassJsonParameters()}" }, player);
 
     private static void GetEnabledLevels(IServerPlayer player)
         => CommunicationChannel.SendPacket(new ServerMessage() { message = $"enabledlevels&{JsonSerializer.Serialize(Configuration.EnabledLevels)}" }, player);

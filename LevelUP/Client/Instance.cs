@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using OpenConfiguration;
 using Vintagestory.API.Client;
 using Vintagestory.API.Config;
 
@@ -23,6 +24,8 @@ class Instance
         levelsView.Init(this);
         CommunicationChannel = api.Network.RegisterChannel("LevelUPServer").RegisterMessageType(typeof(ServerMessage));
         CommunicationChannel.SetMessageHandler<ServerMessage>(OnServerMessage);
+        // Sync server configurations with client (pushed automatically once this client finishes joining)
+        ConfigManager.RegisterSync(api, Configuration.ConfigSyncKey, SyncConfigurations);
         temporaryTickListener = api.Event.RegisterGameTickListener(OnTick, 1000, 1000);
         Debug.Log("Client side fully initialized");
     }
@@ -49,7 +52,6 @@ class Instance
             case "playersublevelup": SubLevelUPMessage(int.Parse(messages[1]), messages[2], messages[3]); RefreshWatchedAttributes?.Invoke(); return;
             case "enabledlevels": enabledLevels = JsonSerializer.Deserialize<Dictionary<string, bool>>(messages[1]); return;
             case "playerhardcoredied": api.ShowChatMessage(Lang.Get("levelup:hardcore_message", 0)); return;
-            case "syncconfig": SyncConfigurations(messages[1]); return;            
         }
     }
 
