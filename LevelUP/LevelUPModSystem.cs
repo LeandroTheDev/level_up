@@ -4,7 +4,7 @@ using Vintagestory.API.Server;
 
 namespace LevelUP;
 
-public class Initialization : ModSystem
+public class LevelUPModSystem : ModSystem
 {
     private readonly Client.Instance clientInstance = new();
     private readonly Server.Instance serverInstance = new();
