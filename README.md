@@ -2,6 +2,9 @@
 Brand new levels for your character in Vintage Story, earn levels by doing actions, become stronger and efficient during the gameplay.
 Makes you feels progress through the gameplay.
 
+## Dependencies
+- [Open Configuration](https://mods.vintagestory.at/openconfiguration)
+
 ### IMPORTANT
 - Consider always making backup for your world ESPECIALLY IF YOU ARE UPDATING THE MOD, level up is a mod that changes a lot of stats and mechanics that might crash your world/player.
 - Is not safe to remove levelup after installation, full player wipe is required
