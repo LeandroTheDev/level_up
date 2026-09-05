@@ -39,7 +39,9 @@ class LevelPlateArmor
 
     public void InitClient()
     {
+        OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
         OverwriteDamageInteractionEvents.OnPlayerArmorViewStats += ViewReceived;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
 
         Debug.Log("Level Plate Armor initialized");

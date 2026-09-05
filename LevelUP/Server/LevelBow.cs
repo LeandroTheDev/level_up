@@ -58,7 +58,9 @@ class LevelBow
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Bow initialized");

@@ -45,8 +45,11 @@ class LevelSmithing
 
     public void InitClient()
     {
+        OverwriteDamageInteractionEvents.OnPlayerArmorViewStats -= ViewReceived;
         OverwriteDamageInteractionEvents.OnPlayerArmorViewStats += ViewReceived;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributeRefreshed -= MiningSpeedRefreshed;
         OverwriteBlockBreakEvents.OnMiningSpeedAttributeRefreshed += MiningSpeedRefreshed;
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
 
         Debug.Log("Level Smithing initialized");

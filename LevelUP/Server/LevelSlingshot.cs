@@ -42,7 +42,9 @@ class LevelSlingshot
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Slingshot initialized");

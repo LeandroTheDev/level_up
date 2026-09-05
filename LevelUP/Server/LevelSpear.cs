@@ -58,6 +58,7 @@ class LevelSpear
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
 
         Debug.Log("Level Spear initialized");

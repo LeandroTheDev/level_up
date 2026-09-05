@@ -55,6 +55,7 @@ class LevelMetabolism
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
 
         Debug.Log("Level Metabolism initialized");

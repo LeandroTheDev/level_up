@@ -54,9 +54,13 @@ class LevelKnife
 
     public void InitClient()
     {
+        StatusViewEvents.OnStatusRequested -= StatusViewRequested;
         StatusViewEvents.OnStatusRequested += StatusViewRequested;
+        OverwriteBlockBreakEvents.OnMiningSpeedRefreshed -= RefreshMiningSpeed;
         OverwriteBlockBreakEvents.OnMiningSpeedRefreshed += RefreshMiningSpeed;
+        OverwriteBlockBreakEvents.OnMiningSpeedAttributePlayerRefreshed -= MiningSpeedAttributeReceived;
         OverwriteBlockBreakEvents.OnMiningSpeedAttributePlayerRefreshed += MiningSpeedAttributeReceived;
+        OverwriteDamageInteractionEvents.OnPlayerToolViewStats -= RefreshDamage;
         OverwriteDamageInteractionEvents.OnPlayerToolViewStats += RefreshDamage;
 
         Debug.Log("Level Knife initialized");
