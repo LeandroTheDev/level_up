@@ -95,8 +95,10 @@ class LevelMetabolism
     {
         foreach (IPlayer player in Instance.api.World.AllOnlinePlayers)
         {
-            if (player.Entity == null) continue;
-            var stats = player.Entity.GetBehavior<EntityBehaviorHunger>();
+            if (player.Entity == null || !player.Entity.Alive) continue;
+            EntityBehaviorHunger stats;
+            try { stats = player.Entity.GetBehavior<EntityBehaviorHunger>(); }
+            catch { continue; }
             if (stats == null)
             {
                 Debug.LogError($"[METABOLISM] [OnGameTick] ERROR GETTING SATURATION: Stats null for {player.PlayerName}");

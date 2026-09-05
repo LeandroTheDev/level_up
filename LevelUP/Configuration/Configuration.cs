@@ -20,7 +20,7 @@ public static partial class Configuration
     /// <see cref="ConfigManager.RegisterStaticFieldSync(Vintagestory.API.Client.ICoreClientAPI, string, Type, Action, ModLogger)"/>,
     /// which sync every static primitive/string/Dictionary&lt;string, double&gt; field on this class from server to client.
     /// </summary>
-    internal const string ConfigSyncKey = "levelup:config";
+    internal static string ConfigSyncKey => "levelup:config";
 
     private static Dictionary<string, System.Func<ulong, int>> levelsByLevelTypeEXP = [];
     private static Dictionary<string, System.Func<int, ulong>> expByLevelTypeLevel = [];
