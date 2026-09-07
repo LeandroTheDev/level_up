@@ -82,12 +82,6 @@ class LevelQuenching
             )
         );
 
-        stringBuilder.AppendLine(
-            Lang.Get("levelup:status_quenching_temperefficiency",
-                Utils.GetPorcentageFromFloatsStart1(Configuration.QuenchingGetTemperEfficiencyMultiplyByLevel(mainLevel))
-            )
-        );
-
         stringBuilder.AppendLine("");
 
         stringBuilder.AppendLine(Lang.Get("levelup:status_proficiency"));
@@ -343,23 +337,12 @@ class LevelQuenching
             string metalCode = GetMetalCode(itemstack);
             string subLevelType = metalCode != null && MetalSubLevelPatterns.TryGetValue(metalCode, out string sub) ? sub : null;
 
-            int mainLevel = Configuration.QuenchingGetLevelByEXP(Experience.GetExperience(player, "Quenching"));
-            int subLevel = subLevelType != null ? Configuration.QuenchingGetLevelByEXP(Experience.GetSubExperience(player, "Quenching", subLevelType)) : 0;
-
             Debug.LogDebug($"[Quenching] Temper XP granted to {player.PlayerName} item={itemstack.Collectible.Code} metal={metalCode ?? "unknown"}");
             Experience.IncreaseExperience(player, "Quenching", "Temper");
             if (subLevelType != null)
                 Experience.IncreaseSubExperience(player, "Quenching", subLevelType,
                     (ulong)Math.Round(Configuration.quenchingBaseExpPerTemper * Configuration.quenchingSubLevelEXPMultiply));
 
-            float temperMultiply = Configuration.QuenchingGetTemperEfficiencyMultiplyByLevel(mainLevel);
-            if (subLevelType != null)
-                temperMultiply *= Configuration.QuenchingGetTemperEfficiencyMultiplyByLevel(subLevel);
-
-            ITreeAttribute attr = itemstack.Attributes;
-            float shatterDelta = attr.GetFloat("shatterchance", 0f) - __state.Value.ShatterChance;
-            if (shatterDelta != 0f)
-                attr.SetFloat("shatterchance", Math.Max(0f, __state.Value.ShatterChance + shatterDelta * temperMultiply));
         }
     }
 }

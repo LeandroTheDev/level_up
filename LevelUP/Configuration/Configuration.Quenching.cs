@@ -16,8 +16,6 @@ public class QuenchingLevelStatsConfiguration
     public float quenchingMinShatterChanceAddedMultiply = 0.05f;
     public float quenchingBasePowerGainMultiply = 1.0f;
     public float quenchingIncrementPowerGainMultiplyPerLevel = 0.01f;
-    public float quenchingBaseTemperEfficiencyMultiply = 1.0f;
-    public float quenchingIncrementTemperEfficiencyMultiplyPerLevel = 0.012f;
     public int quenchingMaxLevel = 999;
     public double quenchingSubLevelEXPMultiply = 3.0;
 }
@@ -33,8 +31,6 @@ public static partial class Configuration
     private static float quenchingMinShatterChanceAddedMultiply = 0.15f;
     private static float quenchingBasePowerGainMultiply = 1.0f;
     private static float quenchingIncrementPowerGainMultiplyPerLevel = 0.01f;
-    private static float quenchingBaseTemperEfficiencyMultiply = 1.0f;
-    private static float quenchingIncrementTemperEfficiencyMultiplyPerLevel = 0.012f;
     public static int quenchingMaxLevel = 999;
     public static double quenchingSubLevelEXPMultiply = 3.0;
 
@@ -52,8 +48,6 @@ public static partial class Configuration
         quenchingMinShatterChanceAddedMultiply = quenchingLevelStats.quenchingMinShatterChanceAddedMultiply;
         quenchingBasePowerGainMultiply = quenchingLevelStats.quenchingBasePowerGainMultiply;
         quenchingIncrementPowerGainMultiplyPerLevel = quenchingLevelStats.quenchingIncrementPowerGainMultiplyPerLevel;
-        quenchingBaseTemperEfficiencyMultiply = quenchingLevelStats.quenchingBaseTemperEfficiencyMultiply;
-        quenchingIncrementTemperEfficiencyMultiplyPerLevel = quenchingLevelStats.quenchingIncrementTemperEfficiencyMultiplyPerLevel;
         quenchingMaxLevel = quenchingLevelStats.quenchingMaxLevel;
         quenchingSubLevelEXPMultiply = quenchingLevelStats.quenchingSubLevelEXPMultiply;
 
@@ -111,11 +105,4 @@ public static partial class Configuration
         return quenchingBasePowerGainMultiply * (1 + quenchingIncrementPowerGainMultiplyPerLevel * level);
     }
 
-    /// <summary>
-    /// Multiplier applied on top of the (negative) shatterchance delta the vanilla temper just subtracted.
-    /// </summary>
-    public static float QuenchingGetTemperEfficiencyMultiplyByLevel(int level)
-    {
-        return quenchingBaseTemperEfficiencyMultiply * (1 + quenchingIncrementTemperEfficiencyMultiplyPerLevel * level);
-    }
 }
