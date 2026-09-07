@@ -34,6 +34,7 @@ public class HunterClassConfiguration : Dictionary<string, double>
         ["classScaleArmorLevelMultiply"] = 1.0,
         ["classLamellarArmorLevelMultiply"] = 1.0,
         ["classSmithingLevelMultiply"] = 0.5,
+        ["classQuenchingLevelMultiply"] = 0.5,
     })
     { }
 }
@@ -66,6 +67,7 @@ public class CommonerClassConfiguration : Dictionary<string, double>
         ["classScaleArmorLevelMultiply"] = 1.0,
         ["classLamellarArmorLevelMultiply"] = 1.0,
         ["classSmithingLevelMultiply"] = 1.0,
+        ["classQuenchingLevelMultiply"] = 1.0,
     })
     { }
 }
@@ -98,6 +100,7 @@ public class BlackguardClassConfiguration : Dictionary<string, double>
         ["classScaleArmorLevelMultiply"] = 1.0,
         ["classLamellarArmorLevelMultiply"] = 1.0,
         ["classSmithingLevelMultiply"] = 1.5,
+        ["classQuenchingLevelMultiply"] = 1.2,
     })
     { }
 }
@@ -130,6 +133,7 @@ public class ClockmakerClassConfiguration : Dictionary<string, double>
         ["classScaleArmorLevelMultiply"] = 1.0,
         ["classLamellarArmorLevelMultiply"] = 1.0,
         ["classSmithingLevelMultiply"] = 2.0,
+        ["classQuenchingLevelMultiply"] = 1.5,
     })
     { }
 }
@@ -162,6 +166,7 @@ public class MalefactorClassConfiguration : Dictionary<string, double>
         ["classScaleArmorLevelMultiply"] = 1.0,
         ["classLamellarArmorLevelMultiply"] = 1.0,
         ["classSmithingLevelMultiply"] = 0.7,
+        ["classQuenchingLevelMultiply"] = 0.7,
     })
     { }
 }
@@ -194,6 +199,7 @@ public class TailorClassConfiguration : Dictionary<string, double>
         ["classScaleArmorLevelMultiply"] = 1.0,
         ["classLamellarArmorLevelMultiply"] = 1.0,
         ["classSmithingLevelMultiply"] = 2.0,
+        ["classQuenchingLevelMultiply"] = 0.6,
     })
     { }
 }
@@ -224,15 +230,11 @@ public static partial class Configuration
         playerClass += "class";
         if (ClassExperience.TryGetValue(playerClass, out Dictionary<string, object> classConfigs))
         {
-            try
-            {
-                return (float)Convert.ToSingle(classConfigs[$"class{levelType}LevelMultiply"]);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"ERROR: Unable to find the value from {levelType} in {playerClass} configurations, you probably miss something in the json configuration, ex message: {ex.Message}");
-                return 1.0f;
-            }
+            string key = $"class{levelType}LevelMultiply";
+            if (classConfigs.TryGetValue(key, out object value))
+                return (float)Convert.ToSingle(value);
+            Debug.LogWarn($"WARNING: Key '{key}' missing from {playerClass} config (old file?), using 1.0");
+            return 1.0f;
         }
         Debug.LogError($"ERROR: The class {playerClass} does not exist in the configurations, probably a custom class without configs");
         return 1.0f;

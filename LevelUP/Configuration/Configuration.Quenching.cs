@@ -13,7 +13,7 @@ public class QuenchingLevelStatsConfiguration
     public ulong quenchingBaseExpPerTemper = 40;
     public float quenchingBaseShatterChanceAddedMultiply = 1.0f;
     public float quenchingReduceShatterChanceAddedMultiplyPerLevel = 0.05f;
-    public float quenchingMinShatterChanceAddedMultiply = 0.15f;
+    public float quenchingMinShatterChanceAddedMultiply = 0.05f;
     public float quenchingBasePowerGainMultiply = 1.0f;
     public float quenchingIncrementPowerGainMultiplyPerLevel = 0.01f;
     public float quenchingBaseTemperEfficiencyMultiply = 1.0f;
